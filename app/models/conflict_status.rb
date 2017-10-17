@@ -1,0 +1,2 @@
+class ConflictStatus < ApplicationRecord
+end
