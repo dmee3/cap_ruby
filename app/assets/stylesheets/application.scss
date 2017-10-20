@@ -1,0 +1,23 @@
+@import 'bootstrap';
+@import 'font-awesome';
+@import 'colors';
+
+#top-space { height: 40px; }
+
+* {
+  transition: color 0.1s ease-in;
+}
+
+a:hover { text-decoration: none !important; }
+
+.nav-link { color: $white !important; }
+.nav-link:hover { color: $gray-500 !important; }
+
+.icon-btn-red:hover {
+  cursor: pointer;
+  color: $red !important;
+}
+.icon-btn-orange:hover {
+  cursor: pointer;
+  color: $orange !important;
+}

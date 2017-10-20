@@ -9,15 +9,20 @@ end
 
 gem 'rails', '~> 5.1.4'
 gem 'puma', '~> 3.7'
-gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
 gem 'webpacker', '~> 3.0'
-gem 'coffee-rails', '~> 4.2'
 gem 'turbolinks', '~> 5'
 gem 'rollbar', '~> 2.15'
 gem 'bcrypt', '~> 3.1.7'
 gem 'paranoia', '~> 2.2'
 gem 'jwt'
+
+# UI gems
+gem 'bootstrap', '~> 4.0.0.beta2'
+gem 'jquery-rails'
+gem 'sass-rails', '~> 5.0'
+gem 'font-awesome-rails'
+gem 'coffee-rails', '~> 4.2'
 
 group :production do
   gem 'pg', '~> 0.20.0'

@@ -1,0 +1,19 @@
+<% content_for :main do %>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 card" style="margin-top: 200px;">
+        <%= form_tag login_path, { class: 'card-body' } do %>
+          <div class="form-group">
+            <%= text_field_tag :email, '', { class: 'form-control', placeholder: 'Email' } %>
+          </div>
+          <div class="form-group">
+            <%= password_field_tag :password, '', { class: 'form-control', placeholder: 'Password' } %>
+          </div>
+          <div class="row justify-content-center">
+            <%= submit_tag 'Log In', class: 'btn btn-outline-success' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

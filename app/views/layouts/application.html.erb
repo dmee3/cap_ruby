@@ -1,22 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="ROBOTS" content="NOODP" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <%#
-    Configure default and controller-, and view-specific titles in
-    config/locales/en.yml. For more see:
-    https://github.com/calebthompson/title#usage
-  %>
-  <title><%= title %></title>
-  <%= stylesheet_link_tag :application, media: "all" %>
-  <%= csrf_meta_tags %>
-</head>
-<body class="<%= body_class %>">
-  <%= render "flashes" -%>
-  <%= yield %>
-  <%= render "javascript" %>
-  <%= render "css_overrides" %>
-</body>
+<html>
+  <head>
+    <title>Cap City Percussion</title>
+    <%= csrf_meta_tags %>
+
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+
+    <%= yield :head %>
+  </head>
+  <body>
+    <ul id="navbar" class="nav justify-content-end cap-gray white-text">
+      <%= yield :nav %>
+    </ul>
+
+    <div id="top-space"></div>
+
+    <div class="container">
+      <% if flash[:success] %>
+        <div class="alert alert-success" role="alert"><%= flash[:success] %></div>
+      <% end %>
+
+      <% if flash[:error] %>
+        <div class="alert alert-danger" role="alert"><%= flash[:error] %></div>
+      <% end %>
+
+      <% if flash[:info] %>
+        <div class="alert alert-info" role="alert"><%= flash[:info] %></div>
+      <% end %>
+    </div>
+
+    <%= yield :main %>
+
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+
+    <%= yield :scripts %>
+  </body>
 </html>
