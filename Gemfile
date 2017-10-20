@@ -15,7 +15,9 @@ gem 'webpacker', '~> 3.0'
 gem 'coffee-rails', '~> 4.2'
 gem 'turbolinks', '~> 5'
 gem 'rollbar', '~> 2.15'
-gem 'papertrail'
+gem 'bcrypt', '~> 3.1.7'
+gem 'paranoia', '~> 2.2'
+gem 'jwt'
 
 group :production do
   gem 'pg', '~> 0.20.0'
