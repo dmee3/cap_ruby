@@ -4,6 +4,7 @@ class User < ApplicationRecord
 
   belongs_to :role
   has_many :conflicts, dependent: :destroy
+  has_many :payments, dependent: :destroy
 
   validates :first_name, presence: { message: 'First name is required' }
   validates :last_name, presence: { message: 'Last name is required' }

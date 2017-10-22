@@ -1,0 +1,36 @@
+<% content_for :styles do %>
+  <%= stylesheet_link_tag 'users', media: 'all' %>
+<% end %>
+
+<% content_for :nav do %>
+  <%= render 'nav' %>
+<% end %>
+
+<% content_for :main do %>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-9">
+        <h1 class="white-text">Members</h1>
+      </div>
+      <div class="col-md-3 text-right">
+        <a class="btn btn-success" href="<%= new_user_path %>">New User</a>
+      </div>
+    </div>
+    <div class="row">
+      <ul class="list-group col-sm-12">
+        <% @members.each do |member| %>
+          <li class='list-group-item'>
+            <%= member.first_name + ' ' + member.last_name %>
+            <span class='float-right'>
+              <a href="<%= edit_user_path(member) %>">
+                <i class='fa fa-pencil dark-text icon-btn-orange'></i>
+              </a>
+              &nbsp;&nbsp;&nbsp;
+              <i class='fa fa-trash-o icon-btn-red dark-text'></i>
+            </span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% end %>

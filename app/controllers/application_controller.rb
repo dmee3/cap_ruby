@@ -7,7 +7,12 @@ class ApplicationController < ActionController::Base
 
   def current_user
     return nil if cookies[:jwt].blank?
-    @curr ||= get_user
+
+    token = JsonWebToken.decode cookies[:jwt]
+    return User.find(token[:user_id]) if token
+
+    cookies.delete :jwt
+    nil
   end
 
   def redirect_if_not(role)
@@ -16,13 +21,5 @@ class ApplicationController < ActionController::Base
 
   def is?(role)
     current_user.role.name == role
-  end
-
-  private
-
-  def get_user
-    token = JsonWebToken.decode cookies[:jwt]
-    return User.find(token[:user_id]) if token
-    cookies.delete :jwt
   end
 end

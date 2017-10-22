@@ -3,10 +3,10 @@ class UsersController < ApplicationController
   before_action -> { redirect_if_not 'admin' }
 
   def index
-    respond_to do |format|
-      format.html
-      format.json { render json: User.all }
-    end
+    @members = User.where(role: Role.find_by_name('member'))
+    @staff = User.where(role: Role.find_by_name('staff'))
+    @admin = User.where(role: Role.find_by_name('admin'))
+    render
   end
 
   def new
@@ -15,7 +15,6 @@ class UsersController < ApplicationController
   end
 
   def create
-    user_params[:password_confirmation] = user_params[:password]
     @user = User.new user_params
     if @user.save
       flash[:success] = "#{@user.first_name} account created"

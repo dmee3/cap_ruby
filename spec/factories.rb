@@ -1,4 +1,10 @@
 FactoryGirl.define do
+  factory :payment_type do
+    
+  end
+  factory :payment do
+    
+  end
   factory :conflict_status do
     
   end

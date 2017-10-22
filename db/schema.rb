@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171017021640) do
+ActiveRecord::Schema.define(version: 20171022030325) do
 
   create_table "conflict_statuses", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -28,6 +28,26 @@ ActiveRecord::Schema.define(version: 20171017021640) do
     t.datetime "deleted_at"
     t.index ["status_id"], name: "index_conflicts_on_status_id"
     t.index ["user_id"], name: "index_conflicts_on_user_id"
+  end
+
+  create_table "payment_types", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "payments", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "payment_type_id"
+    t.integer "amount"
+    t.date "date_paid"
+    t.string "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "deleted_at"
+    t.index ["deleted_at"], name: "index_payments_on_deleted_at"
+    t.index ["payment_type_id"], name: "index_payments_on_payment_type_id"
+    t.index ["user_id"], name: "index_payments_on_user_id"
   end
 
   create_table "roles", force: :cascade do |t|
