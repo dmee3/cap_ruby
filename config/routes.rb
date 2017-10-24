@@ -5,10 +5,10 @@ Rails.application.routes.draw do
   post 'login', to: 'sessions#create'
   get 'logout', to: 'sessions#destroy'
 
-  resources :conflicts, only: [:index, :create, :new, :show]
+  resources :conflicts
 
-  scope 'admin' do
-    resources :conflicts, only: [:edit, :update, :delete]
-    resources :users, except: [:show]
-  end
+  resources :payments, only: %i[index new create]
+  post 'charge', to: 'payments#charge'
+
+  resources :users, except: %i[show]
 end

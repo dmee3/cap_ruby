@@ -2,11 +2,11 @@ class HomeController < ApplicationController
   before_action :authorized?
 
   def index
-    if is? 'admin'
+    if is? :admin
       admin_index
-    elsif is? 'staff'
+    elsif is? :staff
       staff_index
-    elsif is? 'member'
+    elsif is? :member
       member_index
     else
       # Some sort of HTTP authorization error (403?)

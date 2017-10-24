@@ -1,0 +1,28 @@
+<% content_for :styles do %>
+  <%= stylesheet_link_tag 'payments', media: 'all' %>
+<% end %>
+
+<% content_for :nav do %>
+  <%= render 'nav' %>
+<% end %>
+
+<% content_for :main do %>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-9">
+        <h1 class="white-text">Payments</h1>
+      </div>
+      <div class="col-md-3 text-right-md">
+        <a class="btn btn-light green-text align-middle" href="<%= new_payment_path %>">New Payment</a>
+      </div>
+    </div>
+    <div class="row">
+      <ul class="list-group col-sm-12">
+        <% @payments.each do |payment| %>
+          <li class='list-group-item'>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,9 @@
+AllCops:
+  Exclude:
+    - 'Gemfile'
+    
+Bundler/OrderedGems:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 100

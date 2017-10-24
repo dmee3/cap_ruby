@@ -11,8 +11,16 @@ class ApplicationController < ActionController::Base
     token = JsonWebToken.decode cookies[:jwt]
     return User.find(token[:user_id]) if token
 
-    cookies.delete :jwt
+    logout
     nil
+  rescue ActiveRecord::RecordNotFound
+    logout
+    nil
+  end
+
+  def logout
+    cookies.delete :jwt
+    redirect_to root_url
   end
 
   def redirect_if_not(role)
@@ -20,6 +28,6 @@ class ApplicationController < ActionController::Base
   end
 
   def is?(role)
-    current_user.role.name == role
+    current_user.role.name == role.to_s
   end
 end

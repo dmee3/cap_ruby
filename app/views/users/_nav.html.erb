@@ -1,6 +1,16 @@
-<li class="nav-item">
-  <%= link_to 'Home', root_url, { class: 'nav-link' } %>
-</li>
-<li class="nav-item mr-0">
-  <%= link_to 'Log Out', '/logout', { class: 'nav-link' } %>
-</li>
+<ul class="navbar-nav mr-auto">
+  <li class="nav-item active">
+    <%= link_to 'Users', '/users', { class: 'nav-link' } %>
+  </li>
+  <li class="nav-item">
+    <%= link_to 'Conflicts', '/conflicts', { class: 'nav-link' } %>
+  </li>
+  <li class="nav-item">
+    <%= link_to 'Payments', '/payments', { class: 'nav-link' } %>
+  </li>
+</ul>
+<ul class="navbar-nav navbar-right">
+  <li class="nav-item">
+    <%= link_to 'Log Out', '/logout', { class: 'nav-link' } %>
+  </li>
+</ul>

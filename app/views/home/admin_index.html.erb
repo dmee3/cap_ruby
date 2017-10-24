@@ -1,3 +1,7 @@
+<% content_for :styles do %>
+  <%= stylesheet_link_tag 'application', media: 'all' %>
+<% end %>
+
 <% content_for :nav do %>
   <%= render 'admin_nav' %>
 <% end %>
@@ -5,7 +9,7 @@
 <% content_for :main do %>
   <div class="container">
     <div class="row">
-      <a href="/admin/users" class="col-md-6 col-lg-4 card cap-blue">
+      <a href="/users" class="col-md-6 col-lg-4 card cap-blue">
         <div class="card-body white-text">
           <h2>Users</h2>
         </div>

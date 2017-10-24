@@ -2,8 +2,6 @@
 @import 'font-awesome';
 @import 'colors';
 
-#top-space { height: 40px; }
-
 * {
   transition: color 0.1s ease-in;
 }
@@ -13,6 +11,11 @@ a:hover { text-decoration: none !important; }
 .nav-link { color: $white !important; }
 .nav-link:hover { color: $gray-500 !important; }
 
+.flash-bar { width: 100%; }
+.alert { border-radius: 0 !important; }
+
+#top-space { height: 40px; }
+
 .icon-btn-red:hover {
   cursor: pointer;
   color: $red !important;
@@ -20,4 +23,31 @@ a:hover { text-decoration: none !important; }
 .icon-btn-orange:hover {
   cursor: pointer;
   color: $orange !important;
+}
+
+@include media-breakpoint-up(xs) {
+  .text-right-xs { text-align: right !important; }
+}
+
+@include media-breakpoint-up(sm) {
+  .text-right-sm { text-align: right !important; }
+}
+
+@include media-breakpoint-up(md) {
+  .text-right-md { text-align: right !important; }
+}
+
+@include media-breakpoint-up(lg) {
+  .text-right-lg { text-align: right !important; }
+}
+
+@include media-breakpoint-up(xl) {
+  .text-right-xl { text-align: right !important; }
+}
+
+/* BS Overrides */
+.form-control.invalid { border-color: #dc3545; }
+.form-control:focus {
+  border-color: #323337;
+  box-shadow: none;
 }

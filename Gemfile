@@ -17,6 +17,7 @@ gem 'rollbar', '~> 2.15'
 gem 'bcrypt', '~> 3.1.7'
 gem 'paranoia', '~> 2.2'
 gem 'jwt'
+gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'
 
 # UI gems
 gem 'bootstrap', '~> 4.0.0.beta2'
