@@ -1,4 +1,4 @@
 class PaymentSchedule < ApplicationRecord
-  has_many :users, through: :user_payment_schedules
+  belongs_to :user
   has_many :payment_schedule_entries
 end

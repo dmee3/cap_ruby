@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171025132709) do
+ActiveRecord::Schema.define(version: 20171025132702) do
 
   create_table "conflict_statuses", force: :cascade do |t|
     t.string "name"
@@ -35,13 +35,12 @@ ActiveRecord::Schema.define(version: 20171025132709) do
     t.integer "payment_schedule_id"
     t.integer "amount"
     t.date "pay_date"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.index ["payment_schedule_id"], name: "index_payment_schedule_entries_on_payment_schedule_id"
   end
 
   create_table "payment_schedules", force: :cascade do |t|
-    t.boolean "default"
+    t.integer "user_id"
+    t.index ["user_id"], name: "index_payment_schedules_on_user_id"
   end
 
   create_table "payment_types", force: :cascade do |t|
@@ -68,15 +67,6 @@ ActiveRecord::Schema.define(version: 20171025132709) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "user_payment_schedules", force: :cascade do |t|
-    t.integer "user_id"
-    t.integer "payment_schedule_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["payment_schedule_id"], name: "index_user_payment_schedules_on_payment_schedule_id"
-    t.index ["user_id"], name: "index_user_payment_schedules_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|

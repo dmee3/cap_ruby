@@ -1,7 +1,4 @@
 FactoryGirl.define do
-  factory :user_payment_schedule do
-    
-  end
   factory :payment_schedule_entry do
     
   end

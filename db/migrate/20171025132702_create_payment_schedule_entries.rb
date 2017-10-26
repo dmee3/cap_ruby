@@ -5,7 +5,6 @@ class CreatePaymentScheduleEntries < ActiveRecord::Migration[5.1]
 
       t.integer :amount
       t.date :pay_date
-      t.timestamps
     end
   end
 end

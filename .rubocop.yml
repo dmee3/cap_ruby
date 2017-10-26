@@ -7,3 +7,6 @@ Bundler/OrderedGems:
 
 Metrics/LineLength:
   Max: 100
+
+Style/NumericLiterals:
+  Enabled: false

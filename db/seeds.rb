@@ -26,26 +26,6 @@ ConflictStatus.create(name: 'pending') unless ConflictStatus.find_by_name 'pendi
 ConflictStatus.create(name: 'approved') unless ConflictStatus.find_by_name 'approved'
 puts 'Conflict Statuses created'
 
-# Create default Payment Schedule
-if PaymentSchedule.where(default: true).empty?
-  schedule = PaymentSchedule.new default: true
-  entries = [
-    [30000, Date.parse('2017-10-15')],
-    [23000, Date.parse('2017-11-19')],
-    [23000, Date.parse('2017-12-17')],
-    [23000, Date.parse('2017-01-14')],
-    [23000, Date.parse('2017-02-11')],
-    [23000, Date.parse('2017-03-11')]
-  ]
-  entries.each do |entry_info|
-    entry = PaymentScheduleEntry.create(amount: entry_info[0], pay_date: entry_info[1])
-    schedule.payment_schedule_entries << entry
-  end
-
-  schedule.save
-end
-puts 'Default Payment Schedule created'
-
 # Create Me
 unless User.find_by_email ENV['ROOT_USER_EMAIL']
   me = User.new first_name: ENV['ROOT_USER_FIRST_NAME'],
@@ -55,7 +35,7 @@ unless User.find_by_email ENV['ROOT_USER_EMAIL']
                 password_confirmation: ENV['ROOT_USER_PASSWORD']
 
   me.role = admin_role
-  if me.save
+  if me.save!
     puts 'Root User created'
   else
     puts 'ERROR: Unable to create Root User'
@@ -70,11 +50,35 @@ unless User.find_by_email ENV['TEST_USER_EMAIL']
                         password: ENV['TEST_USER_PASSWORD'],
                         password_confirmation: ENV['TEST_USER_PASSWORD']
 
-  garrett.payment_schedule = PaymentSchedule.where(default: true).first
   garrett.role = member_role
-  if garrett.save
+  if garrett.save!
     puts 'Test User created'
   else
     puts 'ERROR: Unable to create Test User'
+  end
+end
+
+# Create Payment Schedule
+unless PaymentSchedule.first
+  schedule = PaymentSchedule.new
+  entries = [
+    [30000, Date.parse('2017-10-15')],
+    [23000, Date.parse('2017-11-19')],
+    [23000, Date.parse('2017-12-17')],
+    [23000, Date.parse('2017-01-14')],
+    [23000, Date.parse('2017-02-11')],
+    [23000, Date.parse('2017-03-11')]
+  ]
+  entries.each do |entry_info|
+    entry = PaymentScheduleEntry.create(amount: entry_info[0], pay_date: entry_info[1])
+    schedule.payment_schedule_entries << entry
+  end
+
+  garrett.payment_schedule = schedule
+
+  if schedule.save!
+    puts 'Test User Payment Schedule created'
+  else
+    puts 'ERROR: Unable to create Test User Payment Schedule'
   end
 end

@@ -5,7 +5,8 @@ class User < ApplicationRecord
   belongs_to :role
   has_many :conflicts, dependent: :destroy
   has_one :user_payment_schedule
-  has_one :payment_schedule, through: :user_payment_schedule
+  has_one :payment_schedule
+  has_many :payment_schedule_entries, through: :payment_schedule
   has_many :payments, dependent: :destroy
 
   validates :first_name, presence: { message: 'First name is required' }
