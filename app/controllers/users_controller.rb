@@ -33,13 +33,13 @@ class UsersController < ApplicationController
 
   def update
     @user = User.find params[:id]
-    user_params[:password_confirmation] = user_params[:password]
-    if @user.update user_params
+    if @user.update(user_params.reject { |k, v| v.blank? })
       flash[:success] = "#{@user.first_name} updated"
-      redirect_to users_path
     else
       flash[:error] = "Unable to update #{@user.first_name}"
     end
+
+    redirect_to users_path
   end
 
   def destroy
