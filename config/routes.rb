@@ -11,4 +11,6 @@ Rails.application.routes.draw do
   post 'charge', to: 'payments#charge'
 
   resources :users, except: %i[show]
+  get 'settings', to: 'users#settings'
+  post 'settings', to: 'users#change_settings'
 end

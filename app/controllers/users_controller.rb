@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   before_action :authorized?
-  before_action -> { redirect_if_not 'admin' }
+  before_action -> { redirect_if_not 'admin' }, except: [:settings, :change_settings]
 
   def index
     @members = User.where(role: Role.find_by_name('member'))
@@ -53,10 +53,33 @@ class UsersController < ApplicationController
     end
   end
 
+  def settings; end
+
+  def change_settings
+    unless current_user.authenticate settings_params[:old_password]
+      flash.now[:error] = 'Old password was incorrect, please try again'
+      render :settings
+      return
+    end
+
+    if settings_params[:new_password] == settings_params[:new_password_confirmation]
+      current_user.update password: settings_params[:new_password]
+      flash[:success] = 'Password updated'
+      redirect_to root_url
+    else
+      flash.now[:error] = "New passwords don\'t match, please try again"
+      render :settings
+    end
+  end
+
   private
 
   def user_params
     params.require(:user).permit :first_name, :last_name, :email, :password,
                                  :password_confirmation, :role_id
+  end
+
+  def settings_params
+    params.permit :old_password, :new_password, :new_password_confirmation
   end
 end

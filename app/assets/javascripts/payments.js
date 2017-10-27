@@ -48,6 +48,13 @@ card.on('change', function(event) {
 $('#payment-form').on('submit', function(event) {
   event.preventDefault();
 
+  // Ensure amount is greater than $5
+  var amount = $('#payment_amount').val();
+  if (amount == '' || amount < 5) {
+    $('#card-errors').text('The minimum payment amount is $5.');
+    return;
+  }
+
   stripe.createToken(card).then(function(result) {
     if (result.error) {
       $('#card-errors').text(result.error.message);

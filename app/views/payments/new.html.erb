@@ -18,7 +18,7 @@
     </div>
 
     <div class="card">
-      <%= form_tag '/charge', { method: 'post', id: 'payment-form', class: 'card-body' } do %>
+      <%= form_tag '/charge', { method: :post, id: 'payment-form', class: 'card-body' } do %>
         <div class="row align-self-center">
           <div class="col-md-4 col-lg-6 input-group">
             <span class="input-group-addon">$</span><%= text_field_tag :payment_amount, nil, { class: 'form-control', placeholder: 'Amount' } %>

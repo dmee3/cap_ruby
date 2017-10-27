@@ -23,10 +23,10 @@
             <%= member.first_name + ' ' + member.last_name %>
             <span class='float-right'>
               <a href="<%= edit_user_path(member) %>">
-                <i class='fa fa-pencil dark-text icon-btn-orange'></i>
+                <%= fa_icon 'pencil', class: 'dark-text icon-btn-orange' %>
               </a>
               &nbsp;&nbsp;&nbsp;
-              <i class='fa fa-trash-o icon-btn-red dark-text'></i>
+              <%= fa_icon 'trash-o', class: 'icon-btn-red dark-text' %>
             </span>
           </li>
         <% end %>
