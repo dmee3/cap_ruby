@@ -2,10 +2,6 @@
   <%= stylesheet_link_tag 'users', media: 'all' %>
 <% end %>
 
-<% content_for :nav do %>
-  <%= render 'nav' %>
-<% end %>
-
 <% content_for :main do %>
   <div class="container">
     <div class="row">
@@ -17,10 +13,9 @@
       <%= form_tag '/settings', { method: :post, class: 'card-body' } do %>
         <div class="row">
           <div class="col-sm-12">
-            <h2>Change Password</h2>
+            <h3>Change Password</h3>
           </div>
         </div>
-        <hr>
         <div class="row mt-3">
           <div class="col-sm-12">
             <%= password_field_tag :old_password, nil, { class: 'form-control', placeholder: 'Old Password' } %>

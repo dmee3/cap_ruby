@@ -65,9 +65,9 @@ unless PaymentSchedule.first
     [30000, Date.parse('2017-10-15')],
     [23000, Date.parse('2017-11-19')],
     [23000, Date.parse('2017-12-17')],
-    [23000, Date.parse('2017-01-14')],
-    [23000, Date.parse('2017-02-11')],
-    [23000, Date.parse('2017-03-11')]
+    [23000, Date.parse('2018-01-14')],
+    [23000, Date.parse('2018-02-11')],
+    [23000, Date.parse('2018-03-11')]
   ]
   entries.each do |entry_info|
     entry = PaymentScheduleEntry.create(amount: entry_info[0], pay_date: entry_info[1])

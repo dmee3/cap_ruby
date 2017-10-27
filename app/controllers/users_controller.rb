@@ -33,7 +33,7 @@ class UsersController < ApplicationController
 
   def update
     @user = User.find params[:id]
-    if @user.update(user_params.reject { |k, v| v.blank? })
+    if @user.update(user_params.reject { |_k, v| v.blank? })
       flash[:success] = "#{@user.first_name} updated"
     else
       flash[:error] = "Unable to update #{@user.first_name}"
@@ -59,17 +59,22 @@ class UsersController < ApplicationController
     unless current_user.authenticate settings_params[:old_password]
       flash.now[:error] = 'Old password was incorrect, please try again'
       render :settings
-      return
     end
 
-    if settings_params[:new_password] == settings_params[:new_password_confirmation]
-      current_user.update password: settings_params[:new_password]
-      flash[:success] = 'Password updated'
-      redirect_to root_url
-    else
+    unless settings_params[:new_password] == settings_params[:new_password_confirmation]
       flash.now[:error] = "New passwords don\'t match, please try again"
       render :settings
     end
+
+    return if performed?
+
+    if current_user.update password: settings_params[:new_password]
+      flash[:success] = 'Password updated'
+    else
+      flash[:error] = 'Error saving new password, please try again or contact a director'
+    end
+
+    redirect_to root_url
   end
 
   private

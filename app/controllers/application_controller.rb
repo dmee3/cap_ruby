@@ -2,21 +2,19 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   def authorized?
-    redirect_to '/login' unless current_user
+    unless current_user
+      logout
+      redirect_to '/login'
+    end
   end
 
   def current_user
-    return nil if cookies[:jwt].blank?
-
     token = JsonWebToken.decode cookies[:jwt]
     return User.find(token[:user_id]) if token
-
-    logout
-    nil
   rescue ActiveRecord::RecordNotFound
-    logout
     nil
   end
+  helper_method :current_user
 
   def logout
     cookies.delete :jwt
@@ -28,6 +26,7 @@ class ApplicationController < ActionController::Base
   end
 
   def is?(role)
-    current_user.role.name == role.to_s
+    current_user&.role&.name == role.to_s
   end
+  helper_method :is?
 end

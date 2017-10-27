@@ -16,44 +16,15 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbar-content">
-        <%= yield :nav %>
+        <% if is?('admin') %>
+          <%= render 'admin_nav' %>
+        <% elsif is?('member') %>
+          <%= render 'member_nav' %>
+        <% end %>
       </div>
     </nav>
 
-    <div class="flash-bar">
-      <% if flash[:success] %>
-        <div class="alert alert-dismissible alert-success" role="alert">
-          <div class="container">
-            <%= flash[:success] %>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-        </div>
-      <% end %>
-
-      <% if flash[:error] %>
-        <div class="alert alert-dismissible alert-danger" role="alert">
-          <div class="container">
-            <%= flash[:error] %>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-        </div>
-      <% end %>
-
-      <% if flash[:info] %>
-        <div class="alert alert-dismissible alert-info" role="alert">
-          <div class="container">
-            <%= flash[:info] %>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-        </div>
-      <% end %>
-    </div>
+    <%= render 'flashes' %>
 
     <div id="top-space"></div>
 

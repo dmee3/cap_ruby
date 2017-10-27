@@ -4,16 +4,13 @@ class PaymentsController < ApplicationController
       @payments = Payment.all
       render :admin_index
     elsif is? 'member'
-      @payments = Payment.where user_id: current_user.id
       render :member_index
     else
       redirect_to root_url
     end
   end
 
-  def new
-
-  end
+  def new; end
 
   def charge
     set_api_key
@@ -25,7 +22,7 @@ class PaymentsController < ApplicationController
 
     payment = Payment.new user: current_user,
                           payment_type: PaymentType.find_by_name('stripe'),
-                          amount: params[:amount],
+                          amount: params[:payment_amount].to_i * 100,
                           date_paid: Date.today,
                           notes: "Stripe Payment - Charge ID: #{response.id}"
     if payment.save
