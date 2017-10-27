@@ -42,7 +42,7 @@ unless User.find_by_email ENV['ROOT_USER_EMAIL']
   end
 end
 
-# Create Garrett
+# Create Test User
 unless User.find_by_email ENV['TEST_USER_EMAIL']
   garrett = User.create first_name: ENV['TEST_USER_FIRST_NAME'],
                         last_name: ENV['TEST_USER_LAST_NAME'],

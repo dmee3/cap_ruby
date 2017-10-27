@@ -2,10 +2,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   def authorized?
-    unless current_user
-      logout
-      redirect_to '/login'
-    end
+    logout unless current_user
   end
 
   def current_user
@@ -18,7 +15,7 @@ class ApplicationController < ActionController::Base
 
   def logout
     cookies.delete :jwt
-    redirect_to root_url
+    redirect_to '/login'
   end
 
   def redirect_if_not(role)

@@ -10,8 +10,6 @@ end
 gem 'rails', '~> 5.1.4'
 gem 'puma', '~> 3.7'
 gem 'uglifier', '>= 1.3.0'
-gem 'webpacker', '~> 3.0'
-gem 'foreman'
 gem 'turbolinks', '~> 5'
 gem 'rollbar', '~> 2.15'
 gem 'bcrypt', '~> 3.1.7'
@@ -27,7 +25,8 @@ gem 'font-awesome-rails'
 gem 'coffee-rails', '~> 4.2'
 
 group :production do
-  gem 'pg', '~> 0.20.0'
+  gem 'rails_12factor'
+  gem 'pg'
 end
 
 group :development, :test do

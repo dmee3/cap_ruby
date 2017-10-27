@@ -97,9 +97,6 @@ GEM
     ffi (1.9.18)
     font-awesome-rails (4.7.0.2)
       railties (>= 3.2, < 5.2)
-    foreman (0.63.0)
-      dotenv (>= 0.7)
-      thor (>= 0.13.6)
     globalid (0.4.0)
       activesupport (>= 4.2.0)
     http-cookie (1.0.3)
@@ -145,8 +142,6 @@ GEM
     public_suffix (3.0.0)
     puma (3.10.0)
     rack (2.0.3)
-    rack-proxy (0.6.2)
-      rack
     rack-test (0.7.0)
       rack (>= 1.0, < 3)
     rails (5.1.4)
@@ -166,11 +161,16 @@ GEM
       nokogiri (>= 1.6)
     rails-html-sanitizer (1.0.3)
       loofah (~> 2.0)
+    rails_12factor (0.0.3)
+      rails_serve_static_assets
+      rails_stdout_logging
     rails_real_favicon (0.0.7)
       json (>= 1.7, < 3)
       rails (>= 3.1)
       rest-client (~> 2.0)
       rubyzip (~> 1)
+    rails_serve_static_assets (0.0.5)
+    rails_stdout_logging (0.0.5)
     railties (5.1.4)
       actionpack (= 5.1.4)
       activesupport (= 5.1.4)
@@ -270,10 +270,6 @@ GEM
       activemodel (>= 5.0)
       bindex (>= 0.4.0)
       railties (>= 5.0)
-    webpacker (3.0.2)
-      activesupport (>= 4.2)
-      rack-proxy (>= 0.6.1)
-      railties (>= 4.2)
     websocket-driver (0.6.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.2)
@@ -293,14 +289,14 @@ DEPENDENCIES
   factory_girl_rails (~> 4.8)
   faker
   font-awesome-rails
-  foreman
   jquery-rails
   jwt
   listen (>= 3.0.5, < 3.2)
   paranoia (~> 2.2)
-  pg (~> 0.20.0)
+  pg
   puma (~> 3.7)
   rails (~> 5.1.4)
+  rails_12factor
   rails_real_favicon
   rollbar (~> 2.15)
   rspec-junklet (~> 2.2)
@@ -315,7 +311,6 @@ DEPENDENCIES
   turbolinks (~> 5)
   uglifier (>= 1.3.0)
   web-console (>= 3.3.0)
-  webpacker (~> 3.0)
 
 RUBY VERSION
    ruby 2.4.1p111
