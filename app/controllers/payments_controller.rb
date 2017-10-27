@@ -10,10 +10,16 @@ class PaymentsController < ApplicationController
     end
   end
 
-  def new; end
+  def new
+    if Rails.env == 'production'
+      @stripe_public_key = ENV['STRIPE_PUBLIC_KEY']
+    else
+      @stripe_public_key = ENV['STRIPE_PUBLIC_TEST_KEY']
+    end
+  end
 
   def charge
-    set_api_key
+    set_stripe_api_key
 
     response = Stripe::Charge.create amount: params[:charge_amount],
                                      currency: 'usd',
@@ -40,8 +46,12 @@ class PaymentsController < ApplicationController
 
   private
 
-  def set_api_key
-    Stripe.api_key ||= ENV['STRIPE_SECRET_TEST_KEY']
+  def set_stripe_api_key
+    if Rails.env == 'production'
+      Stripe.api_key = ENV['STRIPE_SECRET_KEY']
+    else
+      Stripe.api_key = ENV['STRIPE_SECRET_TEST_KEY']
+    end
   end
 
   def charge_params

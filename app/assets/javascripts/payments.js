@@ -15,7 +15,7 @@ $('#payment_amount').on('change', function(event) {
 });
 
 // Create a Stripe client and Elements instance
-var stripe = Stripe('pk_test_Jsmvc6lI1rcpBPT5bFk9pHJU');
+var stripe = Stripe(stripe_public_key);
 var elements = stripe.elements();
 
 // Create an instance of the card Element and add it to the `card-element` div

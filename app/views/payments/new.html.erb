@@ -42,5 +42,8 @@
 <% end %>
 
 <% content_for :scripts do %>
+  <script type="text/javascript">
+    var stripe_public_key = '<%= @stripe_public_key %>';
+  </script>
   <%= javascript_include_tag 'payments' %>
 <% end %>
