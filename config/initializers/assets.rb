@@ -9,4 +9,4 @@ Rails.application.config.assets.version = (ENV["ASSETS_VERSION"] || "1.0")
 # Precompile additional assets.
 # application.js, application.css, and all non-JS/CSS in the app/assets
 # folder are already added.
-Rails.application.config.assets.precompile += %w( users.css payments.css payments.js )
+Rails.application.config.assets.precompile += %w( sessions.css users.css payments.css payments.js )
