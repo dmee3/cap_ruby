@@ -6,7 +6,7 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user
-    token = JsonWebToken.decode cookies[:jwt]
+    token = JsonWebToken.decode jwt
     return User.find(token[:user_id]) if token
   rescue ActiveRecord::RecordNotFound
     nil
@@ -26,4 +26,14 @@ class ApplicationController < ActionController::Base
     current_user&.role&.name == role.to_s
   end
   helper_method :is?
+
+  private
+
+  def jwt
+    if request.xhr?
+      jwt = params[:jwt]
+    else
+      jwt = cookies[:jwt]
+    end
+  end
 end

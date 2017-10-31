@@ -1,9 +1,9 @@
 class UsersController < ApplicationController
   before_action :authorized?
-  before_action -> { redirect_if_not 'admin' }, except: [:settings, :change_settings]
+  before_action -> { redirect_if_not 'admin' }, except: %i[settings change_settings]
 
   def index
-    @members = User.where(role: Role.find_by_name('member'))
+    @members = User.where(role: Role.find_by_name('member')).includes(:payment_schedule)
     @staff = User.where(role: Role.find_by_name('staff'))
     @admin = User.where(role: Role.find_by_name('admin'))
     render
@@ -20,8 +20,9 @@ class UsersController < ApplicationController
       flash[:success] = "#{@user.first_name} account created"
       redirect_to users_path
     else
-      # TODO: Fix error handling here and in the view
+      # TODO: Add error messages in the view if account creation wasn't successful
       flash[:error] = "#{@user.first_name} account not created"
+      @roles = Role.all
       render :new
     end
   end

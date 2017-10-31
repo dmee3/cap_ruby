@@ -20,6 +20,7 @@ gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'
 # UI gems
 gem 'bootstrap', '~> 4.0.0.beta2'
 gem 'jquery-rails'
+gem 'vuejs-rails'
 gem 'sass-rails', '~> 5.0'
 gem 'font-awesome-rails'
 gem 'coffee-rails', '~> 4.2'

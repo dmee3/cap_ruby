@@ -1,4 +1,6 @@
 class PaymentsController < ApplicationController
+  before_action :authorized?
+
   def index
     if is? 'admin'
       @payments = Payment.all

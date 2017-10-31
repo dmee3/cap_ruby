@@ -18,6 +18,16 @@
           <li class='list-group-item'>
             <%= member.first_name + ' ' + member.last_name %>
             <span class='float-right'>
+              <% if member.payment_schedule %>
+                <%= link_to member.payment_schedule do %>
+                  <%= fa_icon 'calendar', class: 'dark-text' %>
+                <% end %>
+              <% else %>
+                <%= link_to payment_schedules_path(user_id: member.id), method: :post do %>
+                  <%= fa_icon 'calendar', class: 'dark-text' %>
+                <% end %>
+              <% end %>
+              &nbsp;&nbsp;&nbsp;
               <a href="<%= edit_user_path(member) %>">
                 <%= fa_icon 'pencil', class: 'dark-text icon-btn-orange' %>
               </a>
