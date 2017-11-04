@@ -25,6 +25,8 @@ gem 'sass-rails', '~> 5.0'
 gem 'font-awesome-rails'
 gem 'coffee-rails', '~> 4.2'
 gem 'select2-rails'
+gem 'momentjs-rails'
+gem 'chart-js-rails'
 
 group :production do
   gem 'rails_12factor'

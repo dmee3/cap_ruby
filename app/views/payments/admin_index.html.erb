@@ -12,29 +12,46 @@
         <%= link_to 'New Payment', new_payment_path, class: 'btn btn-light green-text align-middle' %>
       </div>
     </div>
+
     <div class="row">
-      <ul class="list-group col-sm-12">
-        <% @payments.each do |payment| %>
-          <li class="list-group-item">
-            <%= render 'payment_type_icon', type: payment.payment_type %>
-            <%= payment.user.first_name + ' ' + payment.user.last_name %>
-            <span class="float-right">
-              <% unless payment.notes.blank? %>
-                <a data-toggle="collapse" href="#payment-notes-<%= payment.id %>">
-                  <%= fa_icon 'comment-o', class: 'dark-text icon-btn icon-btn-blue' %>
-                </a>
-              <% end %>
-              &nbsp;&nbsp;&nbsp;
-              $<%= '%.2f' % (payment.amount / 100.0) %>
-            </span>
-          </li>
-          <% unless payment.notes.blank? %>
-            <li class="collapse white gray-text px-5 py-1" id="payment-notes-<%= payment.id %>">
-              <%= payment.notes %>
+      <div  class="col-sm-12">
+        <div class="card">
+          <div class="card-body">
+            <canvas id="payment-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-sm-12">
+        <ul class="list-group">
+          <% @payments.each do |payment| %>
+            <li class="list-group-item">
+              <%= render 'payment_type_icon', type: payment.payment_type %>
+              <%= payment.user.first_name + ' ' + payment.user.last_name %>
+              <span class="float-right">
+                <% unless payment.notes.blank? %>
+                  <a data-toggle="collapse" href="#payment-notes-<%= payment.id %>">
+                    <%= fa_icon 'comment-o', class: 'dark-text icon-btn icon-btn-blue' %>
+                  </a>
+                <% end %>
+                &nbsp;&nbsp;&nbsp;
+                $<%= '%.2f' % (payment.amount / 100.0) %>
+              </span>
             </li>
+            <% unless payment.notes.blank? %>
+              <li class="collapse white gray-text px-5 py-1" id="payment-notes-<%= payment.id %>">
+                <%= payment.notes %>
+              </li>
+            <% end %>
           <% end %>
-        <% end %>
-      </ul>
+        </ul>
+      </div>
     </div>
   </div>
+<% end %>
+
+<% content_for :scripts do %>
+  <%= javascript_include_tag 'vue/payment_charts' %>
 <% end %>

@@ -4,22 +4,26 @@ class PaymentsController < ApplicationController
 
   def index
     # Chart ideas
-    #   Stream-graph of weekly totals running through the season
     #   Burn-down comparing expected and actual
     if is? 'admin'
-      @payments = Payment.all
-      render :admin_index
+      respond_to do |format|
+        format.html do
+          @payments = Payment.all.order :date_paid
+          render :admin_index
+        end
+        format.json do
+          render(json: {
+            scheduled: ChartUtilities.payment_schedule_sums_by_week,
+            actual: ChartUtilities.payment_sums_by_week
+          })
+        end
+      end
     elsif is? 'member'
-      puts '**************************'
-      @payments = current_user.payments.order :date_paid
-      @payment_schedule = current_user.payment_schedule
-      @total_paid = @payments.sum(:amount) / 100
-      @total_dues = @payment_schedule.entries.sum(:amount) / 100
-      puts '**************************'
+      set_member_index_variables
       render :member_index
-    else
-      redirect_to root_url
     end
+
+    redirect_to root_url unless performed?
   end
 
   def new
@@ -80,6 +84,13 @@ class PaymentsController < ApplicationController
   end
 
   private
+
+  def set_member_index_variables
+    @payments = current_user.payments.order :date_paid
+    @payment_schedule = current_user.payment_schedule
+    @total_paid = @payments.sum(:amount) / 100
+    @total_dues = @payment_schedule.entries.sum(:amount) / 100
+  end
 
   def set_stripe_public_key
     if Rails.env == 'production'

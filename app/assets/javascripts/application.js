@@ -16,6 +16,8 @@
 //= require bootstrap
 //= require select2
 //= require vue
+//= require moment
+//= require Chart.min
 
 function getAuthToken() {
   return document.querySelector('meta[name="csrf-token"]').content;

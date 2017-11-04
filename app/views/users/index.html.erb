@@ -13,24 +13,26 @@
       </div>
     </div>
     <div class="row">
-      <ul class="list-group col-sm-12">
-        <% @members.each do |member| %>
-          <li class="list-group-item">
-            <%= member.first_name + ' ' + member.last_name %>
-            <span class="float-right">
-              <%= link_to member.payment_schedule do %>
-                <%= fa_icon 'calendar', class: 'icon-btn icon-btn-orange dark-text' %>
-              <% end %>
-              &nbsp;&nbsp;&nbsp;
-              <a href="<%= edit_user_path(member) %>">
-                <%= fa_icon 'pencil', class: 'icon-btn icon-btn-orange dark-text' %>
-              </a>
-              &nbsp;&nbsp;&nbsp;
-              <%= fa_icon 'trash-o', class: 'icon-btn icon-btn-red dark-text' %>
-            </span>
-          </li>
-        <% end %>
-      </ul>
+      <div class="col-sm-12">
+        <ul class="list-group">
+          <% @members.each do |member| %>
+            <li class="list-group-item">
+              <%= member.first_name + ' ' + member.last_name %>
+              <span class="float-right">
+                <%= link_to member.payment_schedule do %>
+                  <%= fa_icon 'calendar', class: 'icon-btn icon-btn-orange dark-text' %>
+                <% end %>
+                &nbsp;&nbsp;&nbsp;
+                <a href="<%= edit_user_path(member) %>">
+                  <%= fa_icon 'pencil', class: 'icon-btn icon-btn-orange dark-text' %>
+                </a>
+                &nbsp;&nbsp;&nbsp;
+                <%= fa_icon 'trash-o', class: 'icon-btn icon-btn-red dark-text' %>
+              </span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
     </div>
   </div>
 <% end %>
