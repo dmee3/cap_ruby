@@ -2,16 +2,6 @@ class PaymentSchedulesController < ApplicationController
   before_action :authorized?
   before_action -> { redirect_if_not 'admin' }
 
-  def create
-    @schedule = PaymentSchedule.new create_params
-    if @schedule.save && create_default_schedule(@schedule.id)
-      redirect_to @schedule
-    else
-      flash[:error] = 'There was an issue creating a new payment schedule for this user'
-      redirect_to '/users'
-    end
-  end
-
   def show
     @schedule = PaymentSchedule.includes(:payment_schedule_entries).find params[:id]
     @user = User.find @schedule.user_id
@@ -50,18 +40,6 @@ class PaymentSchedulesController < ApplicationController
   end
 
   private
-
-  def create_default_schedule(schedule_id)
-    DefaultPaymentSchedule::ENTRIES.each do |entry|
-      PaymentScheduleEntry.create amount: entry[:amount],
-                                  pay_date: entry[:pay_date],
-                                  payment_schedule_id: schedule_id
-    end
-  end
-
-  def create_params
-    params.permit :user_id
-  end
 
   def update_params
     params.require(:payment_schedule).permit :id, payment_schedule_entries_attributes: %i[id pay_date amount]

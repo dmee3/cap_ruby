@@ -15,24 +15,18 @@
     <div class="row">
       <ul class="list-group col-sm-12">
         <% @members.each do |member| %>
-          <li class='list-group-item'>
+          <li class="list-group-item">
             <%= member.first_name + ' ' + member.last_name %>
-            <span class='float-right'>
-              <% if member.payment_schedule %>
-                <%= link_to member.payment_schedule do %>
-                  <%= fa_icon 'calendar', class: 'dark-text' %>
-                <% end %>
-              <% else %>
-                <%= link_to payment_schedules_path(user_id: member.id), method: :post do %>
-                  <%= fa_icon 'calendar', class: 'dark-text' %>
-                <% end %>
+            <span class="float-right">
+              <%= link_to member.payment_schedule do %>
+                <%= fa_icon 'calendar', class: 'dark-text' %>
               <% end %>
               &nbsp;&nbsp;&nbsp;
               <a href="<%= edit_user_path(member) %>">
-                <%= fa_icon 'pencil', class: 'dark-text icon-btn-orange' %>
+                <%= fa_icon 'pencil', class: 'icon-btn icon-btn-orange dark-text' %>
               </a>
               &nbsp;&nbsp;&nbsp;
-              <%= fa_icon 'trash-o', class: 'icon-btn-red dark-text' %>
+              <%= fa_icon 'trash-o', class: 'icon-btn icon-btn-red dark-text' %>
             </span>
           </li>
         <% end %>

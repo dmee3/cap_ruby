@@ -15,6 +15,6 @@ Rails.application.routes.draw do
   post 'settings', to: 'users#change_settings'
 
   resources :payment_schedules, except: %i[index new edit destroy]
-  delete '/payment_schedules/remove_entry', to: 'payment_schedules#remove_entry'
-  post '/payment_schedules/add_entry', to: 'payment_schedules#add_entry'
+  delete 'payment_schedules/remove_entry', to: 'payment_schedules#remove_entry'
+  post 'payment_schedules/add_entry', to: 'payment_schedules#add_entry'
 end

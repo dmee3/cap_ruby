@@ -13,11 +13,11 @@ member_role = Role.find_by_name('member') || Role.create(name: 'member')
 puts 'Roles created'
 
 # Create Payment Types
-PaymentType.create(name: 'cash') unless PaymentType.find_by_name 'cash'
-PaymentType.create(name: 'stripe') unless PaymentType.find_by_name 'stripe'
-PaymentType.create(name: 'check') unless PaymentType.find_by_name 'check'
-PaymentType.create(name: 'square - pos') unless PaymentType.find_by_name 'square - pos'
-PaymentType.create(name: 'square - app') unless PaymentType.find_by_name 'square - app'
+PaymentType.create(name: 'Cash') unless PaymentType.find_by_name 'Cash'
+PaymentType.create(name: 'Stripe') unless PaymentType.find_by_name 'Stripe'
+PaymentType.create(name: 'Check') unless PaymentType.find_by_name 'Check'
+PaymentType.create(name: 'Square - Pos') unless PaymentType.find_by_name 'Square - pos'
+PaymentType.create(name: 'Square - App') unless PaymentType.find_by_name 'Square - app'
 puts 'Payment Types created'
 
 # Create Conflict Statuses

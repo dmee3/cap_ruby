@@ -1,6 +1,7 @@
 @import 'bootstrap';
 @import 'font-awesome';
 @import 'colors';
+@import 'select2.css';
 
 * {
   transition: color 0.1s ease-in;
@@ -16,14 +17,12 @@ a:hover { text-decoration: none !important; }
 
 #top-space { height: 40px; }
 
-.icon-btn-red:hover {
-  cursor: pointer;
-  color: $red !important;
-}
-.icon-btn-orange:hover {
-  cursor: pointer;
-  color: $orange !important;
-}
+.icon-btn { cursor: pointer; }
+.icon-btn-red:hover { color: $red !important; }
+.icon-btn-orange:hover { color: $orange !important; }
+.icon-btn-green:hover { color: $green !important; }
+.icon-btn-blue:hover { color: $blue !important; }
+
 
 @include media-breakpoint-up(xs) {
   .text-right-xs { text-align: right !important; }
@@ -46,8 +45,8 @@ a:hover { text-decoration: none !important; }
 }
 
 /* BS Overrides */
-.form-control.invalid { border-color: #dc3545; }
-.form-control:focus {
+.form-control.invalid { border-color: $red; }
+.form-control:focus, .form-control.is-invalid:focus {
   border-color: #323337;
   box-shadow: none;
 }

@@ -1,0 +1,13 @@
+<% if type.name == 'Cash' %>
+  <%= fa_icon 'usd', class: 'gray-text' %>
+<% elsif type.name == 'Stripe' %>
+  <%= fa_icon 'credit-card', class: 'gray-text' %>
+<% elsif type.name == 'Check' %>
+  <%= fa_icon 'university', class: 'gray-text' %>
+<% elsif type.name == 'Square - Pos' %>
+  <%= fa_icon 'square-o', class: 'gray-text' %>
+<% elsif type.name == 'Square - App' %>
+  <%= fa_icon 'square-o', class: 'gray-text' %>
+<% else %>
+  <%= fa_icon 'question', class: 'gray-text' %>
+<% end %>

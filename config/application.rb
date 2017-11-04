@@ -33,5 +33,16 @@ module CapRuby
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    # Render fields with error using .is-invalid class
+    config.action_view.field_error_proc = proc do |html_tag, _instance|
+      html_tag = html_tag.html_safe
+      class_attr_index = html_tag.index 'class="'
+      if class_attr_index
+        html_tag.insert class_attr_index + 7, 'is-invalid '
+      else
+        html_tag.insert html_tag.index('>'), ' class="is-invalid"'
+      end
+    end
   end
 end

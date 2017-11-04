@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
   end
 
   def is?(role)
-    current_user&.role&.name == role.to_s
+    current_user&.is? role.to_s
   end
   helper_method :is?
 
@@ -31,9 +31,9 @@ class ApplicationController < ActionController::Base
 
   def jwt
     if request.xhr?
-      jwt = params[:jwt]
+      params[:jwt]
     else
-      jwt = cookies[:jwt]
+      cookies[:jwt]
     end
   end
 end

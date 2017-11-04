@@ -16,4 +16,12 @@ class User < ApplicationRecord
   validates :password, length: { minimum: 6, message: 'Password must be at least 6 characters' }, if: :password
   validates :password, confirmation: { message: 'Password confirmation must match password' }, if: :password
   validates :role, presence: { message: 'Role is required' }
+
+  def full_name
+    "#{first_name} #{last_name}" if first_name && last_name
+  end
+
+  def is?(name)
+    role.name == name
+  end
 end

@@ -10,5 +10,7 @@ Metrics/LineLength:
 Metrics/MethodLength:
   Max: 15
 
+Style/ConditionalAssignment:
+  Enabled: false
 Style/NumericLiterals:
   Enabled: false

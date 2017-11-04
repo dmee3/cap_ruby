@@ -9,7 +9,7 @@
         <h1 class="white-text">Payments</h1>
       </div>
       <div class="col-md-3 text-right-md">
-        <a class="btn btn-light green-text align-middle" href="<%= new_payment_path %>">New Payment</a>
+        <%= link_to 'New Payment', new_payment_path, class: 'btn btn-light green-text align-middle' %>
       </div>
     </div>
     <div class="card">
@@ -50,7 +50,7 @@
                   <li class="list-group-item d-flex justify-content-between">
                 <% end %>
                   <span><%= entry.pay_date.strftime('%m/%d/%Y') %></span>
-                  <span>$<%= '%.2f' % (entry.amount/100.0) %></span>
+                  <span>$<%= '%.2f' % (entry.amount / 100.0) %></span>
                 </li>
               <% end %>
             </ul>

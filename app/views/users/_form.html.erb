@@ -2,19 +2,19 @@
   <%= form_for @user, html: { class: 'card-body' } do |u| %>
 
     <div class="row">
-      <div class="col-md-6 mt-3">
+      <div class="col-md-6 mt-3 form-group">
         <%= u.text_field :first_name, { class: 'form-control', placeholder: 'First Name' } %>
       </div>
-      <div class="col-md-6 mt-3">
+      <div class="col-md-6 mt-3 form-group">
         <%= u.text_field :last_name, { class: 'form-control', placeholder: 'Last Name' } %>
       </div>
     </div>
 
     <div class="row">
-      <div class="col-md-6 mt-3">
+      <div class="col-md-6 mt-3 form-group">
         <%= u.text_field :email, { class: 'form-control', placeholder: 'Email' } %>
       </div>
-      <div class="col-md-6 mt-3">
+      <div class="col-md-6 mt-3 form-group">
         <%= u.password_field :password, { class: 'form-control', placeholder: 'Password' } %>
         <%= u.password_field :password_confirmation, { class: 'form-control mt-3', placeholder: 'Password Confirmation' } %>
       </div>

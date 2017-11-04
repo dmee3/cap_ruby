@@ -11,18 +11,18 @@ class UsersController < ApplicationController
 
   def new
     @user = User.new
-    @roles = Role.all
+    @roles = Role.all.reverse_order
   end
 
   def create
     @user = User.new user_params
     if @user.save
+      DefaultPaymentSchedule.create @user.id if @user.is? 'member'
       flash[:success] = "#{@user.first_name} account created"
       redirect_to users_path
     else
-      # TODO: Add error messages in the view if account creation wasn't successful
-      flash[:error] = "#{@user.first_name} account not created"
-      @roles = Role.all
+      @roles = Role.all.reverse_order
+      flash.now[:error] = @user.errors.full_messages.to_sentence
       render :new
     end
   end
