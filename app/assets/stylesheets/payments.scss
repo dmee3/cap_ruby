@@ -21,3 +21,23 @@ body {
   transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
   transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s;
 }
+
+.dues-bar-bg {
+  overflow: visible;
+}
+
+.dues-bar {
+  overflow: visible;
+  border-radius: 0.25rem 0 0 0.25rem;
+}
+
+.dues-paid-label {
+  position: relative;
+  top: -100%;
+}
+
+.dues-owed-label {
+  position: relative;
+  top: -100%;
+  float: right;
+}

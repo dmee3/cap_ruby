@@ -29,11 +29,16 @@
           </div>
         </div>
 
-        <div class="row mt-3">
-          <div class="col-md-6 form-group">
+        <div class="row">
+          <div class="col-md-6 mt-3 form-inline justify-content-center">
+            <%= p.date_select :date_paid, {}, { class: 'form-control mr-2 mb-2' } %>
+          </div>
+          <div class="col-md-6 mt-3 form-group">
             <%= p.text_area :notes, { class: 'form-control', placeholder: 'Notes' } %>
           </div>
-          <div class="col-md-6 form-group text-center">
+        </div>
+        <div class="row mt-3">
+          <div class="col-sm-12 form-group text-center">
             <%= p.submit 'Submit', class: 'btn btn-success' %>
           </div>
         </div>

@@ -19,7 +19,7 @@
             <%= member.first_name + ' ' + member.last_name %>
             <span class="float-right">
               <%= link_to member.payment_schedule do %>
-                <%= fa_icon 'calendar', class: 'dark-text' %>
+                <%= fa_icon 'calendar', class: 'icon-btn icon-btn-orange dark-text' %>
               <% end %>
               &nbsp;&nbsp;&nbsp;
               <a href="<%= edit_user_path(member) %>">

@@ -4,6 +4,7 @@ class Payment < ApplicationRecord
   belongs_to :payment_type
 
   validates :amount, presence: true
+  validates :date_paid, presence: true
   validates :user_id, presence: true
   validates :payment_type_id, presence: true
 end

@@ -15,22 +15,27 @@
     <div class="card">
       <div class="card-body">
         <div class="row">
-          <div class="col-sm-6">
-            <h4>You've paid: $<%= '%.2f' % (current_user.payments.sum(:amount)/100)%>
+          <div class="col-sm-12 text-center">
+            <p class="lead">Paid $<%= '%.2f' % @total_paid %>&nbsp;&nbsp;/&nbsp;&nbsp;$<%= '%.2f' % @total_dues %> Owed
           </div>
-          <div class="col-sm-6">
-            <h4>Your dues are: $<%= '%.2f' % (current_user.payment_schedule_entries.sum(:amount)/100)%>
+          <div class="col-sm-12">
+            <div class="progress" style="height: 30px">
+              <div class="progress-bar green" role="progressbar" style="width: <%= 100 * @total_paid.to_f / @total_dues.to_f %>%"></div>
+            </div>
           </div>
         </div>
 
-        <div class="row mt-3">
+        <div class="row mt-4">
           <div class="col-md-6">
             <h3>Payments Made</h3>
             <ul class="list-group">
-              <% current_user.payments.order(:date_paid).each do |payment| %>
+              <% @payments.each do |payment| %>
                 <li class="list-group-item d-flex justify-content-between">
-                  <span><%= payment.date_paid.strftime('%m/%d/%Y') %></span>
-                  <span>$<%= '%.2f' % (payment.amount/100.0) %></span>
+                  <span>
+                    <%= render 'payment_type_icon', type: payment.payment_type %>
+                    <%= payment.date_paid.strftime('%m/%d/%Y') %>
+                  </span>
+                  <span>$<%= '%.2f' % (payment.amount / 100.0) %></span>
                 </li>
               <% end %>
             </ul>
@@ -43,7 +48,7 @@
           <div class="col-md-6">
             <h3>Your Payment Schedule</h3>
             <ul class="list-group">
-              <% current_user.payment_schedule_entries.order(:pay_date).each do |entry| %>
+              <% @payment_schedule.entries.order(:pay_date).each do |entry| %>
                 <% if entry.pay_date < Date.today %>
                   <li class="list-group-item list-group-item-dark d-flex justify-content-between">
                 <% else %>

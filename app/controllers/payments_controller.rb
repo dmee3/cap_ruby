@@ -10,6 +10,12 @@ class PaymentsController < ApplicationController
       @payments = Payment.all
       render :admin_index
     elsif is? 'member'
+      puts '**************************'
+      @payments = current_user.payments.order :date_paid
+      @payment_schedule = current_user.payment_schedule
+      @total_paid = @payments.sum(:amount) / 100
+      @total_dues = @payment_schedule.entries.sum(:amount) / 100
+      puts '**************************'
       render :member_index
     else
       redirect_to root_url
@@ -31,7 +37,7 @@ class PaymentsController < ApplicationController
 
   def create
     @payment = Payment.new payment_params
-    @payment.amount *= 100
+    @payment.amount *= 100 if @payment.amount
     if @payment.save
       flash[:success] = 'Payment created'
       redirect_to payments_path
@@ -96,6 +102,6 @@ class PaymentsController < ApplicationController
   end
 
   def payment_params
-    params.require(:payment).permit :user_id, :payment_type_id, :amount, :notes
+    params.require(:payment).permit :user_id, :payment_type_id, :amount, :date_paid, :notes
   end
 end
