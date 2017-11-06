@@ -67,7 +67,7 @@ var chartColor = {
   blue: new Color(54, 162, 235),
   purple: new Color(153, 102, 255),
   grey: new Color(201, 203, 207)
-}
+};
 
 function Color(r, g, b) {
   this.r = r;
@@ -79,6 +79,7 @@ Color.prototype.rgb = function() {
   return this.r + ',' + this.g + ',' + this.b;
 };
 
-Color.prototype.rgbaString = function(a = 1) {
+Color.prototype.rgbaString = function(a) {
+  a = typeof a !== 'undefined' ? a : 1;
   return 'rgba(' + this.rgb() + ',' + a + ')';
 };
