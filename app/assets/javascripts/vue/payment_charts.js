@@ -26,7 +26,7 @@ new Vue({
         data: {
           datasets: [
             {
-              label: 'Scheduled Payments',
+              label: 'Scheduled Amount',
               data: this.payments['scheduled'].map(function(point) {
                 return { x: moment(point[0]), y: point[1] };
               }),
@@ -34,7 +34,7 @@ new Vue({
               backgroundColor: chartColor['blue'].rgbaString(0.5)
             },
             {
-              label: 'Actual Payments',
+              label: 'Actual Amount',
               data: this.payments['actual'].map(function(point) {
                 return { x: moment(point[0]), y: point[1] };
               }),
@@ -49,9 +49,34 @@ new Vue({
               type: 'time',
               distribution: 'linear',
               time: {
-                displayFormats: { week: 'll' }
+                displayFormats: { week: 'll' },
+                tooltipFormat: 'll'
+              },
+              ticks: {
+                maxRotation: 45,
+                minRotation: 45
+              }
+            }],
+            yAxes: [{
+              ticks: {
+                callback: function(value, index, values) { return  '$' + value; }
               }
             }]
+          },
+          title: {
+            display: true,
+            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+            fontColor: '#212529',
+            fontSize: 30,
+            fontStyle: 'bold',
+            text: 'Payment Differential'
+          },
+          tooltips: {
+            callbacks: {
+              label: function(tooltipItem, data) {
+                return data.datasets[tooltipItem.datasetIndex].label +': $' + tooltipItem.yLabel;
+              }
+            }
           }
         }
       });
