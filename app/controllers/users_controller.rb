@@ -3,9 +3,9 @@ class UsersController < ApplicationController
   before_action -> { redirect_if_not 'admin' }, except: %i[settings change_settings]
 
   def index
-    @members = User.where(role: Role.find_by_name('member')).includes(:payment_schedule)
-    @staff = User.where(role: Role.find_by_name('staff'))
-    @admin = User.where(role: Role.find_by_name('admin'))
+    @members = User.where(role: Role.find_by_name('member')).includes(:payment_schedule).order :first_name
+    @staff = User.where(role: Role.find_by_name('staff')).order :first_name
+    @admin = User.where(role: Role.find_by_name('admin')).order :first_name
     render
   end
 
@@ -45,8 +45,7 @@ class UsersController < ApplicationController
 
   def destroy
     @user = User.find params[:id]
-    if user
-      @user.destroy
+    if @user.destroy
       flash[:success] = "#{@user.first_name} deleted"
       redirect_to users_path
     else
