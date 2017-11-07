@@ -9,8 +9,12 @@
 
 a:hover { text-decoration: none !important; }
 
-.nav-link { color: $white !important; }
-.nav-link:hover { color: $gray-500 !important; }
+.navbar.cap-gray {
+  .nav-link { color: $white !important; }
+  .nav-link:hover { color: $gray-500 !important; }
+}
+
+.white-hover-link:hover { color: $gray-300 !important; }
 
 .flash-bar { width: 100%; }
 .alert { border-radius: 0 !important; }
@@ -47,7 +51,8 @@ a:hover { text-decoration: none !important; }
 /* BS Overrides */
 .form-control.invalid { border-color: $red; }
 .form-control:focus, .form-control.is-invalid:focus {
-  border-color: #323337;
+  border-color: $cap-gray;
   box-shadow: none;
 }
+
 input.btn:hover { cursor: pointer; }

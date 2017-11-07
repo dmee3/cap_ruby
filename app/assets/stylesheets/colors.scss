@@ -4,14 +4,21 @@ $cap-blue: #386374;
 $cap-white: #e7f1f0;
 $cap-teal: #78eff7;
 
+$light-green: #d9ead3;
+$light-red: #f4cccc;
+
+$dark-green: #274e13;
+$dark-red: #660000;
 
 .cap-red { background-color: $cap-red !important; }
 .cap-gray { background-color: $cap-gray !important; }
 .cap-blue { background-color: $cap-blue !important; }
 .red { background-color: $red !important; }
+.light-red { background-color: $light-red !important; }
 .orange { background-color: $orange !important; }
 .yellow { background-color: $yellow !important; }
 .green { background-color: $green !important; }
+.light-green { background-color: $light-green !important; }
 .blue { background-color: $blue !important; }
 .white { background-color: $white !important; }
 .light { background-color: $gray-100 !important; }
@@ -32,3 +39,17 @@ $cap-teal: #78eff7;
 .gray-text { color: $gray-500 !important; }
 .dark-text { color: $gray-800 !important; }
 .black-text { color: $black !important; }
+
+.cap-red-border { border: 1px solid $cap-red !important; }
+.cap-gray-border { border: 1px solid $cap-gray !important; }
+.cap-blue-border { border: 1px solid $cap-blue !important; }
+.red-border { border: 1px solid $red !important; }
+.orange-border { border: 1px solid $orange !important; }
+.yellow-border { border: 1px solid $yellow !important; }
+.green-border { border: 1px solid $green !important; }
+.blue-border { border: 1px solid $blue !important; }
+.white-border { border: 1px solid $white !important; }
+.light-border { border: 1px solid $gray-100 !important; }
+.gray-border { border: 1px solid $gray-500 !important; }
+.dark-border { border: 1px solid $gray-800 !important; }
+.black-border { border: 1px solid $black !important; }

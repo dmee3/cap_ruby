@@ -20,6 +20,15 @@ class User < ApplicationRecord
     "#{first_name} #{last_name}" if first_name && last_name
   end
 
+  def dues_status_okay?
+    return nil unless role.name == 'member'
+    return amount_paid >= payment_schedule_entries.where('pay_date < ?', Date.today).sum(:amount)
+  end
+
+  def amount_paid
+    payments.sum(:amount)
+  end
+
   def is?(name)
     role.name == name
   end

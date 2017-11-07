@@ -1,7 +1,12 @@
 @import 'application';
 
 body {
-  background-color: $green !important;
+  background-image: image-url('payments_bg.png');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+  background-color: #323337;
 }
 
 .StripeElement {
@@ -14,7 +19,7 @@ body {
   background-color: #fff;
   background-image: none;
   background-clip: padding-box;
-  border: 1px solid #ced4da;
+  border: 1px solid $gray-400;
   border-radius: 0.25rem;
   -webkit-transition: border-color ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s;
   transition: border-color ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s;
@@ -22,6 +27,38 @@ body {
   transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s;
 }
 
+.StripeElement--focus { border-color: $cap-gray; }
+
+/* Admin side styles */
+.member {
+  &.dues-on-track {
+    >.card-header {
+      background-color: $light-green;
+      color: $dark-green;
+
+      .progress-bar { background-color: $green; }
+    }
+
+    .card {
+      border: 1px solid $green;
+    }
+  }
+
+  &.dues-behind {
+    >.card-header {
+      background-color: $light-red;
+      color: $dark-red;
+    }
+
+    .progress-bar { background-color: $red; }
+
+    .card {
+      border: 1px solid $red;
+    }
+  }
+}
+
+/* Member side styles */
 .dues-bar-bg {
   overflow: visible;
 }

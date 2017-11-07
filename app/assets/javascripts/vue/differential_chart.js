@@ -1,12 +1,12 @@
 new Vue({
-  el: '#payment-chart',
+  el: '#differential-chart',
   data: {
     payments: {},
     error: []
   },
   mounted: function() {
     var self = this;
-    $.getJSON('/payments', { jwt: getJWT() })
+    $.getJSON('/payments/differential-chart', { jwt: getJWT() })
       .done(function(response) {
         Vue.set(self.payments, 'scheduled', response.scheduled);
         Vue.set(self.payments, 'actual', response.actual);
@@ -20,7 +20,7 @@ new Vue({
   },
   methods: {
     renderChart: function() {
-      var ctx = $('#payment-chart');
+      var ctx = $('#differential-chart-area');
       var chart = new Chart(ctx, {
         type: 'line',
         data: {

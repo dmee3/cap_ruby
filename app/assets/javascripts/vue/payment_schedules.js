@@ -29,7 +29,7 @@ new Vue({
     addEntry: function() {
       var self = this;
       $.ajax({
-        url: '/payment_schedules/add_entry',
+        url: '/payment_schedules/add-entry',
         type: 'POST',
         data: {
           jwt: getJWT(),
@@ -55,7 +55,7 @@ new Vue({
     removeEntry: function(id, index) {
       var self = this;
       $.ajax({
-        url: '/payment_schedules/remove_entry',
+        url: '/payment_schedules/remove-entry',
         type: 'DELETE',
         data: {
           jwt: getJWT(),

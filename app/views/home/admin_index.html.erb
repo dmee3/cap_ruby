@@ -1,14 +1,16 @@
 <% content_for :styles do %>
-  <%= stylesheet_link_tag 'application', media: 'all' %>
+  <%= stylesheet_link_tag 'home', media: 'all' %>
 <% end %>
 
 <% content_for :main do %>
   <div class="container">
     <div class="row">
       <div  class="col-sm-12">
-        <div class="card">
+        <div class="card cap-gray-border">
           <div class="card-body">
-            <canvas id="payment-chart" height="75px"></canvas>
+            <div id="differential-chart" class="col-sm-12">
+              <canvas id="differential-chart-area" height="75px"></canvas>
+            </div>
           </div>
         </div>
       </div>
@@ -16,22 +18,22 @@
 
     <div class="row mt-3">
       <%= link_to users_path, class: 'col-md-6 col-lg-4 mt-3' do %>
-        <div class="card cap-blue">
-          <div class="card-body white-text">
+        <div class="card cap-blue white-border">
+          <div class="card-body white-hover-link white-text">
             <h2>Users</h2>
           </div>
         </div>
       <% end %>
       <%= link_to conflicts_path, class: 'col-md-6 col-lg-4 mt-3' do %>
-        <div class="card cap-red">
-          <div class="card-body white-text">
+        <div class="card cap-red white-border">
+          <div class="card-body white-hover-link white-text">
             <h2>Conflicts</h2>
           </div>
         </div>
       <% end %>
       <%= link_to payments_path, class: 'col-md-6 col-lg-4 mt-3' do %>
-        <div class="card green">
-          <div class="card-body white-text">
+        <div class="card green white-border">
+          <div class="card-body white-hover-link white-text">
             <h2>Payments</h2>
           </div>
         </div>
@@ -41,5 +43,5 @@
 <% end %>
 
 <% content_for :scripts do %>
-  <%= javascript_include_tag 'vue/payment_charts' %>
+  <%= javascript_include_tag 'vue/differential_chart' %>
 <% end %>

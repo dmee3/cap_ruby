@@ -1,23 +1,12 @@
 class PaymentsController < ApplicationController
   before_action :authorized?
-  before_action -> { redirect_if_not 'admin' }, only: :create
+  before_action -> { redirect_if_not 'admin' }, except: %i[index new charge]
 
   def index
-    # Chart ideas
-    #   Burn-down comparing expected and actual
     if is? 'admin'
-      respond_to do |format|
-        format.html do
-          @payments = Payment.all.order :date_paid
-          render :admin_index
-        end
-        format.json do
-          render(json: {
-            scheduled: ChartUtilities.payment_schedule_sums_by_week,
-            actual: ChartUtilities.payment_sums_by_week
-          })
-        end
-      end
+      @members = User.where(role: Role.find_by_name('member'))
+                     .includes(:payments, payment_schedule: :payment_schedule_entries)
+      render :admin_index
     elsif is? 'member'
       set_member_index_variables
       render :member_index
@@ -81,6 +70,18 @@ class PaymentsController < ApplicationController
     Rollbar.error e, user: current_user
     flash[:error] = 'An error occurred submitting your payment.  Please contact a director for help.'
     redirect_to root_url
+  end
+
+  def differential_chart
+    render(json:
+    {
+      scheduled: DashboardUtilities.payment_schedule_sums_by_week,
+      actual: DashboardUtilities.payment_sums_by_week
+    })
+  end
+
+  def upcoming_payments
+    # render(json: { payments: DashboardUtilities.upcoming_payments })
   end
 
   private

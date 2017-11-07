@@ -17,7 +17,28 @@
       <div  class="col-sm-12">
         <div class="card">
           <div class="card-body">
-            <canvas id="payment-chart" height="100px"></canvas>
+            <ul class="nav nav-fill nav-tabs">
+              <li class="nav-item">
+                <a class="nav-link active info-tab" href="#differential-chart">Differential</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link info-tab" href="#burndown-chart">Burndown</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link info-tab" href="#upcoming-list">Upcoming</a>
+              </li>
+            </ul>
+
+            <div id="differential-chart" class="col-sm-12 mt-3 info-box">
+              <canvas id="differential-chart-area" height="100px"></canvas>
+            </div>
+
+            <div id="burndown-chart" class="col-sm-12 mt-3 info-box" style="display: none;">
+              <canvas height="100px"></canvas>
+            </div>
+
+            <div id="upcoming-list" class="col-sm-12 mt-3 info-box" style="display: none;">
+            </div>
           </div>
         </div>
       </div>
@@ -25,33 +46,87 @@
 
     <div class="row mt-3">
       <div class="col-sm-12">
-        <ul class="list-group">
-          <% @payments.each do |payment| %>
-            <li class="list-group-item">
-              <%= render 'payment_type_icon', type: payment.payment_type %>
-              <%= payment.user.first_name + ' ' + payment.user.last_name %>
-              <span class="float-right">
-                <% unless payment.notes.blank? %>
-                  <a data-toggle="collapse" href="#payment-notes-<%= payment.id %>">
-                    <%= fa_icon 'comment-o', class: 'dark-text icon-btn icon-btn-blue' %>
-                  </a>
-                <% end %>
-                &nbsp;&nbsp;&nbsp;
-                $<%= '%.2f' % (payment.amount / 100.0) %>
-              </span>
-            </li>
-            <% unless payment.notes.blank? %>
-              <li class="collapse white gray-text px-5 py-1" id="payment-notes-<%= payment.id %>">
-                <%= payment.notes %>
-              </li>
-            <% end %>
+        <div class="card" id="member-accordion" data-children=".member">
+          <% @members.each do |member| %>
+            <div class="member <%= member.dues_status_okay? ? 'dues-on-track' : 'dues-behind' %>">
+              <div class="card-header" data-toggle="collapse" data-target="#member-<%= member.id %>-info" data-parent="#member-accordion">
+                <div class="row">
+                  <div class="col-md-4 col-lg-3">
+                    <h5 class="mb-0"><%= member.full_name %></h5>
+                  </div>
+
+                  <div class="col-md-8 col-lg-9 mt-1">
+                    <div class="progress">
+                      <div class="progress-bar" style="width: <%= 100 * member.amount_paid.to_f / member.payment_schedule.payment_schedule_entries.sum(:amount).to_f %>%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="member-<%= member.id %>-info" class="collapse" data-parent="#member-accordion">
+                <div class="row ml-3 mr-3">
+                  <div class="col-md-6 mt-3 mb-3">
+                    <h6>Payments</h6>
+                    <div class="card" id="payment-accordion-<%= member.id %>">
+                      <% member.payments.each do |payment| %>
+                        <div class="card-header">
+                          <%= render 'payment_type_icon', type: payment.payment_type %>
+                          $<%= '%.2f' % (payment.amount / 100.0) %>
+
+                          <span class="float-right gray-text font-weight-light">&nbsp;&nbsp;&nbsp;<%= payment.date_paid.strftime('%-m/%-d/%y') %>
+                            <% unless payment.notes.blank? %>
+                              <a data-toggle="collapse" href="#payment-notes-<%= payment.id %>">
+                                <%= fa_icon 'comment-o', class: 'dark-text icon-btn icon-btn-blue' %>
+                              </a>
+                            <% end %>
+                          </span>
+                        </div>
+
+                        <% unless payment.notes.blank? %>
+                          <div class="collapse white gray-text font-weight-light px-5 py-1" id="payment-notes-<%= payment.id %>">
+                            <%= payment.notes %>
+                          </div>
+                        <% end %>
+                      <% end %>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6 mt-3 mb-3">
+                    <h6>Payment Schedule</h6>
+                    <div class="card">
+                      <% member.payment_schedule.payment_schedule_entries.each do |entry| %>
+                        <div class="card-header">
+                          $<%= '%.2f' % (entry.amount / 100.0) %>
+                          <span class="float-right gray-text font-weight-light">&nbsp;&nbsp;&nbsp;<%= entry.pay_date.strftime('%-m/%-d/%y') %></span>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           <% end %>
-        </ul>
+        </div>
       </div>
     </div>
   </div>
 <% end %>
 
 <% content_for :scripts do %>
-  <%= javascript_include_tag 'vue/payment_charts' %>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('.info-tab').click(function(evt) {
+        evt.preventDefault();
+
+        $('.info-tab').removeClass('active');
+        $(this).addClass('active');
+
+        var target = $(this).attr('href');
+        $('.info-box').hide();
+        $(target).show();
+      });
+
+      $.getJSON('/payments/upcoming-payments', { jwt: getJWT() });
+    });
+  </script>
+  <%= javascript_include_tag 'vue/differential_chart' %>
 <% end %>
