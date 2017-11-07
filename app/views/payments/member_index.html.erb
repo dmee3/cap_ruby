@@ -3,63 +3,61 @@
 <% end %>
 
 <% content_for :main do %>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-9">
-        <h1 class="white-text">Payments</h1>
-      </div>
-      <div class="col-md-3 text-right-md">
-        <%= link_to 'New Payment', new_payment_path, class: 'btn btn-light green-text align-middle' %>
-      </div>
+  <div class="row">
+    <div class="col-md-9">
+      <h1 class="white-text">Payments</h1>
     </div>
-    <div class="card">
-      <div class="card-body">
-        <div class="row">
-          <div class="col-sm-12 text-center">
-            <p class="lead">Paid $<%= '%.2f' % @total_paid %>&nbsp;&nbsp;/&nbsp;&nbsp;$<%= '%.2f' % @total_dues %> Owed
-          </div>
-          <div class="col-sm-12">
-            <div class="progress" style="height: 30px">
-              <div class="progress-bar green" role="progressbar" style="width: <%= 100 * @total_paid.to_f / @total_dues.to_f %>%"></div>
-            </div>
+    <div class="col-md-3 text-right-md">
+      <%= link_to 'New Payment', new_payment_path, class: 'btn btn-light green-text align-middle' %>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-sm-12 text-center">
+          <p class="lead">Paid $<%= '%.2f' % @total_paid %>&nbsp;&nbsp;/&nbsp;&nbsp;$<%= '%.2f' % @total_dues %> Owed
+        </div>
+        <div class="col-sm-12">
+          <div class="progress" style="height: 30px">
+            <div class="progress-bar green" role="progressbar" style="width: <%= 100 * @total_paid.to_f / @total_dues.to_f %>%"></div>
           </div>
         </div>
+      </div>
 
-        <div class="row mt-4">
-          <div class="col-md-6">
-            <h3>Payments Made</h3>
-            <ul class="list-group">
-              <% @payments.each do |payment| %>
+      <div class="row mt-4">
+        <div class="col-md-6">
+          <h3>Payments Made</h3>
+          <ul class="list-group">
+            <% @payments.each do |payment| %>
+              <li class="list-group-item d-flex justify-content-between">
+                <span>
+                  <%= render 'payment_type_icon', type: payment.payment_type %>
+                  <%= payment.date_paid.strftime('%m/%d/%Y') %>
+                </span>
+                <span>$<%= '%.2f' % (payment.amount / 100.0) %></span>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+
+        <div class="col-sm-12 mt-3 mb-3 d-md-none">
+          <hr>
+        </div>
+
+        <div class="col-md-6">
+          <h3>Your Payment Schedule</h3>
+          <ul class="list-group">
+            <% @payment_schedule.entries.order(:pay_date).each do |entry| %>
+              <% if entry.pay_date < Date.today %>
+                <li class="list-group-item list-group-item-dark d-flex justify-content-between">
+              <% else %>
                 <li class="list-group-item d-flex justify-content-between">
-                  <span>
-                    <%= render 'payment_type_icon', type: payment.payment_type %>
-                    <%= payment.date_paid.strftime('%m/%d/%Y') %>
-                  </span>
-                  <span>$<%= '%.2f' % (payment.amount / 100.0) %></span>
-                </li>
               <% end %>
-            </ul>
-          </div>
-
-          <div class="col-sm-12 mt-3 mb-3 d-md-none">
-            <hr>
-          </div>
-
-          <div class="col-md-6">
-            <h3>Your Payment Schedule</h3>
-            <ul class="list-group">
-              <% @payment_schedule.entries.order(:pay_date).each do |entry| %>
-                <% if entry.pay_date < Date.today %>
-                  <li class="list-group-item list-group-item-dark d-flex justify-content-between">
-                <% else %>
-                  <li class="list-group-item d-flex justify-content-between">
-                <% end %>
-                  <span><%= entry.pay_date.strftime('%m/%d/%Y') %></span>
-                  <span>$<%= '%.2f' % (entry.amount / 100.0) %></span>
-                </li>
-              <% end %>
-            </ul>
-          </div>
+                <span><%= entry.pay_date.strftime('%m/%d/%Y') %></span>
+                <span>$<%= '%.2f' % (entry.amount / 100.0) %></span>
+              </li>
+            <% end %>
+          </ul>
         </div>
       </div>
     </div>

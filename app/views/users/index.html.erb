@@ -3,57 +3,55 @@
 <% end %>
 
 <% content_for :main do %>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-9">
-        <h1 class="white-text">Members</h1>
-      </div>
-      <div class="col-md-3 text-right-md">
-        <a class="btn btn-success" href="<%= new_user_path %>">New User</a>
-      </div>
+  <div class="row">
+    <div class="col-md-9">
+      <h1 class="white-text">Members</h1>
     </div>
-    <div class="row">
-      <div class="col-sm-12">
-        <ul class="list-group">
-          <% @members.each do |member| %>
-            <li class="list-group-item">
-              <%= member.first_name + ' ' + member.last_name %>
-              <span class="float-right">
-                <%= link_to member.payment_schedule do %>
-                  <%= fa_icon 'calendar', class: 'icon-btn icon-btn-orange dark-text' %>
-                <% end %>
-                &nbsp;&nbsp;&nbsp;
-                <a href="<%= edit_user_path(member) %>">
-                  <%= fa_icon 'pencil', class: 'icon-btn icon-btn-orange dark-text' %>
-                </a>
-                &nbsp;&nbsp;&nbsp;
-                <%= fa_icon 'trash-o', { class: 'icon-btn icon-btn-red dark-text delete-btn', data: { id: member.id.to_s, name: member.full_name } } %>
-              </span>
-            </li>
-          <% end %>
-        </ul>
-      </div>
+    <div class="col-md-3 text-right-md">
+      <a class="btn btn-success" href="<%= new_user_path %>">New User</a>
     </div>
   </div>
-
-  <div class="modal" id="delete-modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="delete-name"></h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <p>Are you sure?</p>
-        </div>
-        <%= form_tag '/users', method: :delete, id: 'delete-form', class: 'modal-footer' do %>
-          
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <%= submit_tag 'Delete', class: 'btn btn-danger' %>
+  <div class="row">
+    <div class="col-sm-12">
+      <ul class="list-group">
+        <% @members.each do |member| %>
+          <li class="list-group-item">
+            <%= member.first_name + ' ' + member.last_name %>
+            <span class="float-right">
+              <%= link_to member.payment_schedule do %>
+                <%= fa_icon 'calendar', class: 'icon-btn icon-btn-orange dark-text' %>
+              <% end %>
+              &nbsp;&nbsp;&nbsp;
+              <a href="<%= edit_user_path(member) %>">
+                <%= fa_icon 'pencil', class: 'icon-btn icon-btn-orange dark-text' %>
+              </a>
+              &nbsp;&nbsp;&nbsp;
+              <%= fa_icon 'trash-o', { class: 'icon-btn icon-btn-red dark-text delete-btn', data: { id: member.id.to_s, name: member.full_name } } %>
+            </span>
+          </li>
         <% end %>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="delete-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="delete-name"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
+      <div class="modal-body">
+        <p>Are you sure?</p>
+      </div>
+      <%= form_tag '/users', method: :delete, id: 'delete-form', class: 'modal-footer' do %>
+        
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <%= submit_tag 'Delete', class: 'btn btn-danger' %>
+      <% end %>
     </div>
   </div>
 <% end %>

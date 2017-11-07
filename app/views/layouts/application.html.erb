@@ -28,7 +28,9 @@
 
     <div id="top-space"></div>
 
-    <%= yield :main %>
+    <div class="container pb-3">
+      <%= yield :main %>
+    </div>
 
     <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
 

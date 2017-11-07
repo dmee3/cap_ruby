@@ -3,42 +3,39 @@
 <% end %>
 
 <% content_for :main do %>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-9">
-        <h1 class="white-text">New Payment</h1>
-      </div>
-      <div class="col-md-3 text-right-md">
-        <%= link_to 'All Payments', payments_path, class: 'btn btn-light green-text align-middle' %>
-      </div>
+  <div class="row">
+    <div class="col-md-9">
+      <h1 class="white-text">New Payment</h1>
     </div>
-
-    <div class="card">
-      <%= form_tag '/charge', { method: :post, id: 'payment-form', class: 'card-body' } do %>
-        <div class="row align-self-center">
-          <div class="col-md-4 col-lg-6 input-group">
-            <span class="input-group-addon">$</span><%= text_field_tag :payment_amount, nil, { class: 'form-control', placeholder: 'Amount' } %>
-          </div>
-          <div class="col-md-4 col-lg-3 text-right my-auto"><span id="service-fee"></span></div>
-          <div class="col-md-4 col-lg-3 text-right my-auto"><span id="total-cost"></span></div>
-        </div>
-        <div class="row mt-3">
-          <div class="col-sm-12">
-            <div id="card-element" class="form-control"></div>
-            <div id="card-errors" class="red-text" role="alert"></div>
-          </div>
-        </div>
-        <div class="row mt-3">
-          <div class="col-sm-12 text-center">
-            <input type="submit" class="btn btn-success" value="Submit Payment"></input>
-          </div>
-        </div>
-      <% end %>
+    <div class="col-md-3 text-right-md">
+      <%= link_to 'All Payments', payments_path, class: 'btn btn-light green-text align-middle' %>
     </div>
-
-    <%= javascript_include_tag 'https://js.stripe.com/v3/' %>
-
   </div>
+
+  <div class="card">
+    <%= form_tag '/charge', { method: :post, id: 'payment-form', class: 'card-body' } do %>
+      <div class="row align-self-center">
+        <div class="col-md-4 col-lg-6 input-group">
+          <span class="input-group-addon">$</span><%= text_field_tag :payment_amount, nil, { class: 'form-control', placeholder: 'Amount' } %>
+        </div>
+        <div class="col-md-4 col-lg-3 text-right my-auto"><span id="service-fee"></span></div>
+        <div class="col-md-4 col-lg-3 text-right my-auto"><span id="total-cost"></span></div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-sm-12">
+          <div id="card-element" class="form-control"></div>
+          <div id="card-errors" class="red-text" role="alert"></div>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-sm-12 text-center">
+          <input type="submit" class="btn btn-success" value="Submit Payment"></input>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <%= javascript_include_tag 'https://js.stripe.com/v3/' %>
 <% end %>
 
 <% content_for :scripts do %>

@@ -26,7 +26,11 @@ class User < ApplicationRecord
   end
 
   def amount_paid
-    payments.sum(:amount)
+    payments&.sum(:amount)
+  end
+
+  def total_dues
+    payment_schedule&.payment_schedule_entries&.sum(:amount)
   end
 
   def is?(name)

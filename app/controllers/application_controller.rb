@@ -6,8 +6,9 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user
+    return @current if @current
     token = JsonWebToken.decode jwt
-    return User.find(token[:user_id]) if token
+    @current = User.find(token[:user_id]) if token
   rescue ActiveRecord::RecordNotFound
     nil
   end

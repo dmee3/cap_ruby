@@ -6,6 +6,7 @@ class PaymentsController < ApplicationController
     if is? 'admin'
       @members = User.where(role: Role.find_by_name('member'))
                      .includes(:payments, payment_schedule: :payment_schedule_entries)
+                     .order :first_name
       render :admin_index
     elsif is? 'member'
       set_member_index_variables
@@ -20,7 +21,7 @@ class PaymentsController < ApplicationController
 
     if is? 'admin'
       @payment_types = PaymentType.all
-      @members = User.where(role: Role.find_by_name('member')).order :last_name
+      @members = User.where(role: Role.find_by_name('member')).order :first_name
       @payment = Payment.new
       render :admin_new
     else
@@ -36,14 +37,10 @@ class PaymentsController < ApplicationController
       redirect_to payments_path
     else
       @payment_types = PaymentType.all
-      @members = User.where(role: Role.find_by_name('member')).order :last_name
+      @members = User.where(role: Role.find_by_name('member')).order :first_name
       flash.now[:error] = @payment.errors.full_messages.to_sentence
       render :admin_new
     end
-  end
-
-  def admin_new
-    render :add
   end
 
   def charge
@@ -73,11 +70,12 @@ class PaymentsController < ApplicationController
   end
 
   def differential_chart
-    render(json:
-    {
-      scheduled: DashboardUtilities.payment_schedule_sums_by_week,
-      actual: DashboardUtilities.payment_sums_by_week
-    })
+    render(
+      json: {
+        scheduled: DashboardUtilities.payment_schedule_sums_by_week,
+        actual: DashboardUtilities.payment_sums_by_week
+      }
+    )
   end
 
   def upcoming_payments

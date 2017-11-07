@@ -3,42 +3,40 @@
 <% end %>
 
 <% content_for :main do %>
-  <div class="container">
-    <div class="row">
-      <div  class="col-sm-12">
-        <div class="card cap-gray-border">
-          <div class="card-body">
-            <div id="differential-chart" class="col-sm-12">
-              <canvas id="differential-chart-area" height="75px"></canvas>
-            </div>
+  <div class="row">
+    <div  class="col-sm-12">
+      <div class="card cap-gray-border">
+        <div class="card-body">
+          <div id="differential-chart" class="col-sm-12">
+            <canvas id="differential-chart-area" height="75px"></canvas>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="row mt-3">
-      <%= link_to users_path, class: 'col-md-6 col-lg-4 mt-3' do %>
-        <div class="card cap-blue white-border">
-          <div class="card-body white-hover-link white-text">
-            <h2>Users</h2>
-          </div>
+  <div class="row mt-3">
+    <%= link_to users_path, class: 'col-md-6 col-lg-4 mt-3' do %>
+      <div class="card cap-blue white-border">
+        <div class="card-body white-hover-link white-text">
+          <h2>Users</h2>
         </div>
-      <% end %>
-      <%= link_to conflicts_path, class: 'col-md-6 col-lg-4 mt-3' do %>
-        <div class="card cap-red white-border">
-          <div class="card-body white-hover-link white-text">
-            <h2>Conflicts</h2>
-          </div>
+      </div>
+    <% end %>
+    <%= link_to conflicts_path, class: 'col-md-6 col-lg-4 mt-3' do %>
+      <div class="card cap-red white-border">
+        <div class="card-body white-hover-link white-text">
+          <h2>Conflicts</h2>
         </div>
-      <% end %>
-      <%= link_to payments_path, class: 'col-md-6 col-lg-4 mt-3' do %>
-        <div class="card green white-border">
-          <div class="card-body white-hover-link white-text">
-            <h2>Payments</h2>
-          </div>
+      </div>
+    <% end %>
+    <%= link_to payments_path, class: 'col-md-6 col-lg-4 mt-3' do %>
+      <div class="card green white-border">
+        <div class="card-body white-hover-link white-text">
+          <h2>Payments</h2>
         </div>
-      <% end %>
-    </div>
+      </div>
+    <% end %>
   </div>
 <% end %>
 

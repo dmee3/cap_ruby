@@ -59,6 +59,7 @@ new Vue({
             }],
             yAxes: [{
               ticks: {
+                beginAtZero: true,
                 callback: function(value, index, values) { return  '$' + value; }
               }
             }]

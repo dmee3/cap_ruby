@@ -3,17 +3,14 @@
 <% end %>
 
 <% content_for :main do %>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-9">
-        <h1 class="white-text">New User</h1>
-      </div>
-      <div class="col-md-3 text-right-md">
-        <a class="btn btn-info" href="<%= users_path %>">All Users</a>
-      </div>
+  <div class="row">
+    <div class="col-md-9">
+      <h1 class="white-text">New User</h1>
     </div>
-
-    <%= render 'form', user: @user %>
-
+    <div class="col-md-3 text-right-md">
+      <a class="btn btn-info" href="<%= users_path %>">All Users</a>
+    </div>
   </div>
+
+  <%= render 'form', user: @user %>
 <% end %>
