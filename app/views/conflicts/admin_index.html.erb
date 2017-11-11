@@ -1,3 +1,66 @@
 <% content_for :styles do %>
   <%= stylesheet_link_tag 'conflicts', media: 'all' %>
 <% end %>
+
+<% content_for :main do %>
+  <div class="row">
+    <div class="col-md-9">
+      <h1 class="white-text">Conflicts</h1>
+    </div>
+    <div class="col-md-3 text-right-md">
+      <%= link_to 'New Conflict', new_conflict_path, class: 'btn btn-light red-text align-middle' %>
+    </div>
+  </div>
+
+  <% unless @pending.empty? %>
+    <%= render 'admin_pending_conflicts', pending: @pending %>
+  <% end %>
+
+  <div class="row mt-3">
+    <div class="col-12">
+      <div class="card" id="conflict-accordion" data-children=".conflict">
+        <% @conflicts.each do |conflict| %>
+          <div class="conflict conflict-<%= conflict.status.name.downcase %>">
+            <div class="card-header" data-toggle="collapse" data-target="#conflict-<%= conflict.id %>-info" data-parent="#conflict-accordion">
+              <div class="row">
+                <div class="col-8 col-sm-9">
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-4 font-weight-bold"><%= conflict.user.full_name %></div>
+                      <div class="col-7 font-weight-light">
+                        <span><%= conflict.start_date.strftime('%-m/%-d/%y %I:%M %p') %></span> - <%= conflict.end_date.strftime('%-m/%-d/%y %I:%M %p') %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-4 col-sm-3">
+                  <div class="container">
+                    <div class="row text-right">
+                      <div class="col-12 col-lg-9">
+                        <%= render 'conflict_status_icon', status: conflict.status %>
+                      </div>
+                      <div class="col-12 col-lg-3 order-lg-first">
+                        <a data-toggle="collapse" href="#conflict-reason-<%= conflict.id %>">
+                          <%= fa_icon 'comment-o', class: 'dark-text icon-btn icon-btn-blue' %>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <% unless conflict.reason.blank? %>
+              <div class="collapse white gray-text font-weight-light px-5 py-1" id="conflict-reason-<%= conflict.id %>">
+                <%= conflict.reason %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<% content_for :scripts do %>
+<% end %>

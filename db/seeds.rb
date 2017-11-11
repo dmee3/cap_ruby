@@ -18,12 +18,13 @@ PaymentType.create(name: 'Stripe') unless PaymentType.find_by_name 'Stripe'
 PaymentType.create(name: 'Check') unless PaymentType.find_by_name 'Check'
 PaymentType.create(name: 'Square - Pos') unless PaymentType.find_by_name 'Square - pos'
 PaymentType.create(name: 'Square - App') unless PaymentType.find_by_name 'Square - app'
+PaymentType.create(name: 'Other') unless PaymentType.find_by_name 'Other'
 puts 'Payment Types created'
 
 # Create Conflict Statuses
-ConflictStatus.create(name: 'denied') unless ConflictStatus.find_by_name 'denied'
-ConflictStatus.create(name: 'pending') unless ConflictStatus.find_by_name 'pending'
-ConflictStatus.create(name: 'approved') unless ConflictStatus.find_by_name 'approved'
+ConflictStatus.create(name: 'Denied') unless ConflictStatus.find_by_name 'Denied'
+ConflictStatus.create(name: 'Pending') unless ConflictStatus.find_by_name 'Pending'
+ConflictStatus.create(name: 'Approved') unless ConflictStatus.find_by_name 'Approved'
 puts 'Conflict Statuses created'
 
 # Create Me

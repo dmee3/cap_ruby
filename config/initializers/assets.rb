@@ -10,6 +10,7 @@ Rails.application.config.assets.version = (ENV["ASSETS_VERSION"] || "1.0")
 # application.js, application.css, and all non-JS/CSS in the app/assets
 # folder are already added.
 Rails.application.config.assets.precompile += %w[
+  conflicts.css
   home.css
   sessions.css
   users.js

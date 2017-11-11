@@ -60,12 +60,13 @@ class PaymentsController < ApplicationController
       flash[:success] = 'Payment submitted.  Thank you!'
       redirect_to root_url
     else
+      Rollbar.info('Payment could not be submitted.  Please check Stripe for transaction.', errors: payment.errors.full_messages)
       flash[:error] = 'Payment could not be submitted.  Please contact a director for help.'
       redirect_to new_payment_url
     end
   rescue StandardError => e
-    Rollbar.error e, user: current_user
-    flash[:error] = 'An error occurred submitting your payment.  Please contact a director for help.'
+    Rollbar.error(e, user: current_user)
+    flash[:error] = 'Payment could not be submitted.  Please contact a director for help.'
     redirect_to root_url
   end
 

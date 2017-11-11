@@ -21,6 +21,7 @@ class UsersController < ApplicationController
       flash[:success] = "#{@user.first_name} account created"
       redirect_to users_path
     else
+      Rollbar.info('User could not be created.', errors: @user.errors.full_messages)
       @roles = Role.all.reverse_order
       flash.now[:error] = @user.errors.full_messages.to_sentence
       render :new
@@ -37,6 +38,7 @@ class UsersController < ApplicationController
     if @user.update(user_params.reject { |_k, v| v.blank? })
       flash[:success] = "#{@user.first_name} updated"
     else
+      Rollbar.info('User could not be updated.', errors: @user.errors.full_messages)
       flash[:error] = "Unable to update #{@user.first_name}"
     end
 

@@ -1,0 +1,38 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card bg-warning">
+      <div class="card-body">
+        <h3 class="white-text">Pending Conflicts</h3>
+        <div class="list-group">
+          <% pending.each do |conflict| %>
+            <div class="list-group-item container">
+              <div class="row">
+                <div class="col-md-3">
+                  <span class="font-weight-bold"><%= conflict.user.full_name %></span>
+                </div>
+                <div class="col-md-3 col-lg-5">
+                  <span class="font-weight-light"><span><%= conflict.start_date.strftime('%-m/%-d/%y %I:%M %p') %></span> - <%= conflict.end_date.strftime('%-m/%-d/%y %I:%M %p') %></span>
+                </div>
+                <div class="col-md-1">
+                  <a data-toggle="collapse" href="#conflict-reason-<%= conflict.id %>">
+                    <%= fa_icon 'comment-o', class: 'dark-text icon-btn icon-btn-blue' %>
+                  </a>
+                </div>
+
+                <div class="col-md-5 col-lg-3">
+                  <%= form_for conflict, { method: :put, html: { class: 'form-inline d-flex justify-content-between' } } do |c| %>
+                    <%= c.collection_select :status_id, ConflictStatus.all, :id, :name, {}, { class: 'form-control w-50' } %>
+                    <%= c.submit 'Update', class: 'btn btn-success w-40' %>
+                  <% end %>
+                </div>
+                <div class="col-12 collapse px-5 py-1" id="conflict-reason-<%= conflict.id %>">
+                  <small class="text-muted"><%= conflict.reason %></small>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
