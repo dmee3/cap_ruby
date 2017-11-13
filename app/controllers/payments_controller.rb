@@ -12,8 +12,6 @@ class PaymentsController < ApplicationController
       set_member_index_variables
       render :member_index
     end
-
-    redirect_to root_url unless performed?
   end
 
   def new
@@ -81,6 +79,15 @@ class PaymentsController < ApplicationController
 
   def upcoming_payments
     # render(json: { payments: DashboardUtilities.upcoming_payments })
+  end
+
+  def burndown_chart
+    render(
+      json: {
+        scheduled: DashboardUtilities.biweekly_scheduled,
+        actual: DashboardUtilities.biweekly_actual
+      }
+    )
   end
 
   private

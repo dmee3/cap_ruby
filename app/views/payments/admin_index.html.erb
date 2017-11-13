@@ -15,8 +15,8 @@
   <div class="row">
     <div  class="col-12">
       <div class="card">
-        <div class="card-body">
-          <ul class="nav nav-fill nav-tabs">
+        <div class="card-header">
+          <ul class="nav nav-fill nav-tabs card-header-tabs">
             <li class="nav-item">
               <a class="nav-link active info-tab" href="#differential-chart">Differential</a>
             </li>
@@ -27,13 +27,15 @@
               <a class="nav-link info-tab" href="#upcoming-list">Upcoming</a>
             </li>
           </ul>
+        </div>
 
+        <div class="card-body">
           <div id="differential-chart" class="col-sm-12 mt-3 info-box">
             <canvas id="differential-chart-area" height="100px"></canvas>
           </div>
 
           <div id="burndown-chart" class="col-sm-12 mt-3 info-box" style="display: none;">
-            <canvas height="100px"></canvas>
+            <canvas id="burndown-chart-area" height="100px"></canvas>
           </div>
 
           <div id="upcoming-list" class="col-sm-12 mt-3 info-box" style="display: none;">
@@ -45,10 +47,11 @@
 
   <div class="row mt-3">
     <div class="col-sm-12">
-      <div class="card" id="member-accordion" data-children=".member">
-        <% @members.each do |member| %>
-          <div class="member <%= member.dues_status_okay? ? 'dues-on-track' : 'dues-behind' %>">
-            <div class="card-header" data-toggle="collapse" data-target="#member-<%= member.id %>-info" data-parent="#member-accordion">
+      <div class="card">
+        <div class="list-group list-group-flush">
+          <% @members.each do |member| %>
+            <% status = member.dues_status_okay? %>
+            <a href="#member-<%= member.id %>-info" class="list-group-item list-group-item-action <%= status ? 'list-group-item-success' : 'list-group-item-danger' %>" data-toggle="collapse">
               <div class="row">
                 <div class="col-md-4 col-lg-3">
                   <h5 class="mb-0"><%= member.full_name %></h5>
@@ -56,7 +59,7 @@
 
                 <div class="col-8 col-sm-9 col-md-6 col-lg-7 mt-1">
                   <div class="progress">
-                    <div class="progress-bar" style="width: <%= 100 * member.amount_paid.to_f / member.total_dues.to_f %>%">
+                    <div class="progress-bar <%= status ? 'green' : 'red' %>" style="width: <%= 100 * member.amount_paid.to_f / member.total_dues.to_f %>%">
                       <%= member.amount_paid > 0 ? '$%.2f' % (member.amount_paid.to_f / 100.0) : '' %>
                     </div>
                   </div>
@@ -65,51 +68,21 @@
                   <p class="mb-0 font-weight-light text-right">$<%= '%.2f' % (member.total_dues.to_f / 100.0) %></p>
                 </div>
               </div>
-            </div>
+            </a>
 
-            <div id="member-<%= member.id %>-info" class="collapse" data-parent="#member-accordion">
+            <div id="member-<%= member.id %>-info" class="collapse white">
               <div class="row mx-3">
                 <div class="col-md-6 my-3">
-                  <h6>Payments</h6>
-                  <div class="card" id="payment-accordion-<%= member.id %>">
-                    <% member.payments.each do |payment| %>
-                      <div class="card-header">
-                        <%= render 'payment_type_icon', type: payment.payment_type %>
-                        $<%= '%.2f' % (payment.amount / 100.0) %>
-
-                        <small class="float-right text-muted"><%= payment.date_paid.strftime('%-m/%-d/%y') %>
-                          <% unless payment.notes.blank? %>
-                            <a data-toggle="collapse" href="#payment-notes-<%= payment.id %>">
-                              <%= fa_icon 'comment-o', class: 'dark-text icon-btn icon-btn-blue' %>
-                            </a>
-                          <% end %>
-                        </small>
-                      </div>
-
-                      <% unless payment.notes.blank? %>
-                        <div class="collapse white px-5 py-1" id="payment-notes-<%= payment.id %>">
-                          <small class="text-muted"><%= payment.notes %></small>
-                        </div>
-                      <% end %>
-                    <% end %>
-                  </div>
+                  <%= render 'payments_made_card', member: member, status: status %>
                 </div>
 
                 <div class="col-md-6 my-3">
-                  <h6>Payment Schedule</h6>
-                  <div class="card">
-                    <% member.payment_schedule.payment_schedule_entries.each do |entry| %>
-                      <div class="card-header">
-                        $<%= '%.2f' % (entry.amount / 100.0) %>
-                        <small class="float-right text-muted"><%= entry.pay_date.strftime('%-m/%-d/%y') %></small>
-                      </div>
-                    <% end %>
-                  </div>
+                  <%= render 'payment_schedule_card', member: member, status: status %>
                 </div>
               </div>
             </div>
-          </div>
-        <% end %>
+          <% end %>
+        </div>
       </div>
     </div>
   </div>
@@ -133,4 +106,5 @@
     });
   </script>
   <%= javascript_include_tag 'vue/differential_chart' %>
+  <%= javascript_include_tag 'vue/burndown_chart' %>
 <% end %>

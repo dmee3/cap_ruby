@@ -1,9 +1,12 @@
 class ConflictsController < ApplicationController
   before_action :authorized?
+  before_action -> { redirect_if_not 'admin' }, only: :update
 
   def index
     if is? 'admin'
-      @conflicts = Conflict.where('start_date > ?', Date.yesterday).order :start_date
+      @conflicts = Conflict.where('start_date > ?', Date.yesterday)
+                           .where.not(conflict_status: ConflictStatus.find_by_name('Pending'))
+                           .order :start_date
       @pending = Conflict.where(conflict_status: ConflictStatus.find_by_name('Pending'))
       render :admin_index
     elsif is? 'member'

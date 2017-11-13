@@ -9,13 +9,16 @@ class HomeController < ApplicationController
     elsif is? :member
       member_index
     else
-      # Some sort of HTTP authorization error (403?)
+      Rollbar.warning('User with unknown role accessed home page.')
+      logout
     end
   end
 
   private
 
   def admin_index
+    @pending_conflicts = Conflict.where(conflict_status: ConflictStatus.find_by_name('Pending'))
+                                 .count
     render :admin_index
   end
 
@@ -24,6 +27,9 @@ class HomeController < ApplicationController
   end
 
   def member_index
+    @pending_conflicts = Conflict.where(user: current_user)
+                                 .where(conflict_status: ConflictStatus.find_by_name('Pending'))
+                                 .count
     render :member_index
   end
 end

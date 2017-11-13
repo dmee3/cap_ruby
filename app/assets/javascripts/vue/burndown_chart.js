@@ -1,57 +1,52 @@
 new Vue({
-  el: '#differential-chart',
+  el: '#burndown-chart',
   data: {
-    payments: {},
+    dates: {},
     error: []
   },
   mounted: function() {
     var self = this;
-    $.getJSON('/payments/differential-chart', { jwt: getJWT() })
+    $.getJSON('/payments/burndown-chart', { jwt: getJWT() })
       .done(function(response) {
-        Vue.set(self.payments, 'scheduled', response.scheduled);
-        Vue.set(self.payments, 'actual', response.actual);
+        Vue.set(self.dates, 'scheduled', response.scheduled);
+        Vue.set(self.dates, 'actual', response.actual);
         self.renderChart();
       })
       .fail(function(err) {
         self.error = err;
-        $('.flash-bar').html('<div class="alert alert-dismissible alert-danger" role="alert"><div class="container">An error has been encountered getting differential chart info.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div></div>');
+        $('.flash-bar').html('<div class="alert alert-dismissible alert-danger" role="alert"><div class="container">An error has been encountered getting burndown chart info.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div></div>');
         console.log(err);
       });
   },
   methods: {
     renderChart: function() {
-      var ctx = $('#differential-chart-area');
+      var ctx = $('#burndown-chart-area');
       var chart = new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
+          labels: this.dates['scheduled'].map(function(point) {
+            return moment(point[0]).format('MMM Do YYYY');
+          }),
           datasets: [
             {
               label: 'Actual Amount',
-              data: this.payments['actual'].map(function(point) {
-                return { x: moment(point[0]), y: point[1] };
+              data: this.dates['actual'].map(function(point) {
+                return point[1];
               }),
-              borderColor: chartColor['orange'].rgbaString(),
-              backgroundColor: chartColor['orange'].rgbaString(0.5)
+              backgroundColor: chartColor['orange'].rgbaString()
             },
             {
               label: 'Scheduled Amount',
-              data: this.payments['scheduled'].map(function(point) {
-                return { x: moment(point[0]), y: point[1] };
+              data: this.dates['scheduled'].map(function(point) {
+                return point[1];
               }),
-              borderColor: chartColor['blue'].rgbaString(),
-              backgroundColor: chartColor['blue'].rgbaString(0.5)
+              backgroundColor: chartColor['blue'].rgbaString()
             }
           ]
         },
         options: {
           scales: {
             xAxes: [{
-              type: 'time',
-              distribution: 'linear',
-              time: {
-                displayFormats: { week: 'll' },
-                tooltipFormat: 'll'
-              },
               ticks: {
                 maxRotation: 45,
                 minRotation: 45
@@ -70,7 +65,7 @@ new Vue({
             fontColor: '#212529',
             fontSize: 30,
             fontStyle: 'bold',
-            text: 'Payment Differential'
+            text: 'Payment Burndown'
           },
           tooltips: {
             callbacks: {

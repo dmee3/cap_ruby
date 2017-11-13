@@ -22,7 +22,7 @@ class User < ApplicationRecord
 
   def dues_status_okay?
     return nil unless role.name == 'member'
-    return amount_paid >= payment_schedule_entries.where('pay_date < ?', Date.today).sum(:amount)
+    @status ||= amount_paid >= payment_schedule_entries.where('pay_date < ?', Date.today).sum(:amount)
   end
 
   def amount_paid

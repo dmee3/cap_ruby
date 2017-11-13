@@ -18,4 +18,14 @@ class DashboardUtilities
                   .includes(:payments, payment_schedule: :payment_schedule_entries)
                   .select { |u| u.amount_paid < u.payment_schedule.entries.where('pay_date <= ?', Date.today) }
   end
+
+  def self.biweekly_scheduled
+    dates = (Season.season_start..Season.season_end).select { |d| d.wday.zero? }
+    dates = dates.map { |d| [d, PaymentScheduleEntry.where('pay_date <= ?', d).sum(:amount).to_f / 100.0] }
+  end
+
+  def self.biweekly_actual
+    dates = (Season.season_start..Season.season_end).select { |d| d.wday.zero? }
+    dates = dates.map { |d| [d, Payment.where('date_paid <= ?', d).sum(:amount).to_f / 100.0] }
+  end
 end

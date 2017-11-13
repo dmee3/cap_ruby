@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   post 'charge', to: 'payments#charge'
   get 'payments/differential-chart', to: 'payments#differential_chart'
   get 'payments/upcoming-payments', to: 'payments#upcoming_payments'
+  get 'payments/burndown-chart', to: 'payments#burndown_chart'
 
   resources :users, except: %i[show]
   get 'settings', to: 'users#settings'

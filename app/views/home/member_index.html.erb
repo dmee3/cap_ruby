@@ -4,26 +4,39 @@
 
 <% content_for :main do %>
   <div class="row">
-    <div class="col-md-6 col-lg-4">
-      <a href="/conflicts" class="card mb-3 cap-red white-border">
-        <div class="card-body white-hover-link white-text">
-          <h2>Conflicts</h2>
+    <div class="col-md-6 col-lg-3 mt-3">
+      <%= link_to conflicts_path do %>
+        <div class="card cap-red white-hover-link white-text border-light">
+          <div class="card-body">
+            <h4 class="card-title">
+              Conflicts
+              <% if @pending_conflicts > 0 %>
+                <span class="float-right badge badge-warning white-text"><%= @pending_conflicts %></span>
+              <% end %>
+            </h4>
+          </div>
         </div>
-      </a>
+      <% end %>
     </div>
-    <div class="col-md-6 col-lg-4">
-      <a href="/payments" class="card mb-3 green white-border">
-        <div class="card-body white-hover-link white-text">
-          <h2>Payments</h2>
+
+    <div class="col-md-6 col-lg-3 mt-3">
+      <%= link_to payments_path do %>
+        <div class="card green white-hover-link white-text border-light">
+          <div class="card-body">
+            <h4 class="card-title">Payments</h4>
+          </div>
         </div>
-      </a>
+      <% end %>
     </div>
-    <div class="col-md-6 col-lg-4">
-      <a href="/documents" class="card mb-3 cap-blue white-border">
-        <div class="card-body white-hover-link white-text">
-          <h2>Documents</h2>
+
+    <div class="col-md-6 col-lg-3 mt-3">
+      <%= link_to '/documents' do %>
+        <div class="card cap-blue white-hover-link white-text border-light">
+          <div class="card-body">
+            <h4 class="card-title">Documents</h4>
+          </div>
         </div>
-      </a>
+      <% end %>
     </div>
   </div>
 <% end %>
