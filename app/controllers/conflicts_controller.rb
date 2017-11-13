@@ -8,6 +8,7 @@ class ConflictsController < ApplicationController
                            .where.not(conflict_status: ConflictStatus.find_by_name('Pending'))
                            .order :start_date
       @pending = Conflict.where(conflict_status: ConflictStatus.find_by_name('Pending'))
+                         .order :start_date
       render :admin_index
     elsif is? 'member'
       @conflicts = current_user.conflicts
