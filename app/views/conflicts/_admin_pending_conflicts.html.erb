@@ -6,8 +6,7 @@
         <% pending.each do |conflict| %>
           <div class="list-group-item container">
             <div class="row">
-              <div class="col-md-3"><%= conflict.user.full_name %>
-              </div>
+              <div class="col-md-3"><%= conflict.user.full_name %></div>
               <div class="col-md-3 col-lg-5">
                 <span class="font-weight-light text-muted"><span><%= conflict.start_date.strftime('%-m/%-d/%y %I:%M %p') %></span> - <%= conflict.end_date.strftime('%-m/%-d/%y %I:%M %p') %></span>
               </div>

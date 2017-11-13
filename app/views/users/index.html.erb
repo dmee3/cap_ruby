@@ -5,7 +5,7 @@
 <% content_for :main do %>
   <div class="row">
     <div class="col-md-9">
-      <h1 class="white-text">Members</h1>
+      <h1 class="white-text">Users</h1>
     </div>
     <div class="col-md-3 text-right-md">
       <a class="btn btn-success" href="<%= new_user_path %>">New User</a>
@@ -13,24 +13,35 @@
   </div>
   <div class="row">
     <div class="col-sm-12">
-      <ul class="list-group">
-        <% @members.each do |member| %>
-          <li class="list-group-item">
-            <%= member.first_name + ' ' + member.last_name %>
-            <span class="float-right">
-              <%= link_to member.payment_schedule do %>
-                <%= fa_icon 'calendar', class: 'icon-btn icon-btn-orange dark-text' %>
-              <% end %>
-              &nbsp;&nbsp;&nbsp;
-              <a href="<%= edit_user_path(member) %>">
-                <%= fa_icon 'pencil', class: 'icon-btn icon-btn-orange dark-text' %>
-              </a>
-              &nbsp;&nbsp;&nbsp;
-              <%= fa_icon 'trash-o', { class: 'icon-btn icon-btn-red dark-text delete-btn', data: { id: member.id.to_s, name: member.full_name } } %>
-            </span>
-          </li>
-        <% end %>
-      </ul>
+      <div class="card">
+        <div class="card-header">
+          <ul class="nav nav-fill nav-tabs card-header-tabs">
+            <li class="nav-item">
+              <a class="nav-link active" id="member-tab" data-toggle="tab" href="#members">Members</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link info-tab" id="staff-tab" data-toggle="tab" href="#staff">Staff</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link info-tab" id="admins-tab" data-toggle="tab" href="#admins">Admins</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="members">
+            <%= render 'list_members', users: @members %>
+          </div>
+
+          <div class="tab-pane fade" id="staff">
+            <%= render 'list_staff', users: @staff %>
+          </div>
+
+          <div class="tab-pane fade" id="admins">
+            <%= render 'list_admins', users: @admins %>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

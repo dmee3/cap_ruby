@@ -18,27 +18,27 @@
         <div class="card-header">
           <ul class="nav nav-fill nav-tabs card-header-tabs">
             <li class="nav-item">
-              <a class="nav-link active info-tab" href="#differential-chart">Differential</a>
+              <a class="nav-link active" id="differential-tab" data-toggle="tab"  href="#differential-chart">Differential</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link info-tab" href="#burndown-chart">Burndown</a>
+              <a class="nav-link"  id="burndown-tab" data-toggle="tab" href="#burndown-chart">Burndown</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link info-tab" href="#upcoming-list">Upcoming</a>
+              <a class="nav-link"  id="upcoming-tab" data-toggle="tab" href="#upcoming-list">Upcoming</a>
             </li>
           </ul>
         </div>
 
-        <div class="card-body">
-          <div id="differential-chart" class="col-sm-12 mt-3 info-box">
+        <div class="tab-content">
+          <div id="differential-chart" class="tab-pane fade show active">
             <canvas id="differential-chart-area" height="100px"></canvas>
           </div>
 
-          <div id="burndown-chart" class="col-sm-12 mt-3 info-box" style="display: none;">
+          <div id="burndown-chart" class="tab-pane fade">
             <canvas id="burndown-chart-area" height="100px"></canvas>
           </div>
 
-          <div id="upcoming-list" class="col-sm-12 mt-3 info-box" style="display: none;">
+          <div id="upcoming-list" class="tab-pane fade">
           </div>
         </div>
       </div>
@@ -89,22 +89,6 @@
 <% end %>
 
 <% content_for :scripts do %>
-  <script type="text/javascript">
-    $(document).ready(function() {
-      $('.info-tab').click(function(evt) {
-        evt.preventDefault();
-
-        $('.info-tab').removeClass('active');
-        $(this).addClass('active');
-
-        var target = $(this).attr('href');
-        $('.info-box').hide();
-        $(target).show();
-      });
-
-      $.getJSON('/payments/upcoming-payments', { jwt: getJWT() });
-    });
-  </script>
   <%= javascript_include_tag 'vue/differential_chart' %>
   <%= javascript_include_tag 'vue/burndown_chart' %>
 <% end %>

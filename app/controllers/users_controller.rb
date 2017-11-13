@@ -5,7 +5,7 @@ class UsersController < ApplicationController
   def index
     @members = User.where(role: Role.find_by_name('member')).includes(:payment_schedule).order :first_name
     @staff = User.where(role: Role.find_by_name('staff')).order :first_name
-    @admin = User.where(role: Role.find_by_name('admin')).order :first_name
+    @admins = User.where(role: Role.find_by_name('admin')).order :first_name
     render
   end
 
