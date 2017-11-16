@@ -14,6 +14,12 @@ class HomeController < ApplicationController
     end
   end
 
+  def documents
+    document_directory = "#{Rails.root}/public/pdf"
+    @documents = Dir.glob("#{document_directory}/**/*")
+                    .map { |path| path.split('/').last }
+  end
+
   private
 
   def admin_index

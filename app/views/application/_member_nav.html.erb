@@ -11,7 +11,9 @@
 </ul>
 <ul class="navbar-nav navbar-right">
   <li class="nav-item">
-    <a class="nav-link" href="/settings"><%= fa_icon 'cogs' %></a>
+    <%= link_to '/settings', { class: 'nav-link' } do %>
+      <%= fa_icon 'cogs' %>
+    <% end %>
   </li>
   <li class="nav-item">
     <%= link_to 'Log Out', '/logout', { class: 'nav-link' } %>

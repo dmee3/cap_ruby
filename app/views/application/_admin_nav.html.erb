@@ -1,17 +1,22 @@
 <ul class="navbar-nav mr-auto">
   <li class="nav-item">
-    <%= link_to 'Users', '/users', { class: 'nav-link' } %>
+    <%= link_to 'Users', users_path, { class: 'nav-link' } %>
   </li>
   <li class="nav-item">
-    <%= link_to 'Conflicts', '/conflicts', { class: 'nav-link' } %>
+    <%= link_to 'Conflicts', conflicts_path, { class: 'nav-link' } %>
   </li>
   <li class="nav-item">
-    <%= link_to 'Payments', '/payments', { class: 'nav-link' } %>
+    <%= link_to 'Payments', payments_path, { class: 'nav-link' } %>
+  </li>
+  <li class="nav-item">
+    <%= link_to 'Documents', '/documents', { class: 'nav-link' } %>
   </li>
 </ul>
 <ul class="navbar-nav navbar-right">
   <li class="nav-item">
-    <a class="nav-link" href="/settings"><%= fa_icon 'cogs' %></a>
+    <%= link_to '/settings', { class: 'nav-link' } do %>
+      <%= fa_icon 'cogs' %>
+    <% end %>
   </li>
   <li class="nav-item">
     <%= link_to 'Log Out', '/logout', { class: 'nav-link' } %>
