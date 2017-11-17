@@ -33,14 +33,14 @@ new Vue({
               data: this.dates['actual'].map(function(point) {
                 return point[1];
               }),
-              backgroundColor: chartColor['orange'].rgbaString()
+              backgroundColor: chartColors['orange'].rgbaString()
             },
             {
               label: 'Scheduled Amount',
               data: this.dates['scheduled'].map(function(point) {
                 return point[1];
               }),
-              backgroundColor: chartColor['blue'].rgbaString()
+              backgroundColor: chartColors['blue'].rgbaString()
             }
           ]
         },

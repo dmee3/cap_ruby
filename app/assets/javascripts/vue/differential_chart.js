@@ -30,16 +30,16 @@ new Vue({
               data: this.payments['actual'].map(function(point) {
                 return { x: moment(point[0]), y: point[1] };
               }),
-              borderColor: chartColor['orange'].rgbaString(),
-              backgroundColor: chartColor['orange'].rgbaString(0.5)
+              borderColor: chartColors['orange'].rgbaString(),
+              backgroundColor: chartColors['orange'].rgbaString(0.5)
             },
             {
               label: 'Scheduled Amount',
               data: this.payments['scheduled'].map(function(point) {
                 return { x: moment(point[0]), y: point[1] };
               }),
-              borderColor: chartColor['blue'].rgbaString(),
-              backgroundColor: chartColor['blue'].rgbaString(0.5)
+              borderColor: chartColors['blue'].rgbaString(),
+              backgroundColor: chartColors['blue'].rgbaString(0.5)
             }
           ]
         },

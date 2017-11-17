@@ -9,7 +9,6 @@ new Vue({
     $.getJSON('/payments/upcoming-payments', { jwt: getJWT() })
       .done(function(response) {
         self.entries = response.payments;
-        self.renderList();
       })
       .fail(function(err) {
         self.error = err;
