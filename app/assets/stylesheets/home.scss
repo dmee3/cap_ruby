@@ -8,3 +8,8 @@ body {
   background-size: cover;
   background-color: #323337;
 }
+
+#upcoming-list {
+  max-height: 330px;
+  overflow-y: auto;
+}

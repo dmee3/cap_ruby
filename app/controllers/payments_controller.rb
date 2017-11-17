@@ -81,6 +81,10 @@ class PaymentsController < ApplicationController
     render(json: { payments: DashboardUtilities.upcoming_payments })
   end
 
+  def behind_members
+    render(json: { members: DashboardUtilities.behind_members })
+  end
+
   def burndown_chart
     render(
       json: {

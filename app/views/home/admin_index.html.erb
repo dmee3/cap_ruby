@@ -3,7 +3,7 @@
 <% end %>
 
 <% content_for :main do %>
-  <div class="row">
+  <div class="row d-none d-lg-block">
     <div  class="col-sm-12">
       <div class="card cap-gray-border">
         <div class="card-body">
@@ -16,53 +16,89 @@
   </div>
 
   <div class="row">
-    <div class="col-md-6 col-lg-3 mt-3">
-      <%= link_to users_path do %>
-        <div class="card cap-blue white-hover-link white-text border-light">
-          <div class="card-body">
-            <h4 class="card-title">Users</h4>
+    <div class="col-md-6">
+      <div class="row">
+        <div class="col-sm-6 col-md-12 col-lg-6 mt-3">
+          <%= link_to users_path do %>
+            <div class="card cap-blue white-hover-link white-text border-light">
+              <div class="card-body">
+                <h4 class="card-title mb-0">Users</h4>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="col-sm-6 col-md-12 col-lg-6 mt-3">
+          <%= link_to conflicts_path do %>
+            <div class="card cap-red white-hover-link white-text border-light">
+              <div class="card-body">
+                <h4 class="card-title mb-0">
+                  Conflicts
+                  <% if @pending_conflicts > 0 %>
+                    <span class="float-right badge badge-warning white-text"><%= @pending_conflicts %></span>
+                  <% end %>
+                </h4>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="col-sm-6 col-md-12 col-lg-6 mt-3">
+          <%= link_to payments_path do %>
+            <div class="card green white-hover-link white-text border-light">
+              <div class="card-body">
+                <h4 class="card-title mb-0">Payments</h4>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="col-sm-6 col-md-12 col-lg-6 mt-3">
+          <%= link_to '/documents' do %>
+            <div class="card cap-gray white-hover-link white-text border-light">
+              <div class="card-body">
+                <h4 class="card-title mb-0">Documents</h4>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12 mt-3">
+          <div id="behind-list" class="card border-danger">
+            <div class="card-header border-danger">
+              <h4 class="mb-0">Behind Members</h4>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li v-for="member in members" class="list-group-item">
+                {{ member.name }}
+                <small class="float-right text-danger">${{ member.paid }} / ${{ member.owed }}</small>
+              </li>
+            </ul>
           </div>
         </div>
-      <% end %>
+      </div>
     </div>
 
-    <div class="col-md-6 col-lg-3 mt-3">
-      <%= link_to conflicts_path do %>
-        <div class="card cap-red white-hover-link white-text border-light">
-          <div class="card-body">
-            <h4 class="card-title">
-              Conflicts
-              <% if @pending_conflicts > 0 %>
-                <span class="float-right badge badge-warning white-text"><%= @pending_conflicts %></span>
-              <% end %>
-            </h4>
-          </div>
+    <div class="col-md-6 mt-3">
+      <div id="upcoming-list" class="card border-success">
+        <div class="card-header border-success">
+          <h4 class="mb-0">Upcoming Payments</h4>
         </div>
-      <% end %>
-    </div>
-
-    <div class="col-md-6 col-lg-3 mt-3">
-      <%= link_to payments_path do %>
-        <div class="card green white-hover-link white-text border-light">
-          <div class="card-body">
-            <h4 class="card-title">Payments</h4>
-          </div>
-        </div>
-      <% end %>
-    </div>
-
-    <div class="col-md-6 col-lg-3 mt-3">
-      <%= link_to '/documents' do %>
-        <div class="card cap-gray white-hover-link white-text border-light">
-          <div class="card-body">
-            <h4 class="card-title">Documents</h4>
-          </div>
-        </div>
-      <% end %>
+        <ul class="list-group list-group-flush">
+          <li v-for="entry in entries" class="list-group-item">
+            <span class="text-success">${{ entry.amount }}</span> {{ entry.name }}
+            <small class="text-muted float-right">{{ entry.pay_date }}</small>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 <% end %>
 
 <% content_for :scripts do %>
   <%= javascript_include_tag 'vue/differential_chart' %>
+  <%= javascript_include_tag 'vue/upcoming_payments' %>
+  <%= javascript_include_tag 'vue/behind_members' %>
 <% end %>

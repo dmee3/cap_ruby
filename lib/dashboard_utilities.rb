@@ -20,10 +20,27 @@ class DashboardUtilities
                                   .order(:pay_date)
     entries.map do |e|
       {
-        pay_date: e.pay_date,
+        pay_date: e.pay_date.strftime('%-m/%-d/%y'),
         amount: e.amount.to_f / 100.0,
         user_id: e.payment_schedule.user.id,
         name: e.payment_schedule.user.full_name
+      }
+    end
+  end
+
+  def self.behind_members
+    members = User.includes(:payments, payment_schedule: :payment_schedule_entries)
+                  .where(role: Role.find_by_name('member'))
+                  .order(:first_name)
+    members.reject(&:dues_status_okay?).map do |m|
+      {
+        name: m.full_name,
+        paid: m.amount_paid.to_f / 100.0,
+        owed: m.payment_schedule
+               .payment_schedule_entries
+               .where('pay_date <= ?', Date.today)
+               .sum(:amount)
+               .to_f / 100.0
       }
     end
   end
