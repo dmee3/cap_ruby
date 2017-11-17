@@ -84,28 +84,3 @@ new Vue({
     }
   }
 });
-
-var chartColor = {
-  red: new Color(255, 99, 132),
-  orange: new Color(255, 159, 64),
-  yellow: new Color(255, 205, 86),
-  green: new Color(75, 192, 192),
-  blue: new Color(54, 162, 235),
-  purple: new Color(153, 102, 255),
-  grey: new Color(201, 203, 207)
-};
-
-function Color(r, g, b) {
-  this.r = r;
-  this.g = g;
-  this.b = b;
-}
-
-Color.prototype.rgb = function() {
-  return this.r + ',' + this.g + ',' + this.b;
-};
-
-Color.prototype.rgbaString = function(a) {
-  a = typeof a !== 'undefined' ? a : 1;
-  return 'rgba(' + this.rgb() + ',' + a + ')';
-};

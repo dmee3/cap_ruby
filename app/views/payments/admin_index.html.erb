@@ -39,6 +39,12 @@
           </div>
 
           <div id="upcoming-list" class="tab-pane fade">
+            <ul class="list-group list-group-flush">
+              <li v-for="entry in entries" class="list-group-item">
+                {{ entry.name }} - ${{ entry.amount }}
+                <small class="text-muted float-right">{{ entry.pay_date }}</small>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -91,4 +97,5 @@
 <% content_for :scripts do %>
   <%= javascript_include_tag 'vue/differential_chart' %>
   <%= javascript_include_tag 'vue/burndown_chart' %>
+  <%= javascript_include_tag 'vue/upcoming_payments' %>
 <% end %>
