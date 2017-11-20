@@ -16,9 +16,10 @@ puts 'Roles created'
 PaymentType.create(name: 'Cash') unless PaymentType.find_by_name 'Cash'
 PaymentType.create(name: 'Stripe') unless PaymentType.find_by_name 'Stripe'
 PaymentType.create(name: 'Check') unless PaymentType.find_by_name 'Check'
-PaymentType.create(name: 'Square - Pos') unless PaymentType.find_by_name 'Square - pos'
-PaymentType.create(name: 'Square - App') unless PaymentType.find_by_name 'Square - app'
+PaymentType.create(name: 'Square - Pos') unless PaymentType.find_by_name 'Square - Pos'
+PaymentType.create(name: 'Square - Cash App') unless PaymentType.find_by_name 'Square - Cash App'
 PaymentType.create(name: 'Other') unless PaymentType.find_by_name 'Other'
+PaymentType.create(name: 'Venmo') unless PaymentType.find_by_name 'Venmo'
 puts 'Payment Types created'
 
 # Create Conflict Statuses
