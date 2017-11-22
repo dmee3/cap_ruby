@@ -45,8 +45,7 @@ card.on('change', function(event) {
 });
 
 // Create a token or display an error when the form is submitted.
-$('#payment-form').on('submit', function(event) {
-  event.preventDefault();
+$('#payment-submit-btn').on('click', function(event) {
 
   // Ensure amount is greater than $5
   var amount = $('#payment_amount').val();
@@ -54,6 +53,9 @@ $('#payment-form').on('submit', function(event) {
     $('#card-errors').text('The minimum payment amount is $5.');
     return;
   }
+
+  disableForm();
+  showSpinner();
 
   stripe.createToken(card).then(function(result) {
     if (result.error) {
@@ -83,4 +85,22 @@ function stripeTokenHandler(token) {
   }).appendTo('#payment-form');
 
   document.getElementById('payment-form').submit();
+}
+
+function enableForm() {
+  $('#payment-submit-btn').removeClass('disabled');
+  $('#payment-submit-btn').addClass('btn-primary');
+}
+
+function disableForm() {
+  $('#payment-submit-btn').removeClass('btn-primary');
+  $('#payment-submit-btn').addClass('disabled');
+}
+
+function showSpinner() {
+  $('#spinner').removeClass('d-none');
+}
+
+function hideSpinner() {
+  $('#spinner').addClass('d-none');
 }

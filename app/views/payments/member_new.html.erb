@@ -29,7 +29,10 @@
       </div>
       <div class="row mt-3">
         <div class="col-sm-12 text-center">
-          <input type="submit" class="btn btn-success" value="Submit Payment"></input>
+          <a id="payment-submit-btn" class="btn btn-success white-text">
+            <%= fa_icon 'cog spin fw', { id: 'spinner', class: 'd-none' } %>
+            Submit Payment
+          </a>
         </div>
       </div>
     <% end %>

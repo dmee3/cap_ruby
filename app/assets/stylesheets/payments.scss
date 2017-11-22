@@ -29,6 +29,9 @@ body {
 
 .StripeElement--focus { border-color: $cap-gray; }
 
+#payment-submit-btn.btn-success { cursor: pointer; }
+
+
 /* Member side styles */
 .dues-bar-bg {
   overflow: visible;
