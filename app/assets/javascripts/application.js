@@ -46,6 +46,11 @@ function readCookie(name) {
   return null;
 }
 
+// Hack to fix select2 tab order
+$('select').on('select2:select', function(){
+  $(this).focus();
+});
+
 var chartColors = {
   red: new ChartColor(255, 99, 132),
   orange: new ChartColor(255, 159, 64),
