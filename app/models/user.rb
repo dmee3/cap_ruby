@@ -16,6 +16,8 @@ class User < ApplicationRecord
   validates :password, confirmation: { message: 'Password confirmation must match password' }, if: :password
   validates :role, presence: { message: 'Role is required' }
 
+  before_save { self.email = self.email.downcase }
+
   def full_name
     "#{first_name} #{last_name}" if first_name && last_name
   end
