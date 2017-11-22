@@ -1,4 +1,6 @@
 class Conflict < ApplicationRecord
+  acts_as_paranoid
+
   belongs_to :user
   belongs_to :conflict_status, foreign_key: :status_id
   alias_attribute :status, :conflict_status
