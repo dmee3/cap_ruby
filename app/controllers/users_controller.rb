@@ -3,10 +3,15 @@ class UsersController < ApplicationController
   before_action -> { redirect_if_not 'admin' }, except: %i[settings change_settings]
 
   def index
-    @members = User.where(role: Role.find_by_name('member')).includes(:payment_schedule).order :first_name
+    order_key = User.column_names.include?(params[:order]) ? params[:order] : :first_name
+    @columns = [
+      ['First Name', :first_name],
+      ['Last Name', :last_name],
+      ['Section', :section]
+    ]
+    @members = User.where(role: Role.find_by_name('member')).includes(:payment_schedule).order order_key
     @staff = User.where(role: Role.find_by_name('staff')).order :first_name
     @admins = User.where(role: Role.find_by_name('admin')).order :first_name
-    render
   end
 
   def new
@@ -83,7 +88,7 @@ class UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit :first_name, :last_name, :email, :password,
-                                 :password_confirmation, :role_id
+                                 :password_confirmation, :role_id, :section
   end
 
   def settings_params

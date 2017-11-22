@@ -4,11 +4,15 @@
 
 <% content_for :main do %>
   <div class="row">
-    <div class="col-md-9">
+    <div class="col-md-6">
       <h1 class="white-text">Users</h1>
     </div>
-    <div class="col-md-3 text-right-md">
-      <a class="btn btn-success" href="<%= new_user_path %>">New User</a>
+    <div class="col-md-6">
+      <%= form_tag '/users', method: :get, class: 'form-inline pull-right' do %>
+        <%= select_tag(:order, options_for_select(@columns), class: 'form-control') %>
+        <%= submit_tag 'Sort', class: 'btn btn-info ml-3' %>
+        <%= link_to 'New User', new_user_path, class: 'btn btn-success ml-4' %>
+      <% end %>
     </div>
   </div>
   <div class="row">
