@@ -4,9 +4,10 @@ class ConflictsController < ApplicationController
 
   def index
     if is? 'admin'
-      @conflicts = Conflict.where('start_date > ?', Date.yesterday)
-                           .where.not(conflict_status: ConflictStatus.find_by_name('Pending'))
-                           .order :start_date
+      @conflicts_by_start_date = Conflict.where('end_date > ?', Date.yesterday)
+                                         .where.not(conflict_status: ConflictStatus.find_by_name('Pending'))
+                                         .order(:start_date)
+                                         .group_by { |c| c.start_date.to_date }
       @pending = Conflict.where(conflict_status: ConflictStatus.find_by_name('Pending'))
                          .order :start_date
       render :admin_index

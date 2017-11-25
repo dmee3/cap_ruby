@@ -34,6 +34,9 @@ module CapRuby
     # Don't generate system test files.
     config.generators.system_tests = nil
 
+    # Set time zone
+    config.time_zone = 'Eastern Time (US & Canada)'
+
     # Render fields with error using .is-invalid class
     config.action_view.field_error_proc = proc do |html_tag, _instance|
       html_tag = html_tag.html_safe

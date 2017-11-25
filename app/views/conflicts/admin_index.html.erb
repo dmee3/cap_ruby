@@ -16,50 +16,38 @@
     <%= render 'admin_pending_conflicts', pending: @pending %>
   <% end %>
 
-  <div class="row mt-3">
-    <div class="col-12">
-      <div class="card" id="conflict-accordion" data-children=".conflict">
-        <% @conflicts.each do |conflict| %>
-          <div class="conflict conflict-<%= conflict.status.name.downcase %>">
-            <div class="card-header" data-toggle="collapse" data-target="#conflict-<%= conflict.id %>-info" data-parent="#conflict-accordion">
-              <div class="row">
-                <div class="col-8 col-sm-9">
-                  <div class="container">
-                    <div class="row">
-                      <div class="col-4"><%= conflict.user.full_name %></div>
-                      <div class="col-7 font-weight-light text-muted">
-                        <span><%= conflict.start_date.strftime('%-m/%-d/%y %I:%M %p') %></span> - <%= conflict.end_date.strftime('%-m/%-d/%y %I:%M %p') %>
-                      </div>
-                    </div>
-                  </div>
+  <% @conflicts_by_start_date.each do |date, conflicts| %>
+    <div class="row mt-3">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header"><h4 class="mb-0"><%= date.strftime('%A, %B %d') %></h4></div>
+          <ul class="list-group list-group-flush">
+            <% conflicts.each do |conflict| %>
+              <li class="list-group-item d-flex justify-content-between">
+                <%= conflict.user.full_name %>
+                <span class="font-weight-light text-muted">
+                  <%= conflict.start_date.strftime('%-m/%-d/%y %I:%M %p') %> - <%= conflict.end_date.strftime('%-m/%-d/%y %I:%M %p') %>
+                </span>
+                <span>
+                  <a data-toggle="collapse" href="#conflict-reason-<%= conflict.id %>">
+                    <%= fa_icon 'comment-o', class: 'dark-text icon-btn icon-btn-blue mr-3' %>
+                  </a>
+                </span>
+                <span>
+                  <%= render 'conflict_status_icon', status: conflict.status %>
+                </span>
+              </li>
+              <% unless conflict.reason.blank? %>
+                <div class="collapse white gray-text font-weight-light px-5 py-1" id="conflict-reason-<%= conflict.id %>">
+                  <%= conflict.reason %>
                 </div>
-                <div class="col-4 col-sm-3">
-                  <div class="container">
-                    <div class="row text-right">
-                      <div class="col-12 col-lg-9">
-                        <%= render 'conflict_status_icon', status: conflict.status %>
-                      </div>
-                      <div class="col-12 col-lg-3 order-lg-first">
-                        <a data-toggle="collapse" href="#conflict-reason-<%= conflict.id %>">
-                          <%= fa_icon 'comment-o', class: 'dark-text icon-btn icon-btn-blue' %>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <% unless conflict.reason.blank? %>
-              <div class="collapse white gray-text font-weight-light px-5 py-1" id="conflict-reason-<%= conflict.id %>">
-                <%= conflict.reason %>
-              </div>
+              <% end %>
             <% end %>
-          </div>
-        <% end %>
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
+  <% end %>
 <% end %>
 
 <% content_for :scripts do %>
