@@ -28,6 +28,12 @@ class ApplicationController < ActionController::Base
   end
   helper_method :is?
 
+  def log_activity(user, description)
+    Activity.create(user: user, description: description)
+  rescue StandardError => e
+    Rollbar.error(e, user: user)
+  end
+
   private
 
   def jwt

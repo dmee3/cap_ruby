@@ -3,6 +3,7 @@ class User < ApplicationRecord
   acts_as_paranoid
 
   belongs_to :role
+  has_many :activities
   has_many :conflicts, dependent: :destroy
   has_one :payment_schedule, dependent: :destroy
   has_many :payment_schedule_entries, through: :payment_schedule
