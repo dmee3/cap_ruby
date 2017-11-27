@@ -1,6 +1,7 @@
 class SessionsController < ApplicationController
   def create
-    user = User.find_by_email(login_params[:email].downcase)
+    @email = login_params[:email].downcase
+    user = User.find_by_email(@email)
     if user&.authenticate(login_params[:password])
       cookies.permanent[:jwt] = JsonWebToken.encode(user_id: user.id)
       log_activity(user, 'login')
@@ -14,6 +15,7 @@ class SessionsController < ApplicationController
   end
 
   def new
+    @email = ''
     redirect_to root_url if current_user
   end
 
