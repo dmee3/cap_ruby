@@ -24,7 +24,7 @@ class ApplicationController < ActionController::Base
   end
 
   def is?(role)
-    current_user&.is? role.to_s
+    current_role == role.to_s
   end
   helper_method :is?
 
@@ -35,6 +35,10 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  def current_role
+    @current_role ||= current_user&.role&.name
+  end
 
   def jwt
     if request.xhr?

@@ -16,37 +16,8 @@
     <%= render 'admin_pending_conflicts', pending: @pending %>
   <% end %>
 
-  <% @conflicts_by_start_date.each do |date, conflicts| %>
-    <div class="row mt-3">
-      <div class="col-12">
-        <div class="card">
-          <div class="card-header"><h4 class="mb-0"><%= date.strftime('%A, %B %d') %></h4></div>
-          <ul class="list-group list-group-flush">
-            <% conflicts.each do |conflict| %>
-              <li class="list-group-item d-flex justify-content-between">
-                <%= conflict.user.full_name %>
-                <span class="font-weight-light text-muted">
-                  <%= conflict.start_date.strftime('%-m/%-d/%y %I:%M %p') %> - <%= conflict.end_date.strftime('%-m/%-d/%y %I:%M %p') %>
-                </span>
-                <span>
-                  <a data-toggle="collapse" href="#conflict-reason-<%= conflict.id %>">
-                    <%= fa_icon 'comment-o', class: 'dark-text icon-btn icon-btn-blue mr-3' %>
-                  </a>
-                </span>
-                <span>
-                  <%= render 'conflict_status_icon', status: conflict.status %>
-                </span>
-              </li>
-              <% unless conflict.reason.blank? %>
-                <div class="collapse white gray-text font-weight-light px-5 py-1" id="conflict-reason-<%= conflict.id %>">
-                  <%= conflict.reason %>
-                </div>
-              <% end %>
-            <% end %>
-          </ul>
-        </div>
-      </div>
-    </div>
+  <% unless @conflicts_by_start_date.empty? %>
+    <%= render 'conflicts_list', conflicts_list: @conflicts_by_start_date %>
   <% end %>
 <% end %>
 

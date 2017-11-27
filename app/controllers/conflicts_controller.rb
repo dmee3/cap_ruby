@@ -1,19 +1,14 @@
 class ConflictsController < ApplicationController
   before_action :authorized?
-  before_action -> { redirect_if_not 'admin' }, only: :update
+  before_action -> { redirect_if_not 'admin' }, only: %i[edit update]
 
   def index
     if is? 'admin'
-      @conflicts_by_start_date = Conflict.where('end_date > ?', Date.yesterday)
-                                         .where.not(conflict_status: ConflictStatus.find_by_name('Pending'))
-                                         .order(:start_date)
-                                         .group_by { |c| c.start_date.to_date }
-      @pending = Conflict.where(conflict_status: ConflictStatus.find_by_name('Pending'))
-                         .order :start_date
-      render :admin_index
+      admin_index
+    elsif is? 'staff'
+      staff_index
     elsif is? 'member'
-      @conflicts = current_user.conflicts
-      render :member_index
+      member_index
     else
       redirect_to root_url
     end
@@ -38,6 +33,13 @@ class ConflictsController < ApplicationController
     end
   end
 
+  def edit
+    @conflict = Conflict.find params[:id]
+    @members = User.where(role: Role.find_by_name('member')).order :first_name
+    @statuses = ConflictStatus.all.order :name
+    render :admin_edit
+  end
+
   def update
     @conflict = Conflict.find params[:id]
     if @conflict.update(admin_conflict_params.reject { |_k, v| v.blank? })
@@ -51,6 +53,30 @@ class ConflictsController < ApplicationController
   end
 
   private
+
+  def admin_index
+    @conflicts_by_start_date = Conflict.where('end_date > ?', Date.yesterday)
+                                       .where.not(conflict_status: ConflictStatus.find_by_name('Pending'))
+                                       .order(:start_date)
+                                       .group_by { |c| c.start_date.to_date }
+    @pending = Conflict.where(conflict_status: ConflictStatus.find_by_name('Pending'))
+                       .order :start_date
+    render :admin_index
+  end
+
+  def staff_index
+    @conflicts_by_start_date = Conflict.where('end_date > ?', Date.yesterday)
+                                       .order(:start_date)
+                                       .group_by { |c| c.start_date.to_date }
+    render :staff_index
+  end
+
+  def member_index
+    @conflicts_by_start_date = current_user.conflicts
+                                           .order(:start_date)
+                                           .group_by { |c| c.start_date.to_date }
+    render :member_index
+  end
 
   def create_admin_conflict
     @conflict = Conflict.new admin_conflict_params
