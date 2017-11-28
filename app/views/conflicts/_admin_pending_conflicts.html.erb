@@ -23,7 +23,7 @@
                 <% end %>
               </div>
               <div class="col-12 collapse px-5 py-1" id="conflict-reason-<%= conflict.id %>">
-                <small class="text-muted"><%= conflict.reason %></small>
+                <small class="text-muted"><%= conflict.reason %> <span class="dark-text">(Submitted: <%= conflict.created_at.strftime('%-m/%-d/%y %I:%M %p') %>)</span></small>
               </div>
             </div>
           </div>
