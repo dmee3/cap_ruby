@@ -13,9 +13,9 @@ class DashboardUtilities
                         .map { |week, entries| [week, entries.sum(&:amount).round(2) / 100] }
   end
 
-  def self.upcoming_payments
-    entries = PaymentScheduleEntry.where('pay_date >= ?', Date.today)
-                                  .where('pay_date < ?', Date.today + 1.month)
+  def self.upcoming_payments(start_date, end_date)
+    entries = PaymentScheduleEntry.where('pay_date >= ?', start_date)
+                                  .where('pay_date < ?', end_date)
                                   .includes(payment_schedule: :user)
                                   .order(:pay_date)
     entries.map do |e|

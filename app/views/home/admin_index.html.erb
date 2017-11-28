@@ -87,6 +87,21 @@
           <h4 class="mb-0">Upcoming Payments</h4>
         </div>
         <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            <div class="form row">
+              <div class="col-sm-6 col-md-12 col-lg-6">
+                <label for="start_date">Start</label>
+                <input v-model="start_date" type="date" class="form-control" name="start_date">
+              </div>
+              <div class="col-sm-6 col-md-12 col-lg-6">
+                <label for="end_date">End</label>
+                <input v-model="end_date" type="date" class="form-control" name="end_date">
+              </div>
+            </div>
+            <div class="mt-2 text-center">
+              <a v-on:click="filter" class="btn btn-info white-text">Filter</a>
+            </div>
+          </li>
           <li v-for="entry in entries" class="list-group-item">
             <span class="text-success">${{ entry.amount }}</span> {{ entry.name }}
             <small class="text-muted float-right">{{ entry.pay_date }}</small>

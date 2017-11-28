@@ -78,7 +78,15 @@ class PaymentsController < ApplicationController
   end
 
   def upcoming_payments
-    render(json: { payments: DashboardUtilities.upcoming_payments })
+    begin
+      start_date = Date.parse(params[:start_date])
+      end_date = Date.parse(params[:end_date])
+    rescue TypeError, ArgumentError
+      start_date = Date.today
+      end_date = Date.today + 1.month
+    end
+
+    render(json: { payments: DashboardUtilities.upcoming_payments(start_date, end_date) })
   end
 
   def behind_members

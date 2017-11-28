@@ -40,6 +40,21 @@
 
           <div id="upcoming-list" class="tab-pane fade">
             <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <div class="form-inline row">
+                  <div class="col-sm-6 col-lg-4 form-group">
+                    <label for="start_date">Start</label>
+                    <input v-model="start_date" type="date" class="form-control ml-md-1" name="start_date">
+                  </div>
+                  <div class="col-sm-6 col-lg-4 form-group">
+                    <label for="end_date">End</label>
+                    <input v-model="end_date" type="date" class="form-control ml-md-1" name="end_date">
+                  </div>
+                  <div class="col-12 col-lg-4 mt-2 text-center">
+                    <a v-on:click="filter" class="btn btn-info white-text">Filter</a>
+                  </div>
+                </div>
+              </li>
               <li v-for="entry in entries" class="list-group-item">
                 {{ entry.name }} - ${{ entry.amount }}
                 <small class="text-muted float-right">{{ entry.pay_date }}</small>
