@@ -1,0 +1,39 @@
+<% content_for :styles do %>
+  <%= stylesheet_link_tag 'home', media: 'all' %>
+<% end %>
+
+<% content_for :main do %>
+  <div class="row">
+    <div class="col-md-6 col-lg-4 mt-3">
+      <%= link_to conflicts_path do %>
+        <div class="card cap-red white-hover-link white-text border-light">
+          <div class="card-body">
+            <h4 class="card-title">Conflicts</h4>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <% if false %>
+      <div class="col-md-6 col-lg-4 mt-3">
+        <%= link_to payments_path do %>
+          <div class="card green white-hover-link white-text border-light">
+            <div class="card-body">
+              <h4 class="card-title">Earnings</h4>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="col-md-6 col-lg-4 mt-3">
+      <%= link_to '/documents' do %>
+        <div class="card cap-gray white-hover-link white-text border-light">
+          <div class="card-body">
+            <h4 class="card-title">Documents</h4>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
