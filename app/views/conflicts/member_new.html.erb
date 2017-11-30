@@ -7,42 +7,49 @@
     <div class="col-md-9">
       <h1 class="white-text">New Conflict</h1>
     </div>
-    <div class="col-md-3 text-right-md">
+    <div class="col-md-3 text-right-md mb-1">
       <%= link_to 'All Conflicts', conflicts_path, class: 'btn btn-light red-text align-middle' %>
     </div>
   </div>
 
   <div class="card">
-    <%= form_for @conflict, html: { class: 'card-body' } do |c| %>
-      <div class="row align-self-center">
-        <div class="col-md-6">
-          <div class="row">
-            <div class="col-md-3 col-lg-2">
-              <span class="align-middle">Start:</span>
+    <%= form_for @conflict do |c| %>
+      <div class="card-body">
+        <div class="row align-self-center">
+          <div class="col-md-6">
+            <div class="row">
+              <div class="col-md-3 col-lg-2">
+                <span class="align-middle">Start:</span>
+              </div>
+              <div class="col-md-9 col-lg-10 form-inline justify-content-between">
+                <%= c.datetime_select :start_date, { ampm: true, datetime_separator: '&nbsp;&nbsp;&nbsp;&nbsp;', time_separator: '' }, { class: 'form-control mr-2 mb-2' } %>
+              </div>
             </div>
-            <div class="col-md-9 col-lg-10 form-inline justify-content-between">
-              <%= c.datetime_select :start_date, { ampm: true, datetime_separator: '&nbsp;&nbsp;&nbsp;&nbsp;', time_separator: '' }, { class: 'form-control mr-2 mb-2' } %>
+            <hr class="mt-3 d-md-none">
+            <div class="row">
+              <div class="col-md-3 col-lg-2">
+                <span class="align-middle">End:</span>
+              </div>
+              <div class="col-md-9 col-lg-10 form-inline justify-content-between">
+                <%= c.datetime_select :end_date, { ampm: true, datetime_separator: '&nbsp;&nbsp;&nbsp;&nbsp;', time_separator: '' }, { class: 'form-control mr-2 mb-2' } %>
+              </div>
             </div>
+            <hr class="mt-3 d-md-none">
           </div>
-          <hr class="mt-3 d-md-none">
-          <div class="row">
-            <div class="col-md-3 col-lg-2">
-              <span class="align-middle">End:</span>
-            </div>
-            <div class="col-md-9 col-lg-10 form-inline justify-content-between">
-              <%= c.datetime_select :end_date, { ampm: true, datetime_separator: '&nbsp;&nbsp;&nbsp;&nbsp;', time_separator: '' }, { class: 'form-control mr-2 mb-2' } %>
-            </div>
+          <div class="col-md-6 form-group">
+            <%= c.text_area :reason, { class: 'form-control mr-2 mb-2', placeholder: 'Reason for Absence' } %>
           </div>
-          <hr class="mt-3 d-md-none">
-        </div>
-        <div class="col-md-6 form-group">
-          <%= c.text_area :reason, { class: 'form-control mr-2 mb-2', placeholder: 'Reason for Absence' } %>
         </div>
       </div>
 
-      <div class="row mt-3">
-        <div class="col-sm-12 text-center">
-          <%= c.submit 'Submit for Review', class: 'btn btn-danger' %>
+      <div class="card-footer">
+        <div class="row">
+          <div class="col-12 text-center">
+            <p class="lead text-muted">Submitting this conflict does <span class="font-italic">not</span> mean it's approved.<br />Please get in touch with Dan, your section tech(s), and your section coordinator ASAP to discuss it.</p>
+          </div>
+          <div class="col-12 text-center">
+            <%= c.submit 'Submit for Review', class: 'btn btn-danger' %>
+          </div>
         </div>
       </div>
     <% end %>

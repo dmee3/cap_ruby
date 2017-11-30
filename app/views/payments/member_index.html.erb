@@ -8,14 +8,14 @@
     <div class="col-md-9">
       <h1 class="white-text">Payments</h1>
     </div>
-    <div class="col-md-3 text-right-md">
+    <div class="col-md-3 text-right-md mb-1">
       <%= link_to 'New Payment', new_payment_path, class: 'btn btn-light green-text align-middle' %>
     </div>
   </div>
-  <div class="card">
-    <div class="card-body">
+  <div class="card <%= status ? 'border-success' : 'border-danger' %>">
+    <div class="card-header <%= status ? 'border-success' : 'border-danger' %>">
       <div class="row">
-        <div class="col-sm-12 text-center">
+        <div class="col-sm-12 text-center <%= status ? 'text-success' : 'text-danger' %>">
           <p class="lead">Paid $<%= '%.2f' % @total_paid %>&nbsp;&nbsp;/&nbsp;&nbsp;$<%= '%.2f' % @total_dues %> Owed
         </div>
         <div class="col-sm-12">
@@ -24,7 +24,9 @@
           </div>
         </div>
       </div>
+    </div>
 
+    <div class="card-body">
       <div class="row mt-4">
         <div class="col-md-6">
           <%= render 'payments_made_card', member: current_user, status: status %>

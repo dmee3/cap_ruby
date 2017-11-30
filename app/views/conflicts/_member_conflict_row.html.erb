@@ -1,7 +1,7 @@
 <div class="list-group-item">
   <div class="row">
-    <div class="col-6 font-weight-light text-muted">
-      <%= conflict.start_date.strftime('%-m/%-d/%y %I:%M %p') %> - <%= conflict.end_date.strftime('%-m/%-d/%y %I:%M %p') %>
+    <div class="col-6 font-weight-light">
+      <%= conflict.start_date.strftime('%a, %-m/%-d %I:%M %p') %> - <%= conflict.end_date.strftime('%a, %-m/%-d %I:%M %p') %>
     </div>
     <div class="col-6 text-right">
       <%= render 'conflict_status_icon', status: conflict.status %>
