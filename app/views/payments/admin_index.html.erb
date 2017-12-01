@@ -4,12 +4,7 @@
 
 <% content_for :main do %>
   <div class="row">
-    <div class="col-md-9">
-      <h1 class="white-text">Payments</h1>
-    </div>
-    <div class="col-md-3 text-right-md mb-1">
-      <%= link_to 'New Payment', new_payment_path, class: 'btn btn-light green-text align-middle' %>
-    </div>
+    <%= render 'header' %>
   </div>
 
   <div class="row">

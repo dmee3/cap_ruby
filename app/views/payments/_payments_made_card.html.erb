@@ -1,5 +1,5 @@
 <div class="card <%= status ? 'border-success' : 'border-danger' %>" id="payment-accordion-<%= member.id %>">
-  <div class="card-header">Payments Made</div>
+  <div class="card-header <%= status ? 'border-success' : 'border-danger' %>">Payments Made</div>
   <ul class="list-group list-group-flush">
     <% member.payments.order(:date_paid).each do |payment| %>
       <li class="list-group-item">

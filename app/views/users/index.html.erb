@@ -4,18 +4,18 @@
 
 <% content_for :main do %>
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-sm-4">
       <h1 class="white-text">Users</h1>
     </div>
-    <div class="col-md-6">
-      <%= form_tag '/users', method: :get, class: 'form-inline pull-right' do %>
-        <%= select_tag(:order, options_for_select(@columns), class: 'form-control') %>
-        <%= submit_tag 'Sort', class: 'btn btn-info ml-3' %>
-        <%= link_to 'New User', new_user_path, class: 'btn btn-success ml-4' %>
+    <div class="col-sm-8">
+      <%= form_tag '/users', method: :get, class: 'form-inline float-sm-right' do %>
+        <%= select_tag(:order, options_for_select(@columns), class: 'form-control mt-1') %>
+        <%= submit_tag 'Sort', class: 'btn btn-info ml-sm-3 mt-1' %>
+        <%= link_to 'New User', new_user_path, class: 'btn btn-success ml-4 mt-1' %>
       <% end %>
     </div>
   </div>
-  <div class="row">
+  <div class="row mt-1 mt-sm-0">
     <div class="col-12">
       <div class="card">
         <div class="card-header">

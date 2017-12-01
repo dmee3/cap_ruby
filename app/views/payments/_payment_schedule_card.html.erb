@@ -1,5 +1,5 @@
 <div class="card <%= status ? 'border-success' : 'border-danger' %>">
-  <div class="card-header">Payment Schedule</div>
+  <div class="card-header <%= status ? 'border-success' : 'border-danger' %>">Payment Schedule</div>
   <ul class="list-group list-group-flush">
     <% member.payment_schedule.payment_schedule_entries.order(:pay_date).each do |entry| %>
       <li class="list-group-item">
