@@ -28,8 +28,9 @@ module CapRuby
     # -- all .rb files in that directory are automatically loaded.
     # config.autoload_paths << Rails.root.join('lib')
 
-    # Eager load all files in the lib directory
+    # Eager load all files in the lib and bot directories
     config.eager_load_paths << Rails.root.join('lib')
+    config.eager_load_paths << Rails.root.join('bot')
 
     # Don't generate system test files.
     config.generators.system_tests = nil

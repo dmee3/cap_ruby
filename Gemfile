@@ -28,6 +28,10 @@ gem 'select2-rails'
 gem 'momentjs-rails'
 gem 'chart-js-rails'
 
+# Bot
+gem 'slack-ruby-bot'
+gem 'celluloid-io'
+
 group :production do
   gem 'rails_12factor'
   gem 'pg'
