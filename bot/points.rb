@@ -16,7 +16,7 @@ class Points < SlackRubyBot::Commands::Base
     points = BotPointEntry.where(bot_point_id: subject.id).sum(:score)
 
     response = "#{name} has #{points} point#{points.abs == 1 ? '' : 's'}"
-    unless reason.nil?
+    unless entry.reason.blank?
       response << ", #{entry.score} of which #{entry.score.abs == 1 ? 'is' : 'are'} for #{entry.reason}"
     end
 
