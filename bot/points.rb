@@ -32,10 +32,10 @@ class Points < SlackRubyBot::Commands::Base
 
     def find_last_score(room)
       subject = BotPoint.where(room: room)
-                        .order('updated_at DESC')
+                        .order(updated_at: :desc)
                         .first
       entry = BotPointEntry.where(bot_point_id: subject.id)
-                           .order('updated_at DESC')
+                           .order(updated_at: :desc)
                            .first
       [subject, entry]
     end
