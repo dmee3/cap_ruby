@@ -1,6 +1,6 @@
 class RecentPayments < SlackRubyBot::Commands::Base
   command 'who paid' do |client, data, match|
-    payments = Payment.order(date_paid: :desc).limit 5
+    payments = Payment.order(date_paid: :desc, created_at: :desc).limit 5
     response = "The #{payments.length} most recent payments are:"
     payments.each do |p|
       response << "\n*#{p.user.full_name}* _#{format('$%.2f', p.amount.to_f / 100.0)}_"
