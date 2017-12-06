@@ -1,5 +1,5 @@
 class Points < SlackRubyBot::Commands::Base
-  match /^lil_botty([\s\w'@.\-:<>@]*)\s*([-+]{2}|—)(?:\s+(?:for|because|cause|cuz)\s+(.+))?$/i do |client, data, matches|
+  match /^([\s\w'@.\-:<>]*)\s*([-+]{2}|—)(?:\s+(?:for|because|cause|cuz)\s+(.+))?$/i do |client, data, matches|
     name = matches[1]&.strip
     op = matches[2]&.strip
     reason = matches[3]&.strip
