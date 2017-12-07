@@ -23,6 +23,16 @@ class Points < SlackRubyBot::Commands::Base
     client.say(channel: data.channel, text: response)
   end
 
+  command 'scoreboard' do |client, data, _matches|
+    response = "*Here's the current score for this channel:*\n".tap do |s|
+      find_all_scores(data.channel).each do |k, v|
+        s << "\n#{k} has #{v} point#{'s' unless v == 1}"
+      end
+    end
+
+    client.say(channel: data.channel, text: response)
+  end
+
   class << self
     def update_score(op, entry)
       entry.score = 0 if entry.score.nil?
@@ -38,6 +48,13 @@ class Points < SlackRubyBot::Commands::Base
                            .order(updated_at: :desc)
                            .first
       [subject, entry]
+    end
+
+    def find_all_scores(room)
+      BotPoint.includes(:bot_point_entries)
+              .where(room: room)
+              .group(:name)
+              .sum('bot_point_entries.score')
     end
 
     def find_or_create_score(name, room, reason)
