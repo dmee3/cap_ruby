@@ -25,8 +25,8 @@ class Points < SlackRubyBot::Commands::Base
 
   command 'scoreboard' do |client, data, _matches|
     response = "*Here's the current score for this channel:*\n".tap do |s|
-      find_all_scores(data.channel).each do |k, v|
-        s << "\n#{k} has #{v} point#{'s' unless v == 1}"
+      find_all_scores(data.channel).each do |score|
+        s << "\n#{score[0]} has #{score[1]} point#{'s' unless score[1] == 1}"
       end
     end
 
@@ -55,6 +55,8 @@ class Points < SlackRubyBot::Commands::Base
               .where(room: room)
               .group(:name)
               .sum('bot_point_entries.score')
+              .sort_by(&:last)
+              .reverse
     end
 
     def find_or_create_score(name, room, reason)
