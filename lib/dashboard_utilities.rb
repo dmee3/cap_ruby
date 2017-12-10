@@ -14,15 +14,17 @@ class DashboardUtilities
   end
 
   def self.upcoming_payments(start_date, end_date)
-    entries = PaymentScheduleEntry.where('pay_date >= ?', start_date)
-                                  .where('pay_date < ?', end_date)
-                                  .includes(payment_schedule: :user)
+    recent_payers = Payment.where('date_paid >= ?', 3.days.ago)
+                           .pluck(:user_id)
+    entries = PaymentScheduleEntry.joins(payment_schedule: :user)
+                                  .where(pay_date: (start_date..end_date))
+                                  .where('payment_schedules.user_id not in (?)', recent_payers)
                                   .order(:pay_date)
     entries.map do |e|
       {
         pay_date: e.pay_date.strftime('%-m/%-d/%y'),
         amount: e.amount.to_f / 100.0,
-        user_id: e.payment_schedule.user.id,
+        user_id: e.payment_schedule.user_id,
         name: e.payment_schedule.user.full_name
       }
     end
