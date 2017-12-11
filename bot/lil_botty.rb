@@ -14,7 +14,7 @@ class LilBotty < SlackRubyBot::Bot
 
     command 'who paid' do
       desc 'Lists the 5 most recent payments'
-      long_desc 'Lists the 5 most recent payments and details (amount, method, etc)'
+      long_desc 'Lists the 5 most recent payments and details (amount, method, etc).  You can pass a different number (e.g. `who paid 10`) to see more recent payments.'
     end
   end
 end
