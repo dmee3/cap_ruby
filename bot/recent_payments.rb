@@ -1,5 +1,5 @@
 class RecentPayments < SlackRubyBot::Commands::Base
-  match /^(?:<@U885J7NDS>\s*)?who paid\s*(\d*)$/ do |client, data, match|
+  match /^(?:<@U885J7NDS>\s*)?who paid\s*(\d*)$/i do |client, data, match|
     limit = match[1].to_i.zero? ? 5 : match[1].to_i
     payments = Payment.includes(:user, :payment_type)
                       .order(date_paid: :desc, created_at: :desc)
