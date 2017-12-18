@@ -4,8 +4,9 @@ class PaymentSchedulesController < ApplicationController
 
   def show
     @schedule = PaymentSchedule.includes(:payment_schedule_entries)
-                               .find(params[:id])
+                               .where(id: params[:id])
                                .order('payment_schedule_entries.pay_date')
+                               .first
     @user = User.find(@schedule.user_id)
     respond_to do |format|
       format.json { render json: @schedule, include: [:payment_schedule_entries] }
