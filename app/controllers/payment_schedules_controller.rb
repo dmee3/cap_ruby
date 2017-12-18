@@ -3,8 +3,10 @@ class PaymentSchedulesController < ApplicationController
   before_action -> { redirect_if_not 'admin' }
 
   def show
-    @schedule = PaymentSchedule.includes(:payment_schedule_entries).find(params[:id]).order(:pay_date)
-    @user = User.find @schedule.user_id
+    @schedule = PaymentSchedule.includes(:payment_schedule_entries)
+                               .find(params[:id])
+                               .order('payment_schedule_entries.pay_date')
+    @user = User.find(@schedule.user_id)
     respond_to do |format|
       format.json { render json: @schedule, include: [:payment_schedule_entries] }
       format.html {}
