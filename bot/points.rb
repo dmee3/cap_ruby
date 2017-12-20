@@ -11,7 +11,7 @@ class Points < SlackRubyBot::Commands::Base
       subject, entry = find_or_create_score(name, data.channel, reason)
     end
 
-    update_score(op, entry)
+    update_score(subject, op, entry)
 
     points = BotPointEntry.where(bot_point_id: subject.id).sum(:score)
 
@@ -34,7 +34,8 @@ class Points < SlackRubyBot::Commands::Base
   end
 
   class << self
-    def update_score(op, entry)
+    def update_score(subject, op, entry)
+      subject.touch
       entry.score = 0 if entry.score.nil?
       entry.score += (op == '++' ? 1 : -1)
       entry.save

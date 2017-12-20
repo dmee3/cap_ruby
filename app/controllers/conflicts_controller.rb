@@ -21,7 +21,7 @@ class ConflictsController < ApplicationController
       @statuses = ConflictStatus.all.order :name
       render :admin_new
     else
-      render :member_new
+      render :member_new_disabled
     end
   end
 

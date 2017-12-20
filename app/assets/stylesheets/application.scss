@@ -55,4 +55,8 @@ a:hover { text-decoration: none !important; }
   box-shadow: none;
 }
 
+.list-group-item-striped:nth-child(even) {
+  background-color: $light !important;
+}
+
 input.btn:hover { cursor: pointer; }
