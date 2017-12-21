@@ -71,7 +71,7 @@
               <h4 class="mb-0">Behind Members</h4>
             </div>
             <ul class="list-group list-group-flush">
-              <li v-for="member in members" class="list-group-item">
+              <li v-for="member in members" class="list-group-item list-group-item-striped">
                 {{ member.name }}
                 <small class="float-right text-danger">${{ member.paid }} / ${{ member.owed }}</small>
               </li>
@@ -87,7 +87,7 @@
           <h4 class="mb-0">Upcoming Payments</h4>
         </div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item">
+          <li class="list-group-item list-group-item-striped">
             <div class="form row">
               <div class="col-sm-6 col-md-12 col-lg-6">
                 <label for="start_date">Start</label>

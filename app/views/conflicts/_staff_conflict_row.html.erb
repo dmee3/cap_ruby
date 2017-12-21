@@ -1,4 +1,4 @@
-<div class="list-group-item">
+<div class="list-group-item list-group-item-striped">
   <div class="row">
     <div class="col-6 col-md-3">
       <%= conflict.user.full_name %>
@@ -14,7 +14,7 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-12 collapse white px-5 py-1" id="conflict-reason-<%= conflict.id %>">
+    <div class="col-12 collapse px-5 py-1" id="conflict-reason-<%= conflict.id %>">
       <small class="text-muted"><%= conflict.reason %> <span class="dark-text">(Submitted: <%= conflict.created_at.strftime('%a, %-m/ %-d %I:%M %p') %>)</span></small>
     </div>
   </div>

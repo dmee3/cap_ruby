@@ -2,7 +2,7 @@
   <div class="card-header <%= status ? 'border-success' : 'border-danger' %>">Payment Schedule</div>
   <ul class="list-group list-group-flush">
     <% member.payment_schedule.payment_schedule_entries.order(:pay_date).each do |entry| %>
-      <li class="list-group-item">
+      <li class="list-group-item list-group-item-striped">
           <span class="<%= 'text-muted' if entry.pay_date < Date.today %>">$<%= '%.2f' % (entry.amount / 100.0) %></span>
         <small class="float-right text-muted"><%= entry.pay_date.strftime('%-m/%-d/%-y') %></small>
       </li>
