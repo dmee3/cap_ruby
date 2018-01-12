@@ -83,7 +83,7 @@ class PaymentsController < ApplicationController
       end_date = Date.parse(params[:end_date])
     rescue TypeError, ArgumentError
       start_date = Date.today
-      end_date = Date.today + 1.month
+      end_date = 2.weeks.from_now
     end
 
     render(json: { payments: DashboardUtilities.upcoming_payments(start_date, end_date) })

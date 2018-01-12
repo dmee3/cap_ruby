@@ -1,59 +1,66 @@
+# rubocop:disable AbcSize
 class DashboardUtilities
-  def self.payment_sums_by_week
-    Payment.all
-           .order(:date_paid)
-           .group_by { |payment, _| payment.date_paid.end_of_week }
-           .map { |week, payments| [week, payments.sum(&:amount).round(2) / 100] }
-  end
-
-  def self.payment_schedule_sums_by_week
-    PaymentScheduleEntry.all
-                        .order(:pay_date)
-                        .group_by { |entry, _| entry.pay_date.end_of_week }
-                        .map { |week, entries| [week, entries.sum(&:amount).round(2) / 100] }
-  end
-
-  def self.upcoming_payments(start_date, end_date)
-    recent_payers = Payment.where('date_paid >= ?', 3.days.ago)
-                           .pluck(:user_id)
-    entries = PaymentScheduleEntry.joins(payment_schedule: :user)
-                                  .where(pay_date: (start_date..end_date))
-                                  .where('payment_schedules.user_id not in (?)', recent_payers)
-                                  .order(:pay_date)
-    entries.map do |e|
-      {
-        pay_date: e.pay_date.strftime('%-m/%-d/%y'),
-        amount: e.amount.to_f / 100.0,
-        user_id: e.payment_schedule.user_id,
-        name: e.payment_schedule.user.full_name
-      }
+  class << self
+    def payment_sums_by_week
+      Payment.all
+             .order(:date_paid)
+             .group_by { |payment, _| payment.date_paid.end_of_week }
+             .map { |week, payments| [week, payments.sum(&:amount).round(2) / 100] }
     end
-  end
 
-  def self.behind_members
-    members = User.includes(:payments, payment_schedule: :payment_schedule_entries)
-                  .where(role: Role.find_by_name('member'))
-                  .order(:first_name)
-    members.reject(&:dues_status_okay?).map do |m|
-      {
-        name: m.full_name,
-        paid: m.amount_paid.to_f / 100.0,
-        owed: m.payment_schedule
-               .payment_schedule_entries
-               .where('pay_date <= ?', Date.today)
-               .sum(:amount)
-               .to_f / 100.0
-      }
+    def payment_schedule_sums_by_week
+      PaymentScheduleEntry.all
+                          .order(:pay_date)
+                          .group_by { |entry, _| entry.pay_date.end_of_week }
+                          .map { |week, entries| [week, entries.sum(&:amount).round(2) / 100] }
     end
-  end
 
-  def self.biweekly_scheduled
-    dates = (Season.season_start..Season.season_end).select { |d| d.wday.zero? }
-    dates.map { |d| [d, PaymentScheduleEntry.where('pay_date <= ?', d).sum(:amount).to_f / 100.0] }
-  end
+    def upcoming_payments(start_date, end_date)
+      entries = PaymentScheduleEntry.includes(payment_schedule: :user)
+                                    .where('pay_date in (?)', (start_date..end_date))
+                                    .order(:pay_date)
 
-  def self.biweekly_actual
-    dates = (Season.season_start..Season.season_end).select { |d| d.wday.zero? }
-    dates.map { |d| [d, Payment.where('date_paid <= ?', d).sum(:amount).to_f / 100.0] }
+      [].tap do |array|
+        entries.each do |e|
+          next if array.any? { |a| a[:user_id] == e.user.id }
+          balance = e.total_to_date - e.user.amount_paid
+          next if balance <= 0
+          array << {
+            pay_date: e.pay_date.strftime('%-m/%-d/%y'),
+            amount: balance.to_f / 100.0,
+            user_id: e.user.id,
+            name: e.user.full_name
+          }
+        end
+      end
+    end
+
+    def behind_members
+      members = User.includes(:payments, payment_schedule: :payment_schedule_entries)
+                    .where(role: Role.find_by_name('member'))
+                    .order(:first_name)
+      members.reject(&:dues_status_okay?).map do |m|
+        {
+          name: m.full_name,
+          paid: m.amount_paid.to_f / 100.0,
+          owed: m.payment_schedule
+                 .payment_schedule_entries
+                 .where('pay_date <= ?', Date.today)
+                 .sum(:amount)
+                 .to_f / 100.0
+        }
+      end
+    end
+
+    def biweekly_scheduled
+      dates = (Season.season_start..Season.season_end).select { |d| d.wday.zero? }
+      dates.map { |d| [d, PaymentScheduleEntry.where('pay_date <= ?', d).sum(:amount).to_f / 100.0] }
+    end
+
+    def biweekly_actual
+      dates = (Season.season_start..Season.season_end).select { |d| d.wday.zero? }
+      dates.map { |d| [d, Payment.where('date_paid <= ?', d).sum(:amount).to_f / 100.0] }
+    end
   end
 end
+# rubocop:enable AbcSize
