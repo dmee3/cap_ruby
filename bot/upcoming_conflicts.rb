@@ -1,6 +1,6 @@
 class UpcomingConflicts < SlackRubyBot::Commands::Base
   command 'conflicts', 'conflict' do |client, data, match|
-    conflicts = Conflict.where('start_date >= ?', Date.today)
+    conflicts = Conflict.where('end_date >= ?', Date.today)
                         .where('start_date <= ?', Date.today + 7.days)
                         .order :start_date
 
