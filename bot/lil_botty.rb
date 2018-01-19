@@ -2,6 +2,7 @@ class LilBotty < SlackRubyBot::Bot
   require 'upcoming_conflicts'
   require 'recent_payments'
   require 'points'
+  require 'wwtks'
 
   help do
     title 'Lil Botty'
@@ -15,6 +16,11 @@ class LilBotty < SlackRubyBot::Bot
     command 'who paid' do
       desc 'Lists the 5 most recent payments'
       long_desc 'Lists the 5 most recent payments and details (amount, method, etc).  You can pass a different number (e.g. `who paid 10`) to see more recent payments.'
+    end
+
+    command 'wwtks' do
+      desc 'Tells you what the kids would say'
+      long_desc "It's probably gonna be a dumb question."
     end
   end
 end
