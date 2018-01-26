@@ -6,7 +6,9 @@ class Wwtks < SlackRubyBot::Commands::Base
     'I have a callback camp this weekend and have to miss rehearsal',
     'Love, Mom',
     'Bet',
-    'I forgot my dues check, can I bring it next weekend?'
+    "Bet, y'all are smart as fuck",
+    'I forgot my dues check, can I bring it next weekend?',
+    "Yeah sure I'll Venmo it to you"
   ].freeze
 
   command 'wwtks' do |client, data, _matches|

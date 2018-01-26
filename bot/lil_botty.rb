@@ -3,6 +3,7 @@ class LilBotty < SlackRubyBot::Bot
   require 'recent_payments'
   require 'points'
   require 'wwtks'
+  require 'place'
 
   help do
     title 'Lil Botty'
@@ -21,6 +22,11 @@ class LilBotty < SlackRubyBot::Bot
     command 'wwtks' do
       desc 'Tells you what the kids would say'
       long_desc "It's probably gonna be a dumb question."
+    end
+
+    command 'place' do
+      desc "Tells you what place we'll get at WGI and why"
+      long_desc 'Oh, Botty the Magic 8-Ball, what place will we get?'
     end
   end
 end
