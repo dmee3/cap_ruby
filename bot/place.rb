@@ -30,6 +30,16 @@ class Place < SlackRubyBot::Commands::Base
   command 'what place will we get?' do |client, data, _matches|
     place = PLACES.sample
     reason = place < 13 ? GOOD_REASONS.sample : BAD_REASONS.sample
-    client.say(channel: data.channel, text: "We'll be in #{place} because #{reason}")
+    case place
+    when 21
+      ordinal = 'st'
+    when 22
+      ordinal = 'nd'
+    when 23
+      ordinal = 'rd'
+    else
+      ordinal = 'th'
+    end
+    client.say(channel: data.channel, text: "We'll be in #{place}#{ordinal} because #{reason}")
   end
 end
