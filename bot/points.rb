@@ -7,8 +7,8 @@ class Points < SlackRubyBot::Commands::Base
     subject = name.blank? ? last_score : find_or_create_score(name, reason)
 
     # Fuck Aaron
-    subject = BotPoint.find(33)
-    op = '--'
+    # subject = BotPoint.find(33)
+    # op = '--'
 
     update_score(subject, op)
 
