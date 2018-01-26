@@ -19,7 +19,7 @@ class Place < SlackRubyBot::Commands::Base
     'the staff unfolded the tarp wrong'
   ].freeze
   GOOD_REASONS = [
-    'Things actually went pretty well for once',
+    'things actually went pretty well for once',
     "Matrix's sound system didn't work",
     'Matt Stevens was on the panel',
     'Omar likes how Donnie writes',
