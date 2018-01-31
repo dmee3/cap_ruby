@@ -21,12 +21,12 @@ class LilBotty < SlackRubyBot::Bot
 
     command 'wwtks' do
       desc 'Tells you what the kids would say'
-      long_desc "It's probably gonna be a dumb question."
+      long_desc "It's probably gonna be a dumb question.  Also responds to \"What do the kids say?\" or \"What would the kids say?\""
     end
 
     command 'place' do
       desc "Tells you what place we'll get at WGI and why"
-      long_desc 'Oh, Botty the Magic 8-Ball, what place will we get?'
+      long_desc 'Oh, Botty the Magic 8-Ball, what place will we get?  Also responds to "What place will we get?"'
     end
   end
 end

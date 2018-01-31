@@ -27,7 +27,7 @@ class Place < SlackRubyBot::Commands::Base
     'Pulse was boycotting WGI because Ian got pissy about sample length'
   ].freeze
 
-  command 'what place will we get?' do |client, data, _matches|
+  command 'place', 'what place will we get?' do |client, data, _matches|
     place = PLACES.sample
     reason = place < 13 ? GOOD_REASONS.sample : BAD_REASONS.sample
     case place

@@ -11,7 +11,7 @@ class Wwtks < SlackRubyBot::Commands::Base
     "Yeah sure I'll Venmo it to you"
   ].freeze
 
-  command 'wwtks' do |client, data, _matches|
+  command 'wwtks', /what (do|would) the kids say(\?)?/i do |client, data, _matches|
     client.say(channel: data.channel, text: "The kids would say:\n>_#{SAYINGS.sample}_")
   end
 end
