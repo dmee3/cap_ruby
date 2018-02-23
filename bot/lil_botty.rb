@@ -21,7 +21,7 @@ class LilBotty < SlackRubyBot::Bot
 
     command 'wwtks' do
       desc 'Tells you what the kids would say'
-      long_desc "It's probably gonna be a dumb question.  Also responds to \"What do the kids say?\" or \"What would the kids say?\""
+      long_desc "It's probably gonna be a dumb question.  Also responds to \"What do the kids say?\" or \"What would the kids say?\".  You can add new sayings with `wwtks add <saying>` or list all current sayings with `wwtks list`"
     end
 
     command 'place' do
