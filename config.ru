@@ -5,11 +5,11 @@ require_relative 'bot/lil_botty'
 
 Thread.abort_on_exception = true
 
-if Rails.env.production?
+#if Rails.env.production?
   Thread.new do
     LilBotty.run
   end
-end
+#end
 
 run Rails.application
 

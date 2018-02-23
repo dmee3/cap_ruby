@@ -1,4 +1,7 @@
 FactoryGirl.define do
+  factory :bot_saying do
+    
+  end
   factory :activity do
     
   end

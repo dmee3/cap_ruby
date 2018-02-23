@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180119212148) do
+ActiveRecord::Schema.define(version: 20180223033248) do
 
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
@@ -26,6 +26,12 @@ ActiveRecord::Schema.define(version: 20180119212148) do
     t.datetime "updated_at", null: false
     t.integer "score", default: 0
     t.string "reason"
+  end
+
+  create_table "bot_sayings", force: :cascade do |t|
+    t.string "saying"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "conflict_statuses", force: :cascade do |t|
@@ -51,6 +57,7 @@ ActiveRecord::Schema.define(version: 20180119212148) do
     t.integer "payment_schedule_id"
     t.integer "amount"
     t.date "pay_date"
+    t.boolean "already_paid"
     t.index ["payment_schedule_id"], name: "index_payment_schedule_entries_on_payment_schedule_id"
   end
 

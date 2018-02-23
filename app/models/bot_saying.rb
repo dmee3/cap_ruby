@@ -1,0 +1,2 @@
+class BotSaying < ApplicationRecord
+end
