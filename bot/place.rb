@@ -10,7 +10,7 @@ class Place < SlackRubyBot::Commands::Base
     "Stew couldn't stop puking in the lot",
     'Shaun got lost picking up the trailer',
     'the bass solo changed again',
-    'they mispronounced our show name.  Wentu Worlds, Co. Lied',
+    'they misheard our show name.  When Two Worlds Combine',
     "we were just bad",
     'we left part of the prop in the lot',
     "the generator wouldn't start for warmup",
