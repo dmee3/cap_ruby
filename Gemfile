@@ -18,7 +18,7 @@ gem 'jwt'
 gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'
 
 # UI gems
-gem 'bootstrap', '~> 4.0.0.beta2'
+gem 'bootstrap', '~> 4.0.0'
 gem 'jquery-rails'
 gem 'vuejs-rails'
 gem 'sass-rails', '~> 5.0'

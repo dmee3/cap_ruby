@@ -9,7 +9,7 @@ class DashboardUtilities
     end
 
     def payment_schedule_sums_by_week
-      PaymentScheduleEntry.all
+      PaymentScheduleEntry.where('pay_date <= ?', Date.today)
                           .order(:pay_date)
                           .group_by { |entry, _| entry.pay_date.end_of_week }
                           .map { |week, entries| [week, entries.sum(&:amount).round(2) / 100] }

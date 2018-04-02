@@ -21,6 +21,7 @@ class PaymentsController < ApplicationController
       @payment_types = PaymentType.all
       @members = User.where(role: Role.find_by_name('member')).order :first_name
       @payment = Payment.new
+      @payment.user_id = params[:user_id] if params[:user_id]
       render :admin_new
     else
       render :member_new
