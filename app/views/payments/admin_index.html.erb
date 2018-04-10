@@ -64,12 +64,22 @@
   </div>
 
   <div class="row mt-3">
-    <div class="col-sm-12">
+    <div class="col-12">
       <div class="card">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-6">
+              <h3>Member Progress</h3>
+            </div>
+            <div class="col-6 text-right">
+              <button class="btn btn-info float-right" id="paid-toggle">Toggle Fully-Paid</button>
+            </div>
+          </div>
+        </div>
         <div class="list-group list-group-flush">
           <% @members.each do |member| %>
             <% status = member.dues_status_okay? %>
-            <a href="#member-<%= member.id %>-info" class="list-group-item list-group-item-action list-group-item-<%= status ? 'success' : 'danger' %>" data-toggle="collapse">
+            <a href="#member-<%= member.id %>-info" class="payment-item list-group-item list-group-item-action list-group-item-<%= status ? 'success' : 'danger' %>" data-toggle="collapse" data-paid="<%= member.amount_paid >= member.total_dues ? 'true' : 'false' %>">
               <div class="row">
                 <div class="col-6 col-md-4 col-lg-3">
                   <h5 class="mb-0"><%= member.full_name %></h5>
@@ -116,4 +126,11 @@
   <%= javascript_include_tag 'vue/differential_chart' %>
   <%= javascript_include_tag 'vue/burndown_chart' %>
   <%= javascript_include_tag 'vue/upcoming_payments' %>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#paid-toggle').click(function() {
+        $('.payment-item[data-paid="true"]').toggle();
+      });
+    });
+  </script>
 <% end %>
