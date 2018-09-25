@@ -20,6 +20,14 @@ class HomeController < ApplicationController
                     .map { |path| path.split('/').last }
   end
 
+  def feed
+    if is? :admin
+      admin_feed
+    else
+      member_feed
+    end
+  end
+
   private
 
   def admin_index
@@ -37,5 +45,23 @@ class HomeController < ApplicationController
                                  .where(conflict_status: ConflictStatus.find_by_name('Pending'))
                                  .count
     render :member_index
+  end
+
+  def admin_feed
+    respond_to do |format|
+      format.html { render :feed }
+      format.json do
+        response = Activity.includes(:user)
+                           .where('activity_date >= ?', 1.month.ago)
+                           .order('activity_date DESC, created_at DESC')
+
+        render json: response
+      end
+    end
+  end
+
+  def member_feed
+    activities = current_user.activities.select { |a| a.activity_type != 'login' }
+    render json: activities.reverse
   end
 end

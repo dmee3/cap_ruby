@@ -11,14 +11,17 @@
   <li class="nav-item">
     <%= link_to 'Documents', '/documents', { class: 'nav-link' } %>
   </li>
+  <li class="nav-item">
+    <%= link_to 'Feed', '/feed', { class: 'nav-link' } %>
+  </li>
 </ul>
 <ul class="navbar-nav navbar-right">
   <li class="nav-item">
-    <%= link_to '/settings', { class: 'nav-link' } do %>
+    <%= link_to '/settings', { class: 'nav-link mr-3' } do %>
       <%= fa_icon 'cogs' %>
     <% end %>
   </li>
   <li class="nav-item">
-    <%= link_to 'Log Out', '/logout', { class: 'nav-link' } %>
+    <%= link_to 'Log Out', '/logout', { class: 'btn btn-outline-light' } %>
   </li>
 </ul>

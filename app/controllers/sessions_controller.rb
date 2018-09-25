@@ -4,7 +4,7 @@ class SessionsController < ApplicationController
     user = User.find_by_email(@email)
     if user&.authenticate(login_params[:password])
       cookies.permanent[:jwt] = JsonWebToken.encode(user_id: user.id)
-      log_activity(user, 'login')
+      log_login(user)
       redirect_to root_url
     end
 
@@ -25,6 +25,16 @@ class SessionsController < ApplicationController
   end
 
   private
+
+  def log_login(user)
+    log_activity(
+      user_id: user.id,
+      description: 'Login',
+      activity_date: Date.today,
+      created_by_id: user.id,
+      activity_type: 'login'
+    )
+  end
 
   def login_params
     params.permit(:email, :password)

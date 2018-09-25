@@ -12,12 +12,12 @@ Rails.application.config.assets.version = (ENV["ASSETS_VERSION"] || "1.0")
 Rails.application.config.assets.precompile += %w[
   conflicts.css
   home.css
+  member_payments.js
+  payments.css
+  payment_schedules.css
+  payment_schedules.js
   sessions.css
   users.js
   users.css
-  payments.css
-  member_payments.js
-  payment_schedules.css
-  payment_schedules.js
   vue/*
 ]

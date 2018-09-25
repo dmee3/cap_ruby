@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   root to: 'home#index'
   get '/documents', to: 'home#documents'
+  get '/feed', to: 'home#feed'
 
   get 'login', to: 'sessions#new'
   post 'login', to: 'sessions#create'

@@ -4,7 +4,7 @@
 
 <% content_for :main do %>
   <div class="row">
-    <div class="col-md-6 col-lg-4 mt-3">
+    <div class="col-md-6">
       <%= link_to conflicts_path do %>
         <div class="card cap-red white-hover-link white-text border-light">
           <div class="card-body">
@@ -17,26 +17,30 @@
           </div>
         </div>
       <% end %>
-    </div>
 
-    <div class="col-md-6 col-lg-4 mt-3">
       <%= link_to payments_path do %>
-        <div class="card green white-hover-link white-text border-light">
+        <div class="card green white-hover-link white-text border-light my-3">
           <div class="card-body">
             <h4 class="card-title">Payments</h4>
           </div>
         </div>
       <% end %>
-    </div>
 
-    <div class="col-md-6 col-lg-4 mt-3">
       <%= link_to '/documents' do %>
-        <div class="card cap-gray white-hover-link white-text border-light">
+        <div class="card cap-gray white-hover-link white-text border-light my-3">
           <div class="card-body">
             <h4 class="card-title">Documents</h4>
           </div>
         </div>
       <% end %>
     </div>
+
+    <div class="col-md-6">
+      <%= render 'activity_feed' %>
+    </div>
   </div>
+<% end %>
+
+<% content_for :scripts do %>
+  <%= javascript_include_tag 'vue/activity_feed' %>
 <% end %>

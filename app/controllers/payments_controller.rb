@@ -33,6 +33,7 @@ class PaymentsController < ApplicationController
     @payment.amount *= 100 if @payment.amount
     if @payment.save
       flash[:success] = 'Payment created'
+      log_payment
       redirect_to payments_path
     else
       @payment_types = PaymentType.all
@@ -45,21 +46,27 @@ class PaymentsController < ApplicationController
   def charge
     set_stripe_secret_key
 
-    response = Stripe::Charge.create amount: params[:charge_amount],
-                                     currency: 'usd',
-                                     source: params[:stripe_token],
-                                     description: 'Cap City Dues Payment'
+    response = Stripe::Charge.create(
+      amount: params[:charge_amount],
+      currency: 'usd',
+      source: params[:stripe_token],
+      description: 'Cap City Dues Payment'
+    )
 
-    payment = Payment.new user: current_user,
-                          payment_type: PaymentType.find_by_name('Stripe'),
-                          amount: params[:payment_amount].to_i * 100,
-                          date_paid: Date.today,
-                          notes: "Stripe Payment - Charge ID: #{response.id}"
-    if payment.save
+    @payment = Payment.new(
+      user: current_user,
+      payment_type: PaymentType.find_by_name('Stripe'),
+      amount: params[:payment_amount].to_i * 100,
+      date_paid: Date.today,
+      notes: "Stripe Payment - Charge ID: #{response.id}"
+    )
+
+    if @payment.save
       flash[:success] = 'Payment submitted.  Thank you!'
+      log_payment
       redirect_to root_url
     else
-      Rollbar.info('Payment could not be submitted.  Please check Stripe for transaction.', errors: payment.errors.full_messages)
+      Rollbar.info('Payment could not be submitted.  Please check Stripe for transaction.', errors: @payment.errors.full_messages)
       flash[:error] = 'Payment could not be submitted.  Please contact a director for help.'
       redirect_to new_payment_url
     end
@@ -126,6 +133,17 @@ class PaymentsController < ApplicationController
     else
       Stripe.api_key = ENV['STRIPE_SECRET_TEST_KEY']
     end
+  end
+
+  def log_payment
+    return unless @payment
+    log_activity(
+      user_id: @payment.user_id,
+      description: "Payment of $#{'%.2f' % (@payment.amount / 100.0)} made",
+      activity_date: @payment.date_paid,
+      created_by_id: current_user.id,
+      activity_type: 'payment'
+    )
   end
 
   def charge_params

@@ -43,6 +43,7 @@ class ConflictsController < ApplicationController
   def update
     @conflict = Conflict.find params[:id]
     if @conflict.update(admin_conflict_params.reject { |_k, v| v.blank? })
+      log_conflict
       flash[:success] = 'Conflict updated.'
     else
       Rollbar.info('Conflict could not be updated.', errors: @conflict.errors.full_messages)
@@ -82,6 +83,7 @@ class ConflictsController < ApplicationController
     @conflict = Conflict.new admin_conflict_params
     if @conflict.save
       flash[:success] = 'Conflict created.'
+      log_conflict
       redirect_to root_url
     else
       Rollbar.info('Conflict could not be created.', errors: @conflict.errors.full_messages)
@@ -96,12 +98,26 @@ class ConflictsController < ApplicationController
     @conflict = Conflict.new member_conflict_params
     if @conflict.save
       flash[:success] = 'Conflict submitted for review.'
+      log_conflict
       redirect_to root_url
     else
       Rollbar.info('Conflict could not be submitted.', errors: @conflict.errors.full_messages)
       flash[:error] = 'Conflict could not be submitted.  Please contact a director for help.'
       redirect_to new_conflict_url
     end
+  end
+
+  def log_conflict
+    return unless @conflict
+    start = @conflict.start_date.strftime('%a, %-m/%-d %I:%M %p')
+    status = @conflict.status.name.downcase
+    log_activity(
+      user_id: @conflict.user_id,
+      description: "Conflict for #{start} marked #{status}",
+      activity_date: Date.today,
+      created_by_id: current_user.id,
+      activity_type: 'conflict'
+    )
   end
 
   def admin_conflict_params
