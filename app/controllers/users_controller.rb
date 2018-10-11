@@ -24,11 +24,7 @@ class UsersController < ApplicationController
     if @user.save
       DefaultPaymentSchedule.create @user.id if @user.is? 'member'
       flash[:success] = "#{@user.first_name} account created"
-      if @user.is? 'member'
-        redirect_to @user.payment_schedule
-      else
-        redirect_to users_path
-      end
+      @user.is?('member') ? redirect_to(@user.payment_schedule) : redirect_to(users_path)
     else
       Rollbar.info('User could not be created.', errors: @user.errors.full_messages)
       @roles = Role.all.reverse_order

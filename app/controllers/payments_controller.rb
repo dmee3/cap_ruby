@@ -139,7 +139,7 @@ class PaymentsController < ApplicationController
     return unless @payment
     log_activity(
       user_id: @payment.user_id,
-      description: "Payment of $#{'%.2f' % (@payment.amount / 100.0)} made",
+      description: "Payment of $#{'%.2f'.format(@payment.amount / 100.0)} made",
       activity_date: @payment.date_paid,
       created_by_id: current_user.id,
       activity_type: 'payment'
