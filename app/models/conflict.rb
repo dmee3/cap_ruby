@@ -4,6 +4,7 @@ class Conflict < ApplicationRecord
   belongs_to :user
   belongs_to :conflict_status, foreign_key: :status_id
   alias_attribute :status, :conflict_status
+  belongs_to :season
 
   validates :start_date, presence: true
   validates :end_date, presence: true

@@ -5,9 +5,10 @@ class User < ApplicationRecord
   belongs_to :role
   has_many :activities
   has_many :conflicts, dependent: :destroy
-  has_one :payment_schedule, dependent: :destroy
+  has_many :payment_schedules, dependent: :destroy
   has_many :payment_schedule_entries, through: :payment_schedule
   has_many :payments, dependent: :destroy
+  has_and_belongs_to_many :seasons
 
   validates :email, presence: { message: 'Email is required' }
   validates :email, uniqueness: true, case_sensitive: false
