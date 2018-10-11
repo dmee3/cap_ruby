@@ -33,7 +33,7 @@ class PaymentsController < ApplicationController
     @payment.amount *= 100 if @payment.amount
     if @payment.save
       flash[:success] = 'Payment created'
-      log_payment
+      ActivityLogger.log_payment(@payment, current_user)
       redirect_to payments_path
     else
       @payment_types = PaymentType.all
@@ -63,7 +63,7 @@ class PaymentsController < ApplicationController
 
     if @payment.save
       flash[:success] = 'Payment submitted.  Thank you!'
-      log_payment
+      ActivityLogger.log_payment(@payment, current_user)
       redirect_to root_url
     else
       Rollbar.info('Payment could not be submitted.  Please check Stripe for transaction.', errors: @payment.errors.full_messages)
@@ -133,17 +133,6 @@ class PaymentsController < ApplicationController
     else
       Stripe.api_key = ENV['STRIPE_SECRET_TEST_KEY']
     end
-  end
-
-  def log_payment
-    return unless @payment
-    log_activity(
-      user_id: @payment.user_id,
-      description: "Payment of $#{'%.2f'.format(@payment.amount / 100.0)} made",
-      activity_date: @payment.date_paid,
-      created_by_id: current_user.id,
-      activity_type: 'payment'
-    )
   end
 
   def charge_params

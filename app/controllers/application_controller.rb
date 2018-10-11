@@ -28,18 +28,6 @@ class ApplicationController < ActionController::Base
   end
   helper_method :is?
 
-  def log_activity(args)
-    Activity.create(
-      user_id: args[:user_id],
-      description: args[:description],
-      activity_date: args[:activity_date],
-      created_by_id: args[:created_by_id],
-      activity_type: args[:activity_type]
-    )
-  rescue StandardError => e
-    Rollbar.error(e, user: User.find(args[:user_id]))
-  end
-
   private
 
   def current_role
