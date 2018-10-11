@@ -9,15 +9,17 @@ class User < ApplicationRecord
   has_many :payment_schedule_entries, through: :payment_schedule
   has_many :payments, dependent: :destroy
 
+  validates :email, presence: { message: 'Email is required' }
+  validates :email, uniqueness: true, case_sensitive: false
   validates :first_name, presence: { message: 'First name is required' }
   validates :last_name, presence: { message: 'Last name is required' }
-  validates :email, presence: { message: 'Email is required' }
   validates :password, presence: { message: 'password is required' }, on: :create
   validates :password, length: { minimum: 6, message: 'Password must be at least 6 characters' }, if: :password
   validates :password, confirmation: { message: 'Password confirmation must match password' }, if: :password
   validates :role, presence: { message: 'Role is required' }
+  validates :username, uniqueness: true, case_sensitive: false
 
-  before_save { self.email = self.email.downcase }
+  before_save { self.email = email.downcase }
 
   def full_name
     "#{first_name} #{last_name}" if first_name && last_name
