@@ -43,6 +43,7 @@ class ConflictsController < ApplicationController
   def update
     @conflict = Conflict.find params[:id]
     if @conflict.update(admin_conflict_params.reject { |_k, v| v.blank? })
+      ActivityLogger.log_conflict(@conflict, current_user)
       flash[:success] = 'Conflict updated.'
     else
       Rollbar.info('Conflict could not be updated.', errors: @conflict.errors.full_messages)
@@ -82,6 +83,7 @@ class ConflictsController < ApplicationController
     @conflict = Conflict.new admin_conflict_params
     if @conflict.save
       flash[:success] = 'Conflict created.'
+      ActivityLogger.log_conflict(@conflict, current_user)
       redirect_to root_url
     else
       Rollbar.info('Conflict could not be created.', errors: @conflict.errors.full_messages)
@@ -96,6 +98,7 @@ class ConflictsController < ApplicationController
     @conflict = Conflict.new member_conflict_params
     if @conflict.save
       flash[:success] = 'Conflict submitted for review.'
+      ActivityLogger.log_conflict(@conflict, current_user)
       redirect_to root_url
     else
       Rollbar.info('Conflict could not be submitted.', errors: @conflict.errors.full_messages)

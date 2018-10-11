@@ -1,10 +1,10 @@
 class SessionsController < ApplicationController
   def create
-    @email = login_params[:email].downcase
-    user = User.find_by_email(@email)
+    @email_or_username = login_params[:email_or_username].downcase
+    user = find_user
     if user&.authenticate(login_params[:password])
       cookies.permanent[:jwt] = JsonWebToken.encode(user_id: user.id)
-      log_activity(user, 'login')
+      ActivityLogger.log_login(user)
       redirect_to root_url
     end
 
@@ -15,7 +15,7 @@ class SessionsController < ApplicationController
   end
 
   def new
-    @email = ''
+    @email_or_username = ''
     redirect_to root_url if current_user
   end
 
@@ -26,7 +26,13 @@ class SessionsController < ApplicationController
 
   private
 
+  def find_user
+    user = User.find_by_email(@email_or_username)
+    user = User.find_by_username(@email_or_username) if user.nil?
+    return user
+  end
+
   def login_params
-    params.permit(:email, :password)
+    params.permit(:email_or_username, :password)
   end
 end

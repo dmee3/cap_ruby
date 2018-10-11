@@ -1,6 +1,8 @@
 AllCops:
   Exclude:
     - 'Gemfile'
+  TargetRubyVersion:
+    '2.4.1'
     
 Bundler/OrderedGems:
   Enabled: false
@@ -12,5 +14,8 @@ Metrics/MethodLength:
 
 Style/ConditionalAssignment:
   Enabled: false
+Style/Documentation:
+  Enabled: false
 Style/NumericLiterals:
   Enabled: false
+

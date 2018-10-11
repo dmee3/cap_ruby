@@ -89,17 +89,19 @@
         <ul class="list-group list-group-flush">
           <li class="list-group-item list-group-item-striped">
             <div class="form row">
-              <div class="col-sm-6 col-md-12 col-lg-6">
-                <label for="start_date">Start</label>
+              <div class="input-group col-12">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Start</span>
+                </div>
                 <input v-model="start_date" type="date" class="form-control" name="start_date">
-              </div>
-              <div class="col-sm-6 col-md-12 col-lg-6">
-                <label for="end_date">End</label>
+                <div class="input-group-prepend">
+                  <span class="input-group-text">End</span>
+                </div>
                 <input v-model="end_date" type="date" class="form-control" name="end_date">
+                <div class="input-group-append">
+                  <a v-on:click="filter" class="btn btn-info white-text">Filter</a>
+                </div>
               </div>
-            </div>
-            <div class="mt-2 text-center">
-              <a v-on:click="filter" class="btn btn-info white-text">Filter</a>
             </div>
           </li>
           <li v-for="entry in entries" class="list-group-item">

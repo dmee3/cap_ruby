@@ -20,11 +20,11 @@ class UsersController < ApplicationController
   end
 
   def create
-    @user = User.new user_params
+    @user = User.new(user_params)
     if @user.save
-      DefaultPaymentSchedule.create @user.id if @user.is? 'member'
+      DefaultPaymentSchedule.create(@user.id) if @user.is?('member')
       flash[:success] = "#{@user.first_name} account created"
-      redirect_to users_path
+      @user.is?('member') ? redirect_to(@user.payment_schedule) : redirect_to(users_path)
     else
       Rollbar.info('User could not be created.', errors: @user.errors.full_messages)
       @roles = Role.all.reverse_order
@@ -34,12 +34,12 @@ class UsersController < ApplicationController
   end
 
   def edit
-    @user = User.find params[:id]
+    @user = User.find(params[:id])
     @roles = Role.all
   end
 
   def update
-    @user = User.find params[:id]
+    @user = User.find(params[:id])
     if @user.update(user_params.reject { |_k, v| v.blank? })
       flash[:success] = "#{@user.first_name} updated"
     else
@@ -62,20 +62,20 @@ class UsersController < ApplicationController
 
   def settings; end
 
-  def change_settings
-    unless current_user.authenticate settings_params[:old_password]
+  def change_password
+    unless current_user.authenticate(password_update_params[:old_password])
       flash.now[:error] = 'Old password was incorrect, please try again'
       render :settings
     end
 
-    unless settings_params[:new_password] == settings_params[:new_password_confirmation]
+    unless password_update_params[:new_password] == password_update_params[:new_password_confirmation]
       flash.now[:error] = "New passwords don\'t match, please try again"
       render :settings
     end
 
     return if performed?
 
-    if current_user.update password: settings_params[:new_password]
+    if current_user.update(password: password_update_params[:new_password])
       flash[:success] = 'Password updated'
     else
       flash[:error] = 'Error saving new password, please try again or contact a director'
@@ -84,14 +84,36 @@ class UsersController < ApplicationController
     redirect_to root_url
   end
 
+  def update_settings
+    if current_user.update(email: settings_params[:email], username: settings_params[:username])
+      flash[:success] = 'Settings updated'
+      redirect_to root_url
+    else
+      flash.now[:error] = "Couldn't update settings, please make sure your username and email are unique"
+      render :settings
+    end
+  end
+
   private
 
   def user_params
-    params.require(:user).permit :first_name, :last_name, :email, :password,
-                                 :password_confirmation, :role_id, :section
+    params.require(:user).permit(
+      :first_name,
+      :last_name,
+      :email,
+      :password,
+      :password_confirmation,
+      :role_id,
+      :section,
+      :username
+    )
   end
 
   def settings_params
-    params.permit :old_password, :new_password, :new_password_confirmation
+    params.permit(:username, :email)
+  end
+
+  def password_update_params
+    params.permit(:old_password, :new_password, :new_password_confirmation)
   end
 end

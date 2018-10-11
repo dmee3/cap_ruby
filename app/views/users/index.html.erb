@@ -9,9 +9,13 @@
     </div>
     <div class="col-sm-8">
       <%= form_tag '/users', method: :get, class: 'form-inline float-sm-right' do %>
-        <%= select_tag(:order, options_for_select(@columns), class: 'form-control mt-1') %>
-        <%= submit_tag 'Sort', class: 'btn btn-info ml-sm-3 mt-1' %>
-        <%= link_to 'New User', new_user_path, class: 'btn btn-success ml-4 mt-1' %>
+        <div class="input-group mt-1">
+          <%= select_tag(:order, options_for_select(@columns), class: 'custom-select form-control secondary') %>
+          <div class="input-group-append">
+            <%= submit_tag 'Sort', class: 'btn btn-info' %>
+          </div>
+        </div>
+        <%= link_to 'New User', new_user_path, class: 'btn btn-success ml-3 mt-1' %>
       <% end %>
     </div>
   </div>

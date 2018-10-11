@@ -21,6 +21,7 @@ class PaymentsController < ApplicationController
       @payment_types = PaymentType.all
       @members = User.where(role: Role.find_by_name('member')).order :first_name
       @payment = Payment.new
+      @payment.user_id = params[:user_id] if params[:user_id]
       render :admin_new
     else
       render :member_new
@@ -32,6 +33,7 @@ class PaymentsController < ApplicationController
     @payment.amount *= 100 if @payment.amount
     if @payment.save
       flash[:success] = 'Payment created'
+      ActivityLogger.log_payment(@payment, current_user)
       redirect_to payments_path
     else
       @payment_types = PaymentType.all
@@ -44,21 +46,27 @@ class PaymentsController < ApplicationController
   def charge
     set_stripe_secret_key
 
-    response = Stripe::Charge.create amount: params[:charge_amount],
-                                     currency: 'usd',
-                                     source: params[:stripe_token],
-                                     description: 'Cap City Dues Payment'
+    response = Stripe::Charge.create(
+      amount: params[:charge_amount],
+      currency: 'usd',
+      source: params[:stripe_token],
+      description: 'Cap City Dues Payment'
+    )
 
-    payment = Payment.new user: current_user,
-                          payment_type: PaymentType.find_by_name('Stripe'),
-                          amount: params[:payment_amount].to_i * 100,
-                          date_paid: Date.today,
-                          notes: "Stripe Payment - Charge ID: #{response.id}"
-    if payment.save
+    @payment = Payment.new(
+      user: current_user,
+      payment_type: PaymentType.find_by_name('Stripe'),
+      amount: params[:payment_amount].to_i * 100,
+      date_paid: Date.today,
+      notes: "Stripe Payment - Charge ID: #{response.id}"
+    )
+
+    if @payment.save
       flash[:success] = 'Payment submitted.  Thank you!'
+      ActivityLogger.log_payment(@payment, current_user)
       redirect_to root_url
     else
-      Rollbar.info('Payment could not be submitted.  Please check Stripe for transaction.', errors: payment.errors.full_messages)
+      Rollbar.info('Payment could not be submitted.  Please check Stripe for transaction.', errors: @payment.errors.full_messages)
       flash[:error] = 'Payment could not be submitted.  Please contact a director for help.'
       redirect_to new_payment_url
     end
