@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   before_action :authorized?
-  before_action -> { redirect_if_not 'admin' }, except: %i[settings change_settings]
+  before_action -> { redirect_if_not 'admin' }, except: %i[settings change_password update_settings]
 
   def index
     order_key = User.column_names.include?(params[:order]) ? params[:order] : :first_name
@@ -22,9 +22,9 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
-      DefaultPaymentSchedule.create(@user.id) if @user.is?('member')
+      DefaultPaymentSchedule.create(@user.id) if @user.is?(:member)
       flash[:success] = "#{@user.first_name} account created"
-      @user.is?('member') ? redirect_to(@user.payment_schedule) : redirect_to(users_path)
+      @user.is?(:member) ? redirect_to(@user.payment_schedule) : redirect_to(users_path)
     else
       Rollbar.info('User could not be created.', errors: @user.errors.full_messages)
       @roles = Role.all.reverse_order
