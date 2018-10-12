@@ -121,6 +121,7 @@ end
 # Create Payment Schedule
 unless PaymentSchedule.first
   eighteen_schedule = PaymentSchedule.new(season: eighteen)
+  vet_eighteen_schedule = PaymentSchedule.new(season: eighteen)
   eighteen_entries = [
     [30000, Date.parse('2017-10-15')],
     [23000, Date.parse('2017-11-19')],
@@ -129,31 +130,36 @@ unless PaymentSchedule.first
     [23000, Date.parse('2018-02-11')],
     [23000, Date.parse('2018-03-11')]
   ]
-  eighteen_entries.each do |entry_info|
-    entry = PaymentScheduleEntry.create(amount: entry_info[0], pay_date: entry_info[1])
-    eighteen_schedule.payment_schedule_entries << entry
+  [eighteen_schedule, vet_eighteen_schedule].each do |sched|
+    eighteen_entries.each do |entry_info|
+      entry = PaymentScheduleEntry.create(amount: entry_info[0], pay_date: entry_info[1])
+      sched.payment_schedule_entries << entry
+    end
   end
 
   nineteen_schedule = PaymentSchedule.new(season: nineteen)
+  vet_nineteen_schedule = PaymentSchedule.new(season: nineteen)
   nineteen_entries = [
-    [30000, Date.parse('2017-10-21')],
-    [23000, Date.parse('2017-11-18')],
-    [23000, Date.parse('2017-12-16')],
-    [23000, Date.parse('2018-01-13')],
-    [23000, Date.parse('2018-02-10')],
-    [23000, Date.parse('2018-03-10')]
+    [30000, Date.parse('2018-10-21')],
+    [23000, Date.parse('2018-11-18')],
+    [23000, Date.parse('2018-12-16')],
+    [23000, Date.parse('2019-01-13')],
+    [23000, Date.parse('2019-02-10')],
+    [23000, Date.parse('2019-03-10')]
   ]
-  nineteen_entries.each do |entry_info|
-    entry = PaymentScheduleEntry.create(amount: entry_info[0], pay_date: entry_info[1])
-    nineteen_schedule.payment_schedule_entries << entry
+  [nineteen_schedule, vet_nineteen_schedule].each do |sched|
+    nineteen_entries.each do |entry_info|
+      entry = PaymentScheduleEntry.create(amount: entry_info[0], pay_date: entry_info[1])
+      sched.payment_schedule_entries << entry
+    end
   end
 
   alum.payment_schedules << eighteen_schedule
-  vet.payment_schedules << eighteen_schedule
-  vet.payment_schedules << nineteen_schedule
+  vet.payment_schedules << vet_eighteen_schedule
+  vet.payment_schedules << vet_nineteen_schedule
   rookie.payment_schedules << nineteen_schedule
 
-  if eighteen_schedule.save! && nineteen_schedule.save!
+  if eighteen_schedule.save! && nineteen_schedule.save! && vet_eighteen_schedule.save! && vet_nineteen_schedule.save!
     puts 'Payment Schedules created'
   else
     puts 'ERROR: Unable to create Payment Schedules'

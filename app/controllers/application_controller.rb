@@ -7,12 +7,18 @@ class ApplicationController < ActionController::Base
 
   def current_user
     return @current if @current
-    token = JsonWebToken.decode jwt
+    token = JsonWebToken.decode(jwt)
     @current = User.find(token[:user_id]) if token
   rescue ActiveRecord::RecordNotFound
     nil
   end
   helper_method :current_user
+
+  def current_season
+    cookies[:cap_season] ||= current_user.seasons.last.to_json
+    JSON.parse(cookies[:cap_season])
+  end
+  helper_method :current_season
 
   def logout
     cookies.delete :jwt

@@ -20,6 +20,8 @@ class User < ApplicationRecord
   validates :role, presence: { message: 'Role is required' }
   validates :username, uniqueness: true, case_sensitive: false
 
+  scope :for_season, ->(season_id) { joins(:seasons).where('seasons.id' => season_id) }
+
   before_save { self.email = email.downcase }
 
   def full_name
@@ -33,6 +35,10 @@ class User < ApplicationRecord
 
   def amount_paid
     payments&.sum(:amount)
+  end
+
+  def payment_schedule_for(season_id)
+    payment_schedules.where(season_id: season_id).first
   end
 
   def total_dues

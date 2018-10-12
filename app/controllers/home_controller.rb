@@ -25,9 +25,9 @@ class HomeController < ApplicationController
 
   def change_season
     if params[:season_id].present?
-      session[:season] = Season.find(params[:season_id])
+      cookies[:cap_season] = Season.find(params[:season_id]).to_json
     else
-      session[:season] = current_user.seasons.last
+      cookies[:cap_season] = current_user.seasons.last.to_json
     end
 
     redirect_to root_path

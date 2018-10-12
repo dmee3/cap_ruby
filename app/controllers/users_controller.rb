@@ -9,9 +9,9 @@ class UsersController < ApplicationController
       ['Last Name', :last_name],
       ['Section', :section]
     ]
-    @members = User.where(role: Role.find_by_name('member')).includes(:payment_schedules).order(order_key)
-    @staff = User.where(role: Role.find_by_name('staff')).order :first_name
-    @admins = User.where(role: Role.find_by_name('admin')).order :first_name
+    @members = User.for_season(current_season['id']).where(role: Role.find_by_name('member')).includes(:payment_schedules).order(order_key)
+    @staff = User.for_season(current_season['id']).where(role: Role.find_by_name('staff')).order :first_name
+    @admins = User.for_season(current_season['id']).where(role: Role.find_by_name('admin')).order :first_name
   end
 
   def new
@@ -40,7 +40,7 @@ class UsersController < ApplicationController
 
   def update
     @user = User.find(params[:id])
-    if @user.update(user_params.reject { |_k, v| v.blank? })
+    if @user.update(user_params.reject { |_k, v| v.blank? }) # only update non-empty fields
       flash[:success] = "#{@user.first_name} updated"
     else
       Rollbar.info('User could not be updated.', errors: @user.errors.full_messages)

@@ -20,10 +20,10 @@
 <ul class="navbar-nav navbar-right">
   <li class="nav-item dropdown">
     <a class="btn btn-outline-light dropdown-toggle mr-3" href="#" id="season-dropdown" data-toggle="dropdown">
-      <%= current_season %>
+      <%= current_season['year'] %>
     </a>
     <div class="dropdown-menu" aria-labelledby="season-dropdown">
-      <% seasons.reverse.each do |s| %>
+      <% current_user.seasons.reverse.each do |s| %>
         <%= form_tag '/change-season', method: :post do %>
           <%= hidden_field_tag :season_id, s.id %>
           <%= submit_tag "#{s.year}", class: 'dropdown-item' %>
