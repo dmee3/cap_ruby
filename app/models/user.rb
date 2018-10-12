@@ -21,6 +21,7 @@ class User < ApplicationRecord
   validates :username, uniqueness: true, case_sensitive: false
 
   scope :for_season, ->(season_id) { joins(:seasons).where('seasons.id' => season_id) }
+  scope :role_for_season, ->(role, season_id) { joins(:seasons).where('seasons.id' => season_id, role: Role.find_by_name(role.to_s)) }
 
   before_save { self.email = email.downcase }
 

@@ -9,25 +9,26 @@ class UsersController < ApplicationController
       ['Last Name', :last_name],
       ['Section', :section]
     ]
-    @members = User.for_season(current_season['id']).where(role: Role.find_by_name('member')).includes(:payment_schedules).order(order_key)
-    @staff = User.for_season(current_season['id']).where(role: Role.find_by_name('staff')).order :first_name
-    @admins = User.for_season(current_season['id']).where(role: Role.find_by_name('admin')).order :first_name
+    @members = User.role_for_season(:member, current_season['id']).includes(:payment_schedules).order(order_key)
+    @staff = User.role_for_season(:staff, current_season['id']).where(role: Role.find_by_name('staff')).order :first_name
+    @admins = User.role_for_season(:admin, current_season['id']).where(role: Role.find_by_name('admin')).order :first_name
   end
 
   def new
     @user = User.new
-    @roles = Role.all.reverse_order
   end
 
   def create
     @user = User.new(user_params)
     if @user.save
-      DefaultPaymentSchedule.create(@user.id) if @user.is?(:member)
       flash[:success] = "#{@user.first_name} account created"
-      @user.is?(:member) ? redirect_to(@user.payment_schedule) : redirect_to(users_path)
+      if @user.is?(:member)
+        redirect_to(DefaultPaymentSchedule.create(@user.id, current_season['id']))
+      else
+        redirect_to(users_path)
+      end
     else
       Rollbar.info('User could not be created.', errors: @user.errors.full_messages)
-      @roles = Role.all.reverse_order
       flash.now[:error] = @user.errors.full_messages.to_sentence
       render :new
     end
@@ -35,7 +36,6 @@ class UsersController < ApplicationController
 
   def edit
     @user = User.find(params[:id])
-    @roles = Role.all
   end
 
   def update
@@ -105,7 +105,8 @@ class UsersController < ApplicationController
       :password_confirmation,
       :role_id,
       :section,
-      :username
+      :username,
+      season_ids:[]
     )
   end
 
