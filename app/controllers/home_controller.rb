@@ -2,11 +2,11 @@ class HomeController < ApplicationController
   before_action :authorized?
 
   def index
-    if is? :admin
+    if current_user.is?(:admin)
       admin_index
-    elsif is? :staff
+    elsif current_user.is?(:staff)
       staff_index
-    elsif is? :member
+    elsif current_user.is?(:member)
       member_index
     else
       Rollbar.warning('User with unknown role accessed home page.')
@@ -20,7 +20,17 @@ class HomeController < ApplicationController
   end
 
   def feed
-    is?(:admin) ? admin_feed : member_feed
+    current_user.is?(:admin) ? admin_feed : member_feed
+  end
+
+  def change_season
+    if params[:season_id].present?
+      session[:season] = Season.find(params[:season_id])
+    else
+      session[:season] = current_user.seasons.last
+    end
+
+    redirect_to root_path
   end
 
   private

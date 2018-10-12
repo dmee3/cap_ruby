@@ -40,6 +40,6 @@ class User < ApplicationRecord
   end
 
   def is?(name)
-    role.name == name
+    role.name == name.to_s
   end
 end

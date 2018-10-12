@@ -9,7 +9,7 @@ class UsersController < ApplicationController
       ['Last Name', :last_name],
       ['Section', :section]
     ]
-    @members = User.where(role: Role.find_by_name('member')).includes(:payment_schedule).order order_key
+    @members = User.where(role: Role.find_by_name('member')).includes(:payment_schedules).order(order_key)
     @staff = User.where(role: Role.find_by_name('staff')).order :first_name
     @admins = User.where(role: Role.find_by_name('admin')).order :first_name
   end

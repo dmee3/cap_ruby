@@ -4,11 +4,11 @@
       <div class="card">
         <div class="card-header"><h4 class="mb-0"><%= date.strftime('%A, %B %d') %></h4></div>
         <div class="list-group list-group-flush">
-          <% if is? 'admin' %>
+          <% if current_user.is?(:admin) %>
             <% conflicts.each do |conflict| %>
               <%= render 'admin_conflict_row', conflict: conflict %>
             <% end %>
-          <% elsif is? 'staff' %>
+          <% elsif current_user.is?(:staff) %>
             <% conflicts.each do |conflict| %>
               <%= render 'staff_conflict_row', conflict: conflict %>
             <% end %>

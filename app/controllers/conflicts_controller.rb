@@ -3,11 +3,11 @@ class ConflictsController < ApplicationController
   before_action -> { redirect_if_not 'admin' }, only: %i[edit update]
 
   def index
-    if is? 'admin'
+    if current_user.is?(:admin)
       admin_index
-    elsif is? 'staff'
+    elsif current_user.is?(:staff)
       staff_index
-    elsif is? 'member'
+    elsif current_user.is?(:member)
       member_index
     else
       redirect_to root_url
@@ -16,7 +16,7 @@ class ConflictsController < ApplicationController
 
   def new
     @conflict = Conflict.new
-    if is? 'admin'
+    if current_user.is?('admin')
       @members = User.where(role: Role.find_by_name('member')).order :first_name
       @statuses = ConflictStatus.all.order :name
       render :admin_new
@@ -26,7 +26,7 @@ class ConflictsController < ApplicationController
   end
 
   def create
-    if is? 'admin'
+    if current_user.is?(:admin)
       create_admin_conflict
     else
       create_member_conflict

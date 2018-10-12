@@ -3,12 +3,12 @@ class PaymentsController < ApplicationController
   before_action -> { redirect_if_not 'admin' }, except: %i[index new charge]
 
   def index
-    if is? 'admin'
+    if current_user.is?(:admin)
       @members = User.where(role: Role.find_by_name('member'))
                      .includes(:payments, payment_schedule: :payment_schedule_entries)
                      .order :first_name
       render :admin_index
-    elsif is? 'member'
+    elsif current_user.is?(:member)
       set_member_index_variables
       render :member_index
     end
@@ -17,7 +17,7 @@ class PaymentsController < ApplicationController
   def new
     set_stripe_public_key
 
-    if is? 'admin'
+    if current_user.is?(:admin)
       @payment_types = PaymentType.all
       @members = User.where(role: Role.find_by_name('member')).order :first_name
       @payment = Payment.new

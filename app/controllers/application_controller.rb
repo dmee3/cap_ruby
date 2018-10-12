@@ -20,19 +20,10 @@ class ApplicationController < ActionController::Base
   end
 
   def redirect_if_not(role)
-    redirect_to root_url unless is? role
+    redirect_to root_url unless current_user&.is?(role)
   end
-
-  def is?(role)
-    current_role == role.to_s
-  end
-  helper_method :is?
 
   private
-
-  def current_role
-    @current_role ||= current_user&.role&.name
-  end
 
   def jwt
     if request.xhr?
