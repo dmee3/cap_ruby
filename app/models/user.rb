@@ -24,6 +24,7 @@ class User < ApplicationRecord
   scope :role_for_season, ->(role, season_id) { joins(:seasons).where('seasons.id' => season_id, role: Role.find_by_name(role.to_s)) }
 
   before_save { self.email = email.downcase }
+  after_save :create_payment_schedules
 
   def full_name
     "#{first_name} #{last_name}" if first_name && last_name
@@ -48,5 +49,16 @@ class User < ApplicationRecord
 
   def is?(name)
     role.name == name.to_s
+  end
+
+  private
+
+  # Ensures that members have a payment schedule for each year they march
+  def create_payment_schedules
+    return unless is?(:member)
+    seasons.each do |season|
+      next if payment_schedules.find_by_season_id(season.id)
+      DefaultPaymentSchedule.create(id, season.id)
+    end
   end
 end

@@ -4,14 +4,10 @@ class UsersController < ApplicationController
 
   def index
     order_key = User.column_names.include?(params[:order]) ? params[:order] : :first_name
-    @columns = [
-      ['First Name', :first_name],
-      ['Last Name', :last_name],
-      ['Section', :section]
-    ]
+    @columns = [ ['First', :first_name], ['Last', :last_name], ['Section', :section] ]
     @members = User.role_for_season(:member, current_season['id']).includes(:payment_schedules).order(order_key)
-    @staff = User.role_for_season(:staff, current_season['id']).where(role: Role.find_by_name('staff')).order :first_name
-    @admins = User.role_for_season(:admin, current_season['id']).where(role: Role.find_by_name('admin')).order :first_name
+    @staff = User.role_for_season(:staff, current_season['id']).where(role: Role.find_by_name('staff'))
+    @admins = User.role_for_season(:admin, current_season['id']).where(role: Role.find_by_name('admin'))
   end
 
   def new
@@ -22,11 +18,7 @@ class UsersController < ApplicationController
     @user = User.new(user_params)
     if @user.save
       flash[:success] = "#{@user.first_name} account created"
-      if @user.is?(:member)
-        redirect_to(DefaultPaymentSchedule.create(@user.id, current_season['id']))
-      else
-        redirect_to(users_path)
-      end
+      redirect_to(users_path)
     else
       Rollbar.info('User could not be created.', errors: @user.errors.full_messages)
       flash.now[:error] = @user.errors.full_messages.to_sentence
@@ -63,19 +55,19 @@ class UsersController < ApplicationController
   def settings; end
 
   def change_password
-    unless current_user.authenticate(password_update_params[:old_password])
+    unless current_user.authenticate(params[:old_password])
       flash.now[:error] = 'Old password was incorrect, please try again'
       render :settings
     end
 
-    unless password_update_params[:new_password] == password_update_params[:new_password_confirmation]
+    unless params[:new_password] == params[:new_password_confirmation]
       flash.now[:error] = "New passwords don\'t match, please try again"
       render :settings
     end
 
     return if performed?
 
-    if current_user.update(password: password_update_params[:new_password])
+    if current_user.update(password: params[:new_password])
       flash[:success] = 'Password updated'
     else
       flash[:error] = 'Error saving new password, please try again or contact a director'
@@ -85,7 +77,7 @@ class UsersController < ApplicationController
   end
 
   def update_settings
-    if current_user.update(email: settings_params[:email], username: settings_params[:username])
+    if current_user.update(email: params[:email], username: params[:username])
       flash[:success] = 'Settings updated'
       redirect_to root_url
     else
@@ -108,13 +100,5 @@ class UsersController < ApplicationController
       :username,
       season_ids:[]
     )
-  end
-
-  def settings_params
-    params.permit(:username, :email)
-  end
-
-  def password_update_params
-    params.permit(:old_password, :new_password, :new_password_confirmation)
   end
 end
