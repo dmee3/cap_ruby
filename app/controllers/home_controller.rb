@@ -2,11 +2,11 @@ class HomeController < ApplicationController
   before_action :authorized?
 
   def index
-    if is? :admin
+    if current_user.is?(:admin)
       admin_index
-    elsif is? :staff
+    elsif current_user.is?(:staff)
       staff_index
-    elsif is? :member
+    elsif current_user.is?(:member)
       member_index
     else
       Rollbar.warning('User with unknown role accessed home page.')
@@ -20,13 +20,23 @@ class HomeController < ApplicationController
   end
 
   def feed
-    is?(:admin) ? admin_feed : member_feed
+    current_user.is?(:admin) ? admin_feed : member_feed
+  end
+
+  def change_season
+    if params[:season_id].present?
+      cookies[:cap_season] = Season.find(params[:season_id]).to_json
+    else
+      cookies[:cap_season] = current_user.seasons.last.to_json
+    end
+
+    redirect_to root_path
   end
 
   private
 
   def admin_index
-    @pending_conflicts = Conflict.where(conflict_status: ConflictStatus.find_by_name('Pending')).count
+    @pending_conflicts = Conflict.pending_conflicts(current_season['id']).count
     render :admin_index
   end
 
@@ -35,9 +45,7 @@ class HomeController < ApplicationController
   end
 
   def member_index
-    @pending_conflicts = Conflict.where(user: current_user)
-                                 .where(conflict_status: ConflictStatus.find_by_name('Pending'))
-                                 .count
+    @pending_conflicts = Conflict.pending_conflicts(current_season['id'], current_user.id).count
     render :member_index
   end
 

@@ -7,6 +7,8 @@ Rails.application.routes.draw do
   post 'login', to: 'sessions#create'
   get 'logout', to: 'sessions#destroy'
 
+  post 'change-season', to: 'home#change_season'
+
   resources :conflicts
 
   resources :payments, only: %i[index new create]

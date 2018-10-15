@@ -1,4 +1,7 @@
 FactoryGirl.define do
+  factory :season do
+    
+  end
   factory :bot_saying do
     
   end

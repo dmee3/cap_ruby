@@ -3,7 +3,7 @@
 <% end %>
 
 <% content_for :main do %>
-  <% status = current_user.dues_status_okay? %>
+  <% status = current_user.dues_status_okay?(current_season['id']) %>
   <div class="row">
     <%= render 'header' %>
   </div>

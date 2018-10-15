@@ -6,7 +6,7 @@
           <%= c.collection_select :user_id, @members, :id, :full_name, {}, { class: 'form-control select2-form-control' } %>
         </div>
         <div class="col-sm-6 form-group">
-          <%= c.collection_select :status_id, @statuses, :id, :name, {}, { class: 'form-control' } %>
+          <%= c.collection_select :status_id, ConflictStatus.all.order(:name), :id, :name, {}, { class: 'form-control' } %>
         </div>
       </div>
 

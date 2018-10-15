@@ -1,14 +1,12 @@
 class PaymentsController < ApplicationController
   before_action :authorized?
-  before_action -> { redirect_if_not 'admin' }, except: %i[index new charge]
+  before_action -> { redirect_if_not('admin') }, except: %i[index new charge]
 
   def index
-    if is? 'admin'
-      @members = User.where(role: Role.find_by_name('member'))
-                     .includes(:payments, payment_schedule: :payment_schedule_entries)
-                     .order :first_name
+    if current_user.is?(:admin)
+      @members = User.for_season(current_season['id']).with_role(:member).with_payments.order(:first_name)
       render :admin_index
-    elsif is? 'member'
+    elsif current_user.is?(:member)
       set_member_index_variables
       render :member_index
     end
@@ -17,9 +15,8 @@ class PaymentsController < ApplicationController
   def new
     set_stripe_public_key
 
-    if is? 'admin'
-      @payment_types = PaymentType.all
-      @members = User.where(role: Role.find_by_name('member')).order :first_name
+    if current_user.is?(:admin)
+      @members = User.for_season(current_season['id']).with_role(:member).order(:first_name)
       @payment = Payment.new
       @payment.user_id = params[:user_id] if params[:user_id]
       render :admin_new
@@ -28,52 +25,55 @@ class PaymentsController < ApplicationController
     end
   end
 
+  # Don't panic, this is admin-only
   def create
-    @payment = Payment.new payment_params
+    @payment = Payment.new(payment_params)
     @payment.amount *= 100 if @payment.amount
+    @payment.season_id = current_season['id']
     if @payment.save
       flash[:success] = 'Payment created'
       ActivityLogger.log_payment(@payment, current_user)
-      redirect_to payments_path
+      redirect_to(payments_path)
     else
-      @payment_types = PaymentType.all
-      @members = User.where(role: Role.find_by_name('member')).order :first_name
+      @members = User.for_season(current_season['id']).with_role(:member).order(:first_name)
       flash.now[:error] = @payment.errors.full_messages.to_sentence
       render :admin_new
     end
   end
 
+  # Serves as "create" method for member-initiated payments
   def charge
     set_stripe_secret_key
 
     response = Stripe::Charge.create(
       amount: params[:charge_amount],
       currency: 'usd',
-      source: params[:stripe_token],
-      description: 'Cap City Dues Payment'
+      description: 'Cap City Dues Payment',
+      source: params[:stripe_token]
     )
 
     @payment = Payment.new(
-      user: current_user,
-      payment_type: PaymentType.find_by_name('Stripe'),
       amount: params[:payment_amount].to_i * 100,
       date_paid: Date.today,
-      notes: "Stripe Payment - Charge ID: #{response.id}"
+      notes: "Stripe Payment - Charge ID: #{response.id}",
+      payment_type: PaymentType.find_by_name('Stripe'),
+      season_id: current_season['id'],
+      user: current_user
     )
 
     if @payment.save
-      flash[:success] = 'Payment submitted.  Thank you!'
+      flash[:success] = 'Payment submitted. Thank you!'
       ActivityLogger.log_payment(@payment, current_user)
-      redirect_to root_url
+      redirect_to(root_url)
     else
-      Rollbar.info('Payment could not be submitted.  Please check Stripe for transaction.', errors: @payment.errors.full_messages)
-      flash[:error] = 'Payment could not be submitted.  Please contact a director for help.'
-      redirect_to new_payment_url
+      Rollbar.info('Payment could not be submitted. Please check Stripe for transaction.', errors: @payment.errors.full_messages)
+      flash[:error] = 'Payment could not be submitted. Please contact a director for help.'
+      redirect_to(new_payment_url)
     end
   rescue StandardError => e
     Rollbar.error(e, user: current_user)
-    flash[:error] = 'Payment could not be submitted.  Please contact a director for help.'
-    redirect_to root_url
+    flash[:error] = 'Payment could not be submitted. Please contact a director for help.'
+    redirect_to(root_url)
   end
 
   def differential_chart
@@ -94,11 +94,13 @@ class PaymentsController < ApplicationController
       end_date = 2.weeks.from_now
     end
 
-    render(json: { payments: DashboardUtilities.upcoming_payments(start_date, end_date) })
+    render(json: {
+      payments: DashboardUtilities.upcoming_payments(start_date, end_date, current_season['id'])
+    })
   end
 
   def behind_members
-    render(json: { members: DashboardUtilities.behind_members })
+    render(json: { members: DashboardUtilities.behind_members(current_season['id']) })
   end
 
   def burndown_chart
@@ -113,8 +115,8 @@ class PaymentsController < ApplicationController
   private
 
   def set_member_index_variables
-    @payments = current_user.payments.order :date_paid
-    @payment_schedule = current_user.payment_schedule
+    @payments = current_user.payments_for(current_season['id']).order(:date_paid)
+    @payment_schedule = current_user.payment_schedule_for(current_season['id'])
     @total_paid = @payments.sum(:amount) / 100
     @total_dues = @payment_schedule.entries.sum(:amount) / 100
   end
@@ -135,11 +137,7 @@ class PaymentsController < ApplicationController
     end
   end
 
-  def charge_params
-    params.permit :stripe_token, :payment_amount, :charge_amount
-  end
-
   def payment_params
-    params.require(:payment).permit :user_id, :payment_type_id, :amount, :date_paid, :notes
+    params.require(:payment).permit(:user_id, :payment_type_id, :amount, :date_paid, :notes)
   end
 end

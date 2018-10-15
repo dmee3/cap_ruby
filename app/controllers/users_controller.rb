@@ -1,33 +1,26 @@
 class UsersController < ApplicationController
   before_action :authorized?
-  before_action -> { redirect_if_not 'admin' }, except: %i[settings change_settings]
+  before_action -> { redirect_if_not 'admin' }, except: %i[settings change_password update_settings]
 
   def index
     order_key = User.column_names.include?(params[:order]) ? params[:order] : :first_name
-    @columns = [
-      ['First Name', :first_name],
-      ['Last Name', :last_name],
-      ['Section', :section]
-    ]
-    @members = User.where(role: Role.find_by_name('member')).includes(:payment_schedule).order order_key
-    @staff = User.where(role: Role.find_by_name('staff')).order :first_name
-    @admins = User.where(role: Role.find_by_name('admin')).order :first_name
+    @columns = [ ['First', :first_name], ['Last', :last_name], ['Section', :section] ]
+    @members = User.for_season(current_season['id']).with_role(:member).includes(:payment_schedules).order(order_key)
+    @staff = User.for_season(current_season['id']).with_role(:staff)
+    @admins = User.for_season(current_season['id']).with_role(:admin)
   end
 
   def new
     @user = User.new
-    @roles = Role.all.reverse_order
   end
 
   def create
     @user = User.new(user_params)
     if @user.save
-      DefaultPaymentSchedule.create(@user.id) if @user.is?('member')
       flash[:success] = "#{@user.first_name} account created"
-      @user.is?('member') ? redirect_to(@user.payment_schedule) : redirect_to(users_path)
+      redirect_to(users_path)
     else
       Rollbar.info('User could not be created.', errors: @user.errors.full_messages)
-      @roles = Role.all.reverse_order
       flash.now[:error] = @user.errors.full_messages.to_sentence
       render :new
     end
@@ -35,12 +28,11 @@ class UsersController < ApplicationController
 
   def edit
     @user = User.find(params[:id])
-    @roles = Role.all
   end
 
   def update
     @user = User.find(params[:id])
-    if @user.update(user_params.reject { |_k, v| v.blank? })
+    if @user.update(user_params.reject { |_k, v| v.blank? }) # only update non-empty fields
       flash[:success] = "#{@user.first_name} updated"
     else
       Rollbar.info('User could not be updated.', errors: @user.errors.full_messages)
@@ -63,19 +55,19 @@ class UsersController < ApplicationController
   def settings; end
 
   def change_password
-    unless current_user.authenticate(password_update_params[:old_password])
+    unless current_user.authenticate(params[:old_password])
       flash.now[:error] = 'Old password was incorrect, please try again'
       render :settings
     end
 
-    unless password_update_params[:new_password] == password_update_params[:new_password_confirmation]
+    unless params[:new_password] == params[:new_password_confirmation]
       flash.now[:error] = "New passwords don\'t match, please try again"
       render :settings
     end
 
     return if performed?
 
-    if current_user.update(password: password_update_params[:new_password])
+    if current_user.update(password: params[:new_password])
       flash[:success] = 'Password updated'
     else
       flash[:error] = 'Error saving new password, please try again or contact a director'
@@ -85,7 +77,7 @@ class UsersController < ApplicationController
   end
 
   def update_settings
-    if current_user.update(email: settings_params[:email], username: settings_params[:username])
+    if current_user.update(email: params[:email], username: params[:username])
       flash[:success] = 'Settings updated'
       redirect_to root_url
     else
@@ -105,15 +97,8 @@ class UsersController < ApplicationController
       :password_confirmation,
       :role_id,
       :section,
-      :username
+      :username,
+      season_ids:[]
     )
-  end
-
-  def settings_params
-    params.permit(:username, :email)
-  end
-
-  def password_update_params
-    params.permit(:old_password, :new_password, :new_password_confirmation)
   end
 end

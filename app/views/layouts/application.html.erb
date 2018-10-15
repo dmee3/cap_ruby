@@ -19,11 +19,11 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbar-content">
-        <% if is? 'admin' %>
+        <% if current_user&.is?(:admin) %>
           <%= render 'admin_nav' %>
-        <% elsif is? 'staff' %>
+        <% elsif current_user&.is?(:staff) %>
           <%= render 'staff_nav' %>
-        <% elsif is? 'member' %>
+        <% elsif current_user&.is?(:member) %>
           <%= render 'member_nav' %>
         <% end %>
       </div>

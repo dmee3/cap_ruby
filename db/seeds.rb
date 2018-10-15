@@ -6,6 +6,10 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
+# Create Seasons
+eighteen = Season.create(year: '2018')
+nineteen = Season.create(year: '2019')
+
 # Create Roles
 admin_role = Role.find_by_name('admin') || Role.create(name: 'admin')
 Role.create(name: 'staff') unless Role.find_by_name 'staff'
@@ -30,11 +34,17 @@ puts 'Conflict Statuses created'
 
 # Create Me
 unless User.find_by_email ENV['ROOT_USER_EMAIL']
-  me = User.new first_name: ENV['ROOT_USER_FIRST_NAME'],
-                last_name: ENV['ROOT_USER_LAST_NAME'],
-                email: ENV['ROOT_USER_EMAIL'],
-                password: ENV['ROOT_USER_PASSWORD'],
-                password_confirmation: ENV['ROOT_USER_PASSWORD']
+  me = User.new(
+    first_name: ENV['ROOT_USER_FIRST_NAME'],
+    last_name: ENV['ROOT_USER_LAST_NAME'],
+    username: ENV['ROOT_USER_USERNAME'],
+    email: ENV['ROOT_USER_EMAIL'],
+    password: ENV['ROOT_USER_PASSWORD'],
+    password_confirmation: ENV['ROOT_USER_PASSWORD']
+  )
+
+  me.seasons << eighteen
+  me.seasons << nineteen
 
   me.role = admin_role
   if me.save!
@@ -44,26 +54,75 @@ unless User.find_by_email ENV['ROOT_USER_EMAIL']
   end
 end
 
-# Create Test User
-unless User.find_by_email ENV['TEST_USER_EMAIL']
-  garrett = User.create first_name: ENV['TEST_USER_FIRST_NAME'],
-                        last_name: ENV['TEST_USER_LAST_NAME'],
-                        email: ENV['TEST_USER_EMAIL'],
-                        password: ENV['TEST_USER_PASSWORD'],
-                        password_confirmation: ENV['TEST_USER_PASSWORD']
+# Create Test User (Alumni)
+unless User.find_by_email ENV['TEST_ALUM_EMAIL']
+  alum = User.create(
+    first_name: ENV['TEST_ALUM_FIRST_NAME'],
+    last_name: ENV['TEST_ALUM_LAST_NAME'],
+    username: ENV['TEST_ALUM_USERNAME'],
+    email: ENV['TEST_ALUM_EMAIL'],
+    password: ENV['TEST_ALUM_PASSWORD'],
+    password_confirmation: ENV['TEST_ALUM_PASSWORD']
+  )
 
-  garrett.role = member_role
-  if garrett.save!
-    puts 'Test User created'
+  alum.seasons << eighteen
+
+  alum.role = member_role
+  if alum.save!
+    puts 'Test Alumni created'
   else
-    puts 'ERROR: Unable to create Test User'
+    puts 'ERROR: Unable to create Test Alumni'
+  end
+end
+
+# Create Test User (Vet)
+unless User.find_by_email ENV['TEST_VET_EMAIL']
+  vet = User.create(
+    first_name: ENV['TEST_VET_FIRST_NAME'],
+    last_name: ENV['TEST_VET_LAST_NAME'],
+    username: ENV['TEST_VET_USERNAME'],
+    email: ENV['TEST_VET_EMAIL'],
+    password: ENV['TEST_VET_PASSWORD'],
+    password_confirmation: ENV['TEST_VET_PASSWORD']
+  )
+
+  vet.seasons << eighteen
+  vet.seasons << nineteen
+
+  vet.role = member_role
+  if vet.save!
+    puts 'Test Vet created'
+  else
+    puts 'ERROR: Unable to create Test Vet'
+  end
+end
+
+# Create Test User (Rookie)
+unless User.find_by_email ENV['TEST_ROOKIE_EMAIL']
+  rookie = User.create(
+    first_name: ENV['TEST_ROOKIE_FIRST_NAME'],
+    last_name: ENV['TEST_ROOKIE_LAST_NAME'],
+    username: ENV['TEST_ROOKIE_USERNAME'],
+    email: ENV['TEST_ROOKIE_EMAIL'],
+    password: ENV['TEST_ROOKIE_PASSWORD'],
+    password_confirmation: ENV['TEST_ROOKIE_PASSWORD']
+  )
+
+  rookie.seasons << nineteen
+
+  rookie.role = member_role
+  if rookie.save!
+    puts 'Test Rookie created'
+  else
+    puts 'ERROR: Unable to create Test Rookie'
   end
 end
 
 # Create Payment Schedule
 unless PaymentSchedule.first
-  schedule = PaymentSchedule.new
-  entries = [
+  eighteen_schedule = PaymentSchedule.new(season: eighteen)
+  vet_eighteen_schedule = PaymentSchedule.new(season: eighteen)
+  eighteen_entries = [
     [30000, Date.parse('2017-10-15')],
     [23000, Date.parse('2017-11-19')],
     [23000, Date.parse('2017-12-17')],
@@ -71,16 +130,38 @@ unless PaymentSchedule.first
     [23000, Date.parse('2018-02-11')],
     [23000, Date.parse('2018-03-11')]
   ]
-  entries.each do |entry_info|
-    entry = PaymentScheduleEntry.create(amount: entry_info[0], pay_date: entry_info[1])
-    schedule.payment_schedule_entries << entry
+  [eighteen_schedule, vet_eighteen_schedule].each do |sched|
+    eighteen_entries.each do |entry_info|
+      entry = PaymentScheduleEntry.create(amount: entry_info[0], pay_date: entry_info[1])
+      sched.payment_schedule_entries << entry
+    end
   end
 
-  garrett.payment_schedule = schedule
+  nineteen_schedule = PaymentSchedule.new(season: nineteen)
+  vet_nineteen_schedule = PaymentSchedule.new(season: nineteen)
+  nineteen_entries = [
+    [30000, Date.parse('2018-10-21')],
+    [23000, Date.parse('2018-11-18')],
+    [23000, Date.parse('2018-12-16')],
+    [23000, Date.parse('2019-01-13')],
+    [23000, Date.parse('2019-02-10')],
+    [23000, Date.parse('2019-03-10')]
+  ]
+  [nineteen_schedule, vet_nineteen_schedule].each do |sched|
+    nineteen_entries.each do |entry_info|
+      entry = PaymentScheduleEntry.create(amount: entry_info[0], pay_date: entry_info[1])
+      sched.payment_schedule_entries << entry
+    end
+  end
 
-  if schedule.save!
-    puts 'Test User Payment Schedule created'
+  alum.payment_schedules << eighteen_schedule
+  vet.payment_schedules << vet_eighteen_schedule
+  vet.payment_schedules << vet_nineteen_schedule
+  rookie.payment_schedules << nineteen_schedule
+
+  if eighteen_schedule.save! && nineteen_schedule.save! && vet_eighteen_schedule.save! && vet_nineteen_schedule.save!
+    puts 'Payment Schedules created'
   else
-    puts 'ERROR: Unable to create Test User Payment Schedule'
+    puts 'ERROR: Unable to create Payment Schedules'
   end
 end

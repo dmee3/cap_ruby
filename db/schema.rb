@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181011105938) do
+ActiveRecord::Schema.define(version: 20181011183616) do
 
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
@@ -52,6 +52,8 @@ ActiveRecord::Schema.define(version: 20181011105938) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "deleted_at"
+    t.integer "season_id"
+    t.index ["season_id"], name: "index_conflicts_on_season_id"
     t.index ["status_id"], name: "index_conflicts_on_status_id"
     t.index ["user_id"], name: "index_conflicts_on_user_id"
   end
@@ -66,6 +68,8 @@ ActiveRecord::Schema.define(version: 20181011105938) do
 
   create_table "payment_schedules", force: :cascade do |t|
     t.integer "user_id"
+    t.integer "season_id"
+    t.index ["season_id"], name: "index_payment_schedules_on_season_id"
     t.index ["user_id"], name: "index_payment_schedules_on_user_id"
   end
 
@@ -84,13 +88,21 @@ ActiveRecord::Schema.define(version: 20181011105938) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "deleted_at"
+    t.integer "season_id"
     t.index ["deleted_at"], name: "index_payments_on_deleted_at"
     t.index ["payment_type_id"], name: "index_payments_on_payment_type_id"
+    t.index ["season_id"], name: "index_payments_on_season_id"
     t.index ["user_id"], name: "index_payments_on_user_id"
   end
 
   create_table "roles", force: :cascade do |t|
     t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "seasons", force: :cascade do |t|
+    t.string "year"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -110,6 +122,13 @@ ActiveRecord::Schema.define(version: 20181011105938) do
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["role_id"], name: "index_users_on_role_id"
     t.index ["username"], name: "index_users_on_username", unique: true
+  end
+
+  create_table "seasons_users", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "season_id"
+    t.index ["season_id"], name: "index_users_seasons_on_season_id"
+    t.index ["user_id"], name: "index_users_seasons_on_user_id"
   end
 
 end

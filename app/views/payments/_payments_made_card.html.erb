@@ -1,7 +1,7 @@
 <div class="card <%= status ? 'border-success' : 'border-danger' %>" id="payment-accordion-<%= member.id %>">
   <div class="card-header <%= status ? 'border-success' : 'border-danger' %>">Payments Made</div>
   <ul class="list-group list-group-flush">
-    <% member.payments.order(:date_paid).each do |payment| %>
+    <% member.payments_for(current_season['id']).order(:date_paid).each do |payment| %>
       <li class="list-group-item list-group-item-striped">
         <%= render 'payment_type_icon', type: payment.payment_type %>
         $<%= '%.2f' % (payment.amount / 100.0) %>
