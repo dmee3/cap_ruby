@@ -18,7 +18,7 @@
           <%= p.collection_select :user_id, @members, :id, :full_name, {}, { class: 'form-control select2-form-control' } %>
         </div>
         <div class="col-md-4 form-group">
-          <%= p.collection_select :payment_type_id, @payment_types, :id, :name, {}, { class: 'form-control select2-form-control' } %>
+          <%= p.collection_select :payment_type_id, PaymentType.all, :id, :name, {}, { class: 'form-control select2-form-control' } %>
         </div>
         <div class="col-md-3">
           <div class="input-group">

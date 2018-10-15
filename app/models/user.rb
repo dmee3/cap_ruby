@@ -30,21 +30,28 @@ class User < ApplicationRecord
     "#{first_name} #{last_name}" if first_name && last_name
   end
 
-  def dues_status_okay?
+  def dues_status_okay?(season_id)
     return nil unless role.name == 'member'
-    @status ||= amount_paid >= payment_schedule_entries.where('pay_date < ?', Date.today).sum(:amount)
+    return @status unless @status.nil?
+    dues_paid = amount_paid_for(season_id)
+    schedule = payment_schedule_for(season_id)
+    @status = dues_paid >= schedule.entries.where('pay_date < ?', Date.today).sum(:amount)
   end
 
-  def amount_paid
-    payments&.sum(:amount)
+  def amount_paid_for(season_id)
+    payments.where(season_id: season_id)&.sum(:amount)
   end
 
   def payment_schedule_for(season_id)
     payment_schedules.where(season_id: season_id).first
   end
 
-  def total_dues
-    payment_schedule&.payment_schedule_entries&.sum(:amount)
+  def payments_for(season_id)
+    payments.where(season_id: season_id)
+  end
+
+  def total_dues_for(season_id)
+    payment_schedule_for(season_id)&.entries&.sum(:amount)
   end
 
   def is?(name)
