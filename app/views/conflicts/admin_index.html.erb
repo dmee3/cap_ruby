@@ -14,6 +14,16 @@
   <% unless @conflicts_by_start_date.empty? %>
     <%= render 'conflicts_list', conflicts_list: @conflicts_by_start_date %>
   <% end %>
+
+  <div class="row mt-5">
+    <div class="col-12">
+      <h2 class="white-text">Past Conflicts</h2>
+    </div>
+  </div>
+
+  <% unless @old_conflicts_by_start_date.empty? %>
+    <%= render 'conflicts_list', conflicts_list: @old_conflicts_by_start_date %>
+  <% end %>
 <% end %>
 
 <% content_for :scripts do %>

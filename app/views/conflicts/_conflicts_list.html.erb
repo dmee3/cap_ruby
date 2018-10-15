@@ -2,7 +2,7 @@
   <div class="row mt-3">
     <div class="col-12">
       <div class="card">
-        <div class="card-header"><h4 class="mb-0"><%= date.strftime('%A, %B %d') %></h4></div>
+        <div class="card-header"><h4 class="mb-0"><%= date.strftime('%A, %B %d, %Y') %></h4></div>
         <div class="list-group list-group-flush">
           <% if current_user.is?(:admin) %>
             <% conflicts.each do |conflict| %>

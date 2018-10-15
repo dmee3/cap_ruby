@@ -4,9 +4,7 @@ class PaymentsController < ApplicationController
 
   def index
     if current_user.is?(:admin)
-      @members = User.role_for_season(:member, current_season['id'])
-                     .includes(:payments, payment_schedules: :payment_schedule_entries)
-                     .order(:first_name)
+      @members = User.role_for_season(:member, current_season['id']).with_payments.order(:first_name)
       render :admin_index
     elsif current_user.is?(:member)
       set_member_index_variables
@@ -29,7 +27,7 @@ class PaymentsController < ApplicationController
 
   # Don't panic, this is admin-only
   def create
-    @payment = Payment.new payment_params
+    @payment = Payment.new(payment_params)
     @payment.amount *= 100 if @payment.amount
     @payment.season_id = current_season['id']
     if @payment.save

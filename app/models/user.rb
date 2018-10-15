@@ -22,12 +22,14 @@ class User < ApplicationRecord
 
   scope :for_season, ->(season_id) { joins(:seasons).where('seasons.id' => season_id) }
   scope :role_for_season, ->(role, season_id) { joins(:seasons).where('seasons.id' => season_id, role: Role.find_by_name(role.to_s)) }
+  scope :with_payments, -> { includes(:payments, payment_schedules: :payment_schedule_entries) }
 
   before_save { self.email = email.downcase }
   after_save :create_payment_schedules
 
   def full_name
-    "#{first_name} #{last_name}" if first_name && last_name
+    return "#{first_name} #{last_name}" if first_name && last_name
+    return first_name
   end
 
   def dues_status_okay?(season_id)
