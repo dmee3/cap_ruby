@@ -18,3 +18,6 @@ A web-based application for managing [Cap City Percussion](https://capcitypercus
 
 ### Migrating database
 `heroku run rake db:migrate --app cap-production`
+
+### Running rails console
+`heroku run rails console --app cap-production`
