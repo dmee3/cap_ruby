@@ -26,16 +26,12 @@ class ApplicationController < ActionController::Base
   end
 
   def redirect_if_not(role)
-    redirect_to root_url unless current_user&.is?(role)
+    redirect_to(root_url) unless current_user&.is?(role)
   end
 
   private
 
   def jwt
-    if request.xhr?
-      params[:jwt]
-    else
-      cookies[:jwt]
-    end
+    request.xhr? ? params[:jwt] : cookies[:jwt]
   end
 end

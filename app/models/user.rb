@@ -21,8 +21,8 @@ class User < ApplicationRecord
   validates :username, uniqueness: true, case_sensitive: false
 
   scope :for_season, ->(season_id) { joins(:seasons).where('seasons.id' => season_id) }
-  scope :role_for_season, ->(role, season_id) { joins(:seasons).where('seasons.id' => season_id, role: Role.find_by_name(role.to_s)) }
   scope :with_payments, -> { includes(:payments, payment_schedules: :payment_schedule_entries) }
+  scope :with_role, ->(role) { where(role: Role.find_by_name(role.to_s)) }
 
   before_save { self.email = email.downcase }
   after_save :create_payment_schedules
@@ -37,19 +37,19 @@ class User < ApplicationRecord
     return @status unless @status.nil?
     dues_paid = amount_paid_for(season_id)
     schedule = payment_schedule_for(season_id)
-    @status = dues_paid >= schedule.entries.where('pay_date < ?', Date.today).sum(:amount)
+    @status = dues_paid >= schedule.entries.past_entries.sum(:amount)
   end
 
   def amount_paid_for(season_id)
-    payments.where(season_id: season_id)&.sum(:amount)
+    payments.for_season(season_id)&.sum(:amount)
   end
 
   def payment_schedule_for(season_id)
-    payment_schedules.where(season_id: season_id).first
+    payment_schedules.for_season(season_id).first
   end
 
   def payments_for(season_id)
-    payments.where(season_id: season_id)
+    payments.for_season(season_id)
   end
 
   def total_dues_for(season_id)

@@ -18,4 +18,26 @@ class Conflict < ApplicationRecord
   scope :past_conflicts, ->{ where('end_date < ?', Date.today) }
   scope :with_status, ->(status_id) { where(conflict_status: status_id) }
   scope :without_status, ->(status_id) { where.not(conflict_status: status_id) }
+
+  class << self
+    def future_conflicts_by_start_date(season_id)
+      self.future_conflicts
+          .without_status(ConflictStatus.find_by_name('Pending'))
+          .for_season(season_id)
+          .order(:start_date)
+          .group_by { |c| c.start_date.to_date }
+    end
+
+    def past_conflicts_by_start_date(season_id)
+      self.past_conflicts
+          .for_season(season_id)
+          .order(:start_date)
+          .group_by { |c| c.start_date.to_date }
+    end
+
+    def pending_conflicts(season_id, user_id = nil)
+      conflicts = self.for_season(season_id).with_status(ConflictStatus.find_by_name('Pending'))
+      user_id.present? ? conflicts.where(user_id: user_id) : conflicts
+    end
+  end
 end

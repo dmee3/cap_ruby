@@ -4,7 +4,7 @@ class PaymentsController < ApplicationController
 
   def index
     if current_user.is?(:admin)
-      @members = User.role_for_season(:member, current_season['id']).with_payments.order(:first_name)
+      @members = User.for_season(current_season['id']).with_role(:member).with_payments.order(:first_name)
       render :admin_index
     elsif current_user.is?(:member)
       set_member_index_variables
@@ -16,7 +16,7 @@ class PaymentsController < ApplicationController
     set_stripe_public_key
 
     if current_user.is?(:admin)
-      @members = User.role_for_season(:member, current_season['id']).order(:first_name)
+      @members = User.for_season(current_season['id']).with_role(:member).order(:first_name)
       @payment = Payment.new
       @payment.user_id = params[:user_id] if params[:user_id]
       render :admin_new
@@ -35,7 +35,7 @@ class PaymentsController < ApplicationController
       ActivityLogger.log_payment(@payment, current_user)
       redirect_to(payments_path)
     else
-      @members = User.role_for_season(:member, current_season['id']).order(:first_name)
+      @members = User.for_season(current_season['id']).with_role(:member).order(:first_name)
       flash.now[:error] = @payment.errors.full_messages.to_sentence
       render :admin_new
     end

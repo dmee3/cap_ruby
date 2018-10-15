@@ -36,7 +36,7 @@ class HomeController < ApplicationController
   private
 
   def admin_index
-    @pending_conflicts = Conflict.where(conflict_status: ConflictStatus.find_by_name('Pending')).count
+    @pending_conflicts = Conflict.pending_conflicts(current_season['id']).count
     render :admin_index
   end
 
@@ -45,9 +45,7 @@ class HomeController < ApplicationController
   end
 
   def member_index
-    @pending_conflicts = Conflict.where(user: current_user)
-                                 .where(conflict_status: ConflictStatus.find_by_name('Pending'))
-                                 .count
+    @pending_conflicts = Conflict.pending_conflicts(current_season['id'], current_user.id).count
     render :member_index
   end
 

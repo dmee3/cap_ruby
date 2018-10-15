@@ -1,6 +1,6 @@
 class ConflictsController < ApplicationController
   before_action :authorized?
-  before_action -> { redirect_if_not 'admin' }, only: %i[edit update]
+  before_action -> { redirect_if_not('admin') }, only: %i[edit update]
 
   def index
     if current_user.is?(:admin)
@@ -17,7 +17,7 @@ class ConflictsController < ApplicationController
   def new
     @conflict = Conflict.new
     if current_user.is?('admin')
-      @members = User.role_for_season(:member, current_season['id']).order(:first_name)
+      @members = User.for_season(current_season['id']).with_role(:member).order(:first_name)
       render :admin_new
     else
       render :member_new
@@ -30,7 +30,7 @@ class ConflictsController < ApplicationController
 
   def edit
     @conflict = Conflict.find(params[:id])
-    @members = User.role_for_season(:member, current_season['id']).order(:first_name)
+    @members = User.for_season(current_season['id']).with_role(:member).order(:first_name)
     render :admin_edit
   end
 
@@ -50,33 +50,25 @@ class ConflictsController < ApplicationController
   private
 
   def admin_index
-    @pending = Conflict.for_season(current_season['id'])
-                       .with_status(ConflictStatus.find_by_name('Pending'))
-    @conflicts_by_start_date = Conflict.future_conflicts
-                                       .without_status(ConflictStatus.find_by_name('Pending'))
-                                       .for_season(current_season['id'])
-                                       .order(:start_date)
-                                       .group_by { |c| c.start_date.to_date }
-    @old_conflicts_by_start_date = Conflict.past_conflicts
-                                           .for_season(current_season['id'])
-                                           .order(:start_date)
-                                           .group_by { |c| c.start_date.to_date }
+    @pending = Conflict.pending_conflicts(current_season['id'])
+    @conflicts_by_start_date = Conflict.future_conflicts_by_start_date(current_season['id'])
+    @old_conflicts_by_start_date = Conflict.past_conflicts_by_start_date(current_season['id'])
     render :admin_index
   end
 
   def staff_index
-    @conflicts_by_start_date = Conflict.future_conflicts.order(:start_date).group_by { |c| c.start_date.to_date }
+    @conflicts_by_start_date = Conflict.future_conflicts_by_start_date(current_season['id'])
     render :staff_index
   end
 
   def member_index
-    @conflicts_by_start_date = current_user.conflicts.order(:start_date).group_by { |c| c.start_date.to_date }
+    @conflicts_by_start_date = Conflict.future_conflicts_by_start_date(current_season['id'])
+                                       .where(user_id: current_user.id)
     render :member_index
   end
 
   def create_admin_conflict
     @conflict = Conflict.new(admin_conflict_params)
-    @conflict.season_id = current_season['id']
     if @conflict.save
       flash[:success] = 'Conflict created.'
       ActivityLogger.log_conflict(@conflict, current_user)
@@ -84,14 +76,13 @@ class ConflictsController < ApplicationController
     else
       Rollbar.info('Conflict could not be created.', errors: @conflict.errors.full_messages)
       flash.now[:error] = @conflict.errors.full_messages.to_sentence
-      @members = User.role_for_season(:member, current_season['id']).order(:first_name)
+      @members = User.for_season(current_season['id']).with_role(:member).order(:first_name)
       render :admin_new
     end
   end
 
   def create_member_conflict
     @conflict = Conflict.new(member_conflict_params)
-    @conflict.season_id = current_season['id']
     if @conflict.save
       flash[:success] = 'Conflict submitted for review.'
       ActivityLogger.log_conflict(@conflict, current_user)
@@ -104,12 +95,18 @@ class ConflictsController < ApplicationController
   end
 
   def admin_conflict_params
-    params.require(:conflict).permit(:user_id, :status_id, :start_date, :end_date, :reason)
+    params.require(:conflict)
+          .permit(:user_id, :status_id, :start_date, :end_date, :reason)
+          .merge(season_id: current_season['id'])
   end
 
   def member_conflict_params
     params.require(:conflict)
           .permit(:start_date, :end_date, :reason)
-          .merge(user_id: current_user.id, conflict_status: ConflictStatus.find_by_name('Pending'))
+          .merge(
+            conflict_status: ConflictStatus.find_by_name('Pending'),
+            season_id: current_season['id'],
+            user_id: current_user.id
+          )
   end
 end

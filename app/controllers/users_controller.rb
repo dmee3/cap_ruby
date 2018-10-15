@@ -5,9 +5,9 @@ class UsersController < ApplicationController
   def index
     order_key = User.column_names.include?(params[:order]) ? params[:order] : :first_name
     @columns = [ ['First', :first_name], ['Last', :last_name], ['Section', :section] ]
-    @members = User.role_for_season(:member, current_season['id']).includes(:payment_schedules).order(order_key)
-    @staff = User.role_for_season(:staff, current_season['id']).where(role: Role.find_by_name('staff'))
-    @admins = User.role_for_season(:admin, current_season['id']).where(role: Role.find_by_name('admin'))
+    @members = User.for_season(current_season['id']).with_role(:member).includes(:payment_schedules).order(order_key)
+    @staff = User.for_season(current_season['id']).with_role(:staff)
+    @admins = User.for_season(current_season['id']).with_role(:admin)
   end
 
   def new
