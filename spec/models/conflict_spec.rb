@@ -60,31 +60,31 @@ RSpec.describe Conflict, type: :model do
 
     context 'for_season' do
       it 'returns conflicts for the given season' do
-        expect(described_class.for_season(season.id)).to eq [current_conflict]
+        expect(described_class.for_season(season.id)).to eq([current_conflict])
       end
     end
 
     context 'future_conflicts' do
       it 'returns future conflicts' do
-        expect(described_class.future_conflicts).to eq [current_conflict]
+        expect(described_class.future_conflicts).to eq([current_conflict])
       end
     end
 
     context 'past_conflicts' do
       it 'returns past conflicts' do
-        expect(described_class.past_conflicts).to eq [old_conflict]
+        expect(described_class.past_conflicts).to eq([old_conflict])
       end
     end
 
     context 'with_status' do
       it 'returns conflicts with the given status' do
-        expect(described_class.with_status(denied_status.id)).to eq [old_conflict]
+        expect(described_class.with_status(denied_status.id)).to eq([old_conflict])
       end
     end
 
     context 'without_status' do
       it 'returns conflicts without the given status' do
-        expect(described_class.without_status(denied_status.id)).to eq [current_conflict]
+        expect(described_class.without_status(denied_status.id)).to eq([current_conflict])
       end
     end
   end

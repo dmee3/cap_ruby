@@ -1,7 +1,7 @@
 class PaymentScheduleEntry < ApplicationRecord
   belongs_to :payment_schedule
 
-  scope :past_entries, ->{ where('pay_date < ?', Date.today) }
+  scope :past_entries, -> { where('pay_date < ?', Date.today) }
 
   def user
     payment_schedule.user
