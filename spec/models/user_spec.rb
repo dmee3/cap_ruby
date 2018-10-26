@@ -175,4 +175,75 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  context 'save hooks' do
+    context 'before save' do
+      let(:email) { 'ABC@DEF.GHI' }
+      let(:user) { build(:user, email: email) }
+
+      it 'forces email to lower case' do
+        user.save
+        expect(user.email).to eq(email.downcase)
+      end
+    end
+
+    context 'after save' do
+      context 'ensuring payment schedules' do
+        let!(:user) { build(:user) }
+        let!(:season1) { create(:season) }
+        let!(:season2) { create(:season) }
+
+        context 'when user has one season' do
+          before { user.seasons = [season1] }
+        
+          context 'and no payment schedules' do
+            it 'creates a payment schedule' do
+              expect{ user.save }.to change{ user.payment_schedule_for(season1.id).class }.from(NilClass).to(PaymentSchedule)
+            end
+          end
+
+          context 'and one payment schedule' do
+            let!(:schedule) { create(:payment_schedule, user: user, season: season1) }
+
+            before { user.payment_schedules = [schedule] }
+
+            it 'does not create a payment schedule' do
+              expect{ user.save }.to_not change{ user.payment_schedules.size }
+            end
+          end
+        end
+
+        context 'when user has multiple seasons' do
+          before { user.seasons = [season1, season2] }
+        
+          context 'and no payment schedules' do
+            it 'creates two payment schedule' do
+              expect{ user.save }.to change{ user.payment_schedules.size }.from(0).to(2)
+            end
+          end
+
+          context 'and one payment schedule' do
+            let!(:schedule) { create(:payment_schedule, user: user, season: season1) }
+
+            before { user.payment_schedules = [schedule] }
+
+            it 'creates the missing schedule' do
+              expect{ user.save }.to change{ user.payment_schedule_for(season2.id).class }.from(NilClass).to(PaymentSchedule)
+            end
+          end
+
+          context 'and multiple payment schedules' do
+            let!(:schedule1) { create(:payment_schedule, user: user, season: season1) }
+            let!(:schedule2) { create(:payment_schedule, user: user, season: season2) }
+
+            before { user.payment_schedules = [schedule1, schedule2] }
+
+            it 'does not create a payment schedule' do
+              expect{ user.save }.to_not change{ user.payment_schedules.size }
+            end
+          end
+        end
+      end
+    end
+  end
 end
