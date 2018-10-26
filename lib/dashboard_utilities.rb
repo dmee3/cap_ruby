@@ -56,13 +56,17 @@ class DashboardUtilities
     end
 
     def biweekly_scheduled
-      # dates = (Season.season_start..Season.season_end).select { |d| d.wday.zero? }
-      # dates.map { |d| [d, PaymentScheduleEntry.where('pay_date <= ?', d).sum(:amount).to_f / 100.0] }
+      season_id = Season.last.id
+      entries = PaymentScheduleEntry.for_season(season_id).order(:pay_date)
+      dates = (entries.first.pay_date..entries.last.pay_date).select { |d| d.wday.zero? }
+      dates.map { |d| [d, entries.where('pay_date <= ?', d).sum(:amount).to_f / 100.0] }
     end
 
     def biweekly_actual
-      # dates = (Season.season_start..Season.season_end).select { |d| d.wday.zero? }
-      # dates.map { |d| [d, Payment.where('date_paid <= ?', d).sum(:amount).to_f / 100.0] }
+      season_id = Season.last.id
+      entries = PaymentScheduleEntry.for_season(season_id).order(:pay_date)
+      dates = (entries.first.pay_date..entries.last.pay_date).select { |d| d.wday.zero? }
+      dates.map { |d| [d, Payment.for_season(season_id).where('date_paid <= ?', d).sum(:amount).to_f / 100.0] }
     end
   end
 end
