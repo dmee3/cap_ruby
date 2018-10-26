@@ -29,7 +29,7 @@ class User < ApplicationRecord
 
   def full_name
     return "#{first_name} #{last_name}" if first_name && last_name
-    return first_name
+    first_name
   end
 
   def dues_status_okay?(season_id)

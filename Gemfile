@@ -45,7 +45,7 @@ group :development, :test do
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', require: false
   gem 'rspec-junklet', '~> 2.2'
-  gem 'factory_girl_rails', '~> 4.8'
+  gem 'factory_bot_rails'
   gem 'simplecov'
   gem 'faker'
 end

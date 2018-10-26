@@ -62,8 +62,10 @@ class ConflictsController < ApplicationController
   end
 
   def member_index
-    @conflicts_by_start_date = Conflict.future_conflicts_by_start_date(current_season['id'])
-                                       .where(user_id: current_user.id)
+    @conflicts_by_start_date = Conflict.future_conflicts_by_start_date(
+      current_season['id'],
+      current_user.id
+    )
     render :member_index
   end
 

@@ -7,6 +7,8 @@ AllCops:
 Bundler/OrderedGems:
   Enabled: false
 
+Metrics/BlockLength:
+  ExcludedMethods: ['describe', 'context', 'shared_examples', 'shared_context', 'scenario']
 Metrics/LineLength:
   Max: 100
 Metrics/MethodLength:
