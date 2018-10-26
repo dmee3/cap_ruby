@@ -2,17 +2,23 @@
 class DashboardUtilities
   class << self
     def payment_sums_by_week
-      # Payment.all
-      #        .order(:date_paid)
-      #        .group_by { |payment, _| payment.date_paid.end_of_week }
-      #        .map { |week, payments| [week, payments.sum(&:amount).round(2) / 100] }
+      season_id = Season.last.id
+      Payment.for_season(season_id)
+             .order(:date_paid)
+             .group_by { |payment, _| payment.date_paid.end_of_week }
+             .map { |week, payments| [week, payments.sum(&:amount).round(2) / 100] }
     end
 
     def payment_schedule_sums_by_week
-      # PaymentScheduleEntry.where('pay_date <= ?', Date.today)
-      #                     .order(:pay_date)
-      #                     .group_by { |entry, _| entry.pay_date.end_of_week }
-      #                     .map { |week, entries| [week, entries.sum(&:amount).round(2) / 100] }
+      entries = PaymentScheduleEntry.for_season(Season.last.id).where('pay_date <= ?', Date.today)
+      entries.each { |e| e.pay_date = e.pay_date.end_of_week }
+
+      s = {}.tap do |sums|
+        entries.each do |e|
+          sums[e.pay_date] = 0 unless sums[e.pay_date].present?
+          sums[e.pay_date] += e.amount.round(2) / 100
+        end
+      end.to_a
     end
 
     def upcoming_payments(start_date, end_date, season_id)
