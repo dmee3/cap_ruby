@@ -13,4 +13,21 @@ RSpec.describe PaymentSchedule, type: :model do
       end
     end
   end
+
+  context 'instance methods' do
+    let!(:schedule) { create(:payment_schedule) }
+
+    context 'scheduled_to_date' do
+      subject { schedule.scheduled_to_date }
+      before do
+        [-10, -2, 0, 4].each do |i|
+          create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.today + i.days, amount: 10000)
+        end
+      end
+
+      it 'returns the total of scheduled payments to date' do
+        expect(subject).to eq(300.0)
+      end
+    end
+  end
 end

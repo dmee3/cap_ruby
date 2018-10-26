@@ -7,4 +7,8 @@ class PaymentSchedule < ApplicationRecord
   accepts_nested_attributes_for :payment_schedule_entries, reject_if: proc { |attributes| attributes[:pay_date].nil? || attributes[:amount].nil? }
 
   scope :for_season, ->(season_id) { where(season_id: season_id) }
+
+  def scheduled_to_date
+    entries.where('pay_date <= ?', Date.today).sum(:amount).to_f / 100
+  end
 end
