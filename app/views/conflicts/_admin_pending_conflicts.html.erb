@@ -22,7 +22,7 @@
                   <%= c.submit 'Update', class: 'btn btn-success w-40' %>
                 <% end %>
               </div>
-              <div class="col-12 collapse px-5 py-1" id="conflict-reason-<%= conflict.id %>">
+              <div class="col-12 collapse px-3 py-1" id="conflict-reason-<%= conflict.id %>">
                 <small class="text-muted"><%= conflict.reason %> <span class="dark-text">(Submitted: <%= conflict.created_at.strftime('%a, %-m/%-d %I:%M %p') %>)</span></small>
               </div>
             </div>

@@ -7,8 +7,6 @@ class ConflictsController < ApplicationController
       admin_index
     elsif current_user.is?(:staff)
       staff_index
-    elsif current_user.is?(:member)
-      member_index
     else
       redirect_to(root_url)
     end
@@ -59,14 +57,6 @@ class ConflictsController < ApplicationController
   def staff_index
     @conflicts_by_start_date = Conflict.future_conflicts_by_start_date(current_season['id'])
     render :staff_index
-  end
-
-  def member_index
-    @conflicts_by_start_date = Conflict.future_conflicts_by_start_date(
-      current_season['id'],
-      current_user.id
-    )
-    render :member_index
   end
 
   def create_admin_conflict

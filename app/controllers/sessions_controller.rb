@@ -27,9 +27,7 @@ class SessionsController < ApplicationController
   private
 
   def find_user
-    user = User.find_by_email(@email_or_username)
-    user = User.find_by_username(@email_or_username) if user.nil?
-    return user
+    User.find_by_email(@email_or_username) || User.find_by_username(@email_or_username)
   end
 
   def login_params
