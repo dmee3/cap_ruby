@@ -113,7 +113,7 @@ class PaymentsController < ApplicationController
   private
 
   def set_stripe_public_key
-    if Rails.env == 'production'
+    if Rails.env.production?
       @stripe_public_key = ENV['STRIPE_PUBLIC_KEY']
     else
       @stripe_public_key = ENV['STRIPE_PUBLIC_TEST_KEY']
@@ -121,7 +121,7 @@ class PaymentsController < ApplicationController
   end
 
   def set_stripe_secret_key
-    if Rails.env == 'production'
+    if Rails.env.production?
       Stripe.api_key = ENV['STRIPE_SECRET_KEY']
     else
       Stripe.api_key = ENV['STRIPE_SECRET_TEST_KEY']
