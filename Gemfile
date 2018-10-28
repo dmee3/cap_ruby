@@ -32,6 +32,8 @@ gem 'chart-js-rails'
 gem 'slack-ruby-bot'
 gem 'celluloid-io'
 
+gem 'faker'
+
 group :production do
   gem 'rails_12factor'
   gem 'pg'
@@ -47,7 +49,6 @@ group :development, :test do
   gem 'rspec-junklet', '~> 2.2'
   gem 'factory_bot_rails'
   gem 'simplecov'
-  gem 'faker'
 end
 
 group :development do
