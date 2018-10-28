@@ -29,10 +29,8 @@ gem 'momentjs-rails'
 gem 'chart-js-rails'
 
 # Bot
-group :production do
-  gem 'slack-ruby-bot'
-  gem 'celluloid-io'
-end
+gem 'slack-ruby-bot'
+gem 'celluloid-io'
 
 group :production, :staging do
   gem 'rails_12factor'
