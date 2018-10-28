@@ -32,7 +32,7 @@ gem 'chart-js-rails'
 gem 'slack-ruby-bot'
 gem 'celluloid-io'
 
-group :production, :staging do
+group :production do
   gem 'rails_12factor'
   gem 'pg'
 end

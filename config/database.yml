@@ -20,11 +20,6 @@ test:
   <<: *default
   database: db/test.sqlite3
 
-staging:
-  <<: *default
-  url:  <%= ENV['DATABASE_URL'] %>
-  pool: <%= ENV['DB_POOL'] || ENV['RAILS_MAX_THREADS'] || 5 %>
-
 production:
   <<: *default
   url:  <%= ENV['DATABASE_URL'] %>
