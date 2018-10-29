@@ -1,15 +1,13 @@
 class PaymentsController < ApplicationController
   before_action :authorized?
-  before_action -> { redirect_if_not('admin') }, except: %i[index new charge]
+  before_action -> { redirect_if_not('admin') }, except: %i[new charge]
 
   def index
-    if current_user.is?(:admin)
-      @members = User.for_season(current_season['id']).with_role(:member).with_payments.order(:first_name)
-      render :admin_index
-    elsif current_user.is?(:member)
-      set_member_index_variables
-      render :member_index
-    end
+    @members = User.for_season(current_season['id'])
+                   .with_role(:member)
+                   .with_payments
+                   .order(:first_name)
+    render :admin_index
   end
 
   def new
@@ -91,7 +89,7 @@ class PaymentsController < ApplicationController
       end_date = Date.parse(params[:end_date])
     rescue TypeError, ArgumentError
       start_date = Date.today
-      end_date = 2.weeks.from_now
+      end_date = Date.today + 2.weeks
     end
 
     render(json: {
@@ -114,15 +112,8 @@ class PaymentsController < ApplicationController
 
   private
 
-  def set_member_index_variables
-    @payments = current_user.payments_for(current_season['id']).order(:date_paid)
-    @payment_schedule = current_user.payment_schedule_for(current_season['id'])
-    @total_paid = @payments.sum(:amount) / 100
-    @total_dues = @payment_schedule.entries.sum(:amount) / 100
-  end
-
   def set_stripe_public_key
-    if Rails.env == 'production'
+    if Rails.env.production? && !ENV['STAGING']
       @stripe_public_key = ENV['STRIPE_PUBLIC_KEY']
     else
       @stripe_public_key = ENV['STRIPE_PUBLIC_TEST_KEY']
@@ -130,7 +121,7 @@ class PaymentsController < ApplicationController
   end
 
   def set_stripe_secret_key
-    if Rails.env == 'production'
+    if Rails.env.production? && !ENV['STAGING']
       Stripe.api_key = ENV['STRIPE_SECRET_KEY']
     else
       Stripe.api_key = ENV['STRIPE_SECRET_TEST_KEY']

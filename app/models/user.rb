@@ -11,20 +11,25 @@ class User < ApplicationRecord
   has_and_belongs_to_many :seasons
 
   validates :email, presence: { message: 'Email is required' }
-  validates :email, uniqueness: true, case_sensitive: false
+  validates :email, uniqueness: { case_sensitive: false }
   validates :first_name, presence: { message: 'First name is required' }
   validates :last_name, presence: { message: 'Last name is required' }
   validates :password, presence: { message: 'password is required' }, on: :create
   validates :password, length: { minimum: 6, message: 'Password must be at least 6 characters' }, if: :password
   validates :password, confirmation: { message: 'Password confirmation must match password' }, if: :password
   validates :role, presence: { message: 'Role is required' }
-  validates :username, uniqueness: true, case_sensitive: false
+  validates :username, presence: { message: 'Username is required' }
+  validates :username, uniqueness: { case_sensitive: false }
 
   scope :for_season, ->(season_id) { joins(:seasons).where('seasons.id' => season_id) }
   scope :with_payments, -> { includes(:payments, payment_schedules: :payment_schedule_entries) }
   scope :with_role, ->(role) { where(role: Role.find_by_name(role.to_s)) }
 
-  before_save { self.email = email.downcase }
+  before_save do
+    self.email = email.downcase
+    self.username = username.downcase
+  end
+
   after_save :create_payment_schedules
 
   def full_name

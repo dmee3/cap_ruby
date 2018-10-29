@@ -45,7 +45,11 @@ class HomeController < ApplicationController
   end
 
   def member_index
-    @pending_conflicts = Conflict.pending_conflicts(current_season['id'], current_user.id).count
+    @conflicts = current_user.conflicts.order(:start_date)
+    @payments = current_user.payments_for(current_season['id']).order(:date_paid)
+    @payment_schedule = current_user.payment_schedule_for(current_season['id'])
+    @total_paid = @payments.sum(:amount) / 100
+    @total_dues = @payment_schedule.entries.sum(:amount) / 100
     render :member_index
   end
 

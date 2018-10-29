@@ -19,16 +19,5 @@ RSpec.describe PaymentScheduleEntry, type: :model do
       subject { entry.user }
       it { is_expected.to eq entry.payment_schedule.user }
     end
-
-    context 'total_to_date' do
-      let!(:future) { create(:payment_schedule_entry, pay_date: Date.tomorrow) }
-      let!(:past) { create(:payment_schedule_entry, pay_date: Date.yesterday) }
-      let!(:more_past) { create(:payment_schedule_entry, pay_date: Date.yesterday - 1.day) }
-      let!(:schedule) { create(:payment_schedule, payment_schedule_entries: [more_past, past, future]) }
-
-      subject { past.total_to_date }
-
-      it { is_expected.to eq(more_past.amount + past.amount) }
-    end
   end
 end

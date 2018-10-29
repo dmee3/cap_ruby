@@ -48,6 +48,11 @@ RSpec.describe User, type: :model do
       expect(subject).to_not be_valid
     end
 
+    it 'requires a username' do
+      subject.username = nil
+      expect(subject).to_not be_valid
+    end
+
     it 'requires a unique username' do
       subject.username = user2.username
       expect(subject).to_not be_valid
@@ -122,7 +127,7 @@ RSpec.describe User, type: :model do
           let(:dues_amount) { 50 }
           it { is_expected.to be(true) }
         end
-  
+
         context 'who are behind' do
           let(:dues_amount) { 250 }
           it { is_expected.to be(false) }
@@ -179,11 +184,17 @@ RSpec.describe User, type: :model do
   context 'save hooks' do
     context 'before save' do
       let(:email) { 'ABC@DEF.GHI' }
-      let(:user) { build(:user, email: email) }
+      let(:username) { 'BSAMPSON' }
+      let(:user) { build(:user, email: email, username: username) }
 
       it 'forces email to lower case' do
         user.save
         expect(user.email).to eq(email.downcase)
+      end
+
+      it 'forces username to lower case' do
+        user.save
+        expect(user.username).to eq(username.downcase)
       end
     end
 

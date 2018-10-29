@@ -155,12 +155,10 @@ until User.all.count >= 41
 
     possibilities.each do |p|
       next unless [true, true, true, true, true, true, true, true, true, false].sample
-
       note = Faker::HowIMetYourMother.catch_phrase if [true, true, true, true, true, false].sample
-
       randomness = [-(p.amount - 2000), -15000, -10000, -5000, 0, 0, 0, 5000, 10000, 15000].sample
 
-      Payment.create!(
+      Payment.create(
         user_id: user.id,
         payment_type_id: PaymentType.all.sample.id,
         amount: p.amount + randomness,
