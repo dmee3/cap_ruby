@@ -93,7 +93,6 @@ new Vue({
         }
       })
         .done(function(response) {
-          debugger;
           $('.flash-bar').html('<div class="alert alert-dismissible alert-success" role="alert"><div class="container">Payment Schedule updated<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div></div>');
         })
         .fail(function(err) {

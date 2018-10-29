@@ -24,17 +24,17 @@ class DashboardUtilities
     # rubocop:disable Metrics/MethodLength
     def upcoming_payments(start_date, end_date, season_id)
       entries = PaymentScheduleEntry.for_season(season_id)
-                                    .where(pay_date: (start_date..end_date))
+                                    .where(pay_date: start_date..end_date)
                                     .order(:pay_date)
 
       [].tap do |array|
         entries.each do |e|
           next if array.any? { |a| a[:user_id] == e.user.id } # Skip if we already recorded them
-          balance = e.payment_schedule.scheduled_to_date - e.user.amount_paid_for(season_id)
+          balance = e.payment_schedule.scheduled_to_date(e.pay_date) - e.user.amount_paid_for(season_id)
           next if balance <= 0 # Skip if they've paid ahead
           array << {
             pay_date: e.pay_date.strftime('%-m/%-d/%y'),
-            amount: balance.to_f / 100.0,
+            amount: balance.to_f / 100,
             user_id: e.user.id,
             name: e.user.full_name
           }
@@ -50,7 +50,7 @@ class DashboardUtilities
         {
           name: m.full_name,
           paid: m.amount_paid_for(season_id).to_f / 100.0,
-          owed: m.payment_schedule_for(season_id).scheduled_to_date
+          owed: m.payment_schedule_for(season_id).scheduled_to_date.to_f / 100.0
         }
       end
     end

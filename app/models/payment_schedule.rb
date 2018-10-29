@@ -8,7 +8,7 @@ class PaymentSchedule < ApplicationRecord
 
   scope :for_season, ->(season_id) { where(season_id: season_id) }
 
-  def scheduled_to_date
-    entries.where('pay_date <= ?', Date.today).sum(:amount).to_f / 100
+  def scheduled_to_date(day = Date.today)
+    entries.where('pay_date <= ?', day).sum(:amount)
   end
 end
