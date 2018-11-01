@@ -2,8 +2,8 @@ class PostOffice
   class << self
     def send_email(to, subject, text)
       client.send_message(
-        'mg.capcitypercussion.com',
-        from: 'donotreply@mg.capcitypercussion.com',
+        domain,
+        from: "donotreply@#{domain}",
         to: to,
         subject: subject,
         text: text
@@ -11,6 +11,10 @@ class PostOffice
     end
 
     private
+
+    def domain
+      ENV['MAILGUN_DOMAIN']
+    end
 
     def client
       @client ||= Mailgun::Client.new(ENV['MAILGUN_API_KEY'])
