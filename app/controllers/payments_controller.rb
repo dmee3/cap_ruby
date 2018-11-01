@@ -62,6 +62,7 @@ class PaymentsController < ApplicationController
     if @payment.save
       flash[:success] = 'Payment submitted. Thank you!'
       ActivityLogger.log_payment(@payment, current_user)
+      send_email
       redirect_to(root_url)
     else
       Rollbar.info('Payment could not be submitted. Please check Stripe for transaction.', errors: @payment.errors.full_messages)
@@ -111,6 +112,18 @@ class PaymentsController < ApplicationController
   end
 
   private
+
+  def send_email
+    subject = "Payment submitted by #{current_user.full_name} for $#{@payment.amount / 100}"
+    text = "#{current_user.full_name} has submitted a payment for #{@payment.amount / 100}."
+    [ENV['EMAIL_AARON'], ENV['EMAIL_DAN']].each do |to|
+      PostOffice.send_email(to, subject, text)
+    end
+
+  # Suppress all exceptions because it's just an email
+  rescue StandardError => e
+    Rollbar.error(e, user: current_user)
+  end
 
   def set_stripe_public_key
     if Rails.env.production? && !ENV['STAGING']

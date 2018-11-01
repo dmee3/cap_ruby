@@ -100,8 +100,8 @@ class ConflictsController < ApplicationController
     end
 
   # Suppress all exceptions because it's just an email
-  # rescue StandardError
-  #   true
+  rescue StandardError => e
+    Rollbar.error(e, user: current_user)
   end
 
   def admin_conflict_params
