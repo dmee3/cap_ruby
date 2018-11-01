@@ -115,7 +115,7 @@ class PaymentsController < ApplicationController
 
   def send_email
     subject = "Payment submitted by #{current_user.full_name} for $#{@payment.amount / 100}"
-    text = "#{current_user.full_name} has submitted a payment for #{@payment.amount / 100}."
+    text = "#{current_user.full_name} has submitted a payment for $#{@payment.amount / 100}."
     [ENV['EMAIL_AARON'], ENV['EMAIL_DAN']].each do |to|
       PostOffice.send_email(to, subject, text)
     end
