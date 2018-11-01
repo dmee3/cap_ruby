@@ -48,7 +48,7 @@ class ConflictsController < ApplicationController
   private
 
   def admin_index
-    @pending = Conflict.pending_conflicts(current_season['id'])
+    @pending = Conflict.pending_conflicts(current_season['id']).order(:start_date)
     @conflicts_by_start_date = Conflict.future_conflicts_by_start_date(current_season['id'])
     @old_conflicts_by_start_date = Conflict.past_conflicts_by_start_date(current_season['id'])
     render :admin_index
@@ -78,12 +78,30 @@ class ConflictsController < ApplicationController
     if @conflict.save
       flash[:success] = 'Conflict submitted for review.'
       ActivityLogger.log_conflict(@conflict, current_user)
+      send_email
       redirect_to(root_url)
     else
       Rollbar.info('Conflict could not be submitted.', errors: @conflict.errors.full_messages)
       flash[:error] = 'Conflict could not be submitted.  Please contact a director for help.'
       redirect_to(new_conflict_url)
     end
+  end
+
+  def send_email
+    subject = "Conflict submitted by #{current_user.full_name}"
+    text = <<~TEXT
+      #{current_user.full_name} has submitted a conflict for #{@conflict.start_date}.\n\n
+      Start: #{@conflict.start_date}\n
+      End: #{@conflict.end_date}\n
+      Reason: #{conflict.reason}
+    TEXT
+    [ENV['EMAIL_DAN'], ENV['EMAIL_KAIT']].each do |to|
+      PostOffice.send_email(to, subject, text)
+    end
+
+  # Suppress all exceptions because it's just an email
+  rescue StandardError
+    true
   end
 
   def admin_conflict_params
