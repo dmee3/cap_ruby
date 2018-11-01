@@ -93,7 +93,7 @@ class ConflictsController < ApplicationController
       #{current_user.full_name} has submitted a conflict for #{@conflict.start_date}.\n\n
       Start: #{@conflict.start_date}\n
       End: #{@conflict.end_date}\n
-      Reason: #{conflict.reason}
+      Reason: #{@conflict.reason}
     TEXT
     [ENV['EMAIL_DAN'], ENV['EMAIL_KAIT']].each do |to|
       PostOffice.send_email(to, subject, text)
