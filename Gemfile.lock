@@ -146,6 +146,8 @@ GEM
       nokogiri (>= 1.5.9)
     mail (2.6.6)
       mime-types (>= 1.16, < 4)
+    mailgun-ruby (1.1.11)
+      rest-client (~> 2.0.2)
     method_source (0.9.0)
     mime-types (3.1)
       mime-types-data (~> 3.2015)
@@ -339,6 +341,7 @@ DEPENDENCIES
   jquery-rails
   jwt
   listen (>= 3.0.5, < 3.2)
+  mailgun-ruby (~> 1.1.6)
   momentjs-rails
   paranoia (~> 2.2)
   pg

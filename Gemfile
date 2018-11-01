@@ -16,6 +16,7 @@ gem 'bcrypt', '~> 3.1.7'
 gem 'paranoia', '~> 2.2'
 gem 'jwt'
 gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'
+gem 'mailgun-ruby', '~>1.1.6'
 
 # UI gems
 gem 'bootstrap', '~> 4.1.2'
