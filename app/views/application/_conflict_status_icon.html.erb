@@ -2,6 +2,8 @@
   <span class="badge badge-success white-text"><%= fa_icon 'check' %>&nbsp;Approved</span>
 <% elsif status.name == 'Pending' %>
   <span class="badge badge-warning white-text"><%= fa_icon 'clock-o' %>&nbsp;Pending</span>
-<% else %>
+<% elsif status.name == 'Denied' %>
   <span class="badge badge-danger white-text"><%= fa_icon 'times' %>&nbsp;Denied</span>
+<% else %>
+  <span class="badge badge-secondary white-text"><%= fa_icon 'circle-o ' %>&nbsp;Resolved</span>
 <% end %>
