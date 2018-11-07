@@ -30,6 +30,7 @@ puts "\e[035mPayment Types created\e[0m"
 denied_status = ConflictStatus.create(name: 'Denied') unless ConflictStatus.find_by_name('Denied')
 pending_status = ConflictStatus.create(name: 'Pending') unless ConflictStatus.find_by_name('Pending')
 approved_status = ConflictStatus.create(name: 'Approved') unless ConflictStatus.find_by_name('Approved')
+resolved_status = ConflictStatus.create(name: 'Resolved') unless ConflictStatus.find_by_name('Resolved')
 puts "\e[035mConflict Statuses created\e[0m"
 
 # Create Me
@@ -131,7 +132,7 @@ until User.all.count >= 41
   2.times do
     next unless [true, false, false, false].sample
     season = user.seasons.sample
-    status = [denied_status, denied_status, pending_status, approved_status, approved_status, approved_status].sample
+    status = [denied_status, denied_status, pending_status, approved_status, approved_status, approved_status, resolved_status].sample
     reason = [true, false].sample ? Faker::FamilyGuy.quote : Faker::HowIMetYourMother.quote
 
     schedule = user.payment_schedule_for(season.id).entries
