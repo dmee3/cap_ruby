@@ -9,14 +9,15 @@ Rails.application.routes.draw do
 
   post 'change-season', to: 'home#change_season'
 
-  resources :conflicts
+  resources :conflicts, except: %i[show destroy]
+  get 'conflicts/upcoming', to: 'conflicts#upcoming_conflicts'
 
   resources :payments, only: %i[index new create]
   post 'charge', to: 'payments#charge'
   get 'payments/behind-members', to: 'payments#behind_members'
   get 'payments/burndown-chart', to: 'payments#burndown_chart'
   get 'payments/differential-chart', to: 'payments#differential_chart'
-  get 'payments/upcoming-payments', to: 'payments#upcoming_payments'
+  get 'payments/upcoming', to: 'payments#upcoming_payments'
 
   resources :users, except: %i[show]
   get 'settings', to: 'users#settings'

@@ -1,5 +1,5 @@
 new Vue({
-  el: '#behind-list',
+  el: '#behind-members',
   data: {
     members: {},
     error: []

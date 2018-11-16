@@ -9,7 +9,12 @@ body {
   background-color: #323337;
 }
 
-#upcoming-list {
+#behind-members {
+  max-height: 330px;
+  overflow-y: auto;
+}
+
+#upcoming-payments {
   max-height: 330px;
   overflow-y: auto;
 }

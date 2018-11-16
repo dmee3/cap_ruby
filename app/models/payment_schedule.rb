@@ -9,6 +9,9 @@ class PaymentSchedule < ApplicationRecord
   scope :for_season, ->(season_id) { where(season_id: season_id) }
 
   def scheduled_to_date(day = Date.today)
-    entries.where('pay_date <= ?', day).sum(:amount)
+    # Using ruby methods instead of AR query builder to save DB calls
+    # if we've got the object loaded in memory
+    past_entries = entries.select { |e| e.pay_date <= day }
+    past_entries.sum(&:amount)
   end
 end

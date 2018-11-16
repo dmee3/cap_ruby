@@ -1,5 +1,5 @@
 new Vue({
-  el: '#upcoming-list',
+  el: '#upcoming-payments',
   data: {
     entries: {},
     error: [],
@@ -12,7 +12,7 @@ new Vue({
   methods: {
     filter: function(event) {
       var self = this;
-      $.getJSON('/payments/upcoming-payments',
+      $.getJSON('/payments/upcoming',
         {
           jwt: getJWT(),
           start_date: self.start_date,

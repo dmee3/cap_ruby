@@ -45,6 +45,20 @@ class ConflictsController < ApplicationController
     redirect_to(conflicts_path)
   end
 
+  def upcoming_conflicts
+    begin
+      start_date = Date.parse(params[:start_date])
+      end_date = Date.parse(params[:end_date])
+    rescue TypeError, ArgumentError
+      start_date = Date.today
+      end_date = Date.today + 2.weeks
+    end
+
+    render(json: {
+      conflicts: DashboardUtilities.upcoming_conflicts(start_date, end_date, current_season['id'])
+    })
+  end
+
   private
 
   def admin_index
