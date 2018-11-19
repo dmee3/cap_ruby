@@ -3,8 +3,8 @@ new Vue({
   data: {
     entries: {},
     error: [],
-    start_date: null,
-    end_date: null
+    start_date: moment().format('YYYY-MM-DD'),
+    end_date: moment().add(2, 'weeks').format('YYYY-MM-DD')
   },
   mounted: function() {
     this.filter();
