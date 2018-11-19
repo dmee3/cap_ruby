@@ -22,7 +22,7 @@ class User < ApplicationRecord
   validates :username, uniqueness: { case_sensitive: false }
 
   scope :for_season, ->(season_id) { joins(:seasons).where('seasons.id' => season_id) }
-  scope :with_payments, -> { includes(:payments, payment_schedules: :payment_schedule_entries) }
+  scope :with_payments, -> { includes(payments: :payment_type, payment_schedules: :payment_schedule_entries) }
   scope :with_role, ->(role) { where(role: Role.find_by_name(role.to_s)) }
 
   before_save do
@@ -38,11 +38,10 @@ class User < ApplicationRecord
   end
 
   def dues_status_okay?(season_id)
-    return nil unless is?(:member)
     return @status unless @status.nil?
     dues_paid = amount_paid_for(season_id)
     schedule = payment_schedule_for(season_id)
-    @status = dues_paid >= schedule.scheduled_to_date
+    @status = schedule.present? && dues_paid >= schedule.scheduled_to_date
   end
 
   def amount_paid_for(season_id)

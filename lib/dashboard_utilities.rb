@@ -9,7 +9,7 @@ class DashboardUtilities
 
     def payment_schedule_sums_by_week(season_id)
       # Get all payment schedule entries for the season and set date to a Sunday
-      entries = PaymentScheduleEntry.for_season(season_id).where('pay_date <= ?', Date.today)
+      entries = PaymentScheduleEntry.for_season(season_id).where('pay_date <= ?', Date.today).order(:pay_date)
       entries.each { |e| e.pay_date = e.pay_date.end_of_week }
 
       # Group entries by week and sum the amount
