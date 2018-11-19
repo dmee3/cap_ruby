@@ -206,10 +206,10 @@ RSpec.describe User, type: :model do
 
         context 'when user has one season' do
           before { user.seasons = [season1] }
-        
+
           context 'and no payment schedules' do
             it 'creates a payment schedule' do
-              expect{ user.save }.to change{ user.payment_schedule_for(season1.id).class }.from(NilClass).to(PaymentSchedule)
+              expect { user.save }.to(change { user.payment_schedule_for(season1.id).class }.from(NilClass).to(PaymentSchedule))
             end
           end
 
@@ -219,17 +219,17 @@ RSpec.describe User, type: :model do
             before { user.payment_schedules = [schedule] }
 
             it 'does not create a payment schedule' do
-              expect{ user.save }.to_not change{ user.payment_schedules.size }
+              expect { user.save }.to_not(change { user.payment_schedules.size })
             end
           end
         end
 
         context 'when user has multiple seasons' do
           before { user.seasons = [season1, season2] }
-        
+
           context 'and no payment schedules' do
             it 'creates two payment schedule' do
-              expect{ user.save }.to change{ user.payment_schedules.size }.from(0).to(2)
+              expect { user.save }.to change{ user.payment_schedules.size }.from(0).to(2)
             end
           end
 
@@ -239,7 +239,7 @@ RSpec.describe User, type: :model do
             before { user.payment_schedules = [schedule] }
 
             it 'creates the missing schedule' do
-              expect{ user.save }.to change{ user.payment_schedule_for(season2.id).class }.from(NilClass).to(PaymentSchedule)
+              expect { user.save }.to(change { user.payment_schedule_for(season2.id).class }.from(NilClass).to(PaymentSchedule))
             end
           end
 
@@ -250,7 +250,7 @@ RSpec.describe User, type: :model do
             before { user.payment_schedules = [schedule1, schedule2] }
 
             it 'does not create a payment schedule' do
-              expect{ user.save }.to_not change{ user.payment_schedules.size }
+              expect { user.save }.to_not(change { user.payment_schedules.size })
             end
           end
         end

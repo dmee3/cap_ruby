@@ -53,7 +53,7 @@ class User < ApplicationRecord
   end
 
   def payment_schedule_for(season_id)
-    payment_schedules.select { |s| s.season_id == season_id }.first
+    payment_schedules.find { |s| s.season_id == season_id }
   end
 
   def payments_for(season_id)
@@ -75,7 +75,12 @@ class User < ApplicationRecord
     return unless is?(:member)
     seasons.each do |season|
       next if payment_schedules.find_by_season_id(season.id)
-      DefaultPaymentSchedule.create(id, season.id)
+
+      # Pushing to the array doesn't technically do anything since we're in an
+      # after_save block and won't save the object again...but it does make
+      # tests pass when they call #payment_schedule_for after a save, because
+      # Rspec is only using the object in memory
+      payment_schedules << DefaultPaymentSchedule.create(id, season.id)
     end
   end
 end
