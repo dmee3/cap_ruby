@@ -153,5 +153,8 @@
 <% end %>
 
 <% content_for :scripts do %>
+  <%= javascript_include_tag 'vue/differential_chart' %>
+  <%= javascript_include_tag 'vue/upcoming_conflicts' %>
+  <%= javascript_include_tag 'vue/upcoming_payments' %>
   <%= javascript_include_tag 'vue/behind_members' %>
 <% end %>

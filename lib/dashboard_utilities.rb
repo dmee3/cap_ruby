@@ -32,7 +32,7 @@ class DashboardUtilities
 
       [].tap do |array|
         schedules.each do |sched|
-          entry = sched.entries.select { |e| e.pay_date >= start_date }.first
+          entry = sched.entries.sort_by(&:pay_date).find { |e| e.pay_date >= start_date }
           balance = sched.scheduled_to_date(entry.pay_date) - sched.user.amount_paid_for(season_id)
           next if balance <= 0 # Skip if they've paid ahead
 
