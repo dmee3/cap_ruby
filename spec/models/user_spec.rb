@@ -100,38 +100,31 @@ RSpec.describe User, type: :model do
     context 'dues_status_okay?' do
       subject { user.dues_status_okay?(season.id) }
 
-      context 'for non-members' do
-        before { user.role = build(:role, name: 'admin') }
-        it { is_expected.to be(nil) }
+      let(:schedule) do
+        create(:payment_schedule).tap do |s|
+          s.entries << create(
+            :payment_schedule_entry,
+            already_paid: true,
+            amount: dues_amount,
+            pay_date: Date.yesterday,
+            payment_schedule: s
+          )
+        end
       end
 
-      context 'for members' do
-        let(:schedule) do
-          create(:payment_schedule).tap do |s|
-            s.entries << create(
-              :payment_schedule_entry,
-              already_paid: true,
-              amount: dues_amount,
-              pay_date: Date.yesterday,
-              payment_schedule: s
-            )
-          end
-        end
+      before do
+        allow(user).to receive(:payment_schedule_for).and_return(schedule)
+        allow(user).to receive(:amount_paid_for).and_return(100)
+      end
 
-        before do
-          allow(user).to receive(:payment_schedule_for).and_return(schedule)
-          allow(user).to receive(:amount_paid_for).and_return(100)
-        end
+      context 'who are caught-up' do
+        let(:dues_amount) { 50 }
+        it { is_expected.to be(true) }
+      end
 
-        context 'who are caught-up' do
-          let(:dues_amount) { 50 }
-          it { is_expected.to be(true) }
-        end
-
-        context 'who are behind' do
-          let(:dues_amount) { 250 }
-          it { is_expected.to be(false) }
-        end
+      context 'who are behind' do
+        let(:dues_amount) { 250 }
+        it { is_expected.to be(false) }
       end
     end
 
