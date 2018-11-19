@@ -1,9 +1,24 @@
 <div class="card <%= status ? 'border-success' : 'border-danger' %>" id="payment-accordion-<%= member.id %>">
   <div class="card-header <%= status ? 'border-success' : 'border-danger' %>">Payments Made</div>
   <ul class="list-group list-group-flush">
-    <% member.payments_for(current_season['id']).order(:date_paid).each do |payment| %>
+    <% member.payments_for(current_season['id']).sort_by(&:date_paid).each do |payment| %>
       <li class="list-group-item list-group-item-striped">
-        <%= render 'payment_type_icon', type: payment.payment_type %>
+        <% if payment.payment_type.name == 'Cash' %>
+          <%= fa_icon 'money', class: 'gray-text' %>
+        <% elsif payment.payment_type.name == 'Stripe' %>
+          <%= fa_icon 'credit-card', class: 'gray-text' %>
+        <% elsif payment.payment_type.name == 'Check' %>
+          <%= fa_icon 'university', class: 'gray-text' %>
+        <% elsif payment.payment_type.name == 'Square - Pos' %>
+          <%= fa_icon 'square-o', class: 'gray-text' %>
+        <% elsif payment.payment_type.name == 'Square - Cash App' %>
+          <%= fa_icon 'square-o', class: 'gray-text' %>
+        <% elsif payment.payment_type.name == 'Venmo' %>
+          <%= fa_icon 'users', class: 'gray-text' %>
+        <% else %>
+          <%= fa_icon 'question', class: 'gray-text' %>
+        <% end %>
+
         $<%= '%.2f' % (payment.amount / 100.0) %>
 
         <small class="float-right text-muted"><%= payment.date_paid.strftime('%-m/%-d/%-y') %>

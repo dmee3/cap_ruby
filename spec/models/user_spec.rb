@@ -100,38 +100,31 @@ RSpec.describe User, type: :model do
     context 'dues_status_okay?' do
       subject { user.dues_status_okay?(season.id) }
 
-      context 'for non-members' do
-        before { user.role = build(:role, name: 'admin') }
-        it { is_expected.to be(nil) }
+      let(:schedule) do
+        create(:payment_schedule).tap do |s|
+          s.entries << create(
+            :payment_schedule_entry,
+            already_paid: true,
+            amount: dues_amount,
+            pay_date: Date.yesterday,
+            payment_schedule: s
+          )
+        end
       end
 
-      context 'for members' do
-        let(:schedule) do
-          create(:payment_schedule).tap do |s|
-            s.entries << create(
-              :payment_schedule_entry,
-              already_paid: true,
-              amount: dues_amount,
-              pay_date: Date.yesterday,
-              payment_schedule: s
-            )
-          end
-        end
+      before do
+        allow(user).to receive(:payment_schedule_for).and_return(schedule)
+        allow(user).to receive(:amount_paid_for).and_return(100)
+      end
 
-        before do
-          allow(user).to receive(:payment_schedule_for).and_return(schedule)
-          allow(user).to receive(:amount_paid_for).and_return(100)
-        end
+      context 'who are caught-up' do
+        let(:dues_amount) { 50 }
+        it { is_expected.to be(true) }
+      end
 
-        context 'who are caught-up' do
-          let(:dues_amount) { 50 }
-          it { is_expected.to be(true) }
-        end
-
-        context 'who are behind' do
-          let(:dues_amount) { 250 }
-          it { is_expected.to be(false) }
-        end
+      context 'who are behind' do
+        let(:dues_amount) { 250 }
+        it { is_expected.to be(false) }
       end
     end
 
@@ -206,10 +199,10 @@ RSpec.describe User, type: :model do
 
         context 'when user has one season' do
           before { user.seasons = [season1] }
-        
+
           context 'and no payment schedules' do
             it 'creates a payment schedule' do
-              expect{ user.save }.to change{ user.payment_schedule_for(season1.id).class }.from(NilClass).to(PaymentSchedule)
+              expect { user.save }.to(change { user.payment_schedule_for(season1.id).class }.from(NilClass).to(PaymentSchedule))
             end
           end
 
@@ -219,17 +212,17 @@ RSpec.describe User, type: :model do
             before { user.payment_schedules = [schedule] }
 
             it 'does not create a payment schedule' do
-              expect{ user.save }.to_not change{ user.payment_schedules.size }
+              expect { user.save }.to_not(change { user.payment_schedules.size })
             end
           end
         end
 
         context 'when user has multiple seasons' do
           before { user.seasons = [season1, season2] }
-        
+
           context 'and no payment schedules' do
             it 'creates two payment schedule' do
-              expect{ user.save }.to change{ user.payment_schedules.size }.from(0).to(2)
+              expect { user.save }.to change{ user.payment_schedules.size }.from(0).to(2)
             end
           end
 
@@ -239,7 +232,7 @@ RSpec.describe User, type: :model do
             before { user.payment_schedules = [schedule] }
 
             it 'creates the missing schedule' do
-              expect{ user.save }.to change{ user.payment_schedule_for(season2.id).class }.from(NilClass).to(PaymentSchedule)
+              expect { user.save }.to(change { user.payment_schedule_for(season2.id).class }.from(NilClass).to(PaymentSchedule))
             end
           end
 
@@ -250,7 +243,7 @@ RSpec.describe User, type: :model do
             before { user.payment_schedules = [schedule1, schedule2] }
 
             it 'does not create a payment schedule' do
-              expect{ user.save }.to_not change{ user.payment_schedules.size }
+              expect { user.save }.to_not(change { user.payment_schedules.size })
             end
           end
         end

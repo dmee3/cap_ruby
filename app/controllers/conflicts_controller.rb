@@ -45,17 +45,31 @@ class ConflictsController < ApplicationController
     redirect_to(conflicts_path)
   end
 
+  def upcoming_conflicts
+    begin
+      start_date = Date.parse(params[:start_date])
+      end_date = Date.parse(params[:end_date])
+    rescue TypeError, ArgumentError
+      start_date = Date.today
+      end_date = Date.today + 2.weeks
+    end
+
+    render(json: {
+      conflicts: DashboardUtilities.upcoming_conflicts(start_date, end_date, current_season['id'])
+    })
+  end
+
   private
 
   def admin_index
-    @pending = Conflict.pending_conflicts(current_season['id']).order(:start_date)
+    @pending = Conflict.includes(:conflict_status).pending_conflicts(current_season['id']).order(:start_date)
     @conflicts_by_start_date = Conflict.future_conflicts_by_start_date(current_season['id'])
     @old_conflicts_by_start_date = Conflict.past_conflicts_by_start_date(current_season['id'])
     render :admin_index
   end
 
   def staff_index
-    @conflicts_by_start_date = Conflict.future_conflicts_by_start_date(current_season['id'])
+    @conflicts_by_start_date = Conflict.includes(:conflict_status).future_conflicts_by_start_date(current_season['id'])
     render :staff_index
   end
 

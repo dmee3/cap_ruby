@@ -22,7 +22,7 @@ class User < ApplicationRecord
   validates :username, uniqueness: { case_sensitive: false }
 
   scope :for_season, ->(season_id) { joins(:seasons).where('seasons.id' => season_id) }
-  scope :with_payments, -> { includes(:payments, payment_schedules: :payment_schedule_entries) }
+  scope :with_payments, -> { includes(payments: :payment_type, payment_schedules: :payment_schedule_entries) }
   scope :with_role, ->(role) { where(role: Role.find_by_name(role.to_s)) }
 
   before_save do
@@ -38,23 +38,25 @@ class User < ApplicationRecord
   end
 
   def dues_status_okay?(season_id)
-    return nil unless role.name == 'member'
     return @status unless @status.nil?
     dues_paid = amount_paid_for(season_id)
     schedule = payment_schedule_for(season_id)
-    @status = dues_paid >= schedule.entries.past_entries.sum(:amount)
+    @status = schedule.present? && dues_paid >= schedule.scheduled_to_date
   end
 
   def amount_paid_for(season_id)
-    payments.for_season(season_id)&.sum(:amount)
+    # Using ruby methods instead of AR query builder to save DB calls
+    # if we've got the object loaded in memory
+    made_payments = payments.select { |p| p.season_id == season_id }
+    made_payments.sum(&:amount)
   end
 
   def payment_schedule_for(season_id)
-    payment_schedules.for_season(season_id).first
+    payment_schedules.find { |s| s.season_id == season_id }
   end
 
   def payments_for(season_id)
-    payments.for_season(season_id)
+    payments.select { |p| p.season_id == season_id }
   end
 
   def total_dues_for(season_id)
@@ -72,7 +74,12 @@ class User < ApplicationRecord
     return unless is?(:member)
     seasons.each do |season|
       next if payment_schedules.find_by_season_id(season.id)
-      DefaultPaymentSchedule.create(id, season.id)
+
+      # Pushing to the array doesn't technically do anything since we're in an
+      # after_save block and won't save the object again...but it does make
+      # tests pass when they call #payment_schedule_for after a save, because
+      # Rspec is only using the object in memory
+      payment_schedules << DefaultPaymentSchedule.create(id, season.id)
     end
   end
 end

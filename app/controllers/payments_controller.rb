@@ -76,10 +76,11 @@ class PaymentsController < ApplicationController
   end
 
   def differential_chart
+    season_id = current_season['id']
     render(
       json: {
-        scheduled: DashboardUtilities.payment_schedule_sums_by_week,
-        actual: DashboardUtilities.payment_sums_by_week
+        scheduled: DashboardUtilities.payment_schedule_sums_by_week(season_id),
+        actual: DashboardUtilities.payment_sums_by_week(season_id)
       }
     )
   end

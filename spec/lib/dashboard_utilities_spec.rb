@@ -8,7 +8,7 @@ RSpec.describe DashboardUtilities do
     let!(:rookie) { create(:user, seasons: [season2]) }
     let(:payment_type) { create(:payment_type) }
 
-    subject { DashboardUtilities.payment_sums_by_week }
+    subject { DashboardUtilities.payment_sums_by_week(season2.id) }
 
     before do
       10.times do
