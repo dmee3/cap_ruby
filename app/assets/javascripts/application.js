@@ -55,7 +55,7 @@ var chartColors = {
   red: new ChartColor(255, 99, 132),
   orange: new ChartColor(255, 159, 64),
   yellow: new ChartColor(255, 205, 86),
-  green: new ChartColor(75, 192, 192),
+  green: new ChartColor(84, 230, 119),
   blue: new ChartColor(54, 162, 235),
   purple: new ChartColor(153, 102, 255),
   grey: new ChartColor(201, 203, 207)

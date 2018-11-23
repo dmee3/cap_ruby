@@ -22,8 +22,8 @@ new Vue({
           self.conflicts = response.conflicts;
           for (i = 0; i < self.conflicts.length; i++) {
             c = self.conflicts[i];
-            c.start_date = moment(c.start_date).format('MM/DD h:mm a');
-            c.end_date = moment(c.end_date).format('MM/DD h:mm a');
+            c.start_date = moment(c.start_date).format('M/D h:mm a');
+            c.end_date = moment(c.end_date).format('M/D h:mm a');
           }
         })
         .fail(function(err) {
