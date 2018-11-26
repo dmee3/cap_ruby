@@ -14,7 +14,7 @@
         <div class="list-group list-group-flush">
           <% @documents.each do |doc| %>
             <a href="<%= "/pdf/#{doc}" %>" target="_blank" class="list-group-item list-group-item-action">
-              <%= doc.split('.')[0...-1].join %>
+              <%= doc.split('.')[0...-1].join.tr('-', ' ') %>
             </a>
           <% end %>
         </div>
