@@ -1,5 +1,14 @@
 <div class="card <%= status ? 'border-success' : 'border-danger' %>">
-  <div class="card-header <%= status ? 'border-success' : 'border-danger' %>">Payment Schedule</div>
+  <div class="card-header <%= status ? 'border-success' : 'border-danger' %>">
+    Payment Schedule
+    <% if admin %>
+        <span class="float-right">
+        <%= link_to member.payment_schedule_for(current_season['id']) do %>
+          <%= fa_icon 'pencil', class: 'icon-btn icon-btn-orange dark-text' %>
+        <% end %>
+      </span>
+    <% end %>
+  </div>
   <ul class="list-group list-group-flush">
     <% member.payment_schedule_for(current_season['id']).entries.order(:pay_date).each do |entry| %>
       <li class="list-group-item list-group-item-striped">
