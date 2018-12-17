@@ -13,18 +13,30 @@
       <div class="row mt-3">
         <div class="container">
           <div class="row">
-            <div class="col-lg-4 col-md-6 form-group">
-              <%= c.label :start_date, 'Start' %>
-              <%= c.datetime_field :start_date, { class: 'form-control mr-2 mb-2' } %>
+            <div class="col-12 col-lg-8">
+              <div class="row">
+                <div class="col-md-2">
+                  <span class="align-middle">Start:</span>
+                </div>
+                <div class="col-md-10 form-inline justify-content-between">
+                  <%= c.datetime_select :start_date, { ampm: true, datetime_separator: '&nbsp;&nbsp;&nbsp;', time_separator: '' }, { class: 'form-control mr-2 mb-2' } %>
+                </div>
+              </div>
               <hr class="mt-3 d-md-none">
+              <div class="row mt-3">
+                <div class="col-md-2">
+                  <span class="align-middle">End:</span>
+                </div>
+                <div class="col-md-10 form-inline justify-content-between">
+                  <%= c.datetime_select :end_date, { ampm: true, datetime_separator: '&nbsp;&nbsp;&nbsp;', time_separator: '' }, { class: 'form-control mr-2 mb-2' } %>
+                </div>
+              </div>
             </div>
-            <div class="col-lg-4 col-md-6 form-group">
-              <%= c.label :end_date, 'End' %>
-              <%= c.datetime_field :end_date, { class: 'form-control mr-2 mb-2' } %>
+            <div class="col-12 col-lg-4">
               <hr class="mt-3 d-md-none">
-            </div>
-            <div class="col-lg-4 form-group">
-              <%= c.text_area :reason, { class: 'form-control mr-2 mb-2', placeholder: 'Reason for Absence' } %>
+              <div class="form-group">
+                <%= c.text_area :reason, { class: 'form-control mr-2 mb-2', placeholder: 'Reason for Absence' } %>
+              </div>
             </div>
           </div>
         </div>
