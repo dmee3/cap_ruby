@@ -4,36 +4,79 @@
 
 <% content_for :main do %>
   <div class="row">
-    <div class="col-md-6 col-lg-4 mt-3">
-      <%= link_to conflicts_path do %>
-        <div class="card cap-red white-hover-link white-text border-light">
-          <div class="card-body">
-            <h4 class="card-title">Conflicts</h4>
-          </div>
-        </div>
-      <% end %>
-    </div>
-
-    <% if false %>
-      <div class="col-md-6 col-lg-4 mt-3">
-        <%= link_to payments_path do %>
-          <div class="card green white-hover-link white-text border-light">
+    <div class="col-6">
+      <div class="col-12">
+        <%= link_to conflicts_path do %>
+          <div class="card cap-red white-hover-link white-text border-light">
             <div class="card-body">
-              <h4 class="card-title">Earnings</h4>
+              <h4 class="card-title">Conflicts</h4>
             </div>
           </div>
         <% end %>
       </div>
-    <% end %>
 
-    <div class="col-md-6 col-lg-4 mt-3">
-      <%= link_to '/documents' do %>
-        <div class="card cap-gray white-hover-link white-text border-light">
-          <div class="card-body">
-            <h4 class="card-title">Documents</h4>
-          </div>
+      <% if false %>
+        <div class="col-12 mt-3">
+          <%= link_to payments_path do %>
+            <div class="card green white-hover-link white-text border-light">
+              <div class="card-body">
+                <h4 class="card-title">Earnings</h4>
+              </div>
+            </div>
+          <% end %>
         </div>
       <% end %>
+
+      <div class="col-12 mt-3">
+        <%= link_to '/documents' do %>
+          <div class="card cap-gray white-hover-link white-text border-light">
+            <div class="card-body">
+              <h4 class="card-title">Documents</h4>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="col-6">
+      <div id="upcoming-conflicts" class="card border-secondary">
+        <div class="card-header border-secondary">
+          <h4 class="mb-0">Upcoming Conflicts</h4>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item list-group-item-striped">
+            <div class="form row">
+              <div class="input-group col-12">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">Start</span>
+                </div>
+                <input v-model="start_date" type="date" class="form-control" name="start_date">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">End</span>
+                </div>
+                <input v-model="end_date" type="date" class="form-control" name="end_date">
+                <div class="input-group-append">
+                  <a v-on:click="filter" class="btn btn-info white-text">Filter</a>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li v-for="conflict in conflicts" class="list-group-item">
+            <i v-if="conflict.status == 'Approved'" class="fa fa-check text-success"></i>
+            <i v-if="conflict.status == 'Pending'" class="fa fa-clock-o text-warning"></i>
+            <i v-if="conflict.status == 'Denied'" class="fa fa-times text-danger"></i>
+            <i v-if="conflict.status == 'Resolved'" class="fa fa-circle-o text-secondary"></i>
+            {{ conflict.name }}
+            <span class="float-right text-secondary">
+              {{ conflict.start_date }} - {{ conflict.end_date }}
+            </span>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
+<% end %>
+
+<% content_for :scripts do %>
+  <%= javascript_include_tag 'vue/upcoming_conflicts' %>
 <% end %>

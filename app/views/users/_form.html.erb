@@ -38,7 +38,7 @@
         </div>
 
         <div class="col-md-4 form-group">
-          <label>Seasons Marched</label>
+          <label>Seasons With Cap</label>
           <%= u.collection_check_boxes :season_ids, Season.all, :id, :year do |y| %>
             <div class="form-check">
               <%= y.check_box class: 'form-check-input' %>

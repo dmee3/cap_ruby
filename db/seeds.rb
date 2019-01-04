@@ -55,6 +55,24 @@ unless User.find_by_email ENV['ROOT_USER_EMAIL']
   end
 end
 
+# Create staff
+staff = User.new(
+  first_name: 'Francis',
+  last_name: 'Underwood',
+  username: 'funderwood',
+  email: 'funderwood@example.com',
+  password: 'abc123',
+  password_confirmation: 'abc123',
+  role: staff_role,
+  seasons: [nineteen]
+)
+
+if staff.save!
+  puts "\e[035mStaff User created\e[0m"
+else
+  puts "\e[031mERROR: Unable to create Staff User\e[0m"
+end
+
 # Define payment schedule entries, to be used during member creation
 eighteen_entries = [
   [30000, Date.parse('2017-10-15')],
@@ -130,13 +148,13 @@ until User.all.count >= 41
 
   # Create conflicts
   2.times do
-    next unless [true, false, false, false].sample
+    next unless [true, true, false, false, false].sample
     season = user.seasons.sample
     status = [denied_status, denied_status, pending_status, approved_status, approved_status, approved_status, resolved_status].sample
     reason = [true, false].sample ? Faker::FamilyGuy.quote : Faker::HowIMetYourMother.quote
 
     schedule = user.payment_schedule_for(season.id).entries
-    start_date = (schedule[0].pay_date..schedule[1].pay_date).to_a.sample + (1..24).to_a.sample.hours
+    start_date = (schedule[0].pay_date..schedule[-1].pay_date).to_a.sample + (1..24).to_a.sample.hours
     end_date = start_date + (1..24).to_a.sample.hours
     Conflict.create(
       user_id: user.id,
