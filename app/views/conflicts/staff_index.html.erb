@@ -7,6 +7,38 @@
     <div class="col-12">
       <h1 class="white-text">Conflicts</h1>
     </div>
+
+    <div  class="col-12">
+      <div id="conflicts-chart" class="card secondary-border">
+        <div class="card-header">
+          <h4 class="mb-0">
+            Upcoming Conflicts
+            <span class="text-muted float-right show-hide-toggle"><i v-on:click="toggleShowHide" class="fa fa-angle-up"></i></span>
+          </h4>
+        </div>
+        <div class="card-body">
+          <div class="form col-sm-12">
+            <div class="input-group col-12">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Start</span>
+              </div>
+              <input v-model="start_date" type="date" class="form-control" name="start_date">
+              <div class="input-group-prepend">
+                <span class="input-group-text">End</span>
+              </div>
+              <input v-model="end_date" type="date" class="form-control" name="end_date">
+              <div class="input-group-append">
+                <a v-on:click="refreshChart" class="btn btn-info white-text">Refresh</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-12 mt-2">
+            <canvas id="conflicts-chart-area"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <% unless @conflicts_by_start_date.empty? %>
@@ -15,4 +47,5 @@
 <% end %>
 
 <% content_for :scripts do %>
+  <%= javascript_include_tag 'vue/conflicts_chart' %>
 <% end %>

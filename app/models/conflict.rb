@@ -21,8 +21,7 @@ class Conflict < ApplicationRecord
 
   class << self
     def future_conflicts_by_start_date(season_id, user_id = nil)
-      conflicts = future_conflicts.without_status(ConflictStatus.find_by_name('Pending'))
-                                  .for_season(season_id)
+      conflicts = future_conflicts.for_season(season_id)
                                   .order(:start_date)
       conflicts = conflicts.where(user_id: user_id) if user_id.present?
       conflicts.group_by { |c| c.start_date.to_date }
