@@ -20,6 +20,7 @@ class RecentPayments < SlackRubyBot::Commands::Base
       response << "\n>#{p.date_paid.strftime('%a, %-m/%-d')} - #{payment_type}"
     end
 
+    response << "\n\nTotals:"
     response << generate_metrics(payment_metrics)
 
     client.say(channel: data.channel, text: response)
@@ -28,8 +29,8 @@ class RecentPayments < SlackRubyBot::Commands::Base
   class << self
     def generate_metrics(metrics)
       "\n".tap do |res|
-        metrics[:types].each { |type, amt| res << "\n> $#{format('$%.2f', amt)} _#{type}_" }
-        res << "\n\n*TOTAL: $#{format('$%.2f', metrics[:total])}*"
+        metrics[:types].each { |type, amt| res << "\n> #{format('$%.2f', amt)} _#{type}_" }
+        res << "\n\n*TOTAL: #{format('$%.2f', metrics[:total])}*"
       end
     end
   end
