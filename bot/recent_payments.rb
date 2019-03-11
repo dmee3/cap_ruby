@@ -5,7 +5,7 @@ class RecentPayments < SlackRubyBot::Commands::Base
                       .order(date_paid: :desc, created_at: :desc)
                       .limit(limit)
 
-    header_text = "The #{payments.length} most recent payments are:"
+    header_text = "*The #{payments.length} most recent payments are:*\n\n"
     client.say(
       channel: data.channel,
       text: header_text << generate_response(payments)
@@ -19,7 +19,7 @@ class RecentPayments < SlackRubyBot::Commands::Base
                       .where('date_paid >= ?', "#{limit_date}/2019")
                       .order(date_paid: :desc, created_at: :desc)
 
-    header_text = "The payments since #{limit_date} are:"
+    header_text = "*The payments since #{limit_date} are:*\n\n"
     client.say(
       channel: data.channel,
       text: header_text << generate_response(payments)
