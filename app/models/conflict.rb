@@ -14,8 +14,8 @@ class Conflict < ApplicationRecord
   validates :user_id, presence: true
 
   scope :for_season, ->(season_id) { where(season_id: season_id) }
-  scope :future_conflicts, ->{ where('end_date > ?', Date.yesterday) }
-  scope :past_conflicts, ->{ where('end_date < ?', Date.today) }
+  scope :future_conflicts, -> { where('end_date > ?', Date.yesterday) }
+  scope :past_conflicts, -> { where('end_date < ?', Date.today) }
   scope :with_status, ->(status_id) { where(conflict_status: status_id) }
   scope :without_status, ->(status_id) { where.not(conflict_status: status_id) }
 
