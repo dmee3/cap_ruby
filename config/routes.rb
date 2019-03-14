@@ -27,4 +27,6 @@ Rails.application.routes.draw do
   resources :payment_schedules, except: %i[index new edit destroy]
   delete 'payment_schedules/remove-entry', to: 'payment_schedules#remove_entry'
   post 'payment_schedules/add-entry', to: 'payment_schedules#add_entry'
+
+  resources :whistleblowers, only: %i[index create]
 end
