@@ -25,6 +25,8 @@
           <%= render 'staff_nav' %>
         <% elsif current_user&.is?(:member) %>
           <%= render 'member_nav' %>
+        <% else %>
+          <%= render 'anon_nav' %>
         <% end %>
       </div>
     </nav>
