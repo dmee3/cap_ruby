@@ -5,23 +5,24 @@
 </ul>
 <ul class="navbar-nav navbar-right">
   <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle mr-3" id="more-dropdown" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">More</a>
+    <div class="dropdown-menu" aria-labelledby="more-dropdown">
+      <%= link_to 'Settings', settings_path, class: 'dropdown-item' %>
+      <%= link_to 'Whistleblower', whistleblowers_path, class: 'dropdown-item' %>
+    </div>
+  </li>
+  <li class="nav-item dropdown">
     <a class="btn btn-outline-light dropdown-toggle mr-3" href="#" id="season-dropdown" data-toggle="dropdown">
       <%= current_season['year'] %>
     </a>
     <div class="dropdown-menu" aria-labelledby="season-dropdown">
       <% current_user.seasons.reverse.each do |s| %>
-        <%= form_tag '/change-season', method: :post do %>
+        <%= form_tag change_season_path, method: :post do %>
           <%= hidden_field_tag :season_id, s.id %>
           <%= submit_tag "#{s.year}", class: 'dropdown-item' %>
         <% end %>
       <% end %>
     </div>
-  </li>
-  <li class="nav-item">
-    <%= link_to '/settings', { class: 'nav-link mr-3' } do %>
-      <span class="d-none d-lg-inline"><%= fa_icon 'cogs' %></span>
-      <span class="d-lg-none">Settings</span>
-    <% end %>
   </li>
   <li class="nav-item">
     <%= link_to 'Log Out', '/logout', { class: 'btn btn-outline-light' } %>
