@@ -19,14 +19,14 @@ class LilBotty < SlackRubyBot::Bot
       long_desc 'Lists the 5 most recent payments and details (amount, method, etc).  You can pass a different number (e.g. `who paid 10`) to see more recent payments.'
     end
 
-    command 'wwtks' do
-      desc 'Tells you what the kids would say'
-      long_desc "It's probably gonna be a dumb question.  Also responds to \"What do the kids say?\" or \"What would the kids say?\".  You can add new sayings with `wwtks add <saying>` or list all current sayings with `wwtks list`"
-    end
+    # command 'wwtks' do
+    #   desc 'Tells you what the kids would say'
+    #   long_desc "It's probably gonna be a dumb question.  Also responds to \"What do the kids say?\" or \"What would the kids say?\".  You can add new sayings with `wwtks add <saying>` or list all current sayings with `wwtks list`"
+    # end
 
-    command 'place' do
-      desc "Tells you what place we'll get at WGI and why"
-      long_desc 'Oh, Botty the Magic 8-Ball, what place will we get?  Also responds to "What place will we get?"'
-    end
+    # command 'place' do
+    #   desc "Tells you what place we'll get at WGI and why"
+    #   long_desc 'Oh, Botty the Magic 8-Ball, what place will we get?  Also responds to "What place will we get?"'
+    # end
   end
 end
