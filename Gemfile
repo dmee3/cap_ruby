@@ -7,13 +7,17 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'rails', '~> 5.1.4'
-gem 'puma', '~> 3.7'
+# Rails gems
+gem 'rails', '~> 5.2.0'
+gem 'puma', '~> 3.11'
 gem 'uglifier', '>= 1.3.0'
 gem 'turbolinks', '~> 5'
+gem 'bootsnap', '>= 1.1.0', require: false # Reduces boot times through caching; required in config/boot.rb
+
+# App-specific gems
 gem 'rollbar', '~> 2.15'
 gem 'bcrypt', '~> 3.1.7'
-gem 'paranoia', '~> 2.2'
+gem 'paranoia', '~> 2.4.2'
 gem 'jwt'
 gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'
 gem 'mailgun-ruby', '~>1.1.6'
@@ -22,14 +26,13 @@ gem 'mailgun-ruby', '~>1.1.6'
 gem 'bootstrap', '~> 4.1.2'
 gem 'jquery-rails'
 gem 'vuejs-rails'
-gem 'sass-rails', '~> 5.0'
+gem 'sassc-rails'
 gem 'font-awesome-rails'
-gem 'coffee-rails', '~> 4.2'
 gem 'select2-rails'
 gem 'momentjs-rails'
 gem 'chart-js-rails'
 
-# Bot
+# Bot gems
 gem 'slack-ruby-bot'
 gem 'celluloid-io'
 
@@ -41,11 +44,10 @@ end
 group :development, :test do
   gem 'sqlite3'
   gem 'byebug'
-  gem 'capybara', '~> 2.13'
+  gem 'capybara', '~> 2.15', '< 4.0'
   gem 'dotenv-rails'
-  gem 'rspec-rails', '~> 3.5'
+  gem 'rspec-rails'
   gem 'rubocop', require: false
-  gem 'rspec-junklet', '~> 2.2'
   gem 'factory_bot_rails'
   gem 'simplecov'
   gem 'faker'
