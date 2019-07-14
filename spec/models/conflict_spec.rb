@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Conflict, type: :model do
   context 'validations' do
-    subject { build(:conflict) }
+    subject { create(:conflict) }
 
     it { is_expected.to be_valid }
 

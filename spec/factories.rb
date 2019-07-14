@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/BlockLength
 FactoryBot.define do
   factory :season do
     year { Date.today.year }
@@ -6,7 +7,7 @@ FactoryBot.define do
   factory :activity do
     activity_date { Date.today - rand(1..60).days }
     activity_type { Faker::Beer.brand }
-    description { Faker::NewGirl.quote }
+    description { Faker::TvShows::NewGirl.quote }
     user
   end
 
@@ -29,7 +30,7 @@ FactoryBot.define do
   factory :payment do
     amount { rand(10000..50000) }
     date_paid { Date.today - rand(1..60).days }
-    notes { Faker::HowIMetYourMother.quote }
+    notes { Faker::TvShows::HowIMetYourMother.quote }
     payment_type
     season
     user
@@ -41,7 +42,7 @@ FactoryBot.define do
 
   factory :conflict do
     end_date { DateTime.now + 1.day }
-    reason { Faker::VentureBros.quote }
+    reason { Faker::TvShows::VentureBros.quote }
     season
     start_date { DateTime.now }
     conflict_status
@@ -58,7 +59,8 @@ FactoryBot.define do
     last_name { Faker::Name.last_name }
     password { Faker::Internet.password }
     role
-    section { Faker::VentureBros.organization }
+    section { Faker::TvShows::VentureBros.organization }
     sequence(:username) { |n| "#{Faker::Internet.user_name}#{n}" }
   end
 end
+# rubocop:enable Metrics/BlockLength

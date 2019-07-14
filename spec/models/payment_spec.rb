@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Payment, type: :model do
   context 'validations' do
-    subject { build(:payment) }
+    subject { create(:payment) }
 
     it { is_expected.to be_valid }
 

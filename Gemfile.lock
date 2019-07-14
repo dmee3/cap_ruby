@@ -334,7 +334,7 @@ DEPENDENCIES
   chart-js-rails
   dotenv-rails
   factory_bot_rails
-  faker
+  faker (~> 1.9.6)
   font-awesome-rails
   jquery-rails
   jwt
