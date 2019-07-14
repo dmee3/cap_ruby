@@ -4,7 +4,7 @@ RSpec.describe User, type: :model do
   context 'validations' do
     let(:user2) { create(:user) }
 
-    subject { build(:user) }
+    subject { create(:user) }
 
     it { is_expected.to be_valid }
 

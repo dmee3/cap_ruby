@@ -97,7 +97,8 @@ until User.all.count >= 41
   # Create user
   name = ''
   until name.split(' ').length == 2
-    name = [true, false].sample ? Faker::HowIMetYourMother.character : Faker::FamilyGuy.character
+    show = [true, false].sample ? Faker::TvShows::HowIMetYourMother : Faker::TvShows::FamilyGuy
+    name = show.character
   end
   first_name = name.split(' ').first
   last_name = name.split(' ').last
@@ -150,8 +151,18 @@ until User.all.count >= 41
   2.times do
     next unless [true, true, false, false, false].sample
     season = user.seasons.sample
-    status = [denied_status, denied_status, pending_status, approved_status, approved_status, approved_status, resolved_status].sample
-    reason = [true, false].sample ? Faker::FamilyGuy.quote : Faker::HowIMetYourMother.quote
+    status = [
+      denied_status,
+      denied_status,
+      pending_status,
+      approved_status,
+      approved_status,
+      approved_status,
+      resolved_status
+    ].sample
+
+    show = [true, false].sample ? Faker::TvShows::HowIMetYourMother : Faker::TvShows::FamilyGuy
+    reason = show.quote
 
     schedule = user.payment_schedule_for(season.id).entries
     start_date = (schedule[0].pay_date..schedule[-1].pay_date).to_a.sample + (1..24).to_a.sample.hours
@@ -174,7 +185,11 @@ until User.all.count >= 41
 
     possibilities.each do |p|
       next unless [true, true, true, true, true, true, true, true, true, false].sample
-      note = Faker::HowIMetYourMother.catch_phrase if [true, true, true, true, true, false].sample
+
+      if [true, true, true, true, true, false].sample
+        note = Faker::TvShows::HowIMetYourMother.catch_phrase
+      end
+
       randomness = [-(p.amount - 2000), -15000, -10000, -5000, 0, 0, 0, 5000, 10000, 15000].sample
 
       Payment.create(

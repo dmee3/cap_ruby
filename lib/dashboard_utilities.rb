@@ -4,7 +4,7 @@ class DashboardUtilities
     def payment_sums_by_week(season_id)
       all_payments = Payment.for_season(season_id).order(:date_paid)
       weekly_payments = all_payments.group_by { |payment, _| payment.date_paid.end_of_week }
-      weekly_payments.map { |week, payments| [week, payments.sum(&:amount).round(2) / 100] }
+      weekly_payments.map { |week, payments| [week, (payments.sum(&:amount) / 100.00).round(2)] }
     end
 
     def payment_schedule_sums_by_week(season_id)
@@ -16,7 +16,7 @@ class DashboardUtilities
       {}.tap do |sums|
         entries.each do |e|
           sums[e.pay_date] = 0 unless sums[e.pay_date].present?
-          sums[e.pay_date] += e.amount.round(2) / 100
+          sums[e.pay_date] += (e.amount / 100.00).round(2)
         end
       end.to_a
     end
