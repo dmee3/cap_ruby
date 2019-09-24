@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181011183616) do
+ActiveRecord::Schema.define(version: 2019_10_20_043740) do
 
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
@@ -62,7 +62,6 @@ ActiveRecord::Schema.define(version: 20181011183616) do
     t.integer "payment_schedule_id"
     t.integer "amount"
     t.date "pay_date"
-    t.boolean "already_paid"
     t.index ["payment_schedule_id"], name: "index_payment_schedule_entries_on_payment_schedule_id"
   end
 
@@ -107,6 +106,14 @@ ActiveRecord::Schema.define(version: 20181011183616) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "seasons_users", force: :cascade do |t|
+    t.integer "season_id"
+    t.integer "user_id"
+    t.string "section"
+    t.index ["season_id"], name: "index_seasons_users_on_season_id"
+    t.index ["user_id"], name: "index_seasons_users_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "first_name"
     t.string "last_name"
@@ -116,19 +123,12 @@ ActiveRecord::Schema.define(version: 20181011183616) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "deleted_at"
-    t.string "section"
     t.string "username"
+    t.string "phone"
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["role_id"], name: "index_users_on_role_id"
     t.index ["username"], name: "index_users_on_username", unique: true
-  end
-
-  create_table "seasons_users", force: :cascade do |t|
-    t.integer "user_id"
-    t.integer "season_id"
-    t.index ["season_id"], name: "index_users_seasons_on_season_id"
-    t.index ["user_id"], name: "index_users_seasons_on_user_id"
   end
 
 end

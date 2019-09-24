@@ -13,6 +13,7 @@ gem 'puma', '~> 3.11'
 gem 'uglifier', '>= 1.3.0'
 gem 'turbolinks', '~> 5'
 gem 'bootsnap', '>= 1.1.0', require: false # Reduces boot times through caching; required in config/boot.rb
+gem 'webpacker', '~> 4.x'
 
 # App-specific gems
 gem 'rollbar', '~> 2.15'
@@ -23,22 +24,18 @@ gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'
 gem 'mailgun-ruby', '~>1.1.6'
 
 # UI gems
-gem 'bootstrap', '~> 4.1.2'
-gem 'jquery-rails'
-gem 'vuejs-rails'
+gem 'bootstrap' # Can this be removed???
 gem 'sassc-rails'
-gem 'font-awesome-rails'
 gem 'select2-rails'
-gem 'momentjs-rails'
-gem 'chart-js-rails'
-
-# Bot gems
-gem 'slack-ruby-bot'
-gem 'celluloid-io'
 
 group :production do
+  gem 'scout_apm'
   gem 'rails_12factor'
   gem 'pg'
+
+  # Bot gems
+  gem 'slack-ruby-bot'
+  gem 'celluloid-io'
 end
 
 group :development, :test do

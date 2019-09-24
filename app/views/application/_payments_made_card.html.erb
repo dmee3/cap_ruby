@@ -1,33 +1,39 @@
-<div class="card <%= status ? 'border-success' : 'border-danger' %>" id="payment-accordion-<%= member.id %>">
-  <div class="card-header <%= status ? 'border-success' : 'border-danger' %>">Payments Made</div>
+<div class="card" id="payment-accordion-<%= member.id %>">
+  <h5 class="card-header">
+    Payments Made
+  </h5>
   <ul class="list-group list-group-flush">
     <% member.payments_for(current_season['id']).sort_by(&:date_paid).each do |payment| %>
-      <li class="list-group-item list-group-item-striped">
-        <% if payment.payment_type.name == 'Cash' %>
-          <%= fa_icon 'money', class: 'gray-text' %>
-        <% elsif payment.payment_type.name == 'Stripe' %>
-          <%= fa_icon 'credit-card', class: 'gray-text' %>
-        <% elsif payment.payment_type.name == 'Check' %>
-          <%= fa_icon 'university', class: 'gray-text' %>
-        <% elsif payment.payment_type.name == 'Square - Pos' %>
-          <%= fa_icon 'square-o', class: 'gray-text' %>
-        <% elsif payment.payment_type.name == 'Square - Cash App' %>
-          <%= fa_icon 'square-o', class: 'gray-text' %>
-        <% elsif payment.payment_type.name == 'Venmo' %>
-          <%= fa_icon 'users', class: 'gray-text' %>
-        <% else %>
-          <%= fa_icon 'question', class: 'gray-text' %>
-        <% end %>
+      <li class="list-group-item">
+        <div class="d-flex justify-content-between">
+          <span>
+            <% if payment.payment_type.name == 'Cash' %>
+              <i class="fas fa-money-bill text-muted mr-1"></i>
+            <% elsif payment.payment_type.name == 'Stripe' %>
+              <i class="fas fa-credit-card text-muted mr-1"></i>
+            <% elsif payment.payment_type.name == 'Check' %>
+              <i class="fas fa-money-check text-muted mr-1"></i>
+            <% elsif payment.payment_type.name == 'Square - Pos' %>
+              <i class="fas fa-square text-muted mr-1"></i>
+            <% elsif payment.payment_type.name == 'Square - Cash App' %>
+              <i class="fas fa-square text-muted mr-1"></i>
+            <% elsif payment.payment_type.name == 'Venmo' %>
+              <i class="fab fa-vimeo-square text-muted mr-1"></i>
+            <% else %>
+              <i class="fas fa-question text-muted mr-1"></i>
+            <% end %>
 
-        $<%= '%.2f' % (payment.amount / 100.0) %>
+            $<%= '%.2f' % (payment.amount / 100.0) %>
+          </span>
 
-        <small class="float-right text-muted"><%= payment.date_paid.strftime('%-m/%-d/%-y') %>
-          <% unless payment.notes.blank? %>
-            <a data-toggle="collapse" href="#payment-notes-<%= payment.id %>">
-              <%= fa_icon 'comment-o', class: 'dark-text icon-btn icon-btn-blue' %>
-            </a>
-          <% end %>
-        </small>
+          <small class="float-right text-muted"><%= payment.date_paid.strftime('%-m/%-d/%-y') %>
+            <% unless payment.notes.blank? %>
+              <a data-toggle="collapse" href="#payment-notes-<%= payment.id %>">
+                <i class="far fa-comment dark-text icon-btn icon-btn-blue"></i>
+              </a>
+            <% end %>
+          </small>
+        </div>
 
         <% unless payment.notes.blank? %>
           <div class="collapse px-3 py-1" id="payment-notes-<%= payment.id %>">

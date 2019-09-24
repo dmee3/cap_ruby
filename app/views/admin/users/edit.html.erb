@@ -1,0 +1,20 @@
+<% content_for :side_nav do %>
+  <%= render 'admin/application/side_nav', page: 'users' %>
+<% end %>
+
+<% content_for :main do %>
+  <div class="row">
+    <div class="col-md-9">
+      <h1>Edit <%= @user.first_name %></h1>
+    </div>
+    <div class="col-md-3 text-right-md mb-1">
+      <%= link_to 'All Users', '/admin/users', class: 'btn btn-light align-middle' %>
+    </div>
+  </div>
+
+  <%= render 'admin/users/form', user: @user, url: admin_user_path(@user) %>
+<% end %>
+
+<% content_for :scripts do %>
+  <%= javascript_pack_tag 'user_phone_input_mask' %>
+<% end %>

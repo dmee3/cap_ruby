@@ -6,13 +6,56 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
+TOTAL_MEMBERS = 60
+SHOW_POSSIBILITIES = [
+  Faker::TvShows::HowIMetYourMother,
+  Faker::TvShows::FamilyGuy,
+  Faker::TvShows::VentureBros,
+  Faker::TvShows::BojackHorseman,
+  Faker::TvShows::NewGirl,
+  Faker::TvShows::GameOfThrones
+]
+
+SECTIONS = %w(Snare Tenors Bass Cymbals Woods Metals Auxiliary Electronics Visual)
+
 # Create Seasons
-eighteen = Season.create(year: '2018')
-nineteen = Season.create(year: '2019')
+seasons = {
+  '2018' => {
+    season: Season.find_or_create_by(year: '2018'),
+    payment_schedule_entries: [
+      [30000, Date.parse('2017-10-15')],
+      [23000, Date.parse('2017-11-19')],
+      [23000, Date.parse('2017-12-17')],
+      [23000, Date.parse('2018-01-14')],
+      [23000, Date.parse('2018-02-11')],
+      [23000, Date.parse('2018-03-11')]
+    ]
+  },
+  '2019' => {
+    season: Season.find_or_create_by(year: '2019'),
+    payment_schedule_entries: [
+      [30000, Date.parse('2018-10-21')],
+      [23000, Date.parse('2018-11-18')],
+      [23000, Date.parse('2018-12-16')],
+      [23000, Date.parse('2019-01-13')],
+      [23000, Date.parse('2019-02-10')],
+      [23000, Date.parse('2019-03-10')]
+    ]
+  },
+  '2020' => {
+    season: Season.find_or_create_by(year: '2020'),
+    payment_schedule_entries: [
+      [30000, Date.parse('2019-10-20')],
+      [30000, Date.parse('2019-11-17')],
+      [30000, Date.parse('2019-12-15')],
+      [30000, Date.parse('2020-01-12')],
+      [30000, Date.parse('2020-02-09')]
+    ]
+  }
+}
 
 # Create Roles
 admin_role = Role.find_by_name('admin') || Role.create(name: 'admin')
-staff_role = Role.find_by_name('staff') || Role.create(name: 'staff')
 member_role = Role.find_by_name('member') || Role.create(name: 'member')
 puts "\e[035mRoles created\e[0m"
 
@@ -33,6 +76,16 @@ approved_status = ConflictStatus.create(name: 'Approved') unless ConflictStatus.
 resolved_status = ConflictStatus.create(name: 'Resolved') unless ConflictStatus.find_by_name('Resolved')
 puts "\e[035mConflict Statuses created\e[0m"
 
+STATUS_ARRAY = [
+  denied_status,
+  denied_status,
+  pending_status,
+  approved_status,
+  approved_status,
+  approved_status,
+  resolved_status
+]
+
 # Create Me
 unless User.find_by_email ENV['ROOT_USER_EMAIL']
   me = User.new(
@@ -44,8 +97,9 @@ unless User.find_by_email ENV['ROOT_USER_EMAIL']
     password_confirmation: ENV['ROOT_USER_PASSWORD']
   )
 
-  me.seasons << eighteen
-  me.seasons << nineteen
+  me.seasons << seasons['2018'][:season]
+  me.seasons << seasons['2019'][:season]
+  me.seasons << seasons['2020'][:season]
   me.role = admin_role
 
   if me.save!
@@ -55,51 +109,15 @@ unless User.find_by_email ENV['ROOT_USER_EMAIL']
   end
 end
 
-# Create staff
-staff = User.new(
-  first_name: 'Francis',
-  last_name: 'Underwood',
-  username: 'funderwood',
-  email: 'funderwood@example.com',
-  password: 'abc123',
-  password_confirmation: 'abc123',
-  role: staff_role,
-  seasons: [nineteen]
-)
-
-if staff.save!
-  puts "\e[035mStaff User created\e[0m"
-else
-  puts "\e[031mERROR: Unable to create Staff User\e[0m"
-end
-
-# Define payment schedule entries, to be used during member creation
-eighteen_entries = [
-  [30000, Date.parse('2017-10-15')],
-  [23000, Date.parse('2017-11-19')],
-  [23000, Date.parse('2017-12-17')],
-  [23000, Date.parse('2018-01-14')],
-  [23000, Date.parse('2018-02-11')],
-  [23000, Date.parse('2018-03-11')]
-]
-nineteen_entries = [
-  [30000, Date.parse('2018-10-21')],
-  [23000, Date.parse('2018-11-18')],
-  [23000, Date.parse('2018-12-16')],
-  [23000, Date.parse('2019-01-13')],
-  [23000, Date.parse('2019-02-10')],
-  [23000, Date.parse('2019-03-10')]
-]
-
-# Create 40 members
-until User.all.count >= 41
+# Create all members
+until User.all.count >= TOTAL_MEMBERS + 1
 
   # Create user
   name = ''
   until name.split(' ').length == 2
-    show = [true, false].sample ? Faker::TvShows::HowIMetYourMother : Faker::TvShows::FamilyGuy
-    name = show.character
+    name = SHOW_POSSIBILITIES.sample.character
   end
+
   first_name = name.split(' ').first
   last_name = name.split(' ').last
   username = "#{first_name[0]}#{last_name}"
@@ -116,53 +134,43 @@ until User.all.count >= 41
 
   next unless user.save
 
-  puts "\e[034m#{first_name} #{last_name} created (#{User.all.count - 1} / 40)\e[0m"
+  puts "\e[034m#{first_name} #{last_name} created (#{User.all.count - 1} / #{TOTAL_MEMBERS})\e[0m"
 
   # Add seasons
-  user.seasons << eighteen if [true, false].sample
-  user.seasons << nineteen if user.seasons.empty? || [true, false].sample
+  user.seasons << seasons['2018'][:season] if [true, false].sample
+  user.seasons << seasons['2019'][:season] if [true, false].sample
+  user.seasons << seasons['2020'][:season] if user.seasons.empty? || [true, false].sample
 
-  # Add payment schedules
-  if user.seasons.include?(eighteen)
-    PaymentSchedule.new(season: eighteen).tap do |sched|
-      eighteen_entries.each do |info|
-        entry = PaymentScheduleEntry.create(amount: info[0], pay_date: info[1])
-        sched.payment_schedule_entries << entry
+  # Add sections and payment schedules for each season
+  seasons.each do |year, details|
+    if user.seasons.map(&:year).include?(year)
+      # Add payment schedule
+      PaymentSchedule.new(season: details[:season]).tap do |sched|
+        details[:payment_schedule_entries].each do |info|
+          entry = PaymentScheduleEntry.create(amount: info[0], pay_date: info[1])
+          sched.payment_schedule_entries << entry
+        end
+        user.payment_schedules << sched
+
+        # Add section
+        su = user.seasons_users.where(season: details[:season]).first
+        su.section = SECTIONS.sample
+
+        # Save everything
+        su.save
+        sched.save
+        user.save
       end
-
-      user.payment_schedules << sched
-      sched.save
-    end
-  end
-
-  if user.seasons.include?(nineteen)
-    PaymentSchedule.new(season: nineteen).tap do |sched|
-      nineteen_entries.each do |info|
-        entry = PaymentScheduleEntry.create(amount: info[0], pay_date: info[1])
-        sched.payment_schedule_entries << entry
-      end
-
-      user.payment_schedules << sched
-      sched.save
     end
   end
 
   # Create conflicts
-  2.times do
+  3.times do
     next unless [true, true, false, false, false].sample
     season = user.seasons.sample
-    status = [
-      denied_status,
-      denied_status,
-      pending_status,
-      approved_status,
-      approved_status,
-      approved_status,
-      resolved_status
-    ].sample
+    status = STATUS_ARRAY.sample
 
-    show = [true, false].sample ? Faker::TvShows::HowIMetYourMother : Faker::TvShows::FamilyGuy
-    reason = show.quote
+    reason = SHOW_POSSIBILITIES.sample.quote
 
     schedule = user.payment_schedule_for(season.id).entries
     start_date = (schedule[0].pay_date..schedule[-1].pay_date).to_a.sample + (1..24).to_a.sample.hours
@@ -187,7 +195,7 @@ until User.all.count >= 41
       next unless [true, true, true, true, true, true, true, true, true, false].sample
 
       if [true, true, true, true, true, false].sample
-        note = Faker::TvShows::HowIMetYourMother.catch_phrase
+        note = SHOW_POSSIBILITIES.sample.quote
       end
 
       randomness = [-(p.amount - 2000), -15000, -10000, -5000, 0, 0, 0, 5000, 10000, 15000].sample

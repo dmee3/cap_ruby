@@ -1,25 +1,6 @@
 # rubocop:disable AbcSize
 class DashboardUtilities
   class << self
-    def payment_sums_by_week(season_id)
-      all_payments = Payment.for_season(season_id).order(:date_paid)
-      weekly_payments = all_payments.group_by { |payment, _| payment.date_paid.end_of_week }
-      weekly_payments.map { |week, payments| [week, (payments.sum(&:amount) / 100.00).round(2)] }
-    end
-
-    def payment_schedule_sums_by_week(season_id)
-      # Get all payment schedule entries for the season and set date to a Sunday
-      entries = PaymentScheduleEntry.for_season(season_id).where('pay_date <= ?', Date.today).order(:pay_date)
-      entries.each { |e| e.pay_date = e.pay_date.end_of_week }
-
-      # Group entries by week and sum the amount
-      {}.tap do |sums|
-        entries.each do |e|
-          sums[e.pay_date] = 0 unless sums[e.pay_date].present?
-          sums[e.pay_date] += (e.amount / 100.00).round(2)
-        end
-      end.to_a
-    end
 
     # rubocop:disable Metrics/MethodLength
     def upcoming_payments(start_date, end_date, season_id)
@@ -44,6 +25,23 @@ class DashboardUtilities
           }
         end
       end
+    end
+
+    def recent_payments(start_date, end_date, season_id)
+      payments = Payment
+        .for_season(season_id)
+        .includes(:user)
+        .where(date_paid: start_date..end_date)
+        .map do |p|
+          {
+            amount: p.amount.to_f / 100,
+            date_paid: p.date_paid.strftime('%-m/%-d/%y'),
+            id: p.id,
+            name: "#{p.user.first_name} #{p.user.last_name}",
+            payment_type: p.payment_type.name,
+            user_id: p.user.id
+          }
+        end
     end
     # rubocop:enable Metrics/MethodLength
 

@@ -1,11 +1,7 @@
-<% content_for :styles do %>
-  <%= stylesheet_link_tag 'home', media: 'all' %>
-<% end %>
-
 <% content_for :main do %>
   <div class="row">
     <div class="col-sm-12">
-      <h1 class="white-text">Whistleblower Report</h1>
+      <h1>Whistleblower Report</h1>
     </div>
   </div>
   <div class="row mt-1 mt-sm-0">
@@ -13,7 +9,7 @@
       <div class="card">
         <div class="card-body">
           <p>Cap City encourages anyone involved with our organization to report any concerns regarding the group without fear of retaliation.  We will respond to your report promptly and to the best of our ability with the information given.  You may choose to remain anonymous by leaving the email section blank and avoiding any personally-identifying information.  Please note that if you wish for the organization to respond to you directly, you will need to provide a name or some sort of contact method for us to get in touch.</p>
-          <p>We wish to provide a safe and educational environment for everyone involved with our organization, and consider anything that threatens the well-being of our members or staff to be a very serious matter.  Please try to supply us with enough information to conduct an independent investigation.  Details like times, locations, and anybody else who may have been involved or have knowledge of the situation all help us to look into your claim.  Remember that if you choose to remain anonymous, we will not be able to ask questions, and can only investigate based on the information you provide.</p>
+          <p>We wish to provide a safe and educational environment for everyone involved with our organization, and consider anything that threatens the well-being of our members or staff to be a very serious matter.  Please try to supply us with enough information to conduct an independent investigation.  Details like times, locations, and anybody else who may have been involved or have knowledge of the situation all help us to look into your claim.  Remember that if you choose to remain anonymous, we will not be able to ask you any further questions, and can only investigate based on the information you provide.</p>
 
           <%= form_tag whistleblowers_path, { class: 'mt-4' } do %>
             <h3>Report</h3>

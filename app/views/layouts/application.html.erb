@@ -6,40 +6,118 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-
-    <%= yield :styles %>
+    <%= stylesheet_pack_tag 'application' %>
 
   </head>
+
   <body>
-    <nav class="navbar navbar-dark navbar-expand-lg cap-gray">
-      <a class="navbar-brand" href="/">
-        <%= image_tag 'cc_white_brand.png', size: '25x32' %>
-      </a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar-content">
-        <% if current_user&.is?(:admin) %>
-          <%= render 'admin_nav' %>
-        <% elsif current_user&.is?(:staff) %>
-          <%= render 'staff_nav' %>
-        <% elsif current_user&.is?(:member) %>
-          <%= render 'member_nav' %>
-        <% else %>
-          <%= render 'anon_nav' %>
-        <% end %>
-      </div>
-    </nav>
+    <div class="container-fluid pb-3">
 
-    <%= render 'flashes' %>
+      <!-- ADMIN VIEW -->
+      <% if logged_in? && current_user&.is?(:admin) %>
 
-    <div id="top-space"></div>
+        <div class="row flex-xl-nowrap">
+          <!-- SIDE NAV -->
+          <div class="col-12 col-md-2 sidenav">
+            <ul class="nav flex-row flex-md-column">
+              <li class="nav-item">
+                <div class="nav-link brand">
+                  <%= image_tag 'full_logo_small_black.png', size: '144x50', class: 'd-none d-lg-block' %>
+                  <%= image_tag 'cc_black_brand.png', size: '25x32', class: 'd-lg-none' %>
+                </div>
+              </li>
+              <%= yield :side_nav %>
+            </ul>
+          </div>
 
-    <div class="container pb-3">
-      <%= yield :main %>
+          <!-- MAIN WINDOW -->
+          <div class="col-12 col-md-10">
+
+            <!-- TOP NAV -->
+            <nav class="navbar navbar-expand-md navbar-light topnav">
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse d-flex" id="navbar-content">
+                <%= render 'admin/application/top_nav' %>
+              </div>
+            </nav>
+
+            <!-- FLASH MESSAGES AND TOASTS -->
+            <%= render 'flashes' %>
+            <div id="toast-container">
+            </div>
+
+            <!-- CONTENT -->
+            <main class="col-12 p-3" id="main-content">
+              <%= yield :main %>
+            </main>
+          </div>
+        </div>
+
+      <!-- MEMBER VIEW -->
+      <% elsif logged_in? %>
+        <div class="row">
+          <nav class="navbar navbar-expand-md navbar-light topnav col-12">
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item">
+                <a href="/" class="nav-link brand">
+                  <%= image_tag 'cc_black_brand.png', size: '25x32' %>
+                </a>
+              </li>
+            </ul>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbar-content">
+              <%= render 'members/application/top_nav' %>
+            </div>
+          </nav>
+
+          <%= render 'flashes' %>
+        </div>
+
+        <div class="row">
+          <main class="col-12 p-3" id="main-content">
+            <%= yield :main %>
+          </main>
+        </div>
+
+      <!-- ANONYMOUS VIEW -->
+      <% else %>
+
+        <div class="row">
+          <nav class="navbar navbar-expand-md login-nav col-12">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbar-content">
+              <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                  <a href="/" class="nav-link brand">
+                    <%= image_tag 'cc_white_brand.png', size: '25x32' %>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+
+        <div class="row">
+          <main class="col-12 p-3" id="main-content">
+            <%= yield :main %>
+          </main>
+        </div>
+
+      <% end %>
+
     </div>
 
-    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'application' %>
+
+    <% if logged_in? && current_user&.is?(:admin) %>
+      <%= javascript_pack_tag 'omni_bar' %>
+    <% end %>
 
     <%= yield :scripts %>
   </body>

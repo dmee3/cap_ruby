@@ -1,9 +1,17 @@
 <% if status.name == 'Approved' %>
-  <span class="badge badge-success white-text"><%= fa_icon 'check' %>&nbsp;Approved</span>
+  <span class="badge badge-success white-text">
+    <i class="far fa-check-circle mr-1"></i>Approved
+  </span>
 <% elsif status.name == 'Pending' %>
-  <span class="badge badge-warning white-text"><%= fa_icon 'clock-o' %>&nbsp;Pending</span>
+  <span class="badge badge-warning white-text">
+    <i class="far fa-clock mr-1"></i>Pending
+  </span>
 <% elsif status.name == 'Denied' %>
-  <span class="badge badge-danger white-text"><%= fa_icon 'times' %>&nbsp;Denied</span>
+  <span class="badge badge-danger white-text">
+    <i class="far fa-times-circle mr-1"></i>Denied
+  </span>
 <% else %>
-  <span class="badge badge-secondary white-text"><%= fa_icon 'circle-o' %>&nbsp;Resolved</span>
+  <span class="badge badge-secondary white-text">
+    <i class="far fa-dot-circle mr-1"></i>Resolved
+  </span>
 <% end %>
