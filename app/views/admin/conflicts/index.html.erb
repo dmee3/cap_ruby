@@ -1,0 +1,42 @@
+<% content_for :side_nav do %>
+  <%= render 'admin/application/side_nav', page: 'conflicts' %>
+<% end %>
+
+<% content_for :main do %>
+  <div class="row">
+    <div class="col-12 text-right mb-3">
+      <%= link_to new_admin_conflict_path, class: 'btn btn-light mt-1' do %>
+        <span class="d-none d-sm-inline">New Conflict</span>
+        <span class="d-sm-none"><i class="fas fa-plus"></i></span>
+      <% end %>
+    </div>
+  </div>
+
+  <div id="pending-conflicts">
+    <pending-conflicts v-bind:conflicts="conflicts" v-on:conflict-changed="getConflicts"></pending-conflicts>
+  </div>
+
+  <div class="row d-none d-lg-block">
+    <div  class="col-12">
+      <div id="conflict-chart-wrapper" class="card">
+        <conflict-chart v-bind:conflicts="conflicts"></conflict-chart>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-3">
+    <div class="col-12" id="upcoming-list">
+      <conflict-list time-range="future" v-bind:conflicts="conflicts"></conflict-list>
+    </div>
+  </div>
+
+  <div class="row mt-3">
+    <div class="col-12" id="past-list">
+      <conflict-list time-range="past" v-bind:conflicts="conflicts"></conflict-list>
+    </div>
+  </div>
+<% end %>
+
+<% content_for :scripts do %>
+  <%= javascript_pack_tag 'admin_conflict_index' %>
+<% end %>

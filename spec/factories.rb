@@ -12,7 +12,6 @@ FactoryBot.define do
   end
 
   factory :payment_schedule_entry do
-    already_paid { rand(0..1).zero? }
     amount { rand(10000..50000) }
     pay_date { Date.today + rand(-60..60).days }
     payment_schedule
@@ -59,7 +58,6 @@ FactoryBot.define do
     last_name { Faker::Name.last_name }
     password { Faker::Internet.password }
     role
-    section { Faker::TvShows::VentureBros.organization }
     sequence(:username) { |n| "#{Faker::Internet.user_name}#{n}" }
   end
 end

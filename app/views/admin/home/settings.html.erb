@@ -1,0 +1,75 @@
+<% content_for :side_nav do %>
+  <%= render 'admin/application/side_nav', page: 'home' %>
+<% end %>
+
+<% content_for :main do %>
+  <div class="row">
+    <div class="col-12 col-md-6 mb-3">
+      <div class="card">
+        <%= form_tag '/settings', { method: :post, class: 'card-body' } do %>
+          <div class="row">
+            <div class="col-sm-12">
+              <h3>Basic Info</h3>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-sm-12">
+              <%= label_tag :username, 'Username' %>
+              <%= text_field_tag :username, current_user.username, { class: 'form-control', placeholder: 'Username' } %>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-sm-12">
+              <%= label_tag :email, 'Email' %>
+              <%= text_field_tag :email, current_user.email, { class: 'form-control', placeholder: 'Email' } %>
+            </div>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-sm-12 text-center">
+              <%= submit_tag 'Save', { class: 'btn btn-success' } %>
+            </div>
+          </div>
+          
+        <% end %>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <div class="card">
+        <%= form_tag '/settings-password', { method: :post, class: 'card-body' } do %>
+          <div class="row">
+            <div class="col-sm-12">
+              <h3>Change Password</h3>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-sm-12">
+              <%= label_tag :old_password, 'Old Password' %>
+              <%= password_field_tag :old_password, nil, { class: 'form-control', placeholder: 'Old Password' } %>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-sm-12">
+              <%= label_tag :new_password, 'New Password' %>
+              <%= password_field_tag :new_password, nil, { class: 'form-control', placeholder: 'New Password' } %>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-sm-12">
+              <%= label_tag :new_password_confirmation, 'New Password Confirmation' %>
+              <%= password_field_tag :new_password_confirmation, nil, { class: 'form-control', placeholder: 'Confirm New Password' } %>
+            </div>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-sm-12 text-center">
+              <%= submit_tag 'Save', { class: 'btn btn-success' } %>
+            </div>
+          </div>
+        
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

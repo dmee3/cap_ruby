@@ -1,14 +1,16 @@
 class WhistleblowersController < ApplicationController
+  before_action :logout_if_unauthorized
+
   def index; end
 
   def create
     send_email(params[:email], params[:report])
-    flash.now[:success] = 'Report submitted.  If you provided contact information, expect a response within the next week.'
-    render :index
+    flash[:success] = 'Report submitted. If you provided contact information, expect a response within the next week.'
+    redirect_to(root_path)
   rescue StandardError => e
     Rollbar.error(e, user: nil)
-    flash.now[:error] = 'Our system has encountered an error.  Please try again.'
-    render :index
+    flash.now[:error] = 'Our system has encountered an error. Please try again.'
+    render(:index)
   end
 
   private

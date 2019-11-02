@@ -1,9 +1,15 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
-  def authorized?
+  def logout_if_unauthorized
     logout unless current_user
   end
+
+  def logged_in?
+    return true if current_user
+    false
+  end
+  helper_method :logged_in?
 
   def current_user
     return @current if @current

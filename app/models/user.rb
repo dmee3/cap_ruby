@@ -8,20 +8,26 @@ class User < ApplicationRecord
   has_many :payment_schedules, dependent: :destroy
   has_many :payment_schedule_entries, through: :payment_schedule
   has_many :payments, dependent: :destroy
-  has_and_belongs_to_many :seasons
 
-  validates :email, presence: { message: 'Email is required' }
+  has_many :seasons_users
+  has_many :seasons, through: :seasons_users
+
+  validates :email, presence: true
   validates :email, uniqueness: { case_sensitive: false }
-  validates :first_name, presence: { message: 'First name is required' }
-  validates :last_name, presence: { message: 'Last name is required' }
-  validates :password, presence: { message: 'password is required' }, on: :create
+  validates :first_name, presence: true
+  validates :last_name, presence: true
+  validates :password, presence: true, on: :create
   validates :password, length: { minimum: 6, message: 'Password must be at least 6 characters' }, if: :password
   validates :password, confirmation: { message: 'Password confirmation must match password' }, if: :password
-  validates :role, presence: { message: 'Role is required' }
-  validates :username, presence: { message: 'Username is required' }
+  validates :role, presence: true
+  validates :username, presence: true
   validates :username, uniqueness: { case_sensitive: false }
 
-  scope :for_season, ->(season_id) { joins(:seasons).where('seasons.id' => season_id) }
+  scope :for_season, ->(season_id) {
+    includes(:seasons)
+      .joins(:seasons_users)
+      .where('seasons_users.season_id' => season_id)
+  }
   scope :with_payments, -> { includes(payments: :payment_type, payment_schedules: :payment_schedule_entries) }
   scope :with_role, ->(role) { where(role: Role.find_by_name(role.to_s)) }
 
@@ -29,8 +35,6 @@ class User < ApplicationRecord
     self.email = email.downcase
     self.username = username.downcase
   end
-
-  after_save :create_payment_schedules
 
   def full_name
     return "#{first_name} #{last_name}" if first_name && last_name
@@ -59,27 +63,17 @@ class User < ApplicationRecord
     payments.select { |p| p.season_id == season_id }
   end
 
+  # Using ruby methods instead of AR query builder to save DB calls
+  # if we've got the object loaded in memory
+  def section_for(season_id)
+    seasons_users.select { |su| su.season_id == season_id }.first.section
+  end
+
   def total_dues_for(season_id)
     payment_schedule_for(season_id)&.entries&.sum(:amount)
   end
 
   def is?(name)
     role.name == name.to_s
-  end
-
-  private
-
-  # Ensures that members have a payment schedule for each year they march
-  def create_payment_schedules
-    return unless is?(:member)
-    seasons.each do |season|
-      next if payment_schedules.find_by_season_id(season.id)
-
-      # Pushing to the array doesn't technically do anything since we're in an
-      # after_save block and won't save the object again...but it does make
-      # tests pass when they call #payment_schedule_for after a save, because
-      # Rspec is only using the object in memory
-      payment_schedules << DefaultPaymentSchedule.create(id, season.id)
-    end
   end
 end

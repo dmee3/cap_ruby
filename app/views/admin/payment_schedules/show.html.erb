@@ -1,0 +1,18 @@
+<% content_for :side_nav do %>
+  <%= render 'admin/application/side_nav', page: 'users' %>
+<% end %>
+
+<% content_for :main do %>
+  <div class="row">
+    <div class="col-12 text-right mb-3">
+      <a class="btn btn-light" href="<%= admin_users_path %>">Back to Users</a>
+    </div>
+  </div>
+  <div id="payment-schedule">
+    <payment-schedules v-bind:schedule-id="<%= @schedule.id %>" user-name="<%= @user.first_name %>"></payment-schedules>
+  </div>
+<% end %>
+
+<% content_for :scripts do %>
+  <%= javascript_pack_tag 'payment_schedules' %>
+<% end %>

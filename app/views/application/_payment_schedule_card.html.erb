@@ -1,19 +1,19 @@
-<div class="card <%= status ? 'border-success' : 'border-danger' %>">
-  <div class="card-header <%= status ? 'border-success' : 'border-danger' %>">
+<div class="card">
+  <h5 class="card-header">
     Payment Schedule
     <% if admin %>
-        <span class="float-right">
-        <%= link_to member.payment_schedule_for(current_season['id']) do %>
-          <%= fa_icon 'pencil', class: 'icon-btn icon-btn-orange dark-text' %>
+        <small class="float-right">
+        <%= link_to admin_payment_schedule_path(member.payment_schedule_for(current_season['id'])) do %>
+          <i class="fas fa-edit icon-btn icon-btn-orange dark-text"></i>
         <% end %>
-      </span>
+      </small>
     <% end %>
-  </div>
+  </h5>
   <ul class="list-group list-group-flush">
     <% member.payment_schedule_for(current_season['id']).entries.order(:pay_date).each do |entry| %>
-      <li class="list-group-item list-group-item-striped">
-          <span class="<%= 'text-muted' if entry.pay_date < Date.today %>">$<%= '%.2f' % (entry.amount / 100.0) %></span>
-        <small class="float-right text-muted"><%= entry.pay_date.strftime('%-m/%-d/%-y') %></small>
+      <li class="list-group-item d-flex justify-content-between">
+        <span class="<%= 'text-muted' if entry.pay_date < Date.today %>">$<%= '%.2f' % (entry.amount / 100.0) %></span>
+        <small class="text-muted"><%= entry.pay_date.strftime('%-m/%-d/%-y') %></small>
       </li>
     <% end %>
   </ul>

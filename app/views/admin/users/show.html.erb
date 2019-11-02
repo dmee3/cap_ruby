@@ -1,0 +1,65 @@
+<% content_for :side_nav do %>
+  <%= render 'admin/application/side_nav', page: 'users' %>
+<% end %>
+
+<% content_for :main do %>
+  <div class="row">
+    <div class="col-6">
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title"><%= @user.full_name %></h3>
+          <h5 class="card-subtitle mb-2 text-muted font-weight-light"><%= @user.section_for(current_season['id']) %></h5>
+
+          <small class="text-muted"><i class="fas fa-envelope mr-1"></i>Email</small>
+          <p class="card-text"><%= @user.email %></p>
+
+          <small class="text-muted"><i class="fas fa-phone mr-1"></i>Phone</small>
+          <p class="card-text">
+            <%= @user.phone.present? ? @user.phone : "Unknown" %>
+          </p>
+        </div>
+
+        <div class="card-footer">
+          <%= link_to 'Edit', edit_admin_user_path(@user), class: 'card-link' %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6">
+      <div class="card">
+        <h5 class="card-header">
+          Conflicts
+        </h5>
+
+        <% if @user.conflicts.for_season(current_season['id']).any? %>
+          <div class="list-group list-group-flush">
+            <% @user.conflicts.for_season(current_season['id']).each do |c| %>
+              <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between align-items-center">
+                  <h6><%= c.start_date.strftime('%a, %-m/%-d %I:%M %p') %> - <%= c.end_date.strftime('%a, %-m/%-d %I:%M %p') %></h6>
+                  <span><%= render 'conflict_status_icon', status: c.status %></span>
+                </div>
+                <small><span class="text-muted"><%= c.reason %></span> (Submitted: <%= c.created_at.strftime('%a, %-m/%-d %I:%M %p') %>)</small>
+              </div>
+            <% end %>
+          </div>
+
+        <% else %>
+          <div class="card-body text-center">
+            <p class="lead">None!</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-3">
+    <div class="col-6">
+      <%= render 'payment_schedule_card', member: @user, admin: true %>
+    </div>
+
+    <div class="col-6">
+      <%= render 'payments_made_card', member: @user, admin: true %>
+    </div>
+  </div>
+<% end %>

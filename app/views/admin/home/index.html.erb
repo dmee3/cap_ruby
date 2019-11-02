@@ -1,0 +1,41 @@
+<% content_for :side_nav do %>
+  <%= render 'admin/application/side_nav', page: 'home' %>
+<% end %>
+
+<% content_for :main do %>
+  <div class="row">
+
+    <!-- PAYMENT CHART -->
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div id="differential-chart" class="col-12 pb-1">
+            <differential-chart v-bind:payments="payments" v-bind:schedules="schedules"></differential-chart>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPCOMING PAYMENTS -->
+    <div id="upcoming-payments" class="col-12 col-md-6 pt-3 pb-1">
+      <div class="card">
+        <upcoming-payments></upcoming-payments>
+      </div>
+    </div>
+
+    <!-- UPCOMING CONFLICTS -->
+    <div id="upcoming-conflicts" class="col-12 col-md-6 pt-3 pb-1">
+      <upcoming-conflicts></upcoming-conflicts>
+    </div>
+
+    <!-- BEHIND MEMBERS -->
+    <div id="behind-members" class="col-12 pt-3 pb-1">
+      <behind-members></behind-members>
+    </div>
+
+  </div>
+<% end %>
+
+<% content_for :scripts do %>
+  <%= javascript_pack_tag 'admin_home' %>
+<% end %>

@@ -1,0 +1,25 @@
+<% content_for :main do %>
+  <div class="row">
+    <div class="col-md-9">
+      <h1>New Conflict</h1>
+    </div>
+    <div class="col-md-3 text-right-md mb-1">
+      <%= link_to 'All Conflicts', conflicts_path, class: 'btn btn-light red-text align-middle' %>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-12 text-center">
+          <p class="lead text-muted">Conflict submission is currently disabled.  Please contact Dan, Aaron, and your section's coordinator if you have a conflict.</p>
+        </div>
+        <div class="col-12 text-center">
+          <button class="btn btn-danger" disabled>
+            Submit for Review
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
