@@ -45,6 +45,9 @@
     </div>
 
     <div class="card-body text-center" v-else>
+      <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
       <p class="lead">Getting user payment info...</p>
     </div>
   </div>

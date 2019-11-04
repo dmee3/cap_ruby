@@ -23,7 +23,10 @@ Rails.application.routes.draw do
     get 'payments/upcoming', to: 'payments#upcoming_payments'
     get 'payments/recent', to: 'payments#recent_payments'
 
-    resources :users
+    resources :users do
+      post '/nine-volts', to: 'users#create_nine_volts'
+      delete '/nine-volts', to: 'users#destroy_nine_volts'
+    end
 
     resources :payment_schedules, except: %i[new edit destroy]
     delete 'payment_schedules/remove-entry', to: 'payment_schedules#remove_entry'

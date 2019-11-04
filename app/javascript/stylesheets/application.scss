@@ -86,7 +86,29 @@ a:hover { text-decoration: none !important; }
 }
 
 /*
- * Payments
+ * Admin-side Payments
+ */
+.custom-control-input.green:checked ~ .custom-control-label::before {
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+}
+.custom-control-input.green:focus ~ .custom-control-label::before {
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+.custom-control-input.green:focus:not(:checked) ~ .custom-control-label::before {
+  border-color: #c1f0cc;
+}
+.custom-control-input.green:focus:not(:checked) ~ .custom-control-label::before {
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+.custom-control-input.green:not(:disabled):active ~ .custom-control-label::before {
+  background-color: #c1f0cc;
+  border-color: #c1f0cc;
+}
+
+
+/*
+ * Member-side Payments
  */
 .StripeElement {
   display: block;
