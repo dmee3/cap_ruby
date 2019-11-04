@@ -1,6 +1,6 @@
 <template>
   <div class="card">
-    <div class="card-header d-flex justify-content-between">
+    <div class="card-header d-flex justify-content-between align-items-center">
       <h5>Payments Made</h5>
       <a v-bind:href="`/admin/payments/new?user_id=${userId}`" class="btn btn-sm btn-outline-secondary">
         <i class="fa fa-plus"></i>

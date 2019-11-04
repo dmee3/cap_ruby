@@ -27,9 +27,7 @@
 
     <div class="col-6">
       <div class="card">
-        <h5 class="card-header">
-          Conflicts
-        </h5>
+        <h5 class="card-header">Conflicts</h5>
 
         <% if @user.conflicts.for_season(current_season['id']).any? %>
           <div class="list-group list-group-flush">
@@ -59,7 +57,7 @@
     </div>
 
     <div class="col-6">
-      <%= render 'payments_made_card', member: @user, admin: true %>
+      <%= render 'payments_made_card', member: @user %>
     </div>
   </div>
 <% end %>
