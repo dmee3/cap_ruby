@@ -2,8 +2,13 @@ class Members::ConflictsController < ApplicationController
   before_action :logout_if_unauthorized
 
   def new
-    @conflict = Conflict.new
-    render 'members/conflicts/new'
+    # Comment out to enable conflict submission
+    redirect_to(root_url)
+    return
+
+    # Uncomment to enable conflict submission
+    # @conflict = Conflict.new
+    # render 'members/conflicts/new'
   end
 
   def create

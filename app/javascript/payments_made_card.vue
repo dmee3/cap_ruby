@@ -1,6 +1,6 @@
 <template>
   <div class="card">
-    <div class="card-header d-flex justify-content-between">
+    <div class="card-header d-flex justify-content-between align-items-center">
       <h5>Payments Made</h5>
       <span>
         <form class="form-inline">
