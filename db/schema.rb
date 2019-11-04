@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_20_043740) do
+ActiveRecord::Schema.define(version: 2019_11_02_043653) do
 
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
@@ -56,6 +56,14 @@ ActiveRecord::Schema.define(version: 2019_10_20_043740) do
     t.index ["season_id"], name: "index_conflicts_on_season_id"
     t.index ["status_id"], name: "index_conflicts_on_status_id"
     t.index ["user_id"], name: "index_conflicts_on_user_id"
+  end
+
+  create_table "nine_volts", force: :cascade do |t|
+    t.integer "season_id"
+    t.integer "user_id"
+    t.boolean "turned_in"
+    t.index ["season_id"], name: "index_nine_volts_on_season_id"
+    t.index ["user_id"], name: "index_nine_volts_on_user_id"
   end
 
   create_table "payment_schedule_entries", force: :cascade do |t|

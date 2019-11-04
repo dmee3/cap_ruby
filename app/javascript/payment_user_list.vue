@@ -1,13 +1,15 @@
 <template>
   <div class="card">
-    <div class="card-header d-flex justify-content-between">
-      <h4>Member Progress</h4>
-      <div class="form-inline">
-        <div class="input-group">
-          <button class="btn btn-info" id="paid-toggle">Toggle Fully-Paid</button>
-        </div>
+    <h4 class="card-header d-flex justify-content-between align-items-center">
+      Payments
+      <div class="btn-group btn-group-sm">
+        <button class="btn btn-info" id="paid-toggle">Toggle Fully-Paid</button>
+        <a href="/admin/payments/new" class="btn btn-outline-secondary">
+          <span class="d-none d-md-inline">New Payment</span>
+          <span class="d-md-none"><i class="fas fa-plus"></i></span>
+        </a>
       </div>
-    </div>
+    </h4>
     <div class="list-group list-group-flush" v-if="readyToDisplay">
       <template v-for="user in fullUsers">
         <a v-bind:key="user.id" v-bind:href="`#member-${user.id}-info`" class="list-group-item list-group-item-action" data-toggle="collapse">
@@ -20,12 +22,15 @@
               <p class="mb-0 font-weight-light text-right">{{ formatMoney(user.total_dues) }}</p>
             </div>
 
-            <div class="col-12 col-md-6 col-lg-7 mt-1 order-md-1">
+            <div class="col-11 col-md-6 mt-1 order-md-1">
               <div class="progress">
                 <div class="progress-bar" v-bind:class="statusBarColorFor(user)" v-bind:style="{ width: statusBarWidthFor(user) + '%' }">
                   {{ formatMoney(user.amount_paid) }}
                 </div>
               </div>
+            </div>
+            <div class="col-1 order-md-2 text-center" v-bind:class="batteryColorFor(user)">
+              <i class="fas fa-battery-full fa-rotate-270 fa-lg"></i>
             </div>
           </div>
         </a>
@@ -33,7 +38,7 @@
         <div v-bind:key="`${user.id}-info`" v-bind:id="`member-${user.id}-info`" class="collapse white">
           <div class="row mx-3">
             <div class="col-md-6 my-3">
-              <payments-made-card v-bind:payments="user.payments" v-bind:user-id="user.id"></payments-made-card>
+              <payments-made-card v-bind:payments="user.payments" v-bind:user-id="user.id" v-bind:nine-volts="user.nine_volts"></payments-made-card>
             </div>
 
             <div class="col-md-6 my-3">
@@ -45,6 +50,9 @@
     </div>
 
     <div class="card-body text-center" v-else>
+      <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
       <p class="lead">Getting user payment info...</p>
     </div>
   </div>
@@ -59,10 +67,11 @@ export default {
   data: () => ({
     fullUsers: []
   }),
-  props: ['users', 'payments', 'schedules'],
+  props: ['users', 'nineVolts', 'payments', 'schedules'],
   computed: {
     readyToDisplay() {
-      return this.users.length > 0 && this.payments.length > 0 && this.schedules.length > 0;
+      return this.users.length > 0 && this.nineVolts.length > 0
+        && this.payments.length > 0 && this.schedules.length > 0;
     }
   },
   components: {
@@ -70,16 +79,18 @@ export default {
     PaymentScheduleCard
   },
   methods: {
+    batteryColorFor(user) {
+      if (user.nine_volts && user.nine_volts.turned_in) {
+        return 'text-success';
+      } else {
+        return 'text-muted';
+      }
+    },
     formatMoney(number) {
       return (number / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
     },
     statusBarColorFor(user) {
-      const scheduledToDate = user
-        .payment_schedule
-        .filter(e => moment(e.pay_date).isSameOrBefore(moment()))
-        .reduce((sum, entry) => sum + entry.amount, 0);
-
-      if (user.amount_paid >= scheduledToDate) {
+      if (user.amount_paid >= user.scheduled_to_date) {
         return 'green';
       } else {
         return 'red';
@@ -112,10 +123,17 @@ export default {
             payment_type: p.payment_type.name,
           }));
 
+        // Set up nine-volts
+        user.nine_volts = this.nineVolts.filter(nineVolt => nineVolt.user_id === user.id)[0];
+
         // Set up calculated/misc values
         user.payment_schedule_id = schedule.id;
         user.total_dues = user.payment_schedule.reduce((sum, entry) => sum + entry.amount, 0);
-        user.amount_paid = user.payments.reduce((sum, payment) => sum + payment.amount, 0);
+        user.amount_paid = user.payments.reduce((sum, payment) => sum + payment.amount, 0)
+        user.scheduled_to_date = user
+          .payment_schedule
+          .filter(e => moment(e.pay_date).isSameOrBefore(moment()))
+          .reduce((sum, entry) => sum + entry.amount, 0);
       });
 
       this.fullUsers = this.fullUsers.sort((a, b) => {

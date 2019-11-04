@@ -1,8 +1,17 @@
 <div class="card" id="payment-accordion-<%= member.id %>">
   <h5 class="card-header d-flex justify-content-between align-items-center">
     Payments Made
-    <%= link_to "#{new_admin_payment_path}?user_id=#{member.id}", class: 'btn btn-sm btn-outline-secondary' do %>
-      <i class="fa fa-plus"></i>
+    <% nine_volts = current_user.nine_volts.where(season_id: current_season['id']) %>
+    <% if nine_volts&.first&.turned_in %>
+      <span class="text-success"><i class="fas fa-battery-full fa-rotate-270"></i></span>
+    <% else %>
+      <span class="text-muted"><i class="fas fa-battery-full fa-rotate-270"></i></span>
+    <% end %>
+
+    <% if admin %>
+      <%= link_to "#{new_admin_payment_path}?user_id=#{member.id}", class: 'btn btn-sm btn-outline-secondary' do %>
+        <i class="fa fa-plus"></i>
+      <% end %>
     <% end %>
   </h5>
   <ul class="list-group list-group-flush">

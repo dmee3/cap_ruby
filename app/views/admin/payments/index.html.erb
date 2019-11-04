@@ -3,59 +3,9 @@
 <% end %>
 
 <% content_for :main do %>
-  <div class="row">
-    <div class="col-12 text-right mb-3">
-      <%= link_to new_admin_payment_path, class: 'btn btn-light mt-1' do %>
-        <span class="d-none d-sm-inline">New Payment</span>
-        <span class="d-sm-none"><i class="fas fa-plus"></i></span>
-      <% end %>
-    </div>
-  </div>
-
-  <div class="row">
-    <div  class="col-12">
-      <div class="card">
-        <div class="card-header">
-          <ul class="nav nav-fill nav-tabs card-header-tabs">
-            <li class="nav-item">
-              <a class="nav-link active"  id="upcoming-tab" data-toggle="tab" href="#upcoming-payments">Upcoming</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link"  id="recent-tab" data-toggle="tab" href="#recent-payments">Recent</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link"  id="burndown-tab" data-toggle="tab" href="#burndown-chart">Burndown</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="differential-tab" data-toggle="tab"  href="#differential-chart">Differential</a>
-            </li>
-          </ul>
-        </div>
-
-        <div class="tab-content">
-          <div id="upcoming-payments" class="tab-pane fade show active">
-            <upcoming-payments></upcoming-payments>
-          </div>
-
-          <div id="recent-payments" class="tab-pane fade">
-            <recent-payments></recent-payments>
-          </div>
-
-          <div id="burndown-chart" class="tab-pane fade">
-            <burndown-chart></burndown-chart>
-          </div>
-
-          <div id="differential-chart" class="tab-pane fade">
-            <differential-chart v-bind:payments="payments" v-bind:schedules="schedules"></differential-chart>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div class="row mt-3">
     <div class="col-12">
-      <payment-user-list v-bind:users="users" v-bind:payments="payments" v-bind:schedules="schedules"></payment-user-list>
+      <payment-user-list v-bind:users="users" v-bind:payments="payments" v-bind:schedules="schedules" v-bind:nine-volts="nineVolts"></payment-user-list>
     </div>
   </div>
 <% end %>
