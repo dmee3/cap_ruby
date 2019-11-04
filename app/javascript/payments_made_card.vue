@@ -5,7 +5,7 @@
       <span>
         <form class="form-inline">
           <div class="custom-control custom-switch mr-4">
-            <input type="checkbox" class="custom-control-input green" v-model="nineVolt" @change="updateNineVolt()" v-bind:id="`nine-volt-${userId}`">
+            <input type="checkbox" class="custom-control-input green" v-model="turnedIn" @click.prevent="updateNineVolt()" v-bind:id="`nine-volt-${userId}`">
             <label class="custom-control-label" :class="batteryColor()" v-bind:for="`nine-volt-${userId}`"><i class="fas fa-battery-full fa-rotate-270 fa-lg"></i></label>
           </div>
           <a v-bind:href="`/admin/payments/new?user_id=${userId}`" class="btn btn-sm btn-outline-secondary">
@@ -46,18 +46,23 @@
 <script>
 import moment from 'moment/moment';
 import Utilities from './packs/utilities';
+import Toast from './packs/toast';
 
 export default {
   data: () => ({
-    nineVolt: false
+    turnedIn: false
   }),
-  props: ['payments', 'userId', 'turnedIn'],
+  props: ['payments', 'userId', 'nineVolts'],
   mounted: function() {
-    this.nineVolt = this.turnedIn;
+    if (this.nineVolts) {
+      this.turnedIn = !!this.nineVolts.turned_in;
+    } else {
+      this.turnedIn = false;
+    }
   },
   methods: {
     batteryColor() {
-      if (this.nineVolt) {
+      if (this.turnedIn) {
         return 'text-success';
       } else {
         return 'text-muted';
@@ -70,18 +75,31 @@ export default {
       return moment(date).format('MMM Do, YYYY');
     },
     updateNineVolt() {
-      if (this.nineVolt) {
+      const self = this;
+      if (this.turnedIn) {
+
+        // Delete 9V
         $.ajax({
-          url: `/admin/users/${userId}/nine-volts`,
-          type: 'POST',
-          data: { jwt: Utilities.getJWT(), authenticity_token: Utilities.getAuthToken() }
-        });
-      } else {
-        $.ajax({
-          url: `/admin/users/${userId}/nine-volts`,
+          url: `/admin/users/${this.userId}/nine_volts/${this.nineVolts.id}`,
           type: 'DELETE',
           data: { jwt: Utilities.getJWT(), authenticity_token: Utilities.getAuthToken() }
         })
+          .done(response => {
+            self.turnedIn = false;
+            Toast.showToast('Success!', response.message, 'success');
+          });
+      } else {
+
+        // Log 9V
+        $.ajax({
+          url: `/admin/users/${this.userId}/nine_volts`,
+          type: 'POST',
+          data: { jwt: Utilities.getJWT(), authenticity_token: Utilities.getAuthToken() }
+        })
+          .done(response => {
+            self.turnedIn = true;
+            Toast.showToast('Success!', response.message, 'success');
+          });
       }
     }
   }

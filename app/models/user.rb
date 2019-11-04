@@ -12,6 +12,8 @@ class User < ApplicationRecord
   has_many :seasons_users
   has_many :seasons, through: :seasons_users
 
+  has_many :nine_volts
+
   validates :email, presence: true
   validates :email, uniqueness: { case_sensitive: false }
   validates :first_name, presence: true

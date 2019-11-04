@@ -22,10 +22,28 @@ a:hover { text-decoration: none !important; }
 
 #toast-container {
   position: fixed;
-  right: 100px;
+  bottom:0;
+  width: 100%;
   z-index: 1100;
 
-  .toast { width: 350px; }
+  .toast {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 !important;
+  }
+}
+
+@include media-breakpoint-up(md) {
+  #toast-container {
+    right: 100px;
+    top: 60px;
+    bottom: auto;
+    width: 350px;
+
+    .toast:not(:last-child) {
+      margin-bottom: 0.75rem !important;
+    }
+  }
 }
 
 .sidenav {

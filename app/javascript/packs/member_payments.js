@@ -67,7 +67,7 @@ $('#payment-submit-btn').on('click', function(event) {
 });
 
 function calculateCost(charge_amount) {
-  return (charge_amount / 0.971 + 0.3).toFixed(2);
+  return (charge_amount / 0.97 + 0.3).toFixed(2);
 }
 
 function stripeTokenHandler(token) {

@@ -69,6 +69,29 @@ class Admin::UsersController < ApplicationController
     end
   end
 
+  def nine_volts_index
+    nine_volts = NineVolt.where(season_id: current_season['id'])
+    render json: { nine_volts: nine_volts }, status: 200
+  end
+
+  def create_nine_volts
+    @user = User.find(params[:user_id])
+    if @user.nine_volts.select { |nv| nv.season_id == current_season['id'] }.any?
+      render json: { message: "#{@user.first_name} has already turned in 9-volts." }, status: 200
+    else
+      NineVolt.create(user_id: @user.id, season_id: current_season['id'], turned_in: true)
+      render json: { message: "Logged 9-volts for #{@user.first_name}." }, status: 200
+    end
+  end
+
+  def destroy_nine_volts
+    @user = User.find(params[:user_id])
+    nine_volt = @user.nine_volts.find_by(season_id: current_season['id'])
+    nine_volt.update(turned_in: false) if nine_volt
+
+    render json: { message: "Deleted 9-volts for #{@user.first_name}." }, status: 200
+  end
+
   private
 
   def update_seasons
