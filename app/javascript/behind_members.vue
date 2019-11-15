@@ -1,14 +1,14 @@
 <template>
   <div class="card">
-    <div class="card-header">
+    <div class="card-body">
       <h4 class="mb-0">Behind Members</h4>
     </div>
     <ul class="list-group list-group-flush">
-      <li v-for="member in members" v-bind:key="member.id" class="list-group-item list-group-item-striped">
+      <a v-for="member in members" v-bind:key="member.id" v-bind:href="`/admin/users/${member.id}`" class="list-group-item list-group-item-action">
         {{ member.name }}
-        <small class="text-secondary">(${{ -1 * (member.paid - member.owed) }})</small>
+        <small class="text-secondary">(${{ member.owed - member.paid }} behind)</small>
         <small class="float-right text-danger">${{ member.paid }} / ${{ member.owed }}</small>
-      </li>
+      </a>
     </ul>
   </div>
 </template>

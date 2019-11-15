@@ -1,13 +1,13 @@
 <template>
   <div class="card">
-    <div class="card-header d-flex w-100 justify-content-between mb-0">
-      <h4>{{ header }}</h4>
+    <div class="card-header d-flex w-100 justify-content-between align-items-center">
+      <h4 class="mb-0">{{ header }}</h4>
       <div class="form-inline">
         <div class="input-group mt-1">
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fas fa-sort"></i></span>
           </div>
-          <select id="order" class="custom-select form-control secondary" v-model="selectedSort" @change="sort">
+          <select id="order" class="custom-select custom-select-sm form-control secondary" v-model="selectedSort" @change="sort">
             <option v-for="field in this.sortOptions" v-bind:key="field" v-bind:value="field">{{ field }}</option>
           </select>
         </div>
@@ -15,11 +15,11 @@
     </div>
     <ul class="list-group list-group-flush">
       <li v-for="user in users" v-bind:key="user.id" class="list-group-item list-group-item-action">
-        <div v-if="userType == 'member'" class="d-flex w-100 justify-content-between">
-          <h5>{{ user.first_name + ' ' + user.last_name }} <small class="text-muted">{{ user.section }}</small></h5>
+        <a v-bind:href="`/admin/users/${user.id}`" v-if="userType == 'member'" class="d-flex w-100 justify-content-between">
+          <span class="text-body">{{ user.first_name + ' ' + user.last_name }} <small class="text-muted">{{ user.section }}</small></span>
           <span class="float-right">
             <div class="dropdown">
-              <button class="btn btn-light btn-sm" type="button" v-bind:id="`dropdown-${user.id}`" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <button class="btn btn-outline-secondary btn-xs" v-bind:id="`dropdown-${user.id}`" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fas fa-ellipsis-h"></i>
               </button>
               <div class="dropdown-menu dropdown-menu-right" v-bind:aria-labelledby="`dropdown-${user.id}`">
@@ -30,7 +30,7 @@
               </div>
             </div>
           </span>
-        </div>
+        </a>
         <h5 v-else>{{ user.first_name + ' ' + user.last_name }}</h5>
       </li>
     </ul>
