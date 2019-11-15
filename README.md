@@ -2,15 +2,12 @@
 
 A web-based application for managing [Cap City Percussion](https://capcitypercussion.com)'s membership.
 
-
-
-
 ## Heroku Quick Reference
 
 ### Pushing commit to heroku
-`git push heroku <local branch>:<master>`
+`git push production <local branch>:<master>`
 
-To push to staging, switch `heroku` to `staging`.  (**NOTE**: maybe I should make this more clear by [renaming heroku to production?](https://devcenter.heroku.com/articles/multiple-environments))
+To push to staging, switch `heroku` to `staging`.
 
 ### Copying database to staging
 1. Run command `heroku pg:backups:capture --app <app-name>`
