@@ -43,6 +43,7 @@
   border-color: $cap-gray;
   box-shadow: none;
 }
+.form-control.flatpickr:read-only { background-color: transparent; }
 
 /* Striped list items */
 .list-group-item-striped:nth-child(even) {

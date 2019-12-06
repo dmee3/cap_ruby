@@ -117,6 +117,7 @@ export default {
         user.payments = this.payments
           .filter(payment => payment.user_id === user.id)
           .map(p => ({
+            id: p.id,
             amount: p.amount,
             date_paid: p.date_paid,
             notes: p.notes,

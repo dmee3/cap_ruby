@@ -5,23 +5,20 @@
 <% content_for :main do %>
   <div class="row">
     <div class="col-md-9">
-      <h1>New Payment</h1>
+      <h1>Edit Payment for <%= @payment.user.first_name %></h1>
     </div>
-    <div class="col-md-3 text-right-md mb-1">
+    <div class="col-md-3 text-right-md">
       <%= link_to 'All Payments', admin_payments_path, class: 'btn btn-light align-middle' %>
     </div>
   </div>
 
   <div class="card">
-    <%= form_for @payment, url: admin_payments_path, html: { class: 'card-body' } do |p| %>
+    <%= form_for @payment, url: admin_payment_path(@payment), html: { class: 'card-body' } do |p| %>
       <div class="row mt-3">
-        <div class="col-md-5 form-group">
-          <%= p.collection_select :user_id, @members, :id, :full_name, {}, { class: 'form-control select2-form-control' } %>
-        </div>
         <div class="col-md-4 form-group">
           <%= p.collection_select :payment_type_id, PaymentType.all, :id, :name, {}, { class: 'form-control select2-form-control' } %>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
           <div class="input-group">
             <div class="input-group-prepend">
               <span class="input-group-text">$</span>
@@ -29,16 +26,17 @@
             <%= p.number_field :amount, placeholder: '0.00', step: :any, class: 'form-control' %>
           </div>
         </div>
+        <div class="col-md-4 form-group">
+          <%= p.text_field :date_paid, { class: 'flatpickr form-control mr-2 mb-2 w-100' } %>
+        </div>
       </div>
 
-      <div class="row">
-        <div class="col-md-6 mt-3 form-inline justify-content-center">
-          <%= p.date_select :date_paid, {}, { class: 'form-control mr-2 mb-2' } %>
-        </div>
-        <div class="col-md-6 mt-3 form-group">
+      <div class="row mt-3">
+        <div class="col-12 form-group">
           <%= p.text_area :notes, { class: 'form-control', placeholder: 'Notes' } %>
         </div>
       </div>
+
       <div class="row mt-3">
         <div class="col-sm-12 form-group text-center">
           <%= p.submit 'Submit', class: 'btn btn-success' %>
@@ -46,13 +44,4 @@
       </div>
     <% end %>
   </div>
-<% end %>
-
-<% content_for :scripts do %>
-  <script type="text/javascript">
-    $(document).ready(function() {
-      $("#payment_user_id").select2({ width: '100%' });
-      $("#payment_payment_type_id").select2({ width: '100%' });
-    });
-  </script>
 <% end %>

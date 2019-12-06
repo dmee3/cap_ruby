@@ -1,0 +1,38 @@
+<% content_for :side_nav do %>
+  <%= render 'admin/application/side_nav', page: 'payments' %>
+<% end %>
+
+<% content_for :main do %>
+    <div class="row">
+      <div class="col-12 col-md-6 mb-3">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title">Overview</h3>
+            <h5 class="card-subtitle text-muted mb-2">$<%= '%.2f' % (@payment.amount / 100.0) %></h5>
+
+            <small class="text-muted"><i class="fas fa-fw fa-users mr-1"></i>Member</small>
+            <p class="card-text"><%= @payment.user.full_name %></p>
+
+            <small class="text-muted"><i class="fas fa-fw fa-calendar-times mr-1"></i>Date Paid</small>
+            <p class="card-text"><%= @payment.date_paid.strftime("%a %b %-d, %Y") %></p>
+          </div>
+          <div class="card-footer">
+            <%= link_to 'Edit', edit_admin_payment_path(@payment), class: 'card-link' %>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title">Details</h3>
+
+            <small class="text-muted"><i class="fas fa-comment mr-1"></i>Notes</small>
+            <p class="card-text"><%= @payment.notes %></p>
+
+            <small class="text-muted"><span class="mr-1"><i class="fas fa-fw fa-calendar-times"></i></span>Method</small>
+            <p class="card-text"><%= @payment.payment_type.name %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+<% end %>

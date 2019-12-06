@@ -17,7 +17,7 @@ Rails.application.routes.draw do
     get 'conflicts/upcoming', to: 'conflicts#upcoming_conflicts'
     get 'conflicts/statuses', to: 'conflicts#statuses'
 
-    resources :payments, only: %i[index new create]
+    resources :payments, except: %i[destroy]
     get 'payments/behind-members', to: 'payments#behind_members'
     get 'payments/burndown-chart', to: 'payments#burndown_chart'
     get 'payments/upcoming', to: 'payments#upcoming_payments'

@@ -23,6 +23,8 @@ import { fas } from '@fortawesome/free-solid-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import { fab } from '@fortawesome/free-brands-svg-icons';
 import 'select2';
+import flatpickr from 'flatpickr';
+require("flatpickr/dist/flatpickr.min.css"); // Needed for now to get CSS
 
 // Styles
 import '../stylesheets/application'
@@ -40,5 +42,11 @@ $(document).ready(() => {
   // Hack to fix select2 tab order
   $('select').on('select2:select', function(){
     $(this).focus();
+  });
+
+  flatpickr(".flatpickr", {
+    altInput: true,
+    altFormat: "F j, Y",
+    dateFormat: "Y-m-d",
   });
 });

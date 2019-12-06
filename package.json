@@ -8,6 +8,7 @@
     "@rails/webpacker": "^4.0.7",
     "bootstrap": "^4.3.1",
     "chart.js": "^2.8.0",
+    "flatpickr": "^4.6.3",
     "fuzzysort": "^1.1.4",
     "jquery": "^3.4.1",
     "moment": "^2.24.0",
