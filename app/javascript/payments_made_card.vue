@@ -15,9 +15,9 @@
       </span>
     </div>
     <ul class="list-group list-group-flush">
-      <li class="list-group-item" v-for="payment in payments" v-bind:key="payment.id">
-        <div class="d-flex justify-content-between">
-          <span>
+      <li class="list-group-item list-group-item-action" v-for="payment in payments" v-bind:key="payment.id">
+        <a v-bind:href="`/admin/payments/${payment.id}`" class="d-flex justify-content-between align-items-center">
+          <span class="text-body">
             <i v-if="payment.payment_type === 'Cash'" class="fas fa-money-bill text-muted mr-1"></i>
             <i v-else-if="payment.payment_type === 'Stripe'" class="fas fa-credit-card text-muted mr-1"></i>
             <i v-else-if="payment.payment_type === 'Check'" class="fas fa-money-check text-muted mr-1"></i>
@@ -28,16 +28,18 @@
             {{ formatMoney(payment.amount) }}
           </span>
 
-          <small class="float-right text-muted">{{ formatDate(payment.date_paid) }}
-            <a v-if="payment.notes" data-toggle="collapse" v-bind:href="`#payment-notes-${payment.id}`">
-              <i class="far fa-comment dark-text icon-btn icon-btn-blue"></i>
-            </a>
+          <small class="text-muted">{{ formatDate(payment.date_paid) }}
+            <div class="dropdown d-inline-block ml-2">
+              <button class="btn btn-outline-secondary btn-xs" v-bind:id="`dropdown-${payment.id}`" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-ellipsis-h"></i>
+              </button>
+              <div class="dropdown-menu dropdown-menu-right" v-bind:aria-labelledby="`dropdown-${payment.id}`">
+                <a class="dropdown-item" v-bind:href="`/admin/payments/${payment.id}`">View Details</a>
+                <a class="dropdown-item" v-bind:href="`/admin/payments/${payment.id}/edit`">Edit Info</a>
+              </div>
+            </div>
           </small>
-        </div>
-
-          <div v-if="payment.notes" class="collapse px-3 py-1" v-bind:id="`payment-notes-${payment.id}`">
-            <small class="text-muted">{{ payment.notes }}</small>
-          </div>
+        </a>
       </li>
     </ul>
   </div>

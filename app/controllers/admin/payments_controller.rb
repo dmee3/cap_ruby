@@ -15,6 +15,11 @@ class Admin::PaymentsController < ApplicationController
     end
   end
 
+  def show
+    @payment = Payment.find(params[:id])
+    render('admin/payments/show')
+  end
+
   def new
     @members = User.for_season(current_season['id']).with_role(:member).order(:first_name)
     @payment = Payment.new
@@ -34,6 +39,24 @@ class Admin::PaymentsController < ApplicationController
       @members = User.for_season(current_season['id']).with_role(:member).order(:first_name)
       flash.now[:error] = @payment.errors.full_messages.to_sentence
       render('admin/payments/new')
+    end
+  end
+
+  def edit
+    @payment = Payment.find(params[:id])
+    @payment.amount /= 100
+    render('admin/payments/edit')
+  end
+
+  def update
+    @payment = Payment.find(params[:id])
+    if @payment.update(update_params.reject { |_k, v| v.blank? }) # only update non-empty fields
+      flash[:success] = "Payment updated"
+      redirect_to('/admin/payments')
+    else
+      Rollbar.info('Payment could not be updated.', errors: @payment.errors.full_messages)
+      flash[:error] = "Unable to update payment"
+      redirect_to("/admin/payments/edit/#{@payment.id}")
     end
   end
 
@@ -86,5 +109,11 @@ class Admin::PaymentsController < ApplicationController
 
   def payment_params
     params.require(:payment).permit(:user_id, :payment_type_id, :amount, :date_paid, :notes)
+  end
+
+  def update_params
+    params.require(:payment).permit(:payment_type_id, :amount, :date_paid, :notes).tap do |p|
+      p[:amount] = p[:amount].to_i * 100 if p[:amount] # Convert to cents
+    end
   end
 end
