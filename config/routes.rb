@@ -13,15 +13,15 @@ Rails.application.routes.draw do
   get 'logout', to: 'sessions#destroy'
 
   namespace :admin do
-    resources :conflicts, except: %i[show destroy]
     get 'conflicts/upcoming', to: 'conflicts#upcoming_conflicts'
     get 'conflicts/statuses', to: 'conflicts#statuses'
+    resources :conflicts, except: %i[show destroy]
 
-    resources :payments, except: %i[destroy]
+    get 'payments/upcoming', to: 'payments#upcoming_payments'
     get 'payments/behind-members', to: 'payments#behind_members'
     get 'payments/burndown-chart', to: 'payments#burndown_chart'
-    get 'payments/upcoming', to: 'payments#upcoming_payments'
     get 'payments/recent', to: 'payments#recent_payments'
+    resources :payments, except: %i[destroy]
 
     resources :users do
       resources :nine_volts, only: %i[create destroy]
@@ -29,9 +29,9 @@ Rails.application.routes.draw do
 
     resources :nine_volts, only: %i[index]
 
-    resources :payment_schedules, except: %i[new edit destroy]
     delete 'payment_schedules/remove-entry', to: 'payment_schedules#remove_entry'
     post 'payment_schedules/add-entry', to: 'payment_schedules#add_entry'
+    resources :payment_schedules, except: %i[new edit destroy]
   end
 
   namespace :members do
