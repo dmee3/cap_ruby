@@ -3,12 +3,12 @@ class Members::ConflictsController < ApplicationController
 
   def new
     # Comment out to enable conflict submission
-    redirect_to(root_url)
-    return
+    # redirect_to(root_url)
+    # return
 
     # Uncomment to enable conflict submission
-    # @conflict = Conflict.new
-    # render 'members/conflicts/new'
+    @conflict = Conflict.new
+    render('members/conflicts/new')
   end
 
   def create
@@ -21,7 +21,7 @@ class Members::ConflictsController < ApplicationController
     else
       Rollbar.info('Conflict could not be submitted.', errors: @conflict.errors.full_messages)
       flash[:error] = 'Conflict could not be submitted.  Please contact a director for help.'
-      redirect_to(new_conflict_url)
+      redirect_to('/members/conflicts/new')
     end
   end
 

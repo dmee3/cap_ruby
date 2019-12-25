@@ -37,7 +37,14 @@
 
     <div class="col-12 col-md-5">
       <div class="card">
-        <h4 class="card-header">Conflicts<small class="text-muted font-weight-light"> (new submissions are closed)</small></h4>
+        <h4 class="card-header">
+					Conflicts
+          <span class="float-right">
+            <a href="/members/conflicts/new" class="pull-right btn btn-outline-secondary">
+              <i class="fa fa-plus"></i>
+            </a>
+          </span>
+				</h4>
 
         <div class="list-group list-group-flush">
           <% @conflicts.each do |conflict| %>

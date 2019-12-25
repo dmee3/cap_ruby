@@ -47,6 +47,13 @@ $(document).ready(() => {
   flatpickr(".flatpickr", {
     altInput: true,
     altFormat: "F j, Y",
-    dateFormat: "Y-m-d",
+    dateFormat: "Y-m-d"
+  });
+
+  flatpickr(".flatpickr-dt", {
+    altInput: true,
+    altFormat: "F j, Y h:i K",
+    dateFormat: "Y-m-d H:i:00 \\UTC-05:00",
+    enableTime: true
   });
 });
