@@ -10,7 +10,7 @@
     "chart.js": "^2.8.0",
     "flatpickr": "^4.6.3",
     "fuzzysort": "^1.1.4",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "moment": "^2.24.0",
     "popper": "^1.0.1",
     "popper.js": "^1.15.0",
