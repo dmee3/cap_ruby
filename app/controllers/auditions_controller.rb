@@ -1,5 +1,5 @@
 class AuditionsController < ApplicationController
-  before_action: logout_if_unauthorized
+  before_action :logout_if_unauthorized
 
   def generate
     respond_to do |format|
