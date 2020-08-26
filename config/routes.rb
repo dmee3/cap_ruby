@@ -3,6 +3,8 @@ Rails.application.routes.draw do
 
   root to: 'home#index'
 
+  get '/auditions-excel', to: 'auditions#generate'
+
   get '/documents', to: 'home#documents'
   #get '/feed', to: 'home#feed'
 

@@ -18,6 +18,7 @@ module CapRuby
 
     # Eager load all files in the lib and bot directories
     config.eager_load_paths << Rails.root.join('lib')
+    config.eager_load_paths << Rails.root.join('lib/auditions')
     config.eager_load_paths << Rails.root.join('bot')
 
     # Don't generate system test files.

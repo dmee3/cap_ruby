@@ -28,6 +28,11 @@ gem 'bootstrap' # Can this be removed???
 gem 'sassc-rails'
 gem 'select2-rails'
 
+# Auditions Processor gems
+gem 'faraday'
+gem 'caxlsx'
+gem 'caxlsx_rails'
+
 group :production do
   gem 'scout_apm'
   gem 'rails_12factor'
