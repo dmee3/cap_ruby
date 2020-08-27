@@ -1,13 +1,28 @@
 class AuditionsController < ApplicationController
-  before_action :logout_if_unauthorized
+  def index
+  end
 
-  def generate
-    respond_to do |format|
-      format.html { render 'auditions/home' }
-      format.xlsx do
-        @data = AuditionsProcessor.run
-        render xlsx: 'registrations_and_packets', template: 'auditions/registrations_and_packets.xlsx.axlsx'
+  def update
+    data = AuditionsProcessor.run
+    registrations = data[:registrations]
+    packets = data[:packets]
+
+    registrations.each do |type, instruments|
+      if !GoogleWriter.write_registrations(type, instruments)
+        render 'auditions/google_failure'
+        return
       end
     end
+
+    packets.each do |type, instruments|
+      if !GoogleWriter.write_packets(type, instruments)
+        render 'auditions/google_failure'
+        return
+      end
+    end
+
+    render 'auditions/success'
+  rescue ApiErrors::TooManyRequests => e
+    render 'auditions/rate_limited'
   end
 end

@@ -5,9 +5,9 @@ class OrderProcessor
       date = DateTime.parse(order_json['createdOn'])
 
       order_json['lineItems'].map do |item|
-        if REGISTRATION_PRODUCTS.include?(item['productName'])
+        if REGISTRATION_PRODUCTS.keys.include?(item['productName'])
           create_registration(date, item)
-        elsif PACKET_PRODUCTS.include?(item['productName'])
+        elsif PACKET_PRODUCTS.keys.include?(item['productName'])
 
           # Fix for when form was missing instrument
           if order_num.to_i >= 1049 && order_num.to_i < 1066
@@ -21,17 +21,17 @@ class OrderProcessor
 
     private
 
-    REGISTRATION_PRODUCTS = [
-      'CC21 Music Ensemble Video Audition',
-      'CC21 Visual Ensemble Video Audition'
-    ].freeze
+    REGISTRATION_PRODUCTS = {
+      'CC21 Music Ensemble Video Audition' => 'Music Registrations',
+      'CC21 Visual Ensemble Video Audition'  => 'Visual Registrations'
+    }.freeze
 
-    PACKET_PRODUCTS = [
-      '2021 CC2 Battery Audition Packet',
-      '2021 Cap City World Battery Audition Packet',
-      '2021 Cap City Cymbal Audition Packet',
-      '2021 Cap City Front Ensemble Audition Packet'
-    ].freeze
+    PACKET_PRODUCTS = {
+      '2021 CC2 Battery Audition Packet' => 'CC2 Battery Packets',
+      '2021 Cap City World Battery Audition Packet' => 'World Battery Packets',
+      '2021 Cap City Cymbal Audition Packet' => 'Cymbal Packets',
+      '2021 Cap City Front Ensemble Audition Packet' => 'Front Packets'
+    }.freeze
 
     ORDER_INSTRUMENT_MAP = {
       '1049' => 'Snare',      '1050' => 'Vibes',    '1051' => 'Marimba',
@@ -43,7 +43,7 @@ class OrderProcessor
     }.freeze
 
     def create_packet(date, item)
-      args = { date: date, item: item['productName'] }
+      args = { date: date, type: PACKET_PRODUCTS[item['productName']] }
       item['customizations'].each do |field|
         case field['label']
         when 'Name'
@@ -63,7 +63,7 @@ class OrderProcessor
     end
 
     def create_registration(date, item)
-      args = { date: date, item: item['productName'] }
+      args = { date: date, type: REGISTRATION_PRODUCTS[item['productName']] }
       item['customizations'].each do |field|
         case field['label']
         when 'Name'
@@ -80,7 +80,7 @@ class OrderProcessor
           args[:instrument] = field['value']
         when 'Experience'
           args[:experience] = field['value']
-        when 'Age In April'
+        when 'Age on 4/1/2021'
           args[:age_in_april] = field['value']
         end
       end

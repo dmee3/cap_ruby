@@ -30,8 +30,7 @@ gem 'select2-rails'
 
 # Auditions Processor gems
 gem 'faraday'
-gem 'caxlsx'
-gem 'caxlsx_rails'
+gem 'google-api-client'
 
 group :production do
   gem 'scout_apm'

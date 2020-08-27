@@ -1,8 +1,8 @@
 class Registration
-  attr_reader :item, :name, :email, :phone, :city, :state, :instrument, :date, :experience, :age_in_april
+  attr_reader :type, :name, :email, :phone, :city, :state, :instrument, :date, :experience, :age_in_april
 
   def initialize(args)
-    @item = args[:item].gsub('CC21 ', '').gsub('Video Audition', 'Registration')
+    @type = args[:type]
     @name = args[:name]
     @email = args[:email]
     @city = args[:city]

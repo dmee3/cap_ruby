@@ -9,6 +9,9 @@ class SquarespaceApi
       orders = []
       loop do
         response = Faraday.get(ORDERS_URL, url_params, HEADERS)
+
+        raise ApiErrors::TooManyRequests if response.status == 429
+
         body = JSON.parse(response.body)
         orders += body['result']
       

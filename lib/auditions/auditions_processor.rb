@@ -3,33 +3,24 @@ class AuditionsProcessor
     def run
       orders = SquarespaceApi.get_orders
 
-      # Data structure:
-      #   registrations: {
-      #     'music': {
-      #       'snare': [
-      #         Registration,
-      #         Registration,
-      #         ...
-      #       ],
-      #       'tenors': [ ... ],
-      #       ...
-      #     },
-      #     'visual': {
-      #       'dance': [ ... ]
-      #     }
-      #   }
-      #
-      registrations, packets = {}, {}
+      registrations = {
+        'Music Registrations' => {},
+        'Visual Registrations' => {}
+      }
+      packets = {
+        'CC2 Battery Packets' => {},
+        'World Battery Packets' => {},
+        'Cymbal Packets' => {},
+        'Front Packets' => {}
+      }
       orders.each do |order|
         OrderProcessor.run(order).each do |item|
-          if item&.item&.include?('Packet')
-            packets[item.item] ||= {}
-            packets[item.item][item.instrument] ||= []
-            packets[item.item][item.instrument] << item
-          elsif item&.item&.include?('Registration')
-            registrations[item.item] ||= {}
-            registrations[item.item][item.instrument] ||= []
-            registrations[item.item][item.instrument] << item
+          if item&.type&.include?('Packet')
+            packets[item.type][item.instrument] ||= []
+            packets[item.type][item.instrument] << item
+          elsif item&.type&.include?('Registration')
+            registrations[item.type][item.instrument] ||= []
+            registrations[item.type][item.instrument] << item
           end
         end
       end

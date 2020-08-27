@@ -1,8 +1,8 @@
 class Packet
-  attr_reader :item, :name, :email, :city, :state, :instrument, :date
+  attr_reader :type, :name, :email, :city, :state, :instrument, :date
 
   def initialize(args)
-    @item = args[:item].gsub('2021 ', '').gsub('Cap City ', '')
+    @type = args[:type]
     @name = args[:name]
     @email = args[:email]
     @city = args[:city]
