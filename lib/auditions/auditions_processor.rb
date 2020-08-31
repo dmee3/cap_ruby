@@ -3,10 +3,8 @@ class AuditionsProcessor
     def run
       orders = SquarespaceApi.get_orders
 
-      registrations = {
-        'Music Registrations' => {},
-        'Visual Registrations' => {}
-      }
+      music_list = RegistrationList.new
+      visual_list = RegistrationList.new
       packets = {
         'CC2 Battery Packets' => {},
         'World Battery Packets' => {},
@@ -18,9 +16,10 @@ class AuditionsProcessor
           if item&.type&.include?('Packet')
             packets[item.type][item.instrument] ||= []
             packets[item.type][item.instrument] << item
-          elsif item&.type&.include?('Registration')
-            registrations[item.type][item.instrument] ||= []
-            registrations[item.type][item.instrument] << item
+          elsif item&.type == 'Music Registrations'
+            music_list.registrations << item
+          elsif item&.type == 'Visual Registrations'
+            visual_list.registrations << item
           end
         end
       end
@@ -30,7 +29,7 @@ class AuditionsProcessor
         instruments.each_key { |instr| instruments[instr] = instruments[instr].uniq(&:email).sort_by(&:date) }
       end
 
-      return { registrations: registrations, packets: packets }
+      return { music: music_list, visual: visual_list, packets: packets }
     end
   end
 end

@@ -10,8 +10,8 @@ class GoogleWriter
       instance.write_sheet(sheet_name, instruments)
     end
 
-    def write_packets(sheet_name, instruments)
-      instance.write_sheet(sheet_name, instruments)
+    def write_packets(sheet_name, instruments, registered_emails)
+      instance.write_sheet(sheet_name, instruments, registered_emails)
     end
   end
 
@@ -24,7 +24,7 @@ class GoogleWriter
     service.authorization = authorization
   end
 
-  def write_sheet(sheet_name, instruments)
+  def write_sheet(sheet_name, instruments, registered_emails = nil)
 
     # Find current sheet by name and get properties
     current_sheet = sheets.find { |s| s.properties.title == sheet_name }
@@ -51,7 +51,7 @@ class GoogleWriter
     result = clear_data(sheet_name, last_col_letter, sheet_rows)
     return false if !result
 
-    result = reset_formatting(sheet_id, header_rows)
+    result = reset_formatting(sheet_id, header_rows, data, registered_emails)
     return false if !result
 
     # Send new data
@@ -89,7 +89,7 @@ class GoogleWriter
   #   1. Unmerging all cells
   #   2. Clearing formatting for all cells
   #   3. Merging and formatting all instrument header rows
-  def reset_formatting(sheet_id, header_rows)
+  def reset_formatting(sheet_id, header_rows, data, registered_emails)
     requests = [
       unmerge_all_cells_request_body(sheet_id),
       clear_all_cells_format_request_body(sheet_id)
@@ -100,8 +100,31 @@ class GoogleWriter
         format_header_row_request_body(sheet_id, h)
       ]
     end.flatten
+
+    # If we're writing packets, highlight rows for people who have registered
+    if registered_emails
+      rows_to_highlight = highlight_registered_rows(registered_emails, data, sheet_id)
+      if rows_to_highlight
+        requests += rows_to_highlight.map do |r|
+          format_registered_row_request_body(sheet_id, r)
+        end
+      end
+    end
+
     body = { requests: requests }
     result = service.batch_update_spreadsheet(SPREADSHEET_ID, body, {})
+  end
+
+  def highlight_registered_rows(emails, data, sheet_id)
+    rows_to_highlight = []
+    data.each do |curr_section|
+      first_row = curr_section[:range].match(/!A(\d+)/)[1].to_i
+      curr_section[:values].each.with_index do |row, idx|
+        rows_to_highlight << (first_row + idx) if row[2] && emails.include?(row[2])
+      end
+    end
+
+    return rows_to_highlight
   end
 
   def merge_row_request_body(sheet_id, row_idx)
@@ -179,6 +202,31 @@ class GoogleWriter
           }
         },
         fields: "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)"
+      }
+    }
+  end
+
+  def format_registered_row_request_body(sheet_id, row_idx)
+    {
+      repeat_cell: {
+        range: {
+          sheet_id: sheet_id,
+          start_row_index: row_idx - 1,
+          end_row_index: row_idx
+        },
+        cell: {
+          user_entered_format: {
+            background_color: {
+              red: 0.576,
+              green: 0.769,
+              blue: 0.49
+            },
+            text_format: {
+              bold: true
+            }
+          }
+        },
+        fields: "userEnteredFormat(backgroundColor,textFormat)"
       }
     }
   end

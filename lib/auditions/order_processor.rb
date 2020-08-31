@@ -6,15 +6,9 @@ class OrderProcessor
 
       order_json['lineItems'].map do |item|
         if REGISTRATION_PRODUCTS.keys.include?(item['productName'])
-          create_registration(date, item)
+          create_registration(item, date, order_num)
         elsif PACKET_PRODUCTS.keys.include?(item['productName'])
-
-          # Fix for when form was missing instrument
-          if order_num.to_i >= 1049 && order_num.to_i < 1066
-            item['customizations'] << { 'label' => 'Primary Instrument', 'value' => ORDER_INSTRUMENT_MAP[order_num] }
-          end
-
-          create_packet(date, item)
+          create_packet(item, date, order_num)
         end
       end
     end
@@ -33,7 +27,11 @@ class OrderProcessor
       '2021 Cap City Front Ensemble Audition Packet' => 'Front Packets'
     }.freeze
 
-    ORDER_INSTRUMENT_MAP = {
+    REGISTRATION_ORDER_INSTR_MAP = {
+      '1260' => 'Vibes'
+    }.freeze
+
+    PACKET_ORDER_INSTR_MAP = {
       '1049' => 'Snare',      '1050' => 'Vibes',    '1051' => 'Marimba',
       '1052' => 'Auxiliary',  '1053' => 'Marimba',  '1054' => 'Tenors',
       '1055' => 'Tenors',     '1056' => 'Marimba',  '1057' => 'Snare',
@@ -42,7 +40,14 @@ class OrderProcessor
       '1064' => 'Marimba',    '1065' => 'Marimba'
     }.freeze
 
-    def create_packet(date, item)
+    def create_packet(item, date, order_num)
+
+      # Fix for when form was missing instrument
+      if order_num.to_i >= 1049 && order_num.to_i < 1066
+        field = { 'label' => 'Primary Instrument', 'value' => PACKET_ORDER_INSTR_MAP[order_num] }
+        item['customizations'] << field
+      end
+
       args = { date: date, type: PACKET_PRODUCTS[item['productName']] }
       item['customizations'].each do |field|
         case field['label']
@@ -62,7 +67,14 @@ class OrderProcessor
       Packet.new(args)
     end
 
-    def create_registration(date, item)
+    def create_registration(item, date, order_num)
+      # Fix for people who signed up on the wrong instrument
+      if REGISTRATION_ORDER_INSTR_MAP.keys.include?(order_num)
+        item['customizations'].reject! { |f| f['label'] == 'First Instrument Choice' }
+        field = { 'label' => 'First Instrument Choice', 'value' => REGISTRATION_ORDER_INSTR_MAP[order_num] }
+        item['customizations'] << field
+      end
+
       args = { date: date, type: REGISTRATION_PRODUCTS[item['productName']] }
       item['customizations'].each do |field|
         case field['label']
