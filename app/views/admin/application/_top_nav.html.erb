@@ -13,9 +13,14 @@
       <%= current_season ? current_season['year'] : '???' %>
     </a>
     <div class="dropdown-menu" aria-labelledby="season-dropdown">
-      <% current_user.seasons.reverse.each do |s| %>
-        <%= form_tag change_season_path, method: :post do %>
-          <%= hidden_field_tag :season_id, s.id %>
+      <% Season.all.reverse.each.with_index do |s, i| %>
+        <% if i == 0 %>
+          <h6 class="dropdown-header">Current</h6>
+        <% elsif i == 1 %>
+          <h6 class="dropdown-header">Past</h6>
+        <% end %>
+        <%= form_tag(change_season_path, method: :post) do %>
+          <%= hidden_field_tag :season_id, s.id, { id: "season_id_#{s.id}" } %>
           <%= submit_tag "#{s.year}", class: 'dropdown-item' %>
         <% end %>
       <% end %>

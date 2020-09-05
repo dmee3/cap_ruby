@@ -8,7 +8,7 @@ git_source(:github) do |repo_name|
 end
 
 # Rails gems
-gem 'rails', '~> 5.2.0'
+gem 'rails', '~> 6'
 gem 'puma', '~> 3.12'
 gem 'uglifier', '>= 1.3.0'
 gem 'turbolinks', '~> 5'

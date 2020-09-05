@@ -66,6 +66,7 @@ class DashboardUtilities
       members.reject! { |m| m.dues_status_okay?(season_id) }
       members.map do |m|
         {
+          id: m.id,
           name: m.full_name,
           paid: m.amount_paid_for(season_id).to_f / 100.0,
           owed: m.payment_schedule_for(season_id).scheduled_to_date.to_f / 100.0
