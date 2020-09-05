@@ -26,6 +26,9 @@ import 'select2';
 import flatpickr from 'flatpickr';
 require("flatpickr/dist/flatpickr.min.css"); // Needed for now to get CSS
 
+// Require all images
+require.context('../images', true)
+
 // Styles
 import '../stylesheets/application'
 

@@ -23,8 +23,8 @@
             <ul class="nav flex-row flex-md-column">
               <li class="nav-item">
                 <div class="nav-link brand">
-                  <%= image_tag 'full_logo_small_black.png', size: '144x50', class: 'd-none d-lg-block' %>
-                  <%= image_tag 'cc_black_brand.png', size: '25x32', class: 'd-lg-none' %>
+                  <%= image_pack_tag 'full_logo_small_black.png', size: '144x50', class: 'd-none d-lg-block' %>
+                  <%= image_pack_tag 'cc_black_brand.png', size: '25x32', class: 'd-lg-none' %>
                 </div>
               </li>
               <%= yield :side_nav %>
@@ -61,7 +61,7 @@
             <ul class="navbar-nav mr-auto">
               <li class="nav-item">
                 <a href="/" class="nav-link brand">
-                  <%= image_tag 'cc_black_brand.png', size: '25x32' %>
+                  <%= image_pack_tag 'cc_black_brand.png', size: '25x32' %>
                 </a>
               </li>
             </ul>
@@ -94,7 +94,7 @@
               <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
                   <a href="/" class="nav-link brand">
-                    <%= image_tag 'cc_white_brand.png', size: '25x32' %>
+                    <%= image_pack_tag 'media/images/cc_white_brand.png', size: '25x32' %>
                   </a>
                 </li>
               </ul>

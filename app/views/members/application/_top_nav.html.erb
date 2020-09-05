@@ -7,7 +7,7 @@
     <div class="dropdown-menu" aria-labelledby="season-dropdown">
       <% current_user.seasons.reverse.each do |s| %>
         <%= form_tag change_season_path, method: :post do %>
-          <%= hidden_field_tag :season_id, s.id %>
+          <%= hidden_field_tag :season_id, s.id, { id: "season_id_#{s.id}" } %>
           <%= submit_tag "#{s.year}", class: 'dropdown-item' %>
         <% end %>
       <% end %>
