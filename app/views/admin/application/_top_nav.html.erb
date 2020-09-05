@@ -10,7 +10,7 @@
   </li>
   <li class="nav-item dropdown">
     <a class="btn btn-outline-dark dropdown-toggle mr-3" href="#" id="season-dropdown" data-toggle="dropdown">
-      <%= current_season['year'] %>
+      <%= current_season ? current_season['year'] : '???' %>
     </a>
     <div class="dropdown-menu" aria-labelledby="season-dropdown">
       <% current_user.seasons.reverse.each do |s| %>

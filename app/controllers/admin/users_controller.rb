@@ -56,7 +56,7 @@ class Admin::UsersController < ApplicationController
     else
       Rollbar.info('User could not be updated.', errors: @user.errors.full_messages)
       flash[:error] = "Unable to update #{@user.first_name}"
-      redirect_to("/admin/users/edit/#{@user.id}")
+      redirect_to("/admin/users/#{@user.id}/edit")
     end
   end
 

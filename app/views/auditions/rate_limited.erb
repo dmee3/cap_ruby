@@ -1,0 +1,27 @@
+<% content_for :main do %>
+  <div class="row justify-content-center">
+    <div class="col-6 card" style="margin-top: 200px;">
+      <div class="card-body text-center">
+        <h3 class="text-danger">Slow down!</h3>
+        <br />
+        <p>We've hit the Squarespace API too many times too quickly. Wait like 2 minutes and then try again.</p>
+        <%= link_to 'Update', auditions_spreadsheet_generate_path, { class: 'btn btn-outline-success', id: 'generate-btn' } %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<% content_for :scripts do %>
+  <script type="text/javascript">
+    var btn = document.getElementById('generate-btn');
+    btn.addEventListener('click', function(event) {
+      if (this.classList.contains('disabled')) {
+        event.preventDefault();
+        return;
+      }
+
+      this.classList.add('disabled');
+      this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+    }, false);
+  </script>
+<% end %>
