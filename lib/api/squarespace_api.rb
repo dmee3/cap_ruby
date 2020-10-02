@@ -5,7 +5,7 @@ class SquarespaceApi
 
   class << self
     def get_orders
-      url_params = { modifiedAfter: '2020-08-15T12:00:00Z', modifiedBefore: '2020-09-30T12:30:00Z' }
+      url_params = { modifiedAfter: '2020-08-15T12:00:00Z', modifiedBefore: '2020-11-01T12:30:00Z' }
       orders = []
       loop do
         response = Faraday.get(ORDERS_URL, url_params, HEADERS)
