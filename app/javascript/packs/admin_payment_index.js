@@ -4,16 +4,16 @@ import Utilities from './utilities'
 import Toast from './toast'
 
 document.addEventListener('DOMContentLoaded', () => {
-  const vue = new Vue({
+  new Vue({
     el: '#main-content',
+    components: {
+      PaymentUserList,
+    },
     data: {
       users: [],
       nineVolts: [],
       payments: [],
       schedules: [],
-    },
-    components: {
-      PaymentUserList,
     },
     mounted: function () {
       this.getUsers()

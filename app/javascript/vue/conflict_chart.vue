@@ -4,11 +4,11 @@
       <h4 class="mb-0">
         All Conflicts
         <span class="text-muted float-right show-hide-toggle"
-          ><i v-on:click="toggleShowHide" class="fa fa-angle-up"></i
+          ><i class="fa fa-angle-up" @click="toggleShowHide"></i
         ></span>
       </h4>
     </div>
-    <div class="card-body" v-if="!hidden">
+    <div v-if="!hidden" class="card-body">
       <div class="col-sm-12 mt-2">
         <div id="calendar"></div>
       </div>
@@ -44,7 +44,7 @@ const component = {
         center: '',
         end: 'dayGridMonth,timeGridWeek,listMonth today prev,next',
       },
-      events: function (info, successCallback, errorCallback) {
+      events: function (info, successCallback) {
         const data = that.conflicts.map((c) => {
           const color = that.statusColor(c.status.name)
           return {
@@ -68,7 +68,7 @@ const component = {
     this.calendar.render()
   },
   methods: {
-    toggleShowHide(_evt) {
+    toggleShowHide() {
       this.hidden = !this.hidden
     },
     statusColor(status) {
@@ -90,7 +90,7 @@ const component = {
     },
   },
   watch: {
-    conflicts: function (newConflicts) {
+    conflicts: function () {
       this.refresh()
     },
   },

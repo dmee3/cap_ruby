@@ -11,14 +11,14 @@
           </div>
           <select
             id="order"
-            class="custom-select custom-select-sm form-control secondary"
             v-model="selectedSort"
+            class="custom-select custom-select-sm form-control secondary"
             @change="sort"
           >
             <option
-              v-for="field in this.sortOptions"
-              v-bind:key="field"
-              v-bind:value="field"
+              v-for="field in sortOptions"
+              :key="field"
+              :value="field"
             >
               {{ field }}
             </option>
@@ -29,12 +29,12 @@
     <ul class="list-group list-group-flush">
       <li
         v-for="user in users"
-        v-bind:key="user.id"
+        :key="user.id"
         class="list-group-item list-group-item-action"
       >
         <a
-          v-bind:href="`/admin/users/${user.id}`"
           v-if="userType == 'member'"
+          :href="`/admin/users/${user.id}`"
           class="d-flex w-100 justify-content-between"
         >
           <span class="text-body"
@@ -44,8 +44,8 @@
           <span class="float-right">
             <div class="dropdown">
               <button
+                :id="`dropdown-${user.id}`"
                 class="btn btn-outline-secondary btn-xs"
-                v-bind:id="`dropdown-${user.id}`"
                 data-toggle="dropdown"
                 aria-haspopup="true"
                 aria-expanded="false"
@@ -54,19 +54,19 @@
               </button>
               <div
                 class="dropdown-menu dropdown-menu-right"
-                v-bind:aria-labelledby="`dropdown-${user.id}`"
+                :aria-labelledby="`dropdown-${user.id}`"
               >
-                <a class="dropdown-item" v-bind:href="`/admin/users/${user.id}`"
+                <a class="dropdown-item" :href="`/admin/users/${user.id}`"
                   >View Details</a
                 >
                 <a
                   class="dropdown-item"
-                  v-bind:href="`/admin/users/${user.id}/edit`"
+                  :href="`/admin/users/${user.id}/edit`"
                   >Edit Info</a
                 >
                 <a
                   class="dropdown-item"
-                  v-bind:href="`/admin/payment_schedules/${user.payment_schedule_id}`"
+                  :href="`/admin/payment_schedules/${user.payment_schedule_id}`"
                   >Edit Payment Schedule</a
                 >
                 <div
@@ -84,11 +84,11 @@
     </ul>
 
     <div
-      class="modal"
+      v-if="userType == 'member'"
       id="delete-modal"
+      class="modal"
       tabindex="-1"
       role="dialog"
-      v-if="userType == 'member'"
     >
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -109,7 +109,7 @@
           <div class="modal-body">
             <p class="lead text-center">Are you sure?</p>
           </div>
-          <div class="modal-footer" id="delete-form">
+          <div id="delete-form" class="modal-footer">
             <button
               type="button"
               class="btn btn-secondary"
@@ -133,10 +133,17 @@
 
 <script>
 import Utilities from '../packs/utilities'
+// eslint-disable-next-line no-unused-vars
 import modal from 'bootstrap/js/dist/modal'
 import Toast from '../packs/toast'
 
 export default {
+  props: {
+    userType: {
+      type: String,
+      required: true,
+    },
+  },
   data: function () {
     return {
       userToDelete: '',
@@ -146,7 +153,6 @@ export default {
       error: [],
     }
   },
-  props: ['userType'],
   computed: {
     header: function () {
       if (this.userType == 'admin') {
@@ -170,7 +176,7 @@ export default {
           authenticity_token: Utilities.getAuthToken(),
         },
       })
-        .done(function (response) {
+        .done(function () {
           Toast.showToast(
             'Success!',
             `${self.userToDelete.first_name} was deleted.`,
@@ -178,7 +184,7 @@ export default {
           )
           self.getUserList()
         })
-        .fail(function (err) {
+        .fail(function () {
           Toast.showToast(
             'Whoops!',
             `Unable to delete ${self.userToDelete.first_name}.`,

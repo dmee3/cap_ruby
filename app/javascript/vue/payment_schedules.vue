@@ -5,19 +5,19 @@
     </div>
     <ul class="list-group list-group-flush">
       <li
-        class="list-group-item"
         v-for="(entry, index) in schedule.entries"
-        v-bind:key="entry.id"
+        :key="entry.id"
+        class="list-group-item"
       >
         <div class="form-inline d-flex justify-content-between">
           <span>
-            <select class="form-control" v-model="entry.year">
+            <select v-model="entry.year" class="form-control">
               <option value="2017">2017</option>
               <option value="2018">2018</option>
               <option value="2019">2019</option>
               <option value="2020">2020</option>
             </select>
-            <select class="form-control" v-model="entry.month">
+            <select v-model="entry.month" class="form-control">
               <option value="01">January</option>
               <option value="02">February</option>
               <option value="03">March</option>
@@ -31,7 +31,7 @@
               <option value="11">November</option>
               <option value="12">December</option>
             </select>
-            <select class="form-control" v-model="entry.date">
+            <select v-model="entry.date" class="form-control">
               <option value="01">1</option>
               <option value="02">2</option>
               <option value="03">3</option>
@@ -69,7 +69,7 @@
             <div class="input-group-prepend">
               <span class="input-group-text">$</span>
             </div>
-            <input class="form-control" type="number" v-model="entry.amount" />
+            <input v-model="entry.amount" class="form-control" type="number" />
           </div>
           <span @click="removeEntry(entry.id, index)"
             ><i class="fas fa-trash icon-btn icon-btn-red dark-text"></i
@@ -103,19 +103,24 @@
 
 <script>
 import Utilities from '../packs/utilities'
-import Vue from 'vue/dist/vue.esm'
 import Toast from '../packs/toast'
 
 export default {
+  props: {
+    scheduleId: {
+      type: Number,
+      required: true
+    },
+    userName: {
+      type: String,
+      required: true
+    },
+  },
   data: () => {
     return {
       schedule: { entries: [] },
       error: [],
     }
-  },
-  props: {
-    scheduleId: Number,
-    userName: String,
   },
   mounted: function () {
     const self = this
@@ -183,7 +188,7 @@ export default {
           id: id,
         },
       })
-        .done(function (response) {
+        .done(function () {
           self.schedule.entries.splice(index, 1)
         })
         .fail(function (err) {
@@ -218,7 +223,7 @@ export default {
           payment_schedule: schedule,
         },
       })
-        .done(function (response) {
+        .done(function () {
           Toast.showToast('Success!', `Payment schedule saved!`, 'success')
         })
         .fail(function (err) {

@@ -24,7 +24,7 @@
             name="end_date"
           />
           <div class="input-group-append">
-            <a v-on:click="filter" class="btn btn-info white-text">Filter</a>
+            <a class="btn btn-info white-text" @click="filter">Filter</a>
           </div>
         </div>
       </div>
@@ -32,7 +32,7 @@
     <ul class="list-group list-group-flush">
       <li
         v-for="entry in entries"
-        v-bind:key="entry.id"
+        :key="entry.id"
         class="list-group-item"
       >
         <span class="text-success">${{ entry.amount }}</span> {{ entry.name }}

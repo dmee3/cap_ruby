@@ -1,5 +1,5 @@
 // Calculate and display service fee every time the Amount box is updated
-$('#payment_amount').on('change', function (event) {
+$('#payment_amount').on('change', function () {
   var amount = $('#payment_amount').val()
   if (amount > 0.5) {
     var total = calculateCost(amount)
@@ -23,6 +23,7 @@ $('#payment_amount').on('change', function (event) {
 })
 
 // Create a Stripe client and Elements instance
+// eslint-disable-next-line no-undef
 var stripe = Stripe(stripe_public_key)
 var elements = stripe.elements()
 
@@ -53,7 +54,7 @@ card.on('change', function (event) {
 })
 
 // Create a token or display an error when the form is submitted.
-$('#payment-submit-btn').on('click', function (event) {
+$('#payment-submit-btn').on('click', function () {
   // Ensure amount is greater than $5
   var amount = $('#payment_amount').val()
   if (amount == '' || amount < 5) {
@@ -98,11 +99,6 @@ function stripeTokenHandler(token) {
   document.getElementById('payment-form').submit()
 }
 
-function enableForm() {
-  $('#payment-submit-btn').removeClass('disabled')
-  $('#payment-submit-btn').addClass('btn-primary')
-}
-
 function disableForm() {
   $('#payment-submit-btn').removeClass('btn-primary')
   $('#payment-submit-btn').addClass('disabled')
@@ -110,8 +106,4 @@ function disableForm() {
 
 function showSpinner() {
   $('#spinner').removeClass('d-none')
-}
-
-function hideSpinner() {
-  $('#spinner').addClass('d-none')
 }

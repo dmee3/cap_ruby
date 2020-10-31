@@ -7,17 +7,17 @@ import Utilities from './utilities'
 import Toast from './toast'
 
 document.addEventListener('DOMContentLoaded', () => {
-  const vue = new Vue({
+  new Vue({
     el: '#main-content',
-    data: {
-      payments: [],
-      schedules: [],
-    },
     components: {
       BehindMembers,
       DifferentialChart,
       UpcomingConflicts,
       UpcomingPayments,
+    },
+    data: {
+      payments: [],
+      schedules: [],
     },
     mounted: function () {
       this.getPayments()

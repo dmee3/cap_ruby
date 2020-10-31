@@ -24,7 +24,7 @@
             name="end_date"
           />
           <div class="input-group-append">
-            <a v-on:click="filter" class="btn btn-info white-text">Filter</a>
+            <a class="btn btn-info white-text" @click="filter">Filter</a>
           </div>
         </div>
       </div>
@@ -32,7 +32,7 @@
     <ul class="list-group list-group-flush">
       <li
         v-for="conflict in displayedConflicts"
-        v-bind:key="conflict.id"
+        :key="conflict.id"
         class="list-group-item"
       >
         <i
@@ -119,7 +119,7 @@ export default {
           console.log(err)
         })
     },
-    filter: function (event) {
+    filter: function () {
       this.displayedConflicts = this.conflicts.filter((c) => {
         return (
           c.start_date.isSameOrAfter(this.start_date) &&

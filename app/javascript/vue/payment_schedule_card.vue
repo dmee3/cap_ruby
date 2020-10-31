@@ -2,17 +2,17 @@
   <div class="card">
     <div class="card-header d-flex justify-content-between">
       <h5>Payment Schedule</h5>
-      <a v-bind:href="`/admin/payment_schedules/${scheduleId}`">
+      <a :href="`/admin/payment_schedules/${scheduleId}`">
         <i class="fas fa-edit icon-btn icon-btn-orange dark-text"></i>
       </a>
     </div>
     <ul class="list-group list-group-flush">
       <li
         v-for="entry in schedule"
-        v-bind:key="entry.pay_date"
+        :key="entry.pay_date"
         class="list-group-item d-flex justify-content-between"
       >
-        <span v-bind:class="dateInThePast(entry.pay_date)">{{
+        <span :class="dateInThePast(entry.pay_date)">{{
           formatMoney(entry.amount)
         }}</span>
         <small class="text-muted">{{ formatDate(entry.pay_date) }}</small>
@@ -25,8 +25,17 @@
 import moment from 'moment/moment'
 
 export default {
+  props: {
+    schedule: {
+      type: Array,
+      required: true
+    },
+    scheduleId: {
+      type: Number,
+      required: true,
+    },
+  },
   data: () => ({}),
-  props: ['schedule', 'scheduleId'],
   methods: {
     formatMoney(number) {
       return (number / 100).toLocaleString('en-US', {

@@ -1,9 +1,9 @@
 <template>
   <div class="w-75 position-relative">
     <input
+      id="omni-bar-input"
       type="text"
       class="form-control w-100"
-      id="omni-bar-input"
       placeholder="Member Search"
       tabindex="1"
       @keydown="handleKeydown"
@@ -11,8 +11,8 @@
     />
     <div
       v-show="listVisible"
-      class="dropdown-menu show w-100"
       id="omni-bar-results"
+      class="dropdown-menu show w-100"
     >
       <div
         v-for="(entry, index) in displayedList"
@@ -20,12 +20,12 @@
         class="dropdown-item"
         :class="{ highlighted: index === highlighted }"
       >
-        <a class="text-body" v-if="entry.type == 'member'" :href="entry.url">
+        <a v-if="entry.type == 'member'" class="text-body" :href="entry.url">
           <i class="fas fa-user text-muted"></i> {{ entry.fullName }}
           <small class="text-muted">{{ entry.section }}</small>
         </a>
 
-        <a class="text-body" v-if="entry.type == 'link'" :href="entry.url">
+        <a v-if="entry.type == 'link'" class="text-body" :href="entry.url">
           <i class="fas fa-link text-muted"></i> {{ entry.description }}
         </a>
       </div>
@@ -46,6 +46,33 @@ export default {
       listVisible: false,
       entryList: [],
     }
+  },
+  mounted: function () {
+    const self = this
+    $.getJSON('/admin/users', { jwt: Utilities.getJWT() })
+      .done(function (response) {
+        self.entryList = response.users.map((member) => {
+          return {
+            id: member['id'],
+            firstName: member['first_name'],
+            lastName: member['last_name'],
+            fullName: member['first_name'] + ' ' + member['last_name'],
+            section: member['section'],
+            type: 'member',
+            searchStr:
+              member['first_name'] +
+              ' ' +
+              member['last_name'] +
+              ' ' +
+              member['section'],
+            url: `/admin/users/${member['id']}`,
+          }
+        })
+        self.addStaticListEntries()
+      })
+      .fail(function (err) {
+        console.log(err)
+      })
   },
   methods: {
     filterList(searchTerm) {
@@ -177,33 +204,6 @@ export default {
         }
       )
     },
-  },
-  mounted: function () {
-    const self = this
-    $.getJSON('/admin/users', { jwt: Utilities.getJWT() })
-      .done(function (response) {
-        self.entryList = response.users.map((member) => {
-          return {
-            id: member['id'],
-            firstName: member['first_name'],
-            lastName: member['last_name'],
-            fullName: member['first_name'] + ' ' + member['last_name'],
-            section: member['section'],
-            type: 'member',
-            searchStr:
-              member['first_name'] +
-              ' ' +
-              member['last_name'] +
-              ' ' +
-              member['section'],
-            url: `/admin/users/${member['id']}`,
-          }
-        })
-        self.addStaticListEntries()
-      })
-      .fail(function (err) {
-        console.log(err)
-      })
   },
 }
 </script>

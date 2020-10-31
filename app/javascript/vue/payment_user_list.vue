@@ -3,18 +3,18 @@
     <h4 class="card-header d-flex justify-content-between align-items-center">
       Payments
       <div class="btn-group btn-group-sm">
-        <button class="btn btn-info" id="paid-toggle">Toggle Fully-Paid</button>
+        <button id="paid-toggle" class="btn btn-info">Toggle Fully-Paid</button>
         <a href="/admin/payments/new" class="btn btn-outline-secondary">
           <span class="d-none d-md-inline">New Payment</span>
           <span class="d-md-none"><i class="fas fa-plus"></i></span>
         </a>
       </div>
     </h4>
-    <div class="list-group list-group-flush" v-if="readyToDisplay">
+    <div v-if="readyToDisplay" class="list-group list-group-flush">
       <template v-for="user in fullUsers">
         <a
-          v-bind:key="user.id"
-          v-bind:href="`#member-${user.id}-info`"
+          :key="user.id"
+          :href="`#member-${user.id}-info`"
           class="list-group-item list-group-item-action"
           data-toggle="collapse"
         >
@@ -33,8 +33,8 @@
               <div class="progress">
                 <div
                   class="progress-bar"
-                  v-bind:class="statusBarColorFor(user)"
-                  v-bind:style="{ width: statusBarWidthFor(user) + '%' }"
+                  :class="statusBarColorFor(user)"
+                  :style="{ width: statusBarWidthFor(user) + '%' }"
                 >
                   {{ formatMoney(user.amount_paid) }}
                 </div>
@@ -42,7 +42,7 @@
             </div>
             <div
               class="col-1 order-md-2 text-center"
-              v-bind:class="batteryColorFor(user)"
+              :class="batteryColorFor(user)"
             >
               <i class="fas fa-battery-full fa-rotate-270 fa-lg"></i>
             </div>
@@ -50,23 +50,23 @@
         </a>
 
         <div
-          v-bind:key="`${user.id}-info`"
-          v-bind:id="`member-${user.id}-info`"
+          :id="`member-${user.id}-info`"
+          :key="`${user.id}-info`"
           class="collapse white"
         >
           <div class="row mx-3">
             <div class="col-md-6 my-3">
               <payments-made-card
-                v-bind:payments="user.payments"
-                v-bind:user-id="user.id"
-                v-bind:nine-volts="user.nine_volts"
+                :payments="user.payments"
+                :user-id="user.id"
+                :nine-volts="user.nine_volts"
               ></payments-made-card>
             </div>
 
             <div class="col-md-6 my-3">
               <payment-schedule-card
-                v-bind:schedule="user.payment_schedule"
-                v-bind:schedule-id="user.payment_schedule_id"
+                :schedule="user.payment_schedule"
+                :schedule-id="user.payment_schedule_id"
               ></payment-schedule-card>
             </div>
           </div>
@@ -74,7 +74,7 @@
       </template>
     </div>
 
-    <div class="card-body text-center" v-else>
+    <div v-else class="card-body text-center">
       <div class="spinner-border" role="status">
         <span class="sr-only">Loading...</span>
       </div>
@@ -89,10 +89,31 @@ import PaymentsMadeCard from './payments_made_card'
 import PaymentScheduleCard from './payment_schedule_card'
 
 export default {
+  components: {
+    PaymentsMadeCard,
+    PaymentScheduleCard,
+  },
+  props: {
+    users: {
+      type: Array,
+      required: true,
+    },
+    nineVolts: {
+      type: Array,
+      required: true,
+    },
+    payments: {
+      type: Array,
+      required: true,
+    },
+    schedules: {
+      type: Array,
+      required: true,
+    },
+  },
   data: () => ({
     fullUsers: [],
   }),
-  props: ['users', 'nineVolts', 'payments', 'schedules'],
   computed: {
     readyToDisplay() {
       return (
@@ -103,9 +124,18 @@ export default {
       )
     },
   },
-  components: {
-    PaymentsMadeCard,
-    PaymentScheduleCard,
+  watch: {
+    // These need to be watchers instead of computed because Vue tries to evaluate
+    // computed values before the prop data is established in this instance
+    users: function () {
+      if (this.readyToDisplay) this.updatefullUsers()
+    },
+    payments: function () {
+      if (this.readyToDisplay) this.updatefullUsers()
+    },
+    schedules: function () {
+      if (this.readyToDisplay) this.updatefullUsers()
+    },
   },
   methods: {
     batteryColorFor(user) {
@@ -187,19 +217,6 @@ export default {
           return -1
         }
       })
-    },
-  },
-  watch: {
-    // These need to be watchers instead of computed because Vue tries to evaluate
-    // computed values before the prop data is established in this instance
-    users: function () {
-      if (this.readyToDisplay) this.updatefullUsers()
-    },
-    payments: function () {
-      if (this.readyToDisplay) this.updatefullUsers()
-    },
-    schedules: function () {
-      if (this.readyToDisplay) this.updatefullUsers()
     },
   },
 }

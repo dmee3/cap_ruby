@@ -1,12 +1,11 @@
 export default class {
-  static DT_FORMAT = {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  }
-
   static displayDateTime(dt) {
+    const DT_FORMAT = {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }
     const date = new Date(dt)
-    return new Intl.DateTimeFormat('en-US', this.DT_FORMAT).format(date)
+    return new Intl.DateTimeFormat('en-US', DT_FORMAT).format(date)
   }
 
   static getAuthToken() {

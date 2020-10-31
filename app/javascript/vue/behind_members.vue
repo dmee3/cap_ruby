@@ -6,8 +6,8 @@
     <ul class="list-group list-group-flush">
       <a
         v-for="member in members"
-        v-bind:key="member.id"
-        v-bind:href="`/admin/users/${member.id}`"
+        :key="member.id"
+        :href="`/admin/users/${member.id}`"
         class="list-group-item list-group-item-action"
       >
         {{ member.name }}

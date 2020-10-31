@@ -6,19 +6,39 @@
 import Chart from 'chart.js'
 import ChartColor from '../packs/chart_color'
 import moment from 'moment/moment'
-import Utilities from '../packs/utilities'
-import Vue from 'vue/dist/vue.esm'
-import Toast from '../packs/toast'
 
 export default {
+  props: {
+    payments: {
+      type: Array,
+      required: true
+    },
+    schedules: {
+      type: Array,
+      required: true
+    },
+  },
   data: () => ({
     scheduleData: [],
     paymentData: [],
   }),
-  props: ['payments', 'schedules'],
   computed: {
     readyToDisplay() {
       return this.payments.length > 0 && this.schedules.length > 0
+    },
+  },
+  watch: {
+    payments: function () {
+      if (this.readyToDisplay) {
+        this.formatData()
+        this.renderChart()
+      }
+    },
+    schedules: function () {
+      if (this.readyToDisplay) {
+        this.formatData()
+        this.renderChart()
+      }
     },
   },
   methods: {
@@ -71,7 +91,7 @@ export default {
     },
     renderChart() {
       const ctx = $('#differential-chart-area')
-      const chart = new Chart(ctx, {
+      new Chart(ctx, {
         type: 'line',
         data: {
           datasets: [
@@ -115,7 +135,7 @@ export default {
               {
                 ticks: {
                   beginAtZero: true,
-                  callback: (value, index, values) => {
+                  callback: (value) => {
                     return value.toLocaleString('en-US', {
                       style: 'currency',
                       currency: 'USD',
@@ -147,20 +167,6 @@ export default {
           },
         },
       })
-    },
-  },
-  watch: {
-    payments: function () {
-      if (this.readyToDisplay) {
-        this.formatData()
-        this.renderChart()
-      }
-    },
-    schedules: function () {
-      if (this.readyToDisplay) {
-        this.formatData()
-        this.renderChart()
-      }
     },
   },
 }

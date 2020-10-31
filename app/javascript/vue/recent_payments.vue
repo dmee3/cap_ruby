@@ -3,10 +3,10 @@
     <div class="card-body">
       <h4 class="card-title">
         Recent Payments<small
-          v-if="this.payments.length > 0"
+          v-if="payments.length > 0"
           class="text-muted"
         >
-          (${{ this.totalPaid }})</small
+          (${{ totalPaid }})</small
         >
       </h4>
       <div class="form row">
@@ -30,7 +30,7 @@
             name="end_date"
           />
           <div class="input-group-append">
-            <a v-on:click="filter" class="btn btn-info white-text">Filter</a>
+            <a class="btn btn-info white-text" @click="filter">Filter</a>
           </div>
         </div>
       </div>
@@ -38,7 +38,7 @@
     <ul class="list-group list-group-flush">
       <li
         v-for="payment in payments"
-        v-bind:key="payment.id"
+        :key="payment.id"
         class="list-group-item"
       >
         <span class="text-success">${{ payment.amount }}</span>
@@ -73,7 +73,7 @@ export default {
     this.filter()
   },
   methods: {
-    filter: function (event) {
+    filter: function () {
       const self = this
       $.getJSON('/admin/payments/recent', {
         jwt: Utilities.getJWT(),

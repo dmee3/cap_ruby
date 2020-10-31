@@ -1,11 +1,11 @@
 <template>
-  <div class="card mb-4" v-if="conflicts.length > 0">
+  <div v-if="conflicts.length > 0" class="card mb-4">
     <h4 class="card-header">Pending Conflicts</h4>
     <ul class="list-group list-group-flush">
       <li
-        class="list-group-item list-group-item-action"
         v-for="conflict in pendingConflicts"
-        v-bind:key="conflict.id"
+        :key="conflict.id"
+        class="list-group-item list-group-item-action"
       >
         <div class="row">
           <div class="col-md-3">
@@ -20,7 +20,7 @@
           <div class="col-md-1">
             <a
               data-toggle="collapse"
-              v-bind:href="`#conflict-reason-${conflict.id}`"
+              :href="`#conflict-reason-${conflict.id}`"
             >
               <i class="far fa-comment dark-text icon-btn icon-btn-blue"></i>
             </a>
@@ -30,11 +30,11 @@
               class="form-inline d-flex justify-content-between"
               method="post"
             >
-              <select class="form-control w-50" v-model="conflict.status.id">
+              <select v-model="conflict.status.id" class="form-control w-50">
                 <option
                   v-for="status in statuses"
-                  v-bind:key="status.name"
-                  v-bind:value="status.id"
+                  :key="status.name"
+                  :value="status.id"
                 >
                   {{ status.name }}
                 </option>
@@ -46,8 +46,8 @@
           </div>
         </div>
         <div
+          :id="`conflict-reason-${conflict.id}`"
           class="px-3 collapse py-1"
-          v-bind:id="`conflict-reason-${conflict.id}`"
         >
           <small class="text-muted">
             {{ conflict.reason }}
@@ -66,13 +66,18 @@ import Utilities from '../packs/utilities'
 import Toast from '../packs/toast'
 
 export default {
+  props: {
+    conflicts: {
+      type: Array,
+      required: true,
+    },
+  },
   data: function () {
     return {
       statuses: [],
       error: [],
     }
   },
-  props: ['conflicts'],
   computed: {
     pendingConflicts: function () {
       return this.conflicts.filter((c) => {
@@ -119,7 +124,7 @@ export default {
           authenticity_token: Utilities.getAuthToken(),
         }),
       })
-        .done((response) => {
+        .done(() => {
           Toast.showToast(
             'Success!',
             `Conflict for ${conflict.name} marked as ${newStatus.name}.`,

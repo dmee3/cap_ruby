@@ -38,7 +38,7 @@ export default {
   methods: {
     renderChart: function () {
       const ctx = $('#burndown-chart-area')
-      const chart = new Chart(ctx, {
+      new Chart(ctx, {
         type: 'bar',
         data: {
           labels: this.dates['scheduled'].map(function (point) {
@@ -75,7 +75,7 @@ export default {
               {
                 ticks: {
                   beginAtZero: true,
-                  callback: function (value, index, values) {
+                  callback: function (value) {
                     return '$' + value
                   },
                 },

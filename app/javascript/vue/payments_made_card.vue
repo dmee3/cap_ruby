@@ -6,21 +6,21 @@
         <form class="form-inline">
           <div class="custom-control custom-switch mr-4">
             <input
+              :id="`nine-volt-${userId}`"
+              v-model="turnedIn"
               type="checkbox"
               class="custom-control-input green"
-              v-model="turnedIn"
               @click.prevent="updateNineVolt()"
-              v-bind:id="`nine-volt-${userId}`"
             />
             <label
               class="custom-control-label"
               :class="batteryColor()"
-              v-bind:for="`nine-volt-${userId}`"
+              :for="`nine-volt-${userId}`"
               ><i class="fas fa-battery-full fa-rotate-270 fa-lg"></i
             ></label>
           </div>
           <a
-            v-bind:href="`/admin/payments/new?user_id=${userId}`"
+            :href="`/admin/payments/new?user_id=${userId}`"
             class="btn btn-sm btn-outline-secondary"
           >
             <i class="fa fa-plus"></i>
@@ -30,12 +30,12 @@
     </div>
     <ul class="list-group list-group-flush">
       <li
-        class="list-group-item list-group-item-action"
         v-for="payment in payments"
-        v-bind:key="payment.id"
+        :key="payment.id"
+        class="list-group-item list-group-item-action"
       >
         <a
-          v-bind:href="`/admin/payments/${payment.id}`"
+          :href="`/admin/payments/${payment.id}`"
           class="d-flex justify-content-between align-items-center"
         >
           <span class="text-body">
@@ -71,8 +71,8 @@
             >{{ formatDate(payment.date_paid) }}
             <div class="dropdown d-inline-block ml-2">
               <button
+                :id="`dropdown-${payment.id}`"
                 class="btn btn-outline-secondary btn-xs"
-                v-bind:id="`dropdown-${payment.id}`"
                 data-toggle="dropdown"
                 aria-haspopup="true"
                 aria-expanded="false"
@@ -81,16 +81,16 @@
               </button>
               <div
                 class="dropdown-menu dropdown-menu-right"
-                v-bind:aria-labelledby="`dropdown-${payment.id}`"
+                :aria-labelledby="`dropdown-${payment.id}`"
               >
                 <a
                   class="dropdown-item"
-                  v-bind:href="`/admin/payments/${payment.id}`"
+                  :href="`/admin/payments/${payment.id}`"
                   >View Details</a
                 >
                 <a
                   class="dropdown-item"
-                  v-bind:href="`/admin/payments/${payment.id}/edit`"
+                  :href="`/admin/payments/${payment.id}/edit`"
                   >Edit Info</a
                 >
               </div>
@@ -108,10 +108,23 @@ import Utilities from '../packs/utilities'
 import Toast from '../packs/toast'
 
 export default {
+  props: {
+    payments: {
+      type: Array,
+      required: true,
+    },
+    userId: {
+      type: Number,
+      required: true,
+    },
+    nineVolts: {
+      type: Boolean,
+      required: true,
+    }
+  },
   data: () => ({
     turnedIn: false,
   }),
-  props: ['payments', 'userId', 'nineVolts'],
   mounted: function () {
     if (this.nineVolts) {
       this.turnedIn = !!this.nineVolts.turned_in

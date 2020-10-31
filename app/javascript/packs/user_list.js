@@ -5,14 +5,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Member list
   new Vue({
     el: '#member-list',
-    data: {},
     components: { UserList },
+    data: {},
   })
 
   // Admin list
   new Vue({
     el: '#admin-list',
-    data: {},
     components: { UserList },
+    data: {},
   })
 })

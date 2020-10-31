@@ -2,13 +2,19 @@ import Vue from 'vue/dist/vue.esm'
 import PaymentSchedules from '../vue/payment_schedules.vue'
 
 document.addEventListener('DOMContentLoaded', () => {
-  const payment_schedules = new Vue({
+  new Vue({
     el: '#payment-schedule',
-    data: {},
-    props: {
-      scheduleId: Number,
-      userName: String,
-    },
     components: { PaymentSchedules },
+    props: {
+      scheduleId: {
+        type: Number,
+        required: true
+      },
+      userName: {
+        type: String,
+        required: true
+      },
+    },
+    data: {},
   })
 })
