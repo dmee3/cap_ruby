@@ -12,11 +12,13 @@
     "@rails/webpacker": "^4.0.7",
     "bootstrap": "^4.5.3",
     "chart.js": "^2.9.4",
+    "eslint-config-prettier": "^6.15.0",
     "flatpickr": "^4.6.3",
     "fuzzysort": "^1.1.4",
     "jquery": "^3.5.0",
     "moment": "^2.24.0",
     "popper.js": "^1.16.1",
+    "prettier": "^2.1.2",
     "select2": "^4.0.10",
     "vue": "^2.6.10",
     "vue-loader": "^15.7.1",
@@ -24,9 +26,7 @@
   },
   "devDependencies": {
     "eslint": "^7.12.1",
-    "eslint-config-standard": "^16.0.1",
     "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-vue": "^7.1.0",
     "webpack-dev-server": "^3.8.1"
