@@ -37,7 +37,7 @@ library.add(fas, far, fab);
 // Kicks off the process of finding <i> tags and replacing with <svg>
 dom.watch();
 
-$(document).ready(() => {
+jQuery(() => {
   $(() => {
     $('.select2-enable').select2({ width: '100%' });
   });

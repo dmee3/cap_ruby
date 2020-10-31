@@ -21,7 +21,10 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
 import ChartColor from '../packs/chart_color'
 
-export default {
+$(document).ready(function() {
+  $('#calendar').tooltip({title: 'fuck'})
+})
+const component = {
   props: ['conflicts'],
   data() {
     return {
@@ -36,6 +39,11 @@ export default {
     this.calendar = new Calendar(calendarEl, {
       plugins: [ dayGridPlugin, timeGridPlugin, listPlugin ],
       initialView: 'dayGridMonth',
+      headerToolbar: {
+        start: 'title',
+        center: '',
+        end: 'dayGridMonth,timeGridWeek,listMonth today prev,next'
+      },
       events: function(info, successCallback, errorCallback) {
         const data = that.conflicts.map(c => {
           const color = that.statusColor(c.status.name)
@@ -44,19 +52,23 @@ export default {
             start: c.start_date,
             end: c.end_date,
             title: c.name,
+            url: `/admin/conflicts/${c.id}/edit`,
             backgroundColor: color,
             borderColor: color,
             extendedProps: { reason: c.reason }
           }
         })
         successCallback(data)
-      }
-    });
+      },
+      eventMouseEnter: function(info) {
+        $(el).tooltip({ title: title })
+      },
+    })
 
-    this.calendar.render();
+    this.calendar.render()
   },
   methods: {
-    toggleShowHide: function(_evt) {
+    toggleShowHide(_evt) {
       this.hidden = !this.hidden;
     },
     statusColor(status) {
@@ -69,12 +81,20 @@ export default {
       }
 
       return ChartColor.grey().rgbaString()
+    },
+    refresh() {
+      if (this.calendar == null) {
+        return
+      }
+      this.calendar.refetchEvents()
     }
   },
   watch: {
     conflicts: function(newConflicts) {
-      this.calendar.refetchEvents()
+      this.refresh()
     }
   }
 }
+
+export default component
 </script>

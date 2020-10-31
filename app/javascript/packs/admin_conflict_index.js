@@ -1,4 +1,3 @@
-import moment from 'moment/moment';
 import Vue from 'vue/dist/vue.esm';
 import PendingConflicts from '../vue/pending_conflicts.vue';
 import ConflictChart from '../vue/conflict_chart.vue';
