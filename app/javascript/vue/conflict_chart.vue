@@ -20,6 +20,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
 import ChartColor from '../packs/chart_color'
+import 'bootstrap/js/dist/tooltip'
 
 $(document).ready(function() {
   $('#calendar').tooltip({title: 'fuck'})
@@ -61,7 +62,7 @@ const component = {
         successCallback(data)
       },
       eventMouseEnter: function(info) {
-        $(el).tooltip({ title: title })
+        $(info.el).tooltip({ title: info.event.extendedProps.reason })
       },
     })
 
