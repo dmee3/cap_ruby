@@ -17,20 +17,33 @@
 </template>
 
 <script>
-import { Calendar } from '@fullcalendar/core'
+import { Calendar, formatDate } from '@fullcalendar/core'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
 import ChartColor from '../packs/chart_color'
-import 'bootstrap/js/dist/tooltip'
+import 'bootstrap/js/dist/popover'
 
-const component = {
-  props: ['conflicts'],
+export default {
+  props: {
+    conflicts: {
+      type: Array,
+      required: true,
+    },
+  },
   data() {
     return {
       hidden: false,
       calendar: null,
     }
+  },
+  watch: {
+    conflicts: function () {
+      if (this.calendar == null) {
+        return
+      }
+      this.calendar.refetchEvents()
+    },
   },
   mounted: function () {
     const calendarEl = document.getElementById('calendar')
@@ -61,7 +74,20 @@ const component = {
         successCallback(data)
       },
       eventMouseEnter: function (info) {
-        $(info.el).tooltip({ title: info.event.extendedProps.reason })
+        const start = formatDate(info.event.start, {
+          dateStyle: 'short',
+          timeStyle: 'short',
+        })
+        const end = formatDate(info.event.end, {
+          dateStyle: 'short',
+          timeStyle: 'short',
+        })
+        $(info.el).popover({
+          title: `${start} - ${end}`,
+          content: info.event.extendedProps.reason,
+          trigger: 'hover',
+          container: 'body',
+        })
       },
     })
 
@@ -82,19 +108,13 @@ const component = {
 
       return ChartColor.grey().rgbaString()
     },
-    refresh() {
-      if (this.calendar == null) {
-        return
-      }
-      this.calendar.refetchEvents()
-    },
-  },
-  watch: {
-    conflicts: function () {
-      this.refresh()
-    },
   },
 }
 
-export default component
 </script>
+
+<style lang="scss">
+.popover {
+  max-width: 350px !important;
+}
+</style>

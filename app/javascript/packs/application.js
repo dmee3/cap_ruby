@@ -23,7 +23,8 @@ import { far } from '@fortawesome/free-regular-svg-icons'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import 'select2'
 import flatpickr from 'flatpickr'
-import 'flatpickr/dist/flatpickr.min.css' // Needed for now to get CSS
+// eslint-disable-next-line no-undef
+require('flatpickr/dist/flatpickr.min.css') // Needed for now to get CSS
 
 // Require all images
 // eslint-disable-next-line no-undef
