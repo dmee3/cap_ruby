@@ -1,47 +1,41 @@
-import moment from 'moment/moment';
-import Vue from 'vue/dist/vue.esm';
-import ConflictList from '../conflict_list.vue';
-import PendingConflicts from '../pending_conflicts.vue';
-import ConflictChart from '../conflict_chart.vue';
-import Utilities from './utilities';
+import Vue from 'vue/dist/vue.esm'
+import PendingConflicts from '../vue/pending_conflicts.vue'
+import ConflictChart from '../vue/conflict_chart.vue'
+import Utilities from './utilities'
+import Toast from './toast'
 
 document.addEventListener('DOMContentLoaded', () => {
-  const vue = new Vue({
+  new Vue({
     el: '#main-content',
-    data: {
-      conflicts: []
-    },
     components: {
-      ConflictList,
       PendingConflicts,
-      ConflictChart
+      ConflictChart,
     },
-    mounted: function() {
-      this.getConflicts();
+    data: {
+      conflicts: [],
+    },
+    mounted: function () {
+      this.getConflicts()
     },
     methods: {
       getConflicts() {
-        const self = this;
+        const self = this
         $.getJSON('/admin/conflicts', {
-          jwt: Utilities.getJWT()
+          jwt: Utilities.getJWT(),
         })
           .done((response) => {
-            self.conflicts = response.conflicts.map(conflict => ({
-              id: conflict.id,
-              name: conflict.name,
-              reason: conflict.reason,
-              status: conflict.status,
-              created_at: moment(conflict.created_at),
-              start_date: moment(conflict.start_date),
-              end_date: moment(conflict.end_date)
-            }));
+            self.conflicts = response.conflicts
           })
           .fail((err) => {
-            self.error = err;
-            Toast.showToast('Whoops!', 'An error occurred getting conflicts', 'danger');
-            console.log(err);
-          });
-      }
-    }
-  });
-});
+            self.error = err
+            Toast.showToast(
+              'Whoops!',
+              'An error occurred getting conflicts',
+              'danger'
+            )
+            console.log(err)
+          })
+      },
+    },
+  })
+})

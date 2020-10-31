@@ -1,4 +1,4 @@
-import 'bootstrap/js/dist/toast';
+import 'bootstrap/js/dist/toast'
 
 export default class {
   static showToast(title, content, color) {
@@ -13,10 +13,10 @@ export default class {
         </div>
         <div class="toast-body">${content}</div>
       </div>
-    `);
+    `)
 
-    $('#toast-container').append($toast);
-    $toast.toast({ animation: true, delay: 5000 });
-    $toast.toast('show');
+    $('#toast-container').append($toast)
+    $toast.toast({ animation: true, delay: 5000 })
+    $toast.toast('show')
   }
 }

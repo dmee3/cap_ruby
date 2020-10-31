@@ -1,10 +1,10 @@
 import Vue from 'vue/dist/vue.esm'
-import OmniBar from '../omni_bar.vue'
+import OmniBar from '../vue/omni_bar.vue'
 
 document.addEventListener('DOMContentLoaded', () => {
-  const omni_bar = new Vue({
+  new Vue({
     el: '#omni-bar',
+    components: { OmniBar },
     data: {},
-    components: { OmniBar }
   })
 })

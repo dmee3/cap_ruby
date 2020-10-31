@@ -1,10 +1,10 @@
 import Vue from 'vue/dist/vue.esm'
-import BurndownChart from '../burndown_chart.vue';
+import BurndownChart from '../vue/burndown_chart.vue'
 
 document.addEventListener('DOMContentLoaded', () => {
-  const burndown_chart = new Vue({
+  new Vue({
     el: '#burndown-chart',
+    components: { BurndownChart },
     data: {},
-    components: { BurndownChart }
   })
 })

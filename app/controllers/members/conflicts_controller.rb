@@ -3,12 +3,12 @@ class Members::ConflictsController < ApplicationController
 
   def new
     # Comment out to enable conflict submission
-    redirect_to(root_url)
-    return
+    # redirect_to(root_url)
+    # return
 
     # Uncomment to enable conflict submission
-    # @conflict = Conflict.new
-    # render('members/conflicts/new')
+    @conflict = Conflict.new
+    render('members/conflicts/new')
   end
 
   def create

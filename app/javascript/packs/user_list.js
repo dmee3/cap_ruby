@@ -1,15 +1,18 @@
 import Vue from 'vue/dist/vue.esm'
-import UserList from '../user_list.vue'
+import UserList from '../vue/user_list.vue'
 
 document.addEventListener('DOMContentLoaded', () => {
-  const user_list = new Vue({
+  // Member list
+  new Vue({
     el: '#member-list',
+    components: { UserList },
     data: {},
-    components: { UserList }
-  });
-  const admin_list = new Vue({
-    el: '#admin-list',
-    data: {},
-    components: { UserList }
   })
-});
+
+  // Admin list
+  new Vue({
+    el: '#admin-list',
+    components: { UserList },
+    data: {},
+  })
+})
