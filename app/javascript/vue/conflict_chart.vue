@@ -3,7 +3,9 @@
     <div class="card-header">
       <h4 class="mb-0">
         All Conflicts
-        <span class="text-muted float-right show-hide-toggle"><i v-on:click="toggleShowHide" class="fa fa-angle-up"></i></span>
+        <span class="text-muted float-right show-hide-toggle"
+          ><i v-on:click="toggleShowHide" class="fa fa-angle-up"></i
+        ></span>
       </h4>
     </div>
     <div class="card-body" v-if="!hidden">
@@ -22,31 +24,28 @@ import listPlugin from '@fullcalendar/list'
 import ChartColor from '../packs/chart_color'
 import 'bootstrap/js/dist/tooltip'
 
-$(document).ready(function() {
-  $('#calendar').tooltip({title: 'fuck'})
-})
 const component = {
   props: ['conflicts'],
   data() {
     return {
       hidden: false,
-      calendar: null
+      calendar: null,
     }
   },
-  mounted: function() {
-    const calendarEl = document.getElementById('calendar');
+  mounted: function () {
+    const calendarEl = document.getElementById('calendar')
 
-    const that = this;
+    const that = this
     this.calendar = new Calendar(calendarEl, {
-      plugins: [ dayGridPlugin, timeGridPlugin, listPlugin ],
+      plugins: [dayGridPlugin, timeGridPlugin, listPlugin],
       initialView: 'dayGridMonth',
       headerToolbar: {
         start: 'title',
         center: '',
-        end: 'dayGridMonth,timeGridWeek,listMonth today prev,next'
+        end: 'dayGridMonth,timeGridWeek,listMonth today prev,next',
       },
-      events: function(info, successCallback, errorCallback) {
-        const data = that.conflicts.map(c => {
+      events: function (info, successCallback, errorCallback) {
+        const data = that.conflicts.map((c) => {
           const color = that.statusColor(c.status.name)
           return {
             id: c.id,
@@ -56,12 +55,12 @@ const component = {
             url: `/admin/conflicts/${c.id}/edit`,
             backgroundColor: color,
             borderColor: color,
-            extendedProps: { reason: c.reason }
+            extendedProps: { reason: c.reason },
           }
         })
         successCallback(data)
       },
-      eventMouseEnter: function(info) {
+      eventMouseEnter: function (info) {
         $(info.el).tooltip({ title: info.event.extendedProps.reason })
       },
     })
@@ -70,7 +69,7 @@ const component = {
   },
   methods: {
     toggleShowHide(_evt) {
-      this.hidden = !this.hidden;
+      this.hidden = !this.hidden
     },
     statusColor(status) {
       if (status == 'Pending') {
@@ -88,13 +87,13 @@ const component = {
         return
       }
       this.calendar.refetchEvents()
-    }
+    },
   },
   watch: {
-    conflicts: function(newConflicts) {
+    conflicts: function (newConflicts) {
       this.refresh()
-    }
-  }
+    },
+  },
 }
 
 export default component

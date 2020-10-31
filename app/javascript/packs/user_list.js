@@ -6,13 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
   new Vue({
     el: '#member-list',
     data: {},
-    components: { UserList }
-  });
+    components: { UserList },
+  })
 
   // Admin list
   new Vue({
     el: '#admin-list',
     data: {},
-    components: { UserList }
+    components: { UserList },
   })
-});
+})

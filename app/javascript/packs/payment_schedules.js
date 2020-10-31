@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     data: {},
     props: {
       scheduleId: Number,
-      userName: String
+      userName: String,
     },
-    components: { PaymentSchedules }
+    components: { PaymentSchedules },
   })
 })

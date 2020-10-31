@@ -11,7 +11,9 @@ body {
   background-color: $gray-100;
 }
 
-a:hover { text-decoration: none !important; }
+a:hover {
+  text-decoration: none !important;
+}
 
 #omni-bar {
   flex-grow: 1;
@@ -23,7 +25,7 @@ a:hover { text-decoration: none !important; }
 
 #toast-container {
   position: fixed;
-  bottom:0;
+  bottom: 0;
   width: 100%;
   z-index: 1100;
 
@@ -54,36 +56,52 @@ a:hover { text-decoration: none !important; }
   .brand {
     margin: 0;
 
-    img { margin: 0 10px 0 0; }
+    img {
+      margin: 0 10px 0 0;
+    }
   }
 
   .nav-link {
     color: $gray-600 !important;
     padding: 0.5rem 1.25rem;
   }
-  
+
   .nav-link:hover {
     color: $gray-800 !important;
   }
 
-  .nav-link.active { color: $cap-gray !important; }
-  .nav-link.active:hover { color: $cap-gray !important; }
+  .nav-link.active {
+    color: $cap-gray !important;
+  }
+  .nav-link.active:hover {
+    color: $cap-gray !important;
+  }
 }
 
 .login-nav {
   background-color: $gray-800;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  .nav-link { color: $gray-300 !important; }
-  .nav-link:hover { color: $gray-100 !important; }
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  .nav-link {
+    color: $gray-300 !important;
+  }
+  .nav-link:hover {
+    color: $gray-100 !important;
+  }
 }
 
 .topnav {
   background-color: $gray-100;
-  .nav-link { color: $gray-600 !important; }
-  .nav-link:hover { color: $gray-800 !important; }
+  .nav-link {
+    color: $gray-600 !important;
+  }
+  .nav-link:hover {
+    color: $gray-800 !important;
+  }
 }
 
-.white-hover-link:hover { color: $gray-300 !important; }
+.white-hover-link:hover {
+  color: $gray-300 !important;
+}
 
 .flash-bar {
   width: 100%;
@@ -104,17 +122,19 @@ a:hover { text-decoration: none !important; }
 .custom-control-input.green:focus ~ .custom-control-label::before {
   box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
 }
-.custom-control-input.green:focus:not(:checked) ~ .custom-control-label::before {
+.custom-control-input.green:focus:not(:checked)
+  ~ .custom-control-label::before {
   border-color: #c1f0cc;
 }
-.custom-control-input.green:focus:not(:checked) ~ .custom-control-label::before {
+.custom-control-input.green:focus:not(:checked)
+  ~ .custom-control-label::before {
   box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
 }
-.custom-control-input.green:not(:disabled):active ~ .custom-control-label::before {
+.custom-control-input.green:not(:disabled):active
+  ~ .custom-control-label::before {
   background-color: #c1f0cc;
   border-color: #c1f0cc;
 }
-
 
 /*
  * Member-side Payments
@@ -131,16 +151,22 @@ a:hover { text-decoration: none !important; }
   background-clip: padding-box;
   border: 1px solid $gray-400;
   border-radius: 0.25rem;
-  -webkit-transition: border-color ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s;
-  transition: border-color ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s;
+  -webkit-transition: border-color ease-in-out 0.15s,
+    -webkit-box-shadow ease-in-out 0.15s;
+  transition: border-color ease-in-out 0.15s,
+    -webkit-box-shadow ease-in-out 0.15s;
   transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
-  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s;
+  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s,
+    -webkit-box-shadow ease-in-out 0.15s;
 }
 
-.StripeElement--focus { border-color: $cap-gray; }
+.StripeElement--focus {
+  border-color: $cap-gray;
+}
 
-#payment-submit-btn.btn-success { cursor: pointer; }
-
+#payment-submit-btn.btn-success {
+  cursor: pointer;
+}
 
 /* Member side styles */
 .dues-bar-bg {

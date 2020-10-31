@@ -5,6 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const omni_bar = new Vue({
     el: '#omni-bar',
     data: {},
-    components: { OmniBar }
+    components: { OmniBar },
   })
 })

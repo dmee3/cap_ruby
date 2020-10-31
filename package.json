@@ -23,6 +23,10 @@
     "vue-template-compiler": "^2.6.10"
   },
   "devDependencies": {
+    "eslint": "^7.12.1",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-vue": "^7.1.0",
+    "prettier": "2.1.2",
     "webpack-dev-server": "^3.8.1"
   }
 }

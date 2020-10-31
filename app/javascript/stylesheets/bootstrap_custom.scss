@@ -1,11 +1,21 @@
 @import 'colors';
 
 /* Color Icon Buttons/Links */
-.icon-btn { cursor: pointer; }
-.icon-btn-red:hover { color: $red !important; }
-.icon-btn-orange:hover { color: $orange !important; }
-.icon-btn-green:hover { color: $green !important; }
-.icon-btn-blue:hover { color: $blue !important; }
+.icon-btn {
+  cursor: pointer;
+}
+.icon-btn-red:hover {
+  color: $red !important;
+}
+.icon-btn-orange:hover {
+  color: $orange !important;
+}
+.icon-btn-green:hover {
+  color: $green !important;
+}
+.icon-btn-blue:hover {
+  color: $blue !important;
+}
 
 /* Custom xs button */
 .btn-xs {
@@ -17,34 +27,51 @@
 
 /* Card shadow */
 .card {
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
 /* Text alignments for different screen sizes */
 @include media-breakpoint-up(xs) {
-  .text-right-xs { text-align: right !important; }
+  .text-right-xs {
+    text-align: right !important;
+  }
 }
 @include media-breakpoint-up(sm) {
-  .text-right-sm { text-align: right !important; }
+  .text-right-sm {
+    text-align: right !important;
+  }
 }
 @include media-breakpoint-up(md) {
-  .text-right-md { text-align: right !important; }
+  .text-right-md {
+    text-align: right !important;
+  }
 }
 @include media-breakpoint-up(lg) {
-  .text-right-lg { text-align: right !important; }
+  .text-right-lg {
+    text-align: right !important;
+  }
 }
 @include media-breakpoint-up(xl) {
-  .text-right-xl { text-align: right !important; }
+  .text-right-xl {
+    text-align: right !important;
+  }
 }
 
 /* Form color overrides */
-.form-control.invalid { border-color: $red; }
-.form-control:focus, .form-control.is-invalid:focus {
+.form-control.invalid {
+  border-color: $red;
+}
+.form-control:focus,
+.form-control.is-invalid:focus {
   border-color: $cap-gray;
   box-shadow: none;
 }
-.form-control.flatpickr:read-only { background-color: transparent; }
-.form-control.flatpickr-dt:read-only { background-color: transparent; }
+.form-control.flatpickr:read-only {
+  background-color: transparent;
+}
+.form-control.flatpickr-dt:read-only {
+  background-color: transparent;
+}
 
 /* Striped list items */
 .list-group-item-striped:nth-child(even) {
@@ -52,4 +79,6 @@
 }
 
 /* Inputs as buttons */
-input.btn:hover { cursor: pointer; }
+input.btn:hover {
+  cursor: pointer;
+}

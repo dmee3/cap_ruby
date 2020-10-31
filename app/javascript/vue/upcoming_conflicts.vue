@@ -8,11 +8,21 @@
           <div class="input-group-prepend">
             <span class="input-group-text">Start</span>
           </div>
-          <input v-model="start_date" type="date" class="form-control" name="start_date">
+          <input
+            v-model="start_date"
+            type="date"
+            class="form-control"
+            name="start_date"
+          />
           <div class="input-group-prepend">
             <span class="input-group-text">End</span>
           </div>
-          <input v-model="end_date" type="date" class="form-control" name="end_date">
+          <input
+            v-model="end_date"
+            type="date"
+            class="form-control"
+            name="end_date"
+          />
           <div class="input-group-append">
             <a v-on:click="filter" class="btn btn-info white-text">Filter</a>
           </div>
@@ -20,14 +30,33 @@
       </div>
     </div>
     <ul class="list-group list-group-flush">
-      <li v-for="conflict in displayedConflicts" v-bind:key="conflict.id" class="list-group-item">
-        <i v-if="conflict.status.name == 'Approved'" class="far fa-check-circle text-success"></i>
-        <i v-if="conflict.status.name == 'Pending'" class="far fa-clock text-warning"></i>
-        <i v-if="conflict.status.name == 'Denied'" class="far fa-times-circle text-danger"></i>
-        <i v-if="conflict.status.name == 'Resolved'" class="far fa-dot-circle text-secondary"></i>
+      <li
+        v-for="conflict in displayedConflicts"
+        v-bind:key="conflict.id"
+        class="list-group-item"
+      >
+        <i
+          v-if="conflict.status.name == 'Approved'"
+          class="far fa-check-circle text-success"
+        ></i>
+        <i
+          v-if="conflict.status.name == 'Pending'"
+          class="far fa-clock text-warning"
+        ></i>
+        <i
+          v-if="conflict.status.name == 'Denied'"
+          class="far fa-times-circle text-danger"
+        ></i>
+        <i
+          v-if="conflict.status.name == 'Resolved'"
+          class="far fa-dot-circle text-secondary"
+        ></i>
         {{ conflict.name }}
         <span class="float-right text-muted">
-          <small>{{ conflict.start_date.format('M/D h:mm a') }} - {{ conflict.end_date.format('M/D h:mm a') }}</small>
+          <small
+            >{{ conflict.start_date.format('M/D h:mm a') }} -
+            {{ conflict.end_date.format('M/D h:mm a') }}</small
+          >
         </span>
       </li>
     </ul>
@@ -35,63 +64,69 @@
 </template>
 
 <script>
-import Utilities from '../packs/utilities';
-import moment from 'moment/moment';
-import Toast from '../packs/toast';
+import Utilities from '../packs/utilities'
+import moment from 'moment/moment'
+import Toast from '../packs/toast'
 
 export default {
-  data: function() {
+  data: function () {
     return {
       conflicts: [],
       displayedConflicts: [],
       error: [],
       start_date: moment().format('YYYY-MM-DD'),
-      end_date: moment().add(2, 'weeks').format('YYYY-MM-DD')
+      end_date: moment().add(2, 'weeks').format('YYYY-MM-DD'),
     }
   },
-  mounted: function() {
-    this.getConflicts();
+  mounted: function () {
+    this.getConflicts()
   },
   methods: {
-    getConflicts: function() {
-      const self = this;
-      $.getJSON('/admin/conflicts?time_range=future',
-        {
-          jwt: Utilities.getJWT()
-        })
+    getConflicts: function () {
+      const self = this
+      $.getJSON('/admin/conflicts?time_range=future', {
+        jwt: Utilities.getJWT(),
+      })
         .done((response) => {
           self.conflicts = response.conflicts
-            .map(c => ({
+            .map((c) => ({
               id: c.id,
               name: c.name,
               reason: c.reason,
               status: c.status,
               created_at: moment(c.created_at),
               start_date: moment(c.start_date),
-              end_date: moment(c.end_date)
+              end_date: moment(c.end_date),
             }))
             .sort((a, b) => {
               if (a.start_date.isBefore(b.start_date)) {
-                return -1;
+                return -1
               } else if (a.start_date.isSame(b.start_date)) {
-                return 0;
+                return 0
               } else {
-                return 1;
+                return 1
               }
-            });
-          self.filter();
+            })
+          self.filter()
         })
-        .fail(err => {
-          self.error = err;
-          Toast.showToast('Whoops!', 'Unable to get details about upcoming conflicts.', 'danger');
-          console.log(err);
-        });
+        .fail((err) => {
+          self.error = err
+          Toast.showToast(
+            'Whoops!',
+            'Unable to get details about upcoming conflicts.',
+            'danger'
+          )
+          console.log(err)
+        })
     },
-    filter: function(event) {
-      this.displayedConflicts = this.conflicts.filter(c => {
-        return c.start_date.isSameOrAfter(this.start_date) && c.start_date.isSameOrBefore(this.end_date);
-      });
-    }
-  }
+    filter: function (event) {
+      this.displayedConflicts = this.conflicts.filter((c) => {
+        return (
+          c.start_date.isSameOrAfter(this.start_date) &&
+          c.start_date.isSameOrBefore(this.end_date)
+        )
+      })
+    },
+  },
 }
 </script>
