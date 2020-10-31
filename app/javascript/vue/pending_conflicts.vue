@@ -9,7 +9,8 @@
           </div>
           <div class="col-md-3 col-lg-5">
             <span class="font-weight-light">
-              {{ conflict.start_date.format('M/D/YY h:mm a') }} - {{ conflict.end_date.format('M/D/YY h:mm a') }}
+              {{ displayDateTime(conflict.start_date) }} - 
+              {{ displayDateTime(conflict.end_date) }}
             </span>
           </div>
           <div class="col-md-1">
@@ -29,7 +30,10 @@
           </div>
         </div>
         <div class="px-3 collapse py-1" v-bind:id="`conflict-reason-${conflict.id}`">
-          <small class="text-muted">{{ conflict.reason }} <span class="dark-text">(Submitted: {{ conflict.created_at.format('M/D h:mm a') }})</span></small>
+          <small class="text-muted">
+            {{ conflict.reason }} 
+            <span class="dark-text">(Submitted: {{ displayDateTime(conflict.created_at) }})</span>
+          </small>
         </div>
       </li>
     </ul>
@@ -37,8 +41,8 @@
 </template>
 
 <script>
-import Utilities from './packs/utilities';
-import Toast from './packs/toast';
+import Utilities from '../packs/utilities';
+import Toast from '../packs/toast';
 
 export default {
   data: function() {
@@ -59,6 +63,9 @@ export default {
     this.getConflictStatuses();
   },
   methods: {
+    displayDateTime: function(date) {
+      return Utilities.displayDateTime(date);
+    },
     getConflictStatuses: function() {
       const self = this;
       $.getJSON('/admin/conflicts/statuses', { jwt: Utilities.getJWT() })

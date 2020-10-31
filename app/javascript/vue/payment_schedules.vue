@@ -90,9 +90,9 @@
 </template>
 
 <script>
-import Utilities from './packs/utilities';
+import Utilities from '../packs/utilities';
 import Vue from 'vue/dist/vue.esm';
-import Toast from './packs/toast';
+import Toast from '../packs/toast';
 
 export default {
   data: () => {

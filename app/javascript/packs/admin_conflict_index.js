@@ -1,8 +1,7 @@
 import moment from 'moment/moment';
 import Vue from 'vue/dist/vue.esm';
-import ConflictList from '../conflict_list.vue';
-import PendingConflicts from '../pending_conflicts.vue';
-import ConflictChart from '../conflict_chart.vue';
+import PendingConflicts from '../vue/pending_conflicts.vue';
+import ConflictChart from '../vue/conflict_chart.vue';
 import Utilities from './utilities';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
       conflicts: []
     },
     components: {
-      ConflictList,
       PendingConflicts,
       ConflictChart
     },
@@ -26,15 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
           jwt: Utilities.getJWT()
         })
           .done((response) => {
-            self.conflicts = response.conflicts.map(conflict => ({
-              id: conflict.id,
-              name: conflict.name,
-              reason: conflict.reason,
-              status: conflict.status,
-              created_at: moment(conflict.created_at),
-              start_date: moment(conflict.start_date),
-              end_date: moment(conflict.end_date)
-            }));
+            self.conflicts = response.conflicts;
           })
           .fail((err) => {
             self.error = err;

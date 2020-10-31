@@ -4,11 +4,11 @@
 
 <script>
 import Chart from 'chart.js';
-import ChartColor from './packs/chart_color';
+import ChartColor from '../packs/chart_color';
 import moment from 'moment/moment';
-import Utilities from './packs/utilities';
+import Utilities from '../packs/utilities';
 import Vue from 'vue/dist/vue.esm';
-import Toast from './packs/toast';
+import Toast from '../packs/toast';
 
 export default {
   data: function() {

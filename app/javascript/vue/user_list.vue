@@ -58,9 +58,9 @@
 </template>
 
 <script>
-import Utilities from './packs/utilities';
+import Utilities from '../packs/utilities';
 import modal from 'bootstrap/js/dist/modal';
-import Toast from './packs/toast';
+import Toast from '../packs/toast';
 
 export default {
   data: function() {

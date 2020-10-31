@@ -47,8 +47,8 @@
 
 <script>
 import moment from 'moment/moment';
-import Utilities from './packs/utilities';
-import Toast from './packs/toast';
+import Utilities from '../packs/utilities';
+import Toast from '../packs/toast';
 
 export default {
   data: () => ({

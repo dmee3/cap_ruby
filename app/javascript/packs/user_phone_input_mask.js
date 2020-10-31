@@ -1,6 +1,5 @@
 // Thanks, StackOverflow!
 
-
 function isNumericInput(event) {
   const key = event.keyCode;
   return ((key >= 48 && key <= 57) || // Allow number line

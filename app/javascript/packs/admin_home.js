@@ -1,8 +1,8 @@
 import Vue from 'vue/dist/vue.esm';
-import BehindMembers from '../behind_members.vue';
-import DifferentialChart from '../differential_chart.vue';
-import UpcomingPayments from '../upcoming_payments.vue';
-import UpcomingConflicts from '../upcoming_conflicts.vue';
+import BehindMembers from '../vue/behind_members.vue';
+import DifferentialChart from '../vue/differential_chart.vue';
+import UpcomingPayments from '../vue/upcoming_payments.vue';
+import UpcomingConflicts from '../vue/upcoming_conflicts.vue';
 import Utilities from './utilities';
 import Toast from './toast';
 

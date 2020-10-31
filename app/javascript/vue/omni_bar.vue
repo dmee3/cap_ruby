@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import Utilities from './packs/utilities';
+import Utilities from '../packs/utilities';
 import fuzzysort from 'fuzzysort';
 
 export default {

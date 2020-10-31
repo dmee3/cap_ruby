@@ -1,5 +1,5 @@
 import Vue from 'vue/dist/vue.esm'
-import PaymentSchedules from '../payment_schedules.vue'
+import PaymentSchedules from '../vue/payment_schedules.vue'
 
 document.addEventListener('DOMContentLoaded', () => {
   const payment_schedules = new Vue({

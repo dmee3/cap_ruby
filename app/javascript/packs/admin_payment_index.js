@@ -1,5 +1,5 @@
 import Vue from 'vue/dist/vue.esm';
-import PaymentUserList from '../payment_user_list.vue';
+import PaymentUserList from '../vue/payment_user_list.vue';
 import Utilities from './utilities';
 import Toast from './toast';
 

@@ -1,4 +1,14 @@
 export default class {
+  static DT_FORMAT = {
+    dateStyle: 'short',
+    timeStyle: 'short'
+  }
+
+  static displayDateTime(dt) {
+    const date = new Date(dt)
+    return new Intl.DateTimeFormat('en-US', this.DT_FORMAT).format(date)
+  }
+
   static getAuthToken() {
     return document.querySelector('meta[name="csrf-token"]').content;
   }

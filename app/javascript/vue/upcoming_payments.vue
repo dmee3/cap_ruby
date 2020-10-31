@@ -29,9 +29,9 @@
 </template>
 
 <script>
-import Utilities from './packs/utilities';
+import Utilities from '../packs/utilities';
 import moment from 'moment/moment';
-import Toast from './packs/toast';
+import Toast from '../packs/toast';
 
 export default {
   data: () => ({
