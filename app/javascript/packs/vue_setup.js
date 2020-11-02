@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import Vue from 'vue/dist/vue.esm'
 
 document.addEventListener('DOMContentLoaded', () => {

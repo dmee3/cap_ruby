@@ -1,6 +1,6 @@
 <template>
   <div>
-    <payment-user-list v-bind:users="users" v-bind:payments="payments" v-bind:schedules="schedules"></payment-user-list>
+    <payment-user-list :users="users" :payments="payments" :schedules="schedules"></payment-user-list>
   </div>
 </template>
 
@@ -10,14 +10,14 @@ import Toast from '../../../packs/toast'
 import PaymentUserList from '../../components/payment_user_list.vue'
 
 export default {
+  components: {
+    PaymentUserList,
+  },
   data: () => ({
     users: [],
     payments: [],
     schedules: [],
   }),
-  components: {
-    PaymentUserList,
-  },
   mounted: function () {
     this.getUsers()
     this.getPayments()

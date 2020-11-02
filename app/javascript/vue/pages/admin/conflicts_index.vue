@@ -2,14 +2,14 @@
   <div>
     <div class="row">
       <div id="pending-conflicts" class="col-12">
-        <pending-conflicts v-bind:conflicts="conflicts" v-on:conflict-changed="getConflicts"></pending-conflicts>
+        <pending-conflicts :conflicts="conflicts" @conflict-changed="getConflicts"></pending-conflicts>
       </div>
     </div>
 
     <div class="row">
       <div  class="col-12">
         <div id="conflict-chart-wrapper" class="card">
-          <conflict-chart v-bind:conflicts="conflicts"></conflict-chart>
+          <conflict-chart :conflicts="conflicts"></conflict-chart>
         </div>
       </div>
     </div>

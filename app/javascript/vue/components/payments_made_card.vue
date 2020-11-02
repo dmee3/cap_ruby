@@ -84,8 +84,6 @@
 </template>
 
 <script>
-import Utilities from '../../packs/utilities'
-import Toast from '../../packs/toast'
 import moment from 'moment/moment'
 
 export default {
