@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.5.3' # make sure to update the .ruby-version file as well
+ruby '2.7.2' # make sure to update the .ruby-version file as well
 
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
