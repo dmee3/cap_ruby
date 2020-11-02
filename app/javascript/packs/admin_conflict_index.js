@@ -1,6 +1,6 @@
 import Vue from 'vue/dist/vue.esm'
 import PendingConflicts from '../vue/pending_conflicts.vue'
-import ConflictChart from '../vue/conflict_chart.vue'
+import ConflictChart from '../vue/components/conflict_chart.vue'
 import Utilities from './utilities'
 import Toast from './toast'
 

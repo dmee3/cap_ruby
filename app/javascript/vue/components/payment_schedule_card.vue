@@ -1,7 +1,7 @@
 <template>
   <div class="card">
     <div class="card-header d-flex justify-content-between">
-      <h5>Payment Schedule</h5>
+      <h5>Schedule</h5>
       <a :href="`/admin/payment_schedules/${scheduleId}`">
         <i class="fas fa-edit icon-btn icon-btn-orange dark-text"></i>
       </a>

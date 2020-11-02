@@ -51,8 +51,8 @@
 </template>
 
 <script>
-import Utilities from '../packs/utilities'
-import Toast from '../packs/toast'
+import Utilities from '../../packs/utilities'
+import Toast from '../../packs/toast'
 import Vue from 'vue/dist/vue.esm'
 import flatpickr from 'flatpickr'
 

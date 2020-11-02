@@ -1,7 +1,7 @@
 import Vue from 'vue/dist/vue.esm'
-import PaymentUserList from '../vue/payment_user_list.vue'
 import Utilities from './utilities'
 import Toast from './toast'
+import PaymentUserList from '../vue/components/payment_user_list.vue'
 
 document.addEventListener('DOMContentLoaded', () => {
   new Vue({
@@ -11,13 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     data: {
       users: [],
-      nineVolts: [],
       payments: [],
       schedules: [],
     },
     mounted: function () {
       this.getUsers()
-      this.getNineVolts()
       this.getPayments()
       this.getPaymentSchedules()
     },
@@ -35,24 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
             Toast.showToast(
               'Whoops!',
               'An error occurred getting user info',
-              'danger'
-            )
-            console.log(err)
-          })
-      },
-      getNineVolts() {
-        const self = this
-        $.getJSON('/admin/nine_volts', {
-          jwt: Utilities.getJWT(),
-        })
-          .done(function (response) {
-            self.nineVolts = response.nine_volts
-          })
-          .fail(function (err) {
-            self.error = err
-            Toast.showToast(
-              'Whoops!',
-              'An error occurred getting 9-volt info',
               'danger'
             )
             console.log(err)

@@ -71,7 +71,7 @@
                 >
                 <div
                   class="text-danger dropdown-item"
-                  @click="showDeleteModal(user)"
+                  @click="showDeleteModal(user, $event)"
                 >
                   Delete User
                 </div>
@@ -132,10 +132,10 @@
 </template>
 
 <script>
-import Utilities from '../packs/utilities'
+import Utilities from '../../packs/utilities'
+import Toast from '../../packs/toast'
 // eslint-disable-next-line no-unused-vars
 import modal from 'bootstrap/js/dist/modal'
-import Toast from '../packs/toast'
 
 export default {
   props: {
@@ -211,7 +211,8 @@ export default {
           console.log(err)
         })
     },
-    showDeleteModal(user) {
+    showDeleteModal(user, event) {
+      event.preventDefault()
       this.userToDelete = user
       $('#delete-modal').modal('show')
     },

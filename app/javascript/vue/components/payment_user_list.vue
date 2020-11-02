@@ -29,7 +29,7 @@
               </p>
             </div>
 
-            <div class="col-11 col-md-6 mt-1 order-md-1">
+            <div class="col-12 col-md-6 mt-1">
               <div class="progress">
                 <div
                   class="progress-bar"
@@ -39,12 +39,6 @@
                   {{ formatMoney(user.amount_paid) }}
                 </div>
               </div>
-            </div>
-            <div
-              class="col-1 order-md-2 text-center"
-              :class="batteryColorFor(user)"
-            >
-              <i class="fas fa-battery-full fa-rotate-270 fa-lg"></i>
             </div>
           </div>
         </a>
@@ -59,7 +53,6 @@
               <payments-made-card
                 :payments="user.payments"
                 :user-id="user.id"
-                :nine-volts="user.nine_volts"
               ></payments-made-card>
             </div>
 
@@ -98,10 +91,6 @@ export default {
       type: Array,
       required: true,
     },
-    nineVolts: {
-      type: Array,
-      required: true,
-    },
     payments: {
       type: Array,
       required: true,
@@ -118,8 +107,6 @@ export default {
     readyToDisplay() {
       return (
         this.users.length > 0 &&
-        this.nineVolts.length > 0 &&
-        this.payments.length > 0 &&
         this.schedules.length > 0
       )
     },
@@ -138,13 +125,6 @@ export default {
     },
   },
   methods: {
-    batteryColorFor(user) {
-      if (user.nine_volts && user.nine_volts.turned_in) {
-        return 'text-success'
-      } else {
-        return 'text-muted'
-      }
-    },
     formatMoney(number) {
       return (number / 100).toLocaleString('en-US', {
         style: 'currency',
@@ -189,11 +169,6 @@ export default {
             notes: p.notes,
             payment_type: p.payment_type.name,
           }))
-
-        // Set up nine-volts
-        user.nine_volts = this.nineVolts.filter(
-          (nineVolt) => nineVolt.user_id === user.id
-        )[0]
 
         // Set up calculated/misc values
         user.payment_schedule_id = schedule.id
