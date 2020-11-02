@@ -114,10 +114,6 @@
 
     <%= javascript_pack_tag 'application' %>
 
-    <% if logged_in? && current_user&.is?(:admin) %>
-      <%= javascript_pack_tag 'omni_bar' %>
-    <% end %>
-
     <%= yield :scripts %>
   </body>
 </html>

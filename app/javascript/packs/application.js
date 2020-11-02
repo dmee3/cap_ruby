@@ -33,11 +33,23 @@ require.context('../images', true)
 // Styles
 import '../stylesheets/application'
 
+// All vue registrations
+import './vue_setup.js'
+
+/*
+ * Fontawesome stuff
+ */
 library.add(fas, far, fab)
 
 // Kicks off the process of finding <i> tags and replacing with <svg>
 dom.watch()
 
+/*
+ * Enable any custom select2 or flatpickr elements on the page
+ * 
+ * NOTE: Any Vue components with select2 or flatpickr will probably need
+ * to redo this, since they won't be mounted before this code runs
+ */
 jQuery(() => {
   $(() => {
     $('.select2-enable').select2({ width: '100%' })
