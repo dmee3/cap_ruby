@@ -16,11 +16,11 @@ class DefaultPaymentSchedule
 
     def entries
       [
-        { amount: 30000, pay_date: Date.parse('2019-10-20') },
-        { amount: 30000, pay_date: Date.parse('2019-11-17') },
-        { amount: 30000, pay_date: Date.parse('2019-12-15') },
-        { amount: 30000, pay_date: Date.parse('2020-01-12') },
-        { amount: 30000, pay_date: Date.parse('2020-02-09') }
+        { amount: 30000, pay_date: Date.parse('2020-11-08') },
+        { amount: 30000, pay_date: Date.parse('2020-12-11') },
+        { amount: 30000, pay_date: Date.parse('2021-01-15') },
+        { amount: 30000, pay_date: Date.parse('2021-02-12') },
+        { amount: 30000, pay_date: Date.parse('2021-03-12') }
       ]
     end
   end

@@ -120,7 +120,7 @@ class Admin::UsersController < ApplicationController
   def create_payment_schedule(season)
     return unless PaymentSchedule.find_by(season_id: season.id, user_id: @user_id).blank?
 
-    if season.year == '2020'
+    if season.year == '2021'
       @user.payment_schedules << DefaultPaymentSchedule.create(@user.id, season.id)
     else
       @user.payment_schedules << PaymentSchedule.create(user_id: @user_id, season_id: season.id)
