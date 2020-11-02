@@ -3,20 +3,33 @@ class Admin::UsersController < ApplicationController
   before_action -> { redirect_if_not 'admin' }
 
   def index
+    user_type = params[:user_type] || 'member'
+
     respond_to do |format|
       format.html { }
       format.json do
+
+        if user_type == 'member'
         @users = User
+          .includes(:payment_schedules)
           .for_season(current_season['id'])
-          .with_role(params[:user_type] || 'member')
+          .with_role(user_type)
           .map do |u|
             {
               id: u.id,
               first_name: u.first_name,
               last_name: u.last_name,
-              section: u.section_for(current_season['id'])
+              section: u.section_for(current_season['id']),
+              payment_schedule_id: u.payment_schedule_for(current_season['id']).id
             }
           end
+        else
+          @users = User
+          .for_season(current_season['id'])
+          .with_role(user_type)
+          .select(:id, :first_name, :last_name)
+        end
+
         render json: { users: @users }
       end
     end
