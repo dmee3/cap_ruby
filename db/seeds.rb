@@ -55,11 +55,11 @@ seasons = {
   '2021' => {
     season: Season.find_or_create_by(year: '2021'),
     payment_schedule_entries: [
-      [30000, Date.parse('2020-10-25')],
-      [30000, Date.parse('2020-11-22')],
-      [30000, Date.parse('2020-12-20')],
-      [30000, Date.parse('2021-01-17')],
-      [30000, Date.parse('2021-02-14')]
+      [30000, Date.parse('2020-11-08')],
+      [30000, Date.parse('2020-12-11')],
+      [30000, Date.parse('2021-01-15')],
+      [30000, Date.parse('2021-02-12')],
+      [30000, Date.parse('2021-03-12')]
     ]
   }
 }
