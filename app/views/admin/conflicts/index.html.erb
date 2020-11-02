@@ -12,19 +12,9 @@
     </div>
   </div>
 
-  <div id="pending-conflicts">
-    <pending-conflicts v-bind:conflicts="conflicts" v-on:conflict-changed="getConflicts"></pending-conflicts>
-  </div>
-
   <div class="row">
-    <div  class="col-12">
-      <div id="conflict-chart-wrapper" class="card">
-        <conflict-chart v-bind:conflicts="conflicts"></conflict-chart>
-      </div>
+    <div class="col-12" id="admin-conflicts-index">
+      <admin-conflicts-index></admin-conflicts-index>
     </div>
   </div>
-<% end %>
-
-<% content_for :scripts do %>
-  <%= javascript_pack_tag 'admin_conflict_index' %>
 <% end %>

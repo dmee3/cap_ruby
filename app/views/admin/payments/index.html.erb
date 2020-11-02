@@ -4,12 +4,8 @@
 
 <% content_for :main do %>
   <div class="row mt-3">
-    <div class="col-12">
-      <payment-user-list v-bind:users="users" v-bind:payments="payments" v-bind:schedules="schedules"></payment-user-list>
+    <div class="col-12" id="admin-payments-index">
+      <admin-payments-index></admin-payments-index>
     </div>
   </div>
-<% end %>
-
-<% content_for :scripts do %>
-  <%= javascript_pack_tag 'admin_payment_index' %>
 <% end %>
