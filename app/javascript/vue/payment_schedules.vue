@@ -11,7 +11,7 @@
       >
         <div class="form-inline d-flex justify-content-between">
           <div class="input-group">
-            <input type="text" v-model="entry.date" class="flatpickr form-control" />
+            <input v-model="entry.date" type="text" class="flatpickr form-control" />
           </div>
 
           <div class="input-group">
@@ -54,6 +54,7 @@
 import Utilities from '../packs/utilities'
 import Toast from '../packs/toast'
 import Vue from 'vue/dist/vue.esm'
+import flatpickr from 'flatpickr'
 
 export default {
   props: {
