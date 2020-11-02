@@ -86,6 +86,7 @@ export default {
           title: `${start} - ${end}`,
           content: info.event.extendedProps.reason,
           trigger: 'hover',
+          placement: 'top',
           container: 'body',
         })
       },
