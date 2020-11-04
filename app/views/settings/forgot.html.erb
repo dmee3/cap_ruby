@@ -1,0 +1,18 @@
+<% content_for :main do %>
+  <div class="row justify-content-center">
+    <div class="col-12 col-sm-8 col-md-6 col-xl-4"style="margin-top: 200px;">
+      <div class="card">
+        <%= form_tag forgot_path, { class: 'card-body' } do %>
+          <h4 class="card-title">Reset Password</h4>
+          <p class="card-text">Enter the email address associated with your account to reset your password.</p>
+          <div class="form-group">
+            <%= text_field_tag :email, '', { class: 'form-control', placeholder: 'Email' } %>
+          </div>
+          <div class="row justify-content-center mb-2">
+            <%= submit_tag 'Submit', class: 'btn btn-outline-success' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

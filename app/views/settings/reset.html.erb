@@ -1,0 +1,23 @@
+<% content_for :main do %>
+  <div class="row justify-content-center">
+    <div class="col-12 col-sm-8 col-md-6 col-xl-4"style="margin-top: 200px;">
+      <div class="card">
+        <%= form_tag reset_path, { class: 'card-body' } do %>
+          <%= hidden_field_tag :key, @key %>
+          <h4 class="card-title">Reset Password</h4>
+          <p class="card-text">Enter your new password.</p>
+          <div class="text-danger mb-3"><%= @errors ? @errors : '' %></div>
+          <div class="form-group">
+            <%= password_field_tag :password, '', { class: 'form-control', placeholder: 'Password' } %>
+          </div>
+          <div class="form-group">
+            <%= password_field_tag :password_confirmation, '', { class: 'form-control', placeholder: 'Password Confirmation' } %>
+          </div>
+          <div class="row justify-content-center mb-2">
+            <%= submit_tag 'Submit', class: 'btn btn-outline-success' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
