@@ -44,9 +44,13 @@ Rails.application.routes.draw do
     post 'charge', to: 'payments#charge'
   end
 
-  get 'settings', to: 'home#settings'
-  post 'settings', to: 'home#update_settings'
-  post 'settings-password', to: 'home#change_password'
+  get 'settings', to: 'settings#index'
+  post 'settings', to: 'settings#update'
+  post 'settings-password', to: 'settings#change_password'
+  get 'forgot', to: 'settings#forgot_password'
+  post 'forgot', to: 'settings#initiate_reset'
+  get 'reset', to: 'settings#reset_password'
+  post 'reset', to: 'settings#complete_reset'
 
   resources :whistleblowers, only: %i[index create]
 end
