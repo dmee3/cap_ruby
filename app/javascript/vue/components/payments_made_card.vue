@@ -1,32 +1,13 @@
 <template>
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <h5>Payments Made</h5>
-      <span>
-        <form class="form-inline">
-          <div class="custom-control custom-switch mr-4">
-            <input
-              :id="`nine-volt-${userId}`"
-              v-model="turnedIn"
-              type="checkbox"
-              class="custom-control-input green"
-              @click.prevent="updateNineVolt()"
-            />
-            <label
-              class="custom-control-label"
-              :class="batteryColor()"
-              :for="`nine-volt-${userId}`"
-              ><i class="fas fa-battery-full fa-rotate-270 fa-lg"></i
-            ></label>
-          </div>
-          <a
-            :href="`/admin/payments/new?user_id=${userId}`"
-            class="btn btn-sm btn-outline-secondary"
-          >
-            <i class="fa fa-plus"></i>
-          </a>
-        </form>
-      </span>
+      <h5>Payments</h5>
+      <a
+        :href="`/admin/payments/new?user_id=${userId}`"
+        class="btn btn-sm btn-outline-secondary"
+      >
+        <i class="fa fa-plus"></i>
+      </a>
     </div>
     <ul class="list-group list-group-flush">
       <li
@@ -104,8 +85,6 @@
 
 <script>
 import moment from 'moment/moment'
-import Utilities from '../packs/utilities'
-import Toast from '../packs/toast'
 
 export default {
   props: {
@@ -117,29 +96,9 @@ export default {
       type: Number,
       required: true,
     },
-    nineVolts: {
-      type: Boolean,
-      required: true,
-    }
   },
-  data: () => ({
-    turnedIn: false,
-  }),
-  mounted: function () {
-    if (this.nineVolts) {
-      this.turnedIn = !!this.nineVolts.turned_in
-    } else {
-      this.turnedIn = false
-    }
-  },
+  data: () => ({ }),
   methods: {
-    batteryColor() {
-      if (this.turnedIn) {
-        return 'text-success'
-      } else {
-        return 'text-muted'
-      }
-    },
     formatMoney(number) {
       return (number / 100).toLocaleString('en-US', {
         style: 'currency',
@@ -148,36 +107,6 @@ export default {
     },
     formatDate(date) {
       return moment(date).format('MMM Do, YYYY')
-    },
-    updateNineVolt() {
-      const self = this
-      if (this.turnedIn) {
-        // Delete 9V
-        $.ajax({
-          url: `/admin/users/${this.userId}/nine_volts/${this.nineVolts.id}`,
-          type: 'DELETE',
-          data: {
-            jwt: Utilities.getJWT(),
-            authenticity_token: Utilities.getAuthToken(),
-          },
-        }).done((response) => {
-          self.turnedIn = false
-          Toast.showToast('Success!', response.message, 'success')
-        })
-      } else {
-        // Log 9V
-        $.ajax({
-          url: `/admin/users/${this.userId}/nine_volts`,
-          type: 'POST',
-          data: {
-            jwt: Utilities.getJWT(),
-            authenticity_token: Utilities.getAuthToken(),
-          },
-        }).done((response) => {
-          self.turnedIn = true
-          Toast.showToast('Success!', response.message, 'success')
-        })
-      }
     },
   },
 }
