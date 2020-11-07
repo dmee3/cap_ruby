@@ -47,5 +47,25 @@ class ActivityLogger
         activity_type: 'payment'
       )
     end
+
+    def log_pw_reset_initiated(user)
+      log_activity(
+        user_id: user.id,
+        description: "User initiated password reset",
+        activity_date: Date.today,
+        created_by_id: user.id,
+        activity_type: 'password_reset_initiated'
+      )
+    end
+
+    def log_pw_reset_completed(user)
+      log_activity(
+        user_id: user.id,
+        description: "User completed password reset",
+        activity_date: Date.today,
+        created_by_id: user.id,
+        activity_type: 'password_reset_completed'
+      )
+    end
   end
 end

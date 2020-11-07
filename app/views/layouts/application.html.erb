@@ -103,6 +103,12 @@
         </div>
 
         <div class="row">
+          <div class="col-12 p-3">
+            <%= render 'flashes' %>
+          </div>
+        </div>
+
+        <div class="row">
           <main class="col-12 p-3" id="main-content">
             <%= yield :main %>
           </main>
@@ -113,10 +119,6 @@
     </div>
 
     <%= javascript_pack_tag 'application' %>
-
-    <% if logged_in? && current_user&.is?(:admin) %>
-      <%= javascript_pack_tag 'omni_bar' %>
-    <% end %>
 
     <%= yield :scripts %>
   </body>

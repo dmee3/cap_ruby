@@ -62,8 +62,8 @@
 </template>
 
 <script>
-import Utilities from '../packs/utilities'
-import Toast from '../packs/toast'
+import Utilities from '../../packs/utilities'
+import Toast from '../../packs/toast'
 
 export default {
   props: {

@@ -15,6 +15,7 @@
     "chart.js": "^2.9.4",
     "css-loader": "^5.0.0",
     "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-vue": "^7.1.0",
     "flatpickr": "^4.6.3",
     "fuzzysort": "^1.1.4",
     "jquery": "^3.5.0",
@@ -30,7 +31,6 @@
     "eslint": "^7.12.1",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-vue": "^7.1.0",
     "webpack-dev-server": "^3.8.1"
   }
 }

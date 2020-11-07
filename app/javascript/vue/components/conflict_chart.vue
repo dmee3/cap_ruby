@@ -21,7 +21,7 @@ import { Calendar, formatDate } from '@fullcalendar/core'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
-import ChartColor from '../packs/chart_color'
+import ChartColor from '../../packs/chart_color'
 import 'bootstrap/js/dist/popover'
 
 export default {

@@ -4,7 +4,7 @@
 
 <script>
 import Chart from 'chart.js'
-import ChartColor from '../packs/chart_color'
+import ChartColor from '../../packs/chart_color'
 import moment from 'moment/moment'
 
 export default {
