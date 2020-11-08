@@ -47,6 +47,8 @@ class Admin::UsersController < ApplicationController
     @user = User.new(user_params)
     if @user.save
       update_seasons
+      UserMailer.with(user: @user).welcome_email.deliver_later
+
       flash[:success] = "#{@user.first_name} created"
       redirect_to('/admin/users')
     else
@@ -101,7 +103,7 @@ class Admin::UsersController < ApplicationController
 
       # Creating season
       else
-        su = SeasonsUser.create(season_id: season.id, user_id: @user.id, section: section)
+        SeasonsUser.create(season_id: season.id, user_id: @user.id, section: section)
         create_payment_schedule(season)
       end
     end
