@@ -20,6 +20,7 @@ class Admin::UsersController < ApplicationController
               first_name: u.first_name,
               last_name: u.last_name,
               section: u.section_for(current_season['id']),
+              ensemble: u.ensemble_for(current_season['id']),
               payment_schedule_id: u.payment_schedule_for(current_season['id']).id
             }
           end
