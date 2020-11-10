@@ -96,9 +96,8 @@ class Admin::UsersController < ApplicationController
 
       # Updating season
       elsif su = SeasonsUser.find_by(season_id: season.id, user_id: @user.id)
-        if su.section != section
-          su.section = section
-          su.save
+        if su.ensemble != ensemble || su.section != section
+          su.update(ensemble: ensemble, section: section)
         end
 
       # Creating season
