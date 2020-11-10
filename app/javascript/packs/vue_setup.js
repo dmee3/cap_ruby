@@ -24,6 +24,15 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
+  if (document.querySelector('#admin-users-index')) {
+    new Vue({
+      el: '#admin-users-index',
+      components: {
+        AdminUsersIndex: require('../vue/pages/admin/users_index.vue').default,
+      },
+    })
+  }
+
   /*
    * Components
    */
@@ -41,25 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
       el: '#payment-schedule',
       components: {
         PaymentSchedule: require('../vue/components/payment_schedule.vue').default
-      },
-    })
-  }
-
-  // Member list
-  if (document.querySelector('#member-list')) {
-    new Vue({
-      el: '#member-list',
-      components: {
-        UserList: require('../vue/components/user_list.vue').default
-      },
-    })
-  }
-
-  if (document.querySelector('#admin-list')) {
-    new Vue({
-      el: '#admin-list',
-      components: {
-        UserList: require('../vue/components/user_list.vue').default
       },
     })
   }

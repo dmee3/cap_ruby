@@ -20,6 +20,7 @@ class Admin::UsersController < ApplicationController
               first_name: u.first_name,
               last_name: u.last_name,
               section: u.section_for(current_season['id']),
+              ensemble: u.ensemble_for(current_season['id']),
               payment_schedule_id: u.payment_schedule_for(current_season['id']).id
             }
           end
@@ -86,24 +87,27 @@ class Admin::UsersController < ApplicationController
 
   private
 
+  # This code sucks
   def update_seasons
     Season.all.each do |season|
       section = params["section_#{season.year}"]
+      ensemble = params["ensemble_#{season.year}"]
 
       # Deleting season
-      if section == ''
+      if ensemble == ''
         SeasonsUser.where(season_id: season.id, user_id: @user.id).destroy_all
 
       # Updating season
       elsif su = SeasonsUser.find_by(season_id: season.id, user_id: @user.id)
-        if su.section != section
+        if su.ensemble != ensemble || su.section != section
+          su.ensemble = ensemble 
           su.section = section
           su.save
         end
 
       # Creating season
       else
-        SeasonsUser.create(season_id: season.id, user_id: @user.id, section: section)
+        SeasonsUser.create(season_id: season.id, user_id: @user.id, ensemble: ensemble, section: section)
         create_payment_schedule(season)
       end
     end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_04_030022) do
+ActiveRecord::Schema.define(version: 2020_11_09_022502) do
 
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
@@ -118,6 +118,7 @@ ActiveRecord::Schema.define(version: 2020_11_04_030022) do
     t.integer "season_id"
     t.integer "user_id"
     t.string "section"
+    t.string "ensemble"
     t.index ["season_id"], name: "index_seasons_users_on_season_id"
     t.index ["user_id"], name: "index_seasons_users_on_user_id"
   end

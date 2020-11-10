@@ -17,6 +17,7 @@ SHOW_POSSIBILITIES = [
 ]
 
 SECTIONS = %w(Snare Tenors Bass Cymbals Woods Metals Auxiliary Electronics Visual)
+ENSEMBLES = %w(World CC2)
 
 # Create Seasons
 seasons = {
@@ -166,6 +167,7 @@ until User.all.count >= TOTAL_MEMBERS + 1
         # Add section
         su = user.seasons_users.where(season: details[:season]).first
         su.section = SECTIONS.sample
+        su.ensemble = ENSEMBLES.sample
 
         # Save everything
         su.save
