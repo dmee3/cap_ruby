@@ -54,9 +54,9 @@ class User < ApplicationRecord
     @status = schedule.present? && dues_paid >= schedule.scheduled_to_date
   end
 
+  # Using ruby methods instead of AR query builder to save DB calls
+  # if we've got the object loaded in memory
   def amount_paid_for(season_id)
-    # Using ruby methods instead of AR query builder to save DB calls
-    # if we've got the object loaded in memory
     made_payments = payments.select { |p| p.season_id == season_id }
     made_payments.sum(&:amount)
   end
@@ -73,6 +73,12 @@ class User < ApplicationRecord
   # if we've got the object loaded in memory
   def section_for(season_id)
     seasons_users.select { |su| su.season_id == season_id }.first.section
+  end
+
+  # Using ruby methods instead of AR query builder to save DB calls
+  # if we've got the object loaded in memory
+  def ensemble_for(season_id)
+    seasons_users.select { |su| su.season_id == season_id }.first.ensemble
   end
 
   def total_dues_for(season_id)
