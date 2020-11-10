@@ -10,7 +10,7 @@
     </div>
     <div class="row mt-1 mt-sm-0">
       <div v-for="(ensemble, index) in ensembles" :key="`ensemble-${index}`" class="col">
-        <user-list user-type="member" :ensemble="ensemble" :users="membersIn(ensemble)"></user-list>
+        <user-list user-type="member" :ensemble="ensemble" :users="membersIn(ensemble)" @show-delete="showDelete"></user-list>
       </div>
     </div>
     <div class="row mt-3">
@@ -79,6 +79,7 @@ export default {
     admins: [],
     ensembles: [],
     members: [],
+    userToDelete: {},
   }),
   mounted: function () {
     this.getMembers()
@@ -92,7 +93,7 @@ export default {
       })
         .done(function (response) {
           self.members = response.users
-          self.ensembles = [...new Set(self.users.map(u => u.ensemble))]
+          self.ensembles = [...new Set(self.members.map(u => u.ensemble))]
         })
         .fail(function (err) {
           self.error = err
@@ -125,13 +126,14 @@ export default {
     membersIn(ensemble) {
       return this.members.filter(u => u.ensemble == ensemble)
     },
-    showDeleteModal() {
+    showDelete(user) {
+      this.userToDelete = user
       $('#delete-modal').modal('show')
     },
-    deleteMember(user) {
+    deleteMember() {
       const self = this
       $.ajax({
-        url: `/admin/users/${user.id}`,
+        url: `/admin/users/${self.userToDelete.id}`,
         type: 'DELETE',
         data: {
           jwt: Utilities.getJWT(),
@@ -141,10 +143,11 @@ export default {
         .done(function () {
           Toast.showToast(
             'Success!',
-            `${user.first_name} was deleted.`,
+            `${self.userToDelete.first_name} was deleted.`,
             'success'
           )
-          self.members = self.members.filter(u => u.id !== user.id)
+          self.members = self.members.filter(u => u.id !== self.userToDelete.id)
+          self.userToDelete = {}
         })
         .fail(function () {
           Toast.showToast(

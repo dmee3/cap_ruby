@@ -36,15 +36,21 @@
         <div class="col-md-8 form-group">
           <label>Seasons</label>
           <% Season.all.each do |s| %>
-            <% users_section = @user.seasons_users.find_by_season_id(s.id)&.section %>
+            <% user_season = @user.seasons_users.find_by_season_id(s.id) %>
             <div class="input-group mb-3">
               <div class="input-group-prepend">
                 <span class="input-group-text"><%= s.year %></span>
               </div>
+              <select class="custom-select" name="ensemble_<%= s.year %>" id="ensemble-<%= s.year %>">
+                <option value=""></option>
+                <% %w(World CC2).each do |current_ensemble| %>
+                  <option value="<%= current_ensemble %>" <%= 'selected' if user_season&.ensemble == current_ensemble %>><%= current_ensemble %></option>
+                <% end %>
+              </select>
               <select class="custom-select" name="section_<%= s.year %>" id="section-<%= s.year %>">
                 <option value=""></option>
                 <% %w(Snare Tenors Bass Cymbals Woods Metals Auxiliary Electronics Visual).each do |current_section| %>
-                  <option value="<%= current_section %>" <%= 'selected' if users_section == current_section %>><%= current_section %></option>
+                  <option value="<%= current_section %>" <%= 'selected' if user_season&.section == current_section %>><%= current_section %></option>
                 <% end %>
               </select>
             </div>

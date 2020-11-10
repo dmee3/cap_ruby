@@ -58,7 +58,7 @@
             </div>
           </span>
         </a>
-        <h5 v-else>{{ user.first_name + ' ' + user.last_name }}</h5>
+        <template v-else>{{ user.first_name + ' ' + user.last_name }}</template>
       </li>
     </ul>
   </div>
@@ -105,7 +105,7 @@ export default {
   methods: {
     showDeleteModal(user, event) {
       event.preventDefault()
-      this.$emit('delete-user', user)
+      this.$emit('show-delete', user)
     },
   },
 }
