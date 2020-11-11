@@ -3,9 +3,11 @@
     <div class="card-body">
       <div class="row">
         <div class="col-sm-6 form-group">
+          <label for="conflict_user_id">User</label>
           <%= c.collection_select :user_id, @members, :id, :full_name, {}, { class: 'form-control select2-form-control select2-enable' } %>
         </div>
         <div class="col-sm-6 form-group">
+          <label for="conflict_status_id">Status</label>
           <%= c.collection_select :status_id, ConflictStatus.all.order(:name), :id, :name, {}, { class: 'form-control' } %>
         </div>
       </div>
@@ -13,28 +15,24 @@
       <div class="row mt-3">
         <div class="container">
           <div class="row">
-            <div class="col-12 col-lg-8">
-              <div class="row">
-                <div class="col-md-2">
-                  <span class="align-middle">Start:</span>
-                </div>
-                <div class="col-md-10 form-inline justify-content-between">
-                  <%= c.datetime_select :start_date, { ampm: true, datetime_separator: '&nbsp;&nbsp;&nbsp;', time_separator: '' }, { class: 'form-control mr-2 mb-2' } %>
-                </div>
+            <div class="col-12 col-lg-6">
+              <div class="form-group">
+                <label for="conflict_start_date">Start</label>
+                <%= c.text_field :start_date, { class: 'flatpickr-dt form-control', required: true } %>
               </div>
+
               <hr class="mt-3 d-md-none">
-              <div class="row mt-3">
-                <div class="col-md-2">
-                  <span class="align-middle">End:</span>
-                </div>
-                <div class="col-md-10 form-inline justify-content-between">
-                  <%= c.datetime_select :end_date, { ampm: true, datetime_separator: '&nbsp;&nbsp;&nbsp;', time_separator: '' }, { class: 'form-control mr-2 mb-2' } %>
-                </div>
+
+              <div class="form-group">
+                <label for="conflict_end_date">End</label>
+                <%= c.text_field :end_date, { class: 'flatpickr-dt form-control', required: true } %>
               </div>
             </div>
-            <div class="col-12 col-lg-4">
+
+            <div class="col-12 col-lg-6">
               <hr class="mt-3 d-md-none">
               <div class="form-group">
+                <label for="conflict_reason">Reason</label>
                 <%= c.text_area :reason, { class: 'form-control mr-2 mb-2', placeholder: 'Reason for Absence' } %>
               </div>
             </div>
