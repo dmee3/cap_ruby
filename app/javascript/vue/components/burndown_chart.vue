@@ -27,11 +27,7 @@ export default {
       })
       .fail(function (err) {
         self.error = err
-        Toast.showToast(
-          'Whoops!',
-          `Unable to get burndown chart data.`,
-          'danger'
-        )
+        Toast.failToast('Unable to get burndown chart data')
         console.log(err)
       })
   },

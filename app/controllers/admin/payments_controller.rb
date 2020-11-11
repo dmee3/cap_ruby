@@ -7,6 +7,7 @@ class Admin::PaymentsController < ApplicationController
       format.html { render('admin/payments/index') }
       format.json do
         @payments = Payment
+          .with_deleted
           .includes(:payment_type)
           .joins(:payment_type)
           .for_season(current_season['id'])
@@ -57,6 +58,24 @@ class Admin::PaymentsController < ApplicationController
       Rollbar.info('Payment could not be updated.', errors: @payment.errors.full_messages)
       flash[:error] = "Unable to update payment"
       redirect_to("/admin/payments/edit/#{@payment.id}")
+    end
+  end
+
+  def destroy
+    @payment = Payment.find(params[:id])
+    if @payment.destroy
+      head(200)
+    else
+      head(422)
+    end
+  end
+
+  def restore
+    @payment = Payment.with_deleted.find(params[:id])
+    if @payment.update(deleted_at: nil)
+      head(200)
+    else
+      head(422)
     end
   end
 

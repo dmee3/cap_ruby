@@ -116,11 +116,7 @@ export default {
         })
         .fail(function (err) {
           self.errors = err
-          Toast.showToast(
-            'Whoops!',
-            `Couldn't add entry to payment schedule.`,
-            'danger'
-          )
+          Toast.failToast("Couldn't add entry to payment schedule")
           console.log(err)
         })
     },
@@ -140,11 +136,7 @@ export default {
         })
         .fail(function (err) {
           self.error = err
-          Toast.showToast(
-            'Whoops!',
-            `Couldn't remove entry from payment schedule.`,
-            'danger'
-          )
+          Toast.failToast("Couldn't remove entry from payment schedule")
           console.log(err)
         })
     },
@@ -169,15 +161,11 @@ export default {
         },
       })
         .done(function () {
-          Toast.showToast('Success!', `Payment schedule saved!`, 'success')
+          Toast.successToast('Payment schedule saved')
         })
         .fail(function (err) {
           self.error = err
-          Toast.showToast(
-            'Whoops!',
-            `Unable to save payment schedule.`,
-            'danger'
-          )
+          Toast.failToast('Unable to save payment schedule')
           console.log(err)
         })
     },

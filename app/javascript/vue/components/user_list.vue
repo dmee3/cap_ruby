@@ -45,19 +45,21 @@
                 class="dropdown-menu dropdown-menu-right"
                 :aria-labelledby="`dropdown-${user.id}`"
               >
-                <a class="dropdown-item" :href="`/admin/users/${user.id}`"
-                  >View Details</a
-                >
+                <a class="dropdown-item" :href="`/admin/users/${user.id}`">
+                  View Details
+                </a>
                 <a
                   class="dropdown-item"
                   :href="`/admin/users/${user.id}/edit`"
-                  >Edit Info</a
                 >
+                  Edit Info
+                </a>
                 <a
                   class="dropdown-item"
                   :href="`/admin/payment_schedules/${user.payment_schedule_id}`"
-                  >Edit Payment Schedule</a
                 >
+                  Edit Payment Schedule
+                </a>
                 <div
                   class="text-danger dropdown-item"
                   @click="showDeleteModal(user, $event)"

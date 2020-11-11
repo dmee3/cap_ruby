@@ -24,7 +24,8 @@ Rails.application.routes.draw do
     get 'payments/behind-members', to: 'payments#behind_members'
     get 'payments/burndown-chart', to: 'payments#burndown_chart'
     get 'payments/recent', to: 'payments#recent_payments'
-    resources :payments, except: %i[destroy]
+    put 'payments/restore/:id', to: 'payments#restore'
+    resources :payments
 
     resources :users do
       resources :nine_volts, only: %i[create destroy]
