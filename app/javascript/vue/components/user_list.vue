@@ -97,7 +97,6 @@ export default {
   data: function () {
     return {
       userToDelete: {},
-      localUsers: [],
       error: [],
       sortOptions: ['First', 'Last', 'Section'],
       selectedSort: 'First',
