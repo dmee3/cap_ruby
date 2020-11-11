@@ -92,8 +92,13 @@ class User < ApplicationRecord
   def initiate_password_reset
     reset_key = SecureRandom.uuid
     save
-
     ActivityLogger.log_pw_reset_initiated(self)
     UserMailer.with(user: self).reset_password_email.deliver_later
+  end
+
+  def welcome
+    reset_key = SecureRandom.uuid
+    save
+    UserMailer.with(user: self).welcome_email.deliver_later
   end
 end
