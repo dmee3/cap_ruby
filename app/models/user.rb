@@ -88,4 +88,12 @@ class User < ApplicationRecord
   def is?(name)
     role.name == name.to_s
   end
+
+  def initiate_password_reset
+    reset_key = SecureRandom.uuid
+    save
+
+    ActivityLogger.log_pw_reset_initiated(self)
+    UserMailer.with(user: self).reset_password_email.deliver_later
+  end
 end

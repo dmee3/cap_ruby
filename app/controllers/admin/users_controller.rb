@@ -26,9 +26,8 @@ class Admin::UsersController < ApplicationController
           end
         else
           @users = User
-          .for_season(current_season['id'])
-          .with_role(user_type)
-          .select(:id, :first_name, :last_name)
+            .with_role(user_type)
+            .select(:id, :first_name, :last_name)
         end
 
         render json: { users: @users }
@@ -67,6 +66,7 @@ class Admin::UsersController < ApplicationController
     @user = User.find(params[:id])
     if @user.update(user_params.reject { |_k, v| v.blank? }) # only update non-empty fields
       update_seasons
+      @user.initiate_password_reset if params['reset_password']
       flash[:success] = "#{@user.first_name} updated"
       redirect_to('/admin/users')
     else
