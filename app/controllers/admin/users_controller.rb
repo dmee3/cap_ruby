@@ -26,9 +26,8 @@ class Admin::UsersController < ApplicationController
           end
         else
           @users = User
-          .for_season(current_season['id'])
-          .with_role(user_type)
-          .select(:id, :first_name, :last_name)
+            .with_role(user_type)
+            .select(:id, :first_name, :last_name)
         end
 
         render json: { users: @users }
@@ -45,10 +44,10 @@ class Admin::UsersController < ApplicationController
   end
 
   def create
-    @user = User.new(user_params)
+    @user = User.new(user_params.merge(password: SecureRandom.uuid))
     if @user.save
       update_seasons
-      UserMailer.with(user: @user).welcome_email.deliver_later
+      @user.welcome
 
       flash[:success] = "#{@user.first_name} created"
       redirect_to('/admin/users')
@@ -67,6 +66,7 @@ class Admin::UsersController < ApplicationController
     @user = User.find(params[:id])
     if @user.update(user_params.reject { |_k, v| v.blank? }) # only update non-empty fields
       update_seasons
+      @user.initiate_password_reset if params['reset_password']
       flash[:success] = "#{@user.first_name} updated"
       redirect_to('/admin/users')
     else

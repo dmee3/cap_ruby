@@ -39,13 +39,7 @@ class SettingsController < ApplicationController
   def initiate_reset
     @user = User.find_by(email: params[:email])
 
-    if @user
-      @user.reset_key = SecureRandom.uuid
-      @user.save
-
-      ActivityLogger.log_pw_reset_initiated(@user)
-      UserMailer.with(user: @user).reset_password_email.deliver_later
-    end
+    @user.initiate_password_reset if @user
 
     # Even if we didn't find a user, tell them to check their email to prevent
     # people from finding out user emails
