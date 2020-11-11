@@ -44,7 +44,7 @@ class Admin::UsersController < ApplicationController
   end
 
   def create
-    @user = User.new(user_params)
+    @user = User.new(user_params.merge(password: SecureRandom.uuid))
     if @user.save
       update_seasons
       UserMailer.with(user: @user).welcome_email.deliver_later
