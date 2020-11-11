@@ -19,4 +19,12 @@ export default class {
     $toast.toast({ animation: true, delay: 5000 })
     $toast.toast('show')
   }
+
+  static successToast(content) {
+    this.showToast('Success!', content, 'success')
+  }
+
+  static failToast(content) {
+    this.showToast('Whoops!', content, 'danger')
+  }
 }

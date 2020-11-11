@@ -97,11 +97,7 @@ export default {
         })
         .fail(function (err) {
           self.error = err
-          Toast.showToast(
-            'Whoops!',
-            'An error occurred getting user info',
-            'danger'
-          )
+          Toast.failToast('An error occurred getting user info')
           console.log(err)
         })
     },
@@ -115,11 +111,7 @@ export default {
         })
         .fail(function (err) {
           self.error = err
-          Toast.showToast(
-            'Whoops!',
-            'An error occurred getting user info',
-            'danger'
-          )
+          Toast.failToast('An error occurred getting user info')
           console.log(err)
         })
     },
@@ -141,20 +133,12 @@ export default {
         },
       })
         .done(function () {
-          Toast.showToast(
-            'Success!',
-            `${self.userToDelete.first_name} was deleted.`,
-            'success'
-          )
+          Toast.successToast(`${self.userToDelete.first_name} was deleted`)
           self.members = self.members.filter(u => u.id !== self.userToDelete.id)
           self.userToDelete = {}
         })
         .fail(function () {
-          Toast.showToast(
-            'Whoops!',
-            `Unable to delete ${self.userToDelete.first_name}.`,
-            'danger'
-          )
+          Toast.failToast(`Unable to delete ${self.userToDelete.first_name}`)
         })
     },
   },

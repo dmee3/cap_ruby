@@ -45,7 +45,6 @@ export default {
     formatData() {
       this.schedules
         .flatMap((s) => s.payment_schedule_entries)
-        .filter((s) => moment(s.pay_date).isSameOrBefore(moment()))
         .forEach((entry) => {
           let day = this.scheduleData.find((s) =>
             s.day.isSame(moment(entry.pay_date))

@@ -8,6 +8,13 @@ export default class {
     return new Intl.DateTimeFormat('en-US', DT_FORMAT).format(date)
   }
 
+  static formatMoney(number) {
+    return (number / 100).toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    })
+  }
+
   static getAuthToken() {
     return document.querySelector('meta[name="csrf-token"]').content
   }

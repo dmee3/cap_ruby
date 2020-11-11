@@ -85,11 +85,7 @@ export default {
         })
         .fail((err) => {
           self.error = err
-          Toast.showToast(
-            'Whoops!',
-            `Unable to get details about recent payments.`,
-            'danger'
-          )
+          Toast.failToast('Unable to get details about recent payments')
           console.log(err)
         })
     },
