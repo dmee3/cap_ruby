@@ -218,6 +218,9 @@ export default {
           }))
 
         // Set up calculated/misc values
+        if (!schedule) {
+          console.log(user)
+        }
         user.payment_schedule_id = schedule.id
         user.total_dues = user.payment_schedule.reduce(
           (sum, entry) => sum + entry.amount,
