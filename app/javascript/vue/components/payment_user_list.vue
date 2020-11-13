@@ -155,7 +155,8 @@ export default {
     readyToDisplay() {
       return (
         this.users.length > 0 &&
-        this.schedules.length > 0
+        this.schedules.length > 0 && 
+        this.payments.length > 0
       )
     },
   },
