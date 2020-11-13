@@ -1,4 +1,4 @@
 class ApplicationMailer < ActionMailer::Base
-  default from: 'system@mg.capcitypercussion.com'
+  default from: 'system@capcitypercussion.com'
   layout 'mailer'
 end
