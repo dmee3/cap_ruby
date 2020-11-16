@@ -34,7 +34,7 @@ gem 'faraday'
 gem 'google-api-client'
 
 group :production do
-  gem 'scout_apm'
+  gem 'scout_apm', '~> 2.6.10'
   gem 'rails_12factor'
   gem 'pg'
 
