@@ -22,6 +22,7 @@ gem 'paranoia', '~> 2.4.2'
 gem 'jwt'
 gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'
 gem 'mailgun-ruby', '~>1.1.6'
+gem 'sidekiq'
 
 # UI gems
 gem 'bootstrap' # Can this be removed???
