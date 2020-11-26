@@ -1,6 +1,6 @@
 # Cap Ruby
 
-A web-based application for managing [Cap City Percussion](https://capcitypercussion.com)'s membership.
+A web application for managing [Cap City Percussion](https://capcitypercussion.com)'s membership.
 
 ## Heroku Quick Reference
 
