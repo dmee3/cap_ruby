@@ -1,5 +1,9 @@
 # rubocop:disable Metrics/BlockLength
 FactoryBot.define do
+  factory :inventory_category, class: 'Inventory::Category' do
+    name { "Mallets" }
+  end
+
   factory :season do
     year { Date.today.year }
   end
