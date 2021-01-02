@@ -6,6 +6,15 @@ document.addEventListener('DOMContentLoaded', () => {
   /*
    * Pages
    */
+  if (document.querySelector('#rhythm-converter')) {
+    new Vue({
+      el: '#rhythm-converter',
+      components: {
+        RhythmConverter: require('../vue/pages/rhythm_converter.vue').default,
+      },
+    })
+  }
+
   if (document.querySelector('#admin-conflicts-index')) {
     new Vue({
       el: '#admin-conflicts-index',

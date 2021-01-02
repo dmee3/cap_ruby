@@ -53,5 +53,7 @@ Rails.application.routes.draw do
   get 'reset', to: 'settings#reset_password'
   post 'reset', to: 'settings#complete_reset'
 
+  get 'rhythm-converter', to: 'tools#rhythm_converter'
+
   resources :whistleblowers, only: %i[index create]
 end
