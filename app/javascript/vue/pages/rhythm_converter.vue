@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="row">
-      <div class="col-6">
+      <div class="col-12 col-md-6">
         <div class="card">
           <div class="card-body">
             <h4 class="card-title">Original Rhythm</h4>
@@ -22,7 +22,7 @@
         </div>
       </div>
 
-      <div  class="col-6">
+      <div  class="col-12 col-md-6">
         <div class="card">
           <div class="card-body">
             <h4 class="card-title">New Rhythm</h4>
