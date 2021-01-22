@@ -19,7 +19,7 @@
           :href="`/admin/payments/${payment.id}`"
           class="d-flex justify-content-between align-items-center"
         >
-          <span class="text-body">
+          <span :class="payment.deleted ? 'text-muted' : 'text-body'">
             <i
               v-if="payment.payment_type === 'Cash'"
               class="fas fa-money-bill text-muted mr-1"
@@ -46,6 +46,7 @@
             ></i>
             <i v-else class="fas fa-question text-muted mr-1"></i>
             {{ formatMoney(payment.amount) }}
+            <small v-if="payment.deleted"> (deleted)</small>
           </span>
 
           <small class="text-muted"
@@ -61,19 +62,40 @@
                 <i class="fas fa-ellipsis-h"></i>
               </button>
               <div
+                v-if="payment.deleted"
+                class="dropdown-menu dropdown-menu-right"
+                :aria-labelledby="`dropdown-${payment.id}`"
+              >
+                <div
+                  class="text-success dropdown-item"
+                  @click="restorePayment(payment, $event)"
+                >
+                  Restore
+                </div>
+              </div>
+              <div
+                v-else
                 class="dropdown-menu dropdown-menu-right"
                 :aria-labelledby="`dropdown-${payment.id}`"
               >
                 <a
                   class="dropdown-item"
                   :href="`/admin/payments/${payment.id}`"
-                  >View Details</a
                 >
+                  View Details
+                </a>
                 <a
                   class="dropdown-item"
                   :href="`/admin/payments/${payment.id}/edit`"
-                  >Edit Info</a
                 >
+                  Edit Info
+                </a>
+                <div
+                  class="text-danger dropdown-item"
+                  @click="showDeleteModal(payment, $event)"
+                >
+                  Delete
+                </div>
               </div>
             </div>
           </small>
@@ -84,6 +106,8 @@
 </template>
 
 <script>
+import Utilities from '../../packs/utilities'
+import Toast from '../../packs/toast'
 import moment from 'moment/moment'
 
 export default {
@@ -99,15 +123,34 @@ export default {
   },
   data: () => ({ }),
   methods: {
-    formatMoney(number) {
-      return (number / 100).toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      })
+    formatMoney(amount) {
+      return Utilities.formatMoney(amount)
     },
     formatDate(date) {
       return moment(date).format('MMM Do, YYYY')
     },
+    showDeleteModal(payment, event) {
+      event.preventDefault()
+      this.$emit('show-delete', payment)
+    },
+    restorePayment(payment) {
+      event.preventDefault()
+      $.ajax({
+        url: `/admin/payments/restore/${payment.id}`,
+        type: 'PUT',
+        data: {
+          jwt: Utilities.getJWT(),
+          authenticity_token: Utilities.getAuthToken(),
+        },
+      })
+        .done(function () {
+          Toast.successToast('Payment was restored. Refresh to see changes')
+          payment.deleted = null
+        })
+        .fail(function () {
+          Toast.failToast('Unable to restore payment')
+        })
+    }
   },
 }
 </script>

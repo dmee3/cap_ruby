@@ -54,9 +54,9 @@ class User < ApplicationRecord
     @status = schedule.present? && dues_paid >= schedule.scheduled_to_date
   end
 
+  # Using ruby methods instead of AR query builder to save DB calls
+  # if we've got the object loaded in memory
   def amount_paid_for(season_id)
-    # Using ruby methods instead of AR query builder to save DB calls
-    # if we've got the object loaded in memory
     made_payments = payments.select { |p| p.season_id == season_id }
     made_payments.sum(&:amount)
   end
@@ -75,11 +75,30 @@ class User < ApplicationRecord
     seasons_users.select { |su| su.season_id == season_id }.first.section
   end
 
+  # Using ruby methods instead of AR query builder to save DB calls
+  # if we've got the object loaded in memory
+  def ensemble_for(season_id)
+    seasons_users.select { |su| su.season_id == season_id }.first.ensemble
+  end
+
   def total_dues_for(season_id)
     payment_schedule_for(season_id)&.entries&.sum(:amount)
   end
 
   def is?(name)
     role.name == name.to_s
+  end
+
+  def initiate_password_reset
+    reset_key = SecureRandom.uuid
+    save
+    ActivityLogger.log_pw_reset_initiated(self)
+    UserMailer.with(user: self).reset_password_email.deliver_later
+  end
+
+  def welcome
+    reset_key = SecureRandom.uuid
+    save
+    UserMailer.with(user: self).welcome_email.deliver_later
   end
 end

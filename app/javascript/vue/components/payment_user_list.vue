@@ -53,6 +53,7 @@
               <payments-made-card
                 :payments="user.payments"
                 :user-id="user.id"
+                @show-delete="showDelete"
               ></payments-made-card>
             </div>
 
@@ -73,11 +74,57 @@
       </div>
       <p class="lead">Getting user payment info...</p>
     </div>
+
+    <div
+      id="delete-modal"
+      class="modal"
+      tabindex="-1"
+      role="dialog"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              Delete Payment for {{ formatMoney(paymentToDelete.amount) }}
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p class="lead text-center">Are you sure?</p>
+          </div>
+          <div id="delete-form" class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <input
+              type="submit"
+              value="Delete"
+              class="btn btn-danger"
+              data-dismiss="modal"
+              @click="deletePayment()"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import moment from 'moment/moment'
+import Toast from '../../packs/toast'
+import Utilities from '../../packs/utilities'
 import PaymentsMadeCard from './payments_made_card'
 import PaymentScheduleCard from './payment_schedule_card'
 
@@ -102,12 +149,14 @@ export default {
   },
   data: () => ({
     fullUsers: [],
+    paymentToDelete: {},
   }),
   computed: {
     readyToDisplay() {
       return (
         this.users.length > 0 &&
-        this.schedules.length > 0
+        this.schedules.length > 0 && 
+        this.payments.length > 0
       )
     },
   },
@@ -125,11 +174,8 @@ export default {
     },
   },
   methods: {
-    formatMoney(number) {
-      return (number / 100).toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      })
+    formatMoney(amount) {
+      return Utilities.formatMoney(amount)
     },
     statusBarColorFor(user) {
       if (user.amount_paid >= user.scheduled_to_date) {
@@ -168,6 +214,7 @@ export default {
             date_paid: p.date_paid,
             notes: p.notes,
             payment_type: p.payment_type.name,
+            deleted: (p.deleted_at === null ? false : true),
           }))
 
         // Set up calculated/misc values
@@ -177,7 +224,7 @@ export default {
           0
         )
         user.amount_paid = user.payments.reduce(
-          (sum, payment) => sum + payment.amount,
+          (sum, payment) => (payment.deleted ? sum : sum + payment.amount),
           0
         )
         user.scheduled_to_date = user.payment_schedule
@@ -192,6 +239,28 @@ export default {
           return -1
         }
       })
+    },
+    showDelete(payment) {
+      this.paymentToDelete = payment
+      $('#delete-modal').modal('show')
+    },
+    deletePayment() {
+      const self = this
+      $.ajax({
+        url: `/admin/payments/${self.paymentToDelete.id}`,
+        type: 'DELETE',
+        data: {
+          jwt: Utilities.getJWT(),
+          authenticity_token: Utilities.getAuthToken(),
+        },
+      })
+        .done(function () {
+          Toast.successToast('Payment was deleted. Refresh to see changes')
+          self.paymentToDelete = {}
+        })
+        .fail(function () {
+          Toast.failToast('Unable to delete payment')
+        })
     },
   },
 }

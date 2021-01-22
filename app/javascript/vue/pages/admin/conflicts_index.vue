@@ -44,11 +44,7 @@ export default {
         })
         .fail((err) => {
           self.error = err
-          Toast.showToast(
-            'Whoops!',
-            'An error occurred getting conflicts',
-            'danger'
-          )
+          Toast.failToast('An error occurred getting conflicts')
           console.log(err)
         })
     },

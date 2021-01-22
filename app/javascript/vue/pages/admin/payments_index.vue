@@ -34,11 +34,7 @@ export default {
         })
         .fail(function (err) {
           self.error = err
-          Toast.showToast(
-            'Whoops!',
-            'An error occurred getting user info',
-            'danger'
-          )
+          Toast.failToast('An error occurred getting user info')
           console.log(err)
         })
     },
@@ -52,11 +48,7 @@ export default {
         })
         .fail(function (err) {
           self.error = err
-          Toast.showToast(
-            'Whoops!',
-            'An error occurred getting payment info',
-            'danger'
-          )
+          Toast.failToast('An error occurred getting payment info')
           console.log(err)
         })
     },
@@ -70,11 +62,7 @@ export default {
         })
         .fail(function (err) {
           self.error = err
-          Toast.showToast(
-            'Whoops!',
-            'An error occurred getting payment info',
-            'danger'
-          )
+          Toast.failToast('An error occurred getting payment info')
           console.log(err)
         })
     },

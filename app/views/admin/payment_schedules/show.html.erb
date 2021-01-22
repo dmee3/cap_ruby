@@ -5,10 +5,10 @@
 <% content_for :main do %>
   <div class="row">
     <div class="col-12 text-right mb-3">
-      <a class="btn btn-light" href="<%= admin_users_path %>">Back to Users</a>
+      <a class="btn btn-light" href="<%= admin_user_path(@user.id) %>">Back to User</a>
     </div>
   </div>
   <div id="payment-schedule">
-    <payment-schedule v-bind:schedule-id="<%= @schedule.id %>" user-name="<%= @user.first_name %>"></payment-schedule>
+    <payment-schedule v-bind:schedule-id="<%= @schedule.id %>" user-name="<%= @user.full_name %>"></payment-schedule>
   </div>
 <% end %>

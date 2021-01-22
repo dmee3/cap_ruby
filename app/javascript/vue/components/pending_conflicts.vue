@@ -100,11 +100,7 @@ export default {
         })
         .fail((err) => {
           self.error = err
-          Toast.showToast(
-            'Whoops!',
-            'An error occurred getting conflict statuses',
-            'danger'
-          )
+          Toast.failToast('An error occurred getting conflict statuses')
           console.log(err)
         })
     },
@@ -125,19 +121,11 @@ export default {
         }),
       })
         .done(() => {
-          Toast.showToast(
-            'Success!',
-            `Conflict for ${conflict.name} marked as ${newStatus.name}.`,
-            'success'
-          )
+          Toast.successToast(`Conflict for ${conflict.name} marked as ${newStatus.name}`)
           self.$emit('conflict-changed')
         })
         .fail((err) => {
-          Toast.showToast(
-            'Whoops!',
-            `Unable to update conflict for ${conflict.name}.`,
-            'danger'
-          )
+          Toast.failToast(`Unable to update conflict for ${conflict.name}`)
           console.log(err)
         })
     },

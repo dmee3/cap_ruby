@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <p>Hi <%= @user.first_name %>,</p>
+    <p>You have a new account on our member site! To choose your password, click <a href="<%= @url %>">here</a>.</p>
+    <p>Once you've set a password, you can login with your username, <%= @user.username %>. Please reach out to an admin if you have any issues!</p>
+    <p>Thanks,</p>
+    <p>Cap City</p>
+  </body>
+</html>

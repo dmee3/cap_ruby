@@ -34,11 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
           })
           .fail(function (err) {
             self.error = err
-            Toast.showToast(
-              'Whoops!',
-              'An error occurred getting payment info',
-              'danger'
-            )
+            Toast.failToast('An error occurred getting payment info')
             console.log(err)
           })
       },
@@ -52,11 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
           })
           .fail(function (err) {
             self.error = err
-            Toast.showToast(
-              'Whoops!',
-              'An error occurred getting payment info',
-              'danger'
-            )
+            Toast.failToast('An error occurred getting payment info')
             console.log(err)
           })
       },
