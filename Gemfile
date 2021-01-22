@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.5.3' # make sure to update the .ruby-version file as well
+ruby '2.7.2' # make sure to update the .ruby-version file as well
 
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
@@ -12,7 +12,7 @@ gem 'rails', '~> 6'
 gem 'puma', '~> 5.0.4'
 gem 'uglifier', '>= 1.3.0'
 gem 'turbolinks', '~> 5'
-gem 'bootsnap', '>= 1.1.0', require: false # Reduces boot times through caching; required in config/boot.rb
+gem 'bootsnap', require: false # Reduces boot times through caching; required in config/boot.rb
 gem 'webpacker', '~> 4.x'
 
 # App-specific gems
