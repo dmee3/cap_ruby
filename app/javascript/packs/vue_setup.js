@@ -6,6 +6,15 @@ document.addEventListener('DOMContentLoaded', () => {
   /*
    * Pages
    */
+  if (document.querySelector('#rhythm-converter')) {
+    new Vue({
+      el: '#rhythm-converter',
+      components: {
+        RhythmConverter: require('../vue/pages/rhythm_converter.vue').default,
+      },
+    })
+  }
+
   if (document.querySelector('#admin-conflicts-index')) {
     new Vue({
       el: '#admin-conflicts-index',
@@ -20,6 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
       el: '#admin-payments-index',
       components: {
         AdminPaymentsIndex: require('../vue/pages/admin/payments_index.vue').default,
+      },
+    })
+  }
+
+  if (document.querySelector('#admin-users-index')) {
+    new Vue({
+      el: '#admin-users-index',
+      components: {
+        AdminUsersIndex: require('../vue/pages/admin/users_index.vue').default,
       },
     })
   }
@@ -41,25 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
       el: '#payment-schedule',
       components: {
         PaymentSchedule: require('../vue/components/payment_schedule.vue').default
-      },
-    })
-  }
-
-  // Member list
-  if (document.querySelector('#member-list')) {
-    new Vue({
-      el: '#member-list',
-      components: {
-        UserList: require('../vue/components/user_list.vue').default
-      },
-    })
-  }
-
-  if (document.querySelector('#admin-list')) {
-    new Vue({
-      el: '#admin-list',
-      components: {
-        UserList: require('../vue/components/user_list.vue').default
       },
     })
   }

@@ -20,14 +20,14 @@ class Admin::UsersController < ApplicationController
               first_name: u.first_name,
               last_name: u.last_name,
               section: u.section_for(current_season['id']),
+              ensemble: u.ensemble_for(current_season['id']),
               payment_schedule_id: u.payment_schedule_for(current_season['id']).id
             }
           end
         else
           @users = User
-          .for_season(current_season['id'])
-          .with_role(user_type)
-          .select(:id, :first_name, :last_name)
+            .with_role(user_type)
+            .select(:id, :first_name, :last_name)
         end
 
         render json: { users: @users }
@@ -44,9 +44,11 @@ class Admin::UsersController < ApplicationController
   end
 
   def create
-    @user = User.new(user_params)
+    @user = User.new(user_params.merge(password: SecureRandom.uuid))
     if @user.save
       update_seasons
+      @user.welcome
+
       flash[:success] = "#{@user.first_name} created"
       redirect_to('/admin/users')
     else
@@ -64,6 +66,7 @@ class Admin::UsersController < ApplicationController
     @user = User.find(params[:id])
     if @user.update(user_params.reject { |_k, v| v.blank? }) # only update non-empty fields
       update_seasons
+      @user.initiate_password_reset if params['reset_password']
       flash[:success] = "#{@user.first_name} updated"
       redirect_to('/admin/users')
     else
@@ -84,24 +87,25 @@ class Admin::UsersController < ApplicationController
 
   private
 
+  # This code sucks
   def update_seasons
     Season.all.each do |season|
       section = params["section_#{season.year}"]
+      ensemble = params["ensemble_#{season.year}"]
 
       # Deleting season
-      if section == ''
+      if ensemble == ''
         SeasonsUser.where(season_id: season.id, user_id: @user.id).destroy_all
 
       # Updating season
       elsif su = SeasonsUser.find_by(season_id: season.id, user_id: @user.id)
-        if su.section != section
-          su.section = section
-          su.save
+        if su.ensemble != ensemble || su.section != section
+          su.update(ensemble: ensemble, section: section)
         end
 
       # Creating season
       else
-        su = SeasonsUser.create(season_id: season.id, user_id: @user.id, section: section)
+        SeasonsUser.create(season_id: season.id, user_id: @user.id, ensemble: ensemble, section: section)
         create_payment_schedule(season)
       end
     end

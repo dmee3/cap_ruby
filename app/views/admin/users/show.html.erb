@@ -8,7 +8,10 @@
       <div class="card">
         <div class="card-body">
           <h3 class="card-title"><%= @user.full_name %></h3>
-          <h5 class="card-subtitle mb-2 text-muted font-weight-light"><%= @user.section_for(current_season['id']) %></h5>
+          <h5 class="card-subtitle mb-2 text-muted font-weight-light">
+            <%= @user.ensemble_for(current_season['id']) %>
+             <%= @user.section_for(current_season['id']) %>
+            </h5>
 
           <small class="text-muted"><i class="fas fa-envelope mr-1"></i>Email</small>
           <p class="card-text"><%= @user.email %></p>

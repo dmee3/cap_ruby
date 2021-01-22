@@ -2,49 +2,82 @@
   <%= form_for @user, url: url do |u| %>
     <div class="card-body">
       <div class="row">
-        <div class="col-md-6 mt-3 form-group">
+        <div class="col-12">
+          <h3>Basic Info</h3>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <%= label_tag :first_name, 'First Name' %>
           <%= u.text_field :first_name, { class: 'form-control', placeholder: 'First Name' } %>
         </div>
-        <div class="col-md-6 mt-3 form-group">
+        <div class="form-group col-md-6">
+        <%= label_tag :last_name, 'Last Name' %>
           <%= u.text_field :last_name, { class: 'form-control', placeholder: 'Last Name' } %>
         </div>
       </div>
 
-      <hr />
-
-      <div class="row">
-        <div class="col-md-6 mt-3 form-group">
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <%= label_tag :username, 'Username' %>
           <%= u.text_field :username, { class: 'form-control', placeholder: 'Username' } %>
-          <%= u.text_field :email, { class: 'form-control mt-3', placeholder: 'Email' } %>
-          <%= u.text_field :phone, { class: 'form-control mt-3', placeholder: 'Phone' } %>
-          
         </div>
-        <div class="col-md-6 mt-3 form-group">
-          <%= u.password_field :password, { class: 'form-control', placeholder: 'Password' } %>
-          <%= u.password_field :password_confirmation, { class: 'form-control mt-3', placeholder: 'Password Confirmation' } %>
+        <div class="form-group col-md-4">
+          <%= label_tag :email, 'Email' %>
+          <%= u.text_field :email, { class: 'form-control', placeholder: 'Email' } %>
+        </div>
+        <div class="form-group col-md-4">
+          <%= label_tag :phone, 'Phone' %>
+          <%= u.text_field :phone, { class: 'form-control', placeholder: 'Phone' } %>
         </div>
       </div>
 
       <hr />
 
+      <!-- Password reset for existing users only -->
+      <% if @user.id %>
+        <div class="row">
+          <div class="col-12">
+            <h3>Reset Password</h3>
+            <p>Check this box to trigger a password reset for this user. They will receive an email with instructions and a link to set a new password.</p>
+          </div>
+          <div class="col-12 form-group text-center">
+            <input class="form-check-input" type="checkbox" name="reset_password" id="reset_password">
+            <label class="form-check-label" for="reset_password">Reset Password</label>
+          </div>
+        </div>
+
+        <hr />
+      <% end %>
+
       <div class="row">
-        <div class="col-md-4 form-group">
+        <div class="col-12">
+          <h3>Season Management</h3>
+        </div>
+        <div class="col-12 form-group">
           <%= u.label :role_id, 'Role' %>
           <%= u.collection_select :role_id, Role.all.reverse_order, :id, :name, {}, { class: 'form-control' } %>
         </div>
 
-        <div class="col-md-8 form-group">
+        <div class="col-12 form-group">
           <label>Seasons</label>
           <% Season.all.each do |s| %>
-            <% users_section = @user.seasons_users.find_by_season_id(s.id)&.section %>
+            <% user_season = @user.seasons_users.find_by_season_id(s.id) %>
             <div class="input-group mb-3">
               <div class="input-group-prepend">
                 <span class="input-group-text"><%= s.year %></span>
               </div>
+              <select class="custom-select" name="ensemble_<%= s.year %>" id="ensemble-<%= s.year %>">
+                <option value=""></option>
+                <% %w(World CC2).each do |current_ensemble| %>
+                  <option value="<%= current_ensemble %>" <%= 'selected' if user_season&.ensemble == current_ensemble %>><%= current_ensemble %></option>
+                <% end %>
+              </select>
               <select class="custom-select" name="section_<%= s.year %>" id="section-<%= s.year %>">
                 <option value=""></option>
                 <% %w(Snare Tenors Bass Cymbals Woods Metals Auxiliary Electronics Visual).each do |current_section| %>
-                  <option value="<%= current_section %>" <%= 'selected' if users_section == current_section %>><%= current_section %></option>
+                  <option value="<%= current_section %>" <%= 'selected' if user_season&.section == current_section %>><%= current_section %></option>
                 <% end %>
               </select>
             </div>

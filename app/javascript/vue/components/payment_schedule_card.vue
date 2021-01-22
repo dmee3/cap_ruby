@@ -12,9 +12,9 @@
         :key="entry.pay_date"
         class="list-group-item d-flex justify-content-between"
       >
-        <span :class="dateInThePast(entry.pay_date)">{{
-          formatMoney(entry.amount)
-        }}</span>
+        <span :class="dateInThePast(entry.pay_date)">
+          {{ formatMoney(entry.amount) }}
+        </span>
         <small class="text-muted">{{ formatDate(entry.pay_date) }}</small>
       </li>
     </ul>
@@ -22,6 +22,7 @@
 </template>
 
 <script>
+import Utilities from '../../packs/utilities'
 import moment from 'moment/moment'
 
 export default {
@@ -37,11 +38,8 @@ export default {
   },
   data: () => ({}),
   methods: {
-    formatMoney(number) {
-      return (number / 100).toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      })
+    formatMoney(amount) {
+      return Utilities.formatMoney(amount)
     },
     formatDate(date) {
       return moment(date).format('MMM Do, YYYY')

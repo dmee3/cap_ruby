@@ -9,19 +9,20 @@ end
 
 # Rails gems
 gem 'rails', '~> 6'
-gem 'puma', '~> 3.12'
+gem 'puma', '~> 5.0.4'
 gem 'uglifier', '>= 1.3.0'
 gem 'turbolinks', '~> 5'
 gem 'bootsnap', '>= 1.1.0', require: false # Reduces boot times through caching; required in config/boot.rb
 gem 'webpacker', '~> 4.x'
 
 # App-specific gems
-gem 'rollbar', '~> 2.15'
+gem 'rollbar', '~> 3.1.0'
 gem 'bcrypt', '~> 3.1.7'
 gem 'paranoia', '~> 2.4.2'
 gem 'jwt'
 gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'
 gem 'mailgun-ruby', '~>1.1.6'
+gem 'sidekiq'
 
 # UI gems
 gem 'bootstrap' # Can this be removed???
@@ -33,7 +34,7 @@ gem 'faraday'
 gem 'google-api-client'
 
 group :production do
-  gem 'scout_apm'
+  gem 'scout_apm', '~> 2.6.10'
   gem 'rails_12factor'
   gem 'pg'
 

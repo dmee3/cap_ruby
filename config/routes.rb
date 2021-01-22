@@ -24,7 +24,8 @@ Rails.application.routes.draw do
     get 'payments/behind-members', to: 'payments#behind_members'
     get 'payments/burndown-chart', to: 'payments#burndown_chart'
     get 'payments/recent', to: 'payments#recent_payments'
-    resources :payments, except: %i[destroy]
+    put 'payments/restore/:id', to: 'payments#restore'
+    resources :payments
 
     resources :users do
       resources :nine_volts, only: %i[create destroy]
@@ -51,6 +52,8 @@ Rails.application.routes.draw do
   post 'forgot', to: 'settings#initiate_reset'
   get 'reset', to: 'settings#reset_password'
   post 'reset', to: 'settings#complete_reset'
+
+  get 'rhythm-converter', to: 'tools#rhythm_converter'
 
   resources :whistleblowers, only: %i[index create]
 end

@@ -41,11 +41,7 @@ export default {
       })
       .fail(function (err) {
         self.error = err
-        Toast.showToast(
-          'Whoops!',
-          `Unable to get details on behind members.`,
-          'danger'
-        )
+        Toast.failToast('Unable to get details on behind members')
         console.log(err)
       })
   },

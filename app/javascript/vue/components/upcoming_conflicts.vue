@@ -11,7 +11,7 @@
           <input
             v-model="start_date"
             type="date"
-            class="form-control"
+            class="form-control flatpickr"
             name="start_date"
           />
           <div class="input-group-prepend">
@@ -20,12 +20,9 @@
           <input
             v-model="end_date"
             type="date"
-            class="form-control"
+            class="form-control flatpickr"
             name="end_date"
           />
-          <div class="input-group-append">
-            <a class="btn btn-info white-text" @click="filter">Filter</a>
-          </div>
         </div>
       </div>
     </div>
@@ -69,14 +66,20 @@ import Toast from '../../packs/toast'
 import moment from 'moment/moment'
 
 export default {
-  data: function () {
-    return {
-      conflicts: [],
-      displayedConflicts: [],
-      error: [],
-      start_date: moment().format('YYYY-MM-DD'),
-      end_date: moment().add(2, 'weeks').format('YYYY-MM-DD'),
-    }
+  data: () => ({
+    conflicts: [],
+    displayedConflicts: [],
+    error: [],
+    start_date: moment().format('YYYY-MM-DD'),
+    end_date: moment().add(2, 'weeks').format('YYYY-MM-DD'),
+  }),
+  watch: {
+    start_date: function() {
+      this.filter()
+    },
+    end_date: function() {
+      this.filter()
+    },
   },
   mounted: function () {
     this.getConflicts()
@@ -111,11 +114,7 @@ export default {
         })
         .fail((err) => {
           self.error = err
-          Toast.showToast(
-            'Whoops!',
-            'Unable to get details about upcoming conflicts.',
-            'danger'
-          )
+          Toast.failToast('Unable to get details about upcoming conflicts')
           console.log(err)
         })
     },
