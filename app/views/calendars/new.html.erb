@@ -10,7 +10,7 @@
     </p>
   </div>
 
-  <div class="form">
+  <%= form_with url: '/calendar', method: :post do |form| %>
     <%= collection_select :donation, :user_id, User.with_role(:member).for_season(Season.last.id), :id, :full_name %>
-  </div>
+  <% end %>
 <% end %>

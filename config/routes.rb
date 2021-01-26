@@ -54,8 +54,8 @@ Rails.application.routes.draw do
   post 'reset', to: 'settings#complete_reset'
 
   get 'rhythm-converter', to: 'tools#rhythm_converter'
-
-  get 'calendar', to: 'calendars#new'
+  
+  resources :calendars, only: %i[new create]
 
   resources :whistleblowers, only: %i[index create]
 end
