@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cap City Percussion</title>
+    <%= csrf_meta_tags %>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  </head>
+
+  <body class="cap-gray">
+    <div class="container-fluid pb-3">
+      <div class="row">
+        <div class="col-12 p-3">
+          <%= render 'flashes' %>
+        </div>
+      </div>
+
+      <div class="row">
+        <main class="col-12 p-3" id="main-content">
+          <%= yield :main %>
+        </main>
+      </div>
+    </div>
+
+    <%= javascript_pack_tag 'calendar' %>
+
+    <%= yield :scripts %>
+  </body>
+</html>

@@ -55,5 +55,7 @@ Rails.application.routes.draw do
 
   get 'rhythm-converter', to: 'tools#rhythm_converter'
 
+  get 'calendar', to: 'calendars#new'
+
   resources :whistleblowers, only: %i[index create]
 end

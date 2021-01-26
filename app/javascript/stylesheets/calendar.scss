@@ -1,0 +1,27 @@
+@import 'bootstrap';
+@import 'colors';
+
+$space-s: .5rem;
+$space-m: .75rem;
+$space-l: 1rem;
+
+html {
+  background-color: $cap-gray;
+}
+
+.banner-container {
+  max-width: 42rem;
+  padding: 0 1rem 0 1rem;
+  margin: 0 auto;
+
+  img {
+    height: auto;
+    max-width: 100%;
+  }
+}
+
+.explanation-container {
+  color: #ffffff;
+  margin: 3rem auto;
+  max-width: 42rem;
+}
