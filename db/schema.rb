@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_09_022502) do
+ActiveRecord::Schema.define(version: 2021_01_22_044403) do
 
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
@@ -56,6 +56,37 @@ ActiveRecord::Schema.define(version: 2020_11_09_022502) do
     t.index ["season_id"], name: "index_conflicts_on_season_id"
     t.index ["status_id"], name: "index_conflicts_on_status_id"
     t.index ["user_id"], name: "index_conflicts_on_user_id"
+  end
+
+  create_table "inventory_categories", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "inventory_items", force: :cascade do |t|
+    t.string "name"
+    t.integer "quantity"
+    t.integer "inventory_categories_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["inventory_categories_id"], name: "index_inventory_items_on_inventory_categories_id"
+  end
+
+  create_table "inventory_items_transactions", force: :cascade do |t|
+    t.integer "inventory_transactions_id"
+    t.integer "inventory_items_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["inventory_items_id"], name: "index_inv_items_trans_on_inv_items_id"
+    t.index ["inventory_transactions_id"], name: "index_inv_items_trans_on_inv_trans_id"
+  end
+
+  create_table "inventory_transactions", force: :cascade do |t|
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "user_id"
+    t.index ["user_id"], name: "index_inventory_transactions_on_user_id"
   end
 
   create_table "nine_volts", force: :cascade do |t|
@@ -141,4 +172,5 @@ ActiveRecord::Schema.define(version: 2020_11_09_022502) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  add_foreign_key "inventory_items", "inventory_categories", column: "inventory_categories_id"
 end
