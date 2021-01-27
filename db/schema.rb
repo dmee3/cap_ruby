@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_26_161027) do
+ActiveRecord::Schema.define(version: 2021_01_27_012209) do
 
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
@@ -40,6 +40,10 @@ ActiveRecord::Schema.define(version: 2021_01_26_161027) do
   create_table "calendar_donations", force: :cascade do |t|
     t.integer "user_id"
     t.integer "amount"
+    t.string "notes"
+    t.integer "donation_date"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.index ["user_id"], name: "index_calendar_donations_on_user_id"
   end
 

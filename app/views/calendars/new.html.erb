@@ -3,14 +3,9 @@
     <%= image_pack_tag 'full_logo_white.png' %>
   </div>
 
-  <div class="explanation-container">
-    <h1>Calendar Fundraiser</h1>
-    <p>
-      First, choose a Cap City member to support. Then, pick one or more calendar dates and you can sponsor that member for the total day amount (e.g. March 17th = $17).
-    </p>
-  </div>
-
-  <%= form_with url: '/calendar', method: :post do |form| %>
-    <%= collection_select :donation, :user_id, User.with_role(:member).for_season(Season.last.id), :id, :full_name %>
+  <%= form_with url: '/calendars', method: :post, html: { id: 'form-container' } do |form| %>
+    <calendar-picker
+      :members="<%= @members %>"
+    />
   <% end %>
 <% end %>
