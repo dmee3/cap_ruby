@@ -107,6 +107,7 @@ GEM
       timers (>= 4.1.1)
     celluloid-supervision (0.20.6)
       timers (>= 4.1.1)
+    chunky_png (1.4.0)
     concurrent-ruby (1.1.7)
     connection_pool (2.2.2)
     crass (1.0.6)
@@ -377,6 +378,7 @@ DEPENDENCIES
   byebug
   capybara (~> 2.15, < 4.0)
   celluloid-io
+  chunky_png
   dotenv-rails
   factory_bot_rails
   faker (~> 1.9.6)

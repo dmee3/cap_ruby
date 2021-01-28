@@ -2,7 +2,7 @@ class CalendarsController < ApplicationController
   layout 'calendar'
 
   def index
-    donations = Calendar::Donation.where(user_id: params[:user_id]).map(&:id)
+    donations = Calendar::Donation.where(user_id: params[:user_id]).map(&:donation_date)
     render json: donations, status: 200
   end
 
@@ -22,7 +22,13 @@ class CalendarsController < ApplicationController
     response = charge_card
 
     if response&.id
-      create_donations(response.id)
+      dates = JSON.parse(donation_params[:dates])
+      user_id = donation_params[:user_id]
+
+      create_donations(response.id, dates)
+      fname = Calendar::ImageService.generate(user_id)
+      send_mail(user_id, dates, fname)
+      
       render :success
     else
       render :error
@@ -40,12 +46,10 @@ class CalendarsController < ApplicationController
     )
   rescue StandardError => e
     Rollbar.error(e)
-    logger.error e
     nil
   end
 
-  def create_donations(charge_id)
-    dates = JSON.parse(donation_params[:dates])
+  def create_donations(charge_id, dates)
     dates.each do |date|
       Calendar::Donation.create(
         user_id: donation_params[:user_id],
@@ -55,6 +59,14 @@ class CalendarsController < ApplicationController
         donor_name: nil
       )
     end
+  end
+
+  def send_mail(user_id, dates, fname)
+    CalendarMailer.with(
+      user_id: user_id,
+      donation_dates: dates,
+      fname: fname
+    ).calendar_email.deliver_later
   end
 
   def donation_params

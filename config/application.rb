@@ -11,6 +11,9 @@ module CapRuby
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 5.1
 
+    # Used as of Rails 6.0
+    config.action_mailer.delivery_job: "ActionMailer::MailDeliveryJob"
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded after loading
@@ -22,7 +25,7 @@ module CapRuby
     config.eager_load_paths << Rails.root.join('lib/api')
     config.eager_load_paths << Rails.root.join('bot')
 
-    # Don't generate system test files.
+    # Don't generate system test files
     config.generators.system_tests = nil
 
     # Set time zone
