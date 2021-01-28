@@ -42,11 +42,20 @@
     <div id="total">
       <h2>Total Donation: <span id="donation-amount">${{totalDonation}}.00</span></h2>
     </div>
+
+    <div>
+      <stripe-element-card/>
+    </div>
   </div>
 </template>
 
 <script>
+import { StripeElementCard } from '@vue-stripe/vue-stripe';
+
 export default {
+  components: {
+    StripeElementCard
+  },
   props: {
     members: {
       type: Array,
