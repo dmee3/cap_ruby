@@ -9,6 +9,7 @@
           class="custom-select"
           @change="updateSelectedMember"
         >
+          <option value="null">Choose Member</option>
           <option v-for="member in members" :key="member.id" :value="member.id">
             {{ member.first_name + ' ' + member.last_name }}
           </option>
@@ -29,8 +30,8 @@
             <div
               :key="index"
               class="date"
-              :data-date="date"
-              @click="updateSelectedDates"
+              :class="classFor(date)"
+              @click="updateSelectedDates($event, date)"
             >{{ date == null ? '&nbsp;' : date }}</div>
           </template>
         </div>
@@ -65,6 +66,7 @@
 
 <script>
 import { StripeElementCard } from '@vue-stripe/vue-stripe'
+import Utilities from '../../packs/utilities'
 
 export default {
   components: {
@@ -83,8 +85,10 @@ export default {
   data: () => {
     return {
       clickedPay: false,
+      dates: [],
       days: [
-        { dayOfWeek: 'Sunday', dates: [null, 7, 14, 21, 28] },
+        {
+          dayOfWeek: 'Sunday', dates: [null, 7, 14, 21, 28] },
         { dayOfWeek: 'Monday', dates: [1, 8, 15, 22, 29] },
         { dayOfWeek: 'Tuesday', dates: [2, 9, 16, 23, 30] },
         { dayOfWeek: 'Wednesday', dates: [3, 10, 17, 24, 31] },
@@ -93,7 +97,6 @@ export default {
         { dayOfWeek: 'Saturday', dates: [6, 13, 20, 27, null] }
       ],
       selectedMember: null,
-      selectedDates: [],
       stripeStyle: {
         invalid: {
           iconColor: '#eb1c26',
@@ -105,6 +108,13 @@ export default {
     }
   },
   computed: {
+    selectedDates: function() {
+      const selected = []
+      this.dates.forEach((date, index) => {
+        if (date.selected && date.available) selected.push(index + 1)
+      })
+      return selected
+    },
     totalDonation: function() {
       if (this.selectedDates.length == 0) return 0
       return this.selectedDates.reduce((acc, curr) => acc + curr)
@@ -120,32 +130,61 @@ export default {
       if (newVal != null && this.clickedPay === true) {
         this.submitForm()
       }
-    },
-    selectedMember: function() {
-      this.updateSubmittable()
-    },
-    selectedDates: function() {
-      this.updateSubmittable()
     }
   },
+  mounted: function() { this.resetCalendar() },
   methods: {
-    updateSelectedMember: function(event) {
-      const wrapper = document.querySelector('.custom-select-wrapper')
-      this.selectedMember = this.members[event.target.options.selectedIndex]
-      wrapper.dataset.text = `${this.selectedMember.first_name} ${this.selectedMember.last_name}`
-    },
-    updateSelectedDates: function(event) {
-      const el = event.target
-      const date = parseInt(el.dataset.date)
-      if (date == null) return
+    classFor(index) {
+      if (index == null) return ''
 
-      if (this.selectedDates.includes(date)) {
-        this.selectedDates = this.selectedDates.filter(x => x != date)
-        el.classList.remove('selected')
+      const date = this.dates[index - 1]
+      if (date == null) return ''
+
+      if (!date.available) {
+        return 'unavailable'
       } else {
-        this.selectedDates.push(date)
-        el.classList.add('selected')
+        return  (date.selected ? 'selected' : '')
       }
+    },
+    getUnavailableDates: function() {
+      const self = this
+      $.getJSON('/calendars?user_id=' + this.selectedMember.id, {
+        jwt: Utilities.getJWT(),
+      })
+        .done(function (response) {
+          self.resetCalendar()
+          response.forEach((index) => {
+            self.dates[index - 1].available = false
+          })
+        })
+        .fail(function (err) {
+          self.resetCalendar()
+        })
+    },
+    resetCalendar: function() {
+      this.dates = []
+      for (let i = 0; i < 31; i++) {
+        this.dates.push({ selected: false, available: true })
+      }
+      this.submittable = false
+    },
+    updateSelectedMember: function(event) {
+      const index = event.target.options.selectedIndex - 1
+      if (index < 0) return
+
+      const wrapper = document.querySelector('.custom-select-wrapper')
+      this.selectedMember = this.members[index]
+      wrapper.dataset.text = `${this.selectedMember.first_name} ${this.selectedMember.last_name}`
+      this.getUnavailableDates()
+
+      this.updateSubmittable()
+    },
+    updateSelectedDates: function(event, date) {
+      if (date == null || this.dates[date - 1].available === false) return
+
+      this.dates[date - 1].selected = !this.dates[date - 1].selected
+
+      this.updateSubmittable()
     },
     updateSubmittable: function() {
       if (this.selectedMember != null && this.selectedDates.length > 0) {
