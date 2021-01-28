@@ -8,19 +8,15 @@
   </head>
 
   <body class="cap-gray">
-    <div class="container-fluid pb-3">
-      <div class="row">
-        <div class="col-12 p-3">
-          <%= render 'flashes' %>
-        </div>
-      </div>
-
-      <div class="row">
-        <main class="col-12 p-3" id="main-content">
-          <%= yield :main %>
-        </main>
+    <div class="bg">
+      <div class="banner-container">
+        <%= image_pack_tag 'full_logo_white.png' %>
       </div>
     </div>
+
+    <main class="col-12 p-3" id="main-content">
+      <%= yield :main %>
+    </main>
 
     <%= javascript_pack_tag 'calendar' %>
 

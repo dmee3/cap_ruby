@@ -1,17 +1,15 @@
 <% content_for :main do %>
-  <div class="banner-container">
-    <%= image_pack_tag 'full_logo_white.png' %>
-  </div>
-
-  <%= form_with url: '/calendars', method: :post, html: { id: 'form-container' } do |form| %>
+  <div id="form-container" class="content">
     <calendar-donation-form
       :members="<%= @members %>"
+      :pk="'<%= @stripe_public_key %>'"
     />
-  <% end %>
-<% end %>
+  </div>
 
-<% content_for :scripts do %>
-  <script type="text/javascript">
-    var stripe_public_key = '<%= @stripe_public_key %>';
-  </script>
+  <%= form_with model: @donation, url: '/calendars', method: :post, html: { id: 'calendar-form' } do |f| %>
+    <%= f.hidden_field :user_id, id: 'donation_user_id' %>
+    <%= f.hidden_field :dates, id: 'donation_dates' %>
+    <%= f.hidden_field :amount, id: 'donation_amount' %>
+    <%= f.hidden_field :stripe_token, id: 'donation_stripe_token' %>
+  <% end %>
 <% end %>

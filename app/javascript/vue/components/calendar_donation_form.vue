@@ -6,8 +6,6 @@
     <div class="input-wrapper">
       <div class="custom-select-wrapper" data-text="Choose Member">
         <select
-          name="donation[user_id]"
-          id="donation_user_id"
           class="custom-select"
           @change="updateSelectedMember"
         >
@@ -19,7 +17,7 @@
     </div>
 
     <p>
-      Then, pick one or more calendar dates to help your member support Cap City for the total day amount (e.g. March 17th = $17).
+      Then, pick one or more calendar dates to help your member support Cap City for the total day amount (e.g. March 3rd = $3, 17th = $17, for a total donation of $20).
     </p>
 
     <div id="calendar-wrapper">
@@ -29,28 +27,44 @@
           <div class="day-header">{{ day.dayOfWeek }}</div>
           <template v-for="(date, index) in day.dates">
             <div
-              class="date"
               :key="index"
-              @click="updateSelectedDates"
+              class="date"
               :data-date="date"
+              @click="updateSelectedDates"
             >{{ date == null ? '&nbsp;' : date }}</div>
           </template>
         </div>
       </div>
     </div>
 
-    <div id="total">
+    <div id="total-wrapper">
       <h2>Total Donation: <span id="donation-amount">${{totalDonation}}.00</span></h2>
     </div>
 
-    <div>
-      <stripe-element-card/>
+    <div id="card-payment-wrapper">
+      <stripe-element-card
+        ref="stripeRef"
+        :elementStyle="stripeStyle"
+        :pk="pk"
+        @element-change="updateSubmittable()"
+        @token="tokenCreated"
+      />
+    </div>
+
+    <div id="submit-wrapper">
+      <button
+        id="submit-button"
+        :disabled="submittable == false"
+        @click="handlePay()"
+      >
+        DONATE
+      </button>
     </div>
   </div>
 </template>
 
 <script>
-import { StripeElementCard } from '@vue-stripe/vue-stripe';
+import { StripeElementCard } from '@vue-stripe/vue-stripe'
 
 export default {
   components: {
@@ -60,42 +74,34 @@ export default {
     members: {
       type: Array,
       required: true
+    },
+    pk: {
+      type: String,
+      required: true
     }
   },
   data: () => {
     return {
-      selectedMemberId: null,
-      selectedDates: [],
+      clickedPay: false,
       days: [
-        {
-          dayOfWeek: 'Sunday',
-          dates: [null, 7, 14, 21, 28]
+        { dayOfWeek: 'Sunday', dates: [null, 7, 14, 21, 28] },
+        { dayOfWeek: 'Monday', dates: [1, 8, 15, 22, 29] },
+        { dayOfWeek: 'Tuesday', dates: [2, 9, 16, 23, 30] },
+        { dayOfWeek: 'Wednesday', dates: [3, 10, 17, 24, 31] },
+        { dayOfWeek: 'Thursday', dates: [4, 11, 18, 25, null] },
+        { dayOfWeek: 'Friday', dates: [5, 12, 19, 26, null] },
+        { dayOfWeek: 'Saturday', dates: [6, 13, 20, 27, null] }
+      ],
+      selectedMember: null,
+      selectedDates: [],
+      stripeStyle: {
+        invalid: {
+          iconColor: '#eb1c26',
+          color: '#eb1c26',
         },
-        {
-          dayOfWeek: 'Monday',
-          dates: [1, 8, 15, 22, 29]
-        },
-        {
-          dayOfWeek: 'Tuesday',
-          dates: [2, 9, 16, 23, 30]
-        },
-        {
-          dayOfWeek: 'Wednesday',
-          dates: [3, 10, 17, 24, 31]
-        },
-        {
-          dayOfWeek: 'Thursday',
-          dates: [4, 11, 18, 25, null]
-        },
-        {
-          dayOfWeek: 'Friday',
-          dates: [5, 12, 19, 26, null]
-        },
-        {
-          dayOfWeek: 'Saturday',
-          dates: [6, 13, 20, 27, null]
-        }
-      ]
+      },
+      stripeToken: null,
+      submittable: false
     }
   },
   computed: {
@@ -104,11 +110,29 @@ export default {
       return this.selectedDates.reduce((acc, curr) => acc + curr)
     }
   },
+  watch: {
+    clickedPay: function(newVal) {
+      if (newVal === true && this.stripeToken != null) {
+        this.submitForm()
+      }
+    },
+    stripeToken: function(newVal) {
+      if (newVal != null && this.clickedPay === true) {
+        this.submitForm()
+      }
+    },
+    selectedMember: function() {
+      this.updateSubmittable()
+    },
+    selectedDates: function() {
+      this.updateSubmittable()
+    }
+  },
   methods: {
     updateSelectedMember: function(event) {
       const wrapper = document.querySelector('.custom-select-wrapper')
-      const chosenMember = this.members[event.target.options.selectedIndex]
-      wrapper.dataset.text = `${chosenMember.first_name} ${chosenMember.last_name}`
+      this.selectedMember = this.members[event.target.options.selectedIndex]
+      wrapper.dataset.text = `${this.selectedMember.first_name} ${this.selectedMember.last_name}`
     },
     updateSelectedDates: function(event) {
       const el = event.target
@@ -122,18 +146,42 @@ export default {
         this.selectedDates.push(date)
         el.classList.add('selected')
       }
+    },
+    updateSubmittable: function() {
+      if (this.selectedMember != null && this.selectedDates.length > 0) {
+        this.submittable = true
+      } else {
+        this.submittable = false
+      }
+    },
+    tokenCreated(token) {
+      this.stripeToken = token
+    },
+    handlePay() {
+      if (this.stripeToken == null) {
+        this.$refs.stripeRef.submit()
+      }
+      this.clickedPay = true
+      this.submittable = false
+    },
+    submitForm() {
+      const form = document.getElementById('calendar-form')
+      const userIdInput = document.getElementById('donation_user_id')
+      const datesInput = document.getElementById('donation_dates')
+      const amountInput = document.getElementById('donation_amount')
+      const tokenInput = document.getElementById('donation_stripe_token')
+
+      userIdInput.value = this.selectedMember.id
+      datesInput.value = JSON.stringify(this.selectedDates)
+      amountInput.value = this.totalDonation * 100
+      tokenInput.value = this.stripeToken.id
+      form.submit()
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.wrapper {
-  color: #ffffff;
-  margin: 3rem auto;
-  max-width: 42rem;
-}
-
 .input-wrapper {
   display: inline-block;
   margin-left: 1rem;
@@ -201,7 +249,6 @@ export default {
 
     .day-of-week {
       div {
-        margin: .125rem;
         padding: .25rem;
       }
 
@@ -228,12 +275,26 @@ export default {
   }
 }
 
-#total {
+#total-wrapper {
   text-align: center;
   margin-top: 2rem;
 
   #donation-amount {
     font-weight: bold;
   }
+}
+
+#card-payment-wrapper {
+  margin-top: 3rem;
+  min-height: 88px;
+
+  #stripe-element-errors {
+    margin-top: .5rem;
+  }
+}
+
+#submit-wrapper {
+  margin-top: 1rem;
+  text-align: center;
 }
 </style>
