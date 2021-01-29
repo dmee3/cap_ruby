@@ -87,8 +87,7 @@ export default {
       clickedPay: false,
       dates: [],
       days: [
-        {
-          dayOfWeek: 'Sunday', dates: [null, 7, 14, 21, 28] },
+        { dayOfWeek: 'Sunday', dates: [null, 7, 14, 21, 28] },
         { dayOfWeek: 'Monday', dates: [1, 8, 15, 22, 29] },
         { dayOfWeek: 'Tuesday', dates: [2, 9, 16, 23, 30] },
         { dayOfWeek: 'Wednesday', dates: [3, 10, 17, 24, 31] },
@@ -158,6 +157,7 @@ export default {
           })
         })
         .fail(function (err) {
+          console.log(err)
           self.resetCalendar()
         })
     },
