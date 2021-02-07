@@ -1,0 +1,17 @@
+<% content_for :main do %>
+  <div class="row">
+    <div class="col-md-9">
+      <h1>Edit Category</h1>
+    </div>
+    <div class="col-md-3 text-right-md mb-1">
+      <%= link_to inventory_categories_path, class: 'btn btn-light mt-1' do %>
+        <span class="d-none d-sm-inline">Back</span>
+        <span class="d-sm-none"><i class="fas fa-plus"></i></span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
+    <%= render 'inventory/categories/form', category: @category %>
+  </div>
+<% end %>

@@ -45,6 +45,10 @@ Rails.application.routes.draw do
     post 'charge', to: 'payments#charge'
   end
 
+  namespace :inventory do
+    resources :categories, only: %i[index show new create edit update]
+  end
+
   get 'settings', to: 'settings#index'
   post 'settings', to: 'settings#update'
   post 'settings-password', to: 'settings#change_password'

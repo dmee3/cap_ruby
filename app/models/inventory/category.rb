@@ -9,4 +9,5 @@
 #
 class Inventory::Category < ApplicationRecord
   validates :name, presence: true
+  has_many :items, class_name: 'Inventory::Item', foreign_key: :inventory_category_id
 end
