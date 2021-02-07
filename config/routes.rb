@@ -46,7 +46,9 @@ Rails.application.routes.draw do
   end
 
   namespace :inventory do
-    resources :categories, only: %i[index show new create edit update]
+    resources :categories, only: %i[index show new create edit update] do
+      resources :items, only: %i[new create edit update]
+    end
   end
 
   get 'settings', to: 'settings#index'

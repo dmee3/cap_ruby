@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_06_191013) do
+ActiveRecord::Schema.define(version: 2021_02_07_212118) do
 
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
@@ -84,19 +84,15 @@ ActiveRecord::Schema.define(version: 2021_02_06_191013) do
     t.index ["inventory_category_id"], name: "index_inventory_items_on_inventory_category_id"
   end
 
-  create_table "inventory_items_transactions", force: :cascade do |t|
-    t.integer "inventory_transaction_id"
-    t.integer "inventory_item_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["inventory_item_id"], name: "index_inv_items_trans_on_inv_items_id"
-    t.index ["inventory_transaction_id"], name: "index_inv_items_trans_on_inv_trans_id"
-  end
-
   create_table "inventory_transactions", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "user_id"
+    t.date "performed_on"
+    t.integer "inventory_item_id"
+    t.integer "previous_quantity"
+    t.integer "change"
+    t.index ["inventory_item_id"], name: "index_inventory_transactions_on_inventory_item_id"
     t.index ["user_id"], name: "index_inventory_transactions_on_user_id"
   end
 

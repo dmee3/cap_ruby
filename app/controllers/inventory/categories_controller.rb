@@ -16,9 +16,10 @@ module Inventory
     def create
       @category = Inventory::Category.new(category_params)
       if @category.save
-        redirect_to @category, notice: 'Hell yeah brother.'
+        flash[:success] = "Created #{@category.name} category"
+        redirect_to @category
       else
-        flash.now[:error] = @category.errors
+        flash.now[:error] = @category.errors.full_messages
         render :new
       end
     end
@@ -27,9 +28,10 @@ module Inventory
 
     def update
       if @category.update(category_params)
-        redirect_to @category, notice: 'Hell yeah brother.'
+        flash[:success] = "Updated #{@category.name} category"
+        redirect_to @category
       else
-        flash.now[:error] = @category.errors
+        flash.now[:error] = @category.errors.full_messages
         render :edit
       end
     end

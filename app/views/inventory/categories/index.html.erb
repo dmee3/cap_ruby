@@ -1,13 +1,8 @@
 <% content_for :main do %>
   <div class="row">
-    <div class="col-md-9">
+    <div class="col-12 d-flex justify-content-between">
       <h1>Inventory</h1>
-    </div>
-    <div class="col-md-3 text-right-md mb-1">
-      <%= link_to new_inventory_category_path, class: 'btn btn-light mt-1' do %>
-        <span class="d-none d-sm-inline">New Category</span>
-        <span class="d-sm-none"><i class="fas fa-plus"></i></span>
-      <% end %>
+        <%= link_to 'New Category', new_inventory_category_path, class: 'btn btn-light mt-1' %>
     </div>
   </div>
 
@@ -17,10 +12,8 @@
         <ul class="list-group list-group-flush">
           <% @categories.each do |category| %>
             <li class="list-group-item list-group-item-action">
-              <%= link_to inventory_category_path(category), class: 'd-flex w-100 justify-content-between text-body' do %>
-                <span><%= category.name %></span>
-                <span>
-                </span>
+              <%= link_to inventory_category_path(category), class: 'd-flex w-100 justify-content-between' do %>
+                <span class="text-body"><%= category.name %></span>
               <% end %>
             </li>
           <% end %>
