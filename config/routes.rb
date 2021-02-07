@@ -47,7 +47,7 @@ Rails.application.routes.draw do
 
   namespace :inventory do
     resources :categories, only: %i[index show new create edit update] do
-      resources :items, only: %i[new create edit update]
+      resources :items, only: %i[new create edit update show]
     end
   end
 

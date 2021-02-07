@@ -2,7 +2,9 @@ module Inventory
   class ItemsController < ApplicationController
     before_action :logout_if_unauthorized
     before_action :set_category
-    before_action :set_item, only: %i[edit update]
+    before_action :set_item, only: %i[edit update show]
+
+    def show; end
 
     def new
       @item = Item.new
