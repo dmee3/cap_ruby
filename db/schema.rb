@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_22_044403) do
+ActiveRecord::Schema.define(version: 2021_02_06_191013) do
 
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
@@ -35,6 +35,17 @@ ActiveRecord::Schema.define(version: 2021_01_22_044403) do
     t.string "saying"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "calendar_donations", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "amount"
+    t.string "notes"
+    t.integer "donation_date"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "donor_name"
+    t.index ["user_id"], name: "index_calendar_donations_on_user_id"
   end
 
   create_table "conflict_statuses", force: :cascade do |t|
@@ -67,19 +78,19 @@ ActiveRecord::Schema.define(version: 2021_01_22_044403) do
   create_table "inventory_items", force: :cascade do |t|
     t.string "name"
     t.integer "quantity"
-    t.integer "inventory_categories_id"
+    t.integer "inventory_category_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["inventory_categories_id"], name: "index_inventory_items_on_inventory_categories_id"
+    t.index ["inventory_category_id"], name: "index_inventory_items_on_inventory_category_id"
   end
 
   create_table "inventory_items_transactions", force: :cascade do |t|
-    t.integer "inventory_transactions_id"
-    t.integer "inventory_items_id"
+    t.integer "inventory_transaction_id"
+    t.integer "inventory_item_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["inventory_items_id"], name: "index_inv_items_trans_on_inv_items_id"
-    t.index ["inventory_transactions_id"], name: "index_inv_items_trans_on_inv_trans_id"
+    t.index ["inventory_item_id"], name: "index_inv_items_trans_on_inv_items_id"
+    t.index ["inventory_transaction_id"], name: "index_inv_items_trans_on_inv_trans_id"
   end
 
   create_table "inventory_transactions", force: :cascade do |t|
@@ -172,5 +183,5 @@ ActiveRecord::Schema.define(version: 2021_01_22_044403) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
-  add_foreign_key "inventory_items", "inventory_categories", column: "inventory_categories_id"
+  add_foreign_key "inventory_items", "inventory_categories"
 end

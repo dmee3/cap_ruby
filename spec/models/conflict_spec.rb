@@ -1,3 +1,24 @@
+# == Schema Information
+#
+# Table name: conflicts
+#
+#  id         :integer          not null, primary key
+#  deleted_at :datetime
+#  end_date   :datetime
+#  reason     :text
+#  start_date :datetime
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  season_id  :integer
+#  status_id  :integer
+#  user_id    :integer
+#
+# Indexes
+#
+#  index_conflicts_on_season_id  (season_id)
+#  index_conflicts_on_status_id  (status_id)
+#  index_conflicts_on_user_id    (user_id)
+#
 require 'rails_helper'
 
 RSpec.describe Conflict, type: :model do
