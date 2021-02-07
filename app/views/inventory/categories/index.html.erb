@@ -17,20 +17,11 @@
         <ul class="list-group list-group-flush">
           <% @categories.each do |category| %>
             <li class="list-group-item list-group-item-action">
-              <a href="<%= inventory_category_path(category) %>" class="d-flex w-100 justify-content-between text-body">
-                <span class="text-body"><%= category.name %></span>
-                <span class="float-right">
-                  <div class="dropdown">
-                    <button id="dropdown-<%= category.id %>" class="btn btn-outline-secondary btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-h"></i>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-<%= category.id %>">
-                      <%= link_to 'View Details', inventory_category_path(category), class: 'dropdown-item' %>
-                      <%= link_to 'Edit Info', edit_inventory_category_path(category), class: 'dropdown-item' %>
-                    </div>
-                  </div>
+              <%= link_to inventory_category_path(category), class: 'd-flex w-100 justify-content-between text-body' do %>
+                <span><%= category.name %></span>
+                <span>
                 </span>
-              </a>
+              <% end %>
             </li>
           <% end %>
         </ul>
