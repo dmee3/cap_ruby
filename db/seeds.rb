@@ -108,9 +108,7 @@ unless User.find_by_email ENV['ROOT_USER_EMAIL']
     password_confirmation: ENV['ROOT_USER_PASSWORD']
   )
 
-  %W(2018 2019 2020 2021).each do |year|
-    me.seasons << seasons[year][:season]
-  end
+  %W(2018 2019 2020 2021).each { |year| me.seasons << seasons[year][:season] }
   me.role = admin_role
 
   if me.save!

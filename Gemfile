@@ -33,6 +33,9 @@ gem 'select2-rails'
 gem 'faraday'
 gem 'google-api-client'
 
+# Calendar image processing
+gem 'chunky_png'
+
 group :production do
   gem 'scout_apm', '~> 2.6.10'
   gem 'rails_12factor'
