@@ -9,7 +9,7 @@ Bundler.require(*Rails.groups)
 module CapRuby
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 5.1
+    config.load_defaults 6.0
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers
@@ -22,7 +22,7 @@ module CapRuby
     config.eager_load_paths << Rails.root.join('lib/api')
     config.eager_load_paths << Rails.root.join('bot')
 
-    # Don't generate system test files.
+    # Don't generate system test files
     config.generators.system_tests = nil
 
     # Set time zone

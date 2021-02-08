@@ -1037,6 +1037,11 @@
   resolved "https://registry.yarnpkg.com/@types/q/-/q-1.5.4.tgz#15925414e0ad2cd765bfef58842f7e26a7accb24"
   integrity sha512-1HcDas8SEj4z1Wc696tH56G8OlRaH/sqZOynNNB+HF0WOeXPaxTtbYzJY2oEfiUxjSKjhCKr+MvR7dCHcEelug==
 
+"@vue-stripe/vue-stripe@^4.0.3":
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/@vue-stripe/vue-stripe/-/vue-stripe-4.0.3.tgz#4d503434857757fdaeb848f1efd7027f1d58212b"
+  integrity sha512-+GoKNZ4Hf02LIKNCBui86RvJnzsWjGun+lMLhEr+hYI2NT7OsiKgPJe9fkjUYfemlmD5yASBfVI1n24B+HqIDw==
+
 "@vue/component-compiler-utils@^3.1.0":
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/@vue/component-compiler-utils/-/component-compiler-utils-3.2.0.tgz#8f85182ceed28e9b3c75313de669f83166d11e5d"
