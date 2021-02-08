@@ -1,8 +1,12 @@
+<% content_for :side_nav do %>
+  <%= render 'admin/application/side_nav', page: 'inventory' %>
+<% end %>
+
 <% content_for :main do %>
   <div class="row">
     <div class="col-12 d-flex justify-content-between">
       <h1>New Item</h1>
-      <%= link_to 'Back', inventory_categories_path, class: 'btn btn-light mt-1' %>
+      <span><%= link_to 'Back', inventory_categories_path, class: 'btn btn-light' %></span>
     </div>
   </div>
 
@@ -15,7 +19,7 @@
         </div>
         <div class="col-sm-12 form-group">
           <%= f.label :quantity %>
-          <%= f.text_field :quantity, class: 'form-control' %>
+          <%= f.number_field :quantity, class: 'form-control' %>
         </div>
       </div>
       <div class="row mt-3">

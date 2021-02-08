@@ -1,6 +1,7 @@
 module Inventory
   class ItemsController < ApplicationController
     before_action :logout_if_unauthorized
+    before_action :redirect_if_no_inventory_access
     before_action :set_category
     before_action :set_item, only: %i[edit update show]
 
@@ -49,6 +50,10 @@ module Inventory
           )
         end
       end
+      true
+    rescue StandardError => e
+      Rollbar.error(e)
+      false
     end
 
     def set_category

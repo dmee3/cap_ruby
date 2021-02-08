@@ -1,10 +1,14 @@
+<% content_for :side_nav do %>
+  <%= render 'admin/application/side_nav', page: 'inventory' %>
+<% end %>
+
 <% content_for :main do %>
   <div class="row">
     <div class="col-12 d-flex justify-content-between">
       <h1><%= @item.name %></h1>
       <span>
-        <%= link_to 'Edit', edit_inventory_category_item_path(@category, @item), class: 'btn btn-light mt-1' %>
-        <%= link_to 'Back', inventory_categories_path, class: 'btn btn-light mt-1' %>
+        <%= link_to 'Edit', edit_inventory_category_item_path(@category, @item), class: 'btn btn-light' %>
+        <%= link_to 'Back', inventory_categories_path, class: 'btn btn-light' %>
       </span>
     </div>
   </div>

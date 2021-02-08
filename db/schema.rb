@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_07_212118) do
+ActiveRecord::Schema.define(version: 2021_02_08_022959) do
 
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
@@ -173,6 +173,7 @@ ActiveRecord::Schema.define(version: 2021_02_07_212118) do
     t.string "username"
     t.string "phone"
     t.string "reset_key"
+    t.boolean "inventory_access", default: false
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["role_id"], name: "index_users_on_role_id"

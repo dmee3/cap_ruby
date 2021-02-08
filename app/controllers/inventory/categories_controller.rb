@@ -1,6 +1,7 @@
 module Inventory
   class CategoriesController < ApplicationController
     before_action :logout_if_unauthorized
+    before_action :redirect_if_no_inventory_access
     before_action :set_category, only: %i[show edit update]
 
     def index

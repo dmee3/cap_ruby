@@ -2,18 +2,19 @@
 #
 # Table name: users
 #
-#  id              :integer          not null, primary key
-#  deleted_at      :datetime
-#  email           :string
-#  first_name      :string
-#  last_name       :string
-#  password_digest :string
-#  phone           :string
-#  reset_key       :string
-#  username        :string
-#  created_at      :datetime         not null
-#  updated_at      :datetime         not null
-#  role_id         :integer
+#  id               :integer          not null, primary key
+#  deleted_at       :datetime
+#  email            :string
+#  first_name       :string
+#  inventory_access :boolean          default(FALSE)
+#  last_name        :string
+#  password_digest  :string
+#  phone            :string
+#  reset_key        :string
+#  username         :string
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  role_id          :integer
 #
 # Indexes
 #
