@@ -1,3 +1,16 @@
+# == Schema Information
+#
+# Table name: payment_schedules
+#
+#  id        :integer          not null, primary key
+#  season_id :integer
+#  user_id   :integer
+#
+# Indexes
+#
+#  index_payment_schedules_on_season_id  (season_id)
+#  index_payment_schedules_on_user_id    (user_id)
+#
 class PaymentSchedule < ApplicationRecord
   belongs_to :user
   has_many :payment_schedule_entries, dependent: :destroy

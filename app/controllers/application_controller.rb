@@ -35,6 +35,10 @@ class ApplicationController < ActionController::Base
     redirect_to(root_url) unless current_user&.is?(role)
   end
 
+  def redirect_if_no_inventory_access
+    redirect_to(root_url) unless current_user&.is?(:admin) || current_user.quartermaster?
+  end
+
   def set_stripe_public_key
     if Rails.env.production? && !ENV['STAGING']
       @stripe_public_key = ENV['STRIPE_PUBLIC_KEY']

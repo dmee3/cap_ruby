@@ -33,3 +33,10 @@
     <span class="d-none d-md-inline">Documents</span>
   <% end %>
 </li>
+<li class="nav-item">
+  <% cl = (page == 'inventory' ? 'nav-link active' : 'nav-link') %>
+  <%= link_to inventory_categories_path, { class: cl } do %>
+    <i class="fas fa-fw fa-exchange-alt mr-2"></i>
+    <span class="d-none d-md-inline">Inventory</span>
+  <% end %>
+</li>

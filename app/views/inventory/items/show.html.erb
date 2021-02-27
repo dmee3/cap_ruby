@@ -1,0 +1,33 @@
+<% content_for :side_nav do %>
+  <%= render 'admin/application/side_nav', page: 'inventory' %>
+<% end %>
+
+<% content_for :main do %>
+  <div class="row">
+    <div class="col-12 d-flex justify-content-between">
+      <h1><%= @item.name %></h1>
+      <span>
+        <%= link_to 'Edit', edit_inventory_category_item_path(@category, @item), class: 'btn btn-light' %>
+        <%= link_to 'Back', inventory_categories_path, class: 'btn btn-light' %>
+      </span>
+    </div>
+  </div>
+
+  <div class="row mt-3 card">
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item d-flex w-100 justify-content-between text-body">
+        <span>Current</span>
+        <span><%= @item.quantity %></span>
+      </li>
+      <% @item.transactions.order('performed_on desc, created_at desc').each do |t| %>
+        <li class="list-group-item d-flex w-100 justify-content-between text-body">
+          <span><%= t.performed_on %></span>
+          <span>
+            <%= t.previous_quantity %>
+            <span class="text-<%= t.change > 0 ? "success" : "danger" %>"><%= t.change > 0 ? "+#{t.change}" : t.change %></span>
+              = <span class="font-weight-bold"><%= t.previous_quantity + t.change %></span>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

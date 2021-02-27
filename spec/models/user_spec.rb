@@ -1,3 +1,28 @@
+# == Schema Information
+#
+# Table name: users
+#
+#  id               :integer          not null, primary key
+#  deleted_at       :datetime
+#  email            :string
+#  first_name       :string
+#  inventory_access :boolean          default(FALSE)
+#  last_name        :string
+#  password_digest  :string
+#  phone            :string
+#  reset_key        :string
+#  username         :string
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  role_id          :integer
+#
+# Indexes
+#
+#  index_users_on_deleted_at  (deleted_at)
+#  index_users_on_email       (email) UNIQUE
+#  index_users_on_role_id     (role_id)
+#  index_users_on_username    (username) UNIQUE
+#
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
