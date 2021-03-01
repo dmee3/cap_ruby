@@ -10,12 +10,7 @@ class CalendarsController < ApplicationController
   def new
     set_stripe_public_key
     @donation = Calendar::Donation.new
-    @members = User
-      .with_role(:member)
-      .for_season(Season.last.id)
-      .select(:id, :first_name, :last_name)
-      .order(:first_name)
-      .to_json
+    @members = get_calendar_members.to_json
   end
 
   def download
@@ -57,6 +52,19 @@ class CalendarsController < ApplicationController
   rescue StandardError => e
     Rollbar.error(e)
     nil
+  end
+
+  def get_calendar_members
+    members = User
+      .with_role(:member)
+      .for_season(Season.last.id)
+      .select(:id, :first_name, :last_name)
+      .order(:first_name)
+
+    # Filter people who quit
+    members.reject do |u|
+      [196, 202, 265, 277, 281, 282, 289].include?(u.id)
+    end
   end
 
   def create_donations(charge_id, dates)
