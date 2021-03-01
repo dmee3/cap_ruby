@@ -20,6 +20,7 @@
       <% if current_user.quartermaster? %>
         <%= link_to 'Inventory', inventory_categories_path, { class: 'dropdown-item' } %>
       <% end %>
+      <%= link_to 'Calendar Sponsorships', '/calendars/download', { class: 'dropdown-item' } %>
       <%= link_to 'Whistleblower', whistleblowers_path, { class: 'dropdown-item' } %>
       <%= link_to 'Log Out', logout_path, { class: 'dropdown-item' } %>
     </div>
