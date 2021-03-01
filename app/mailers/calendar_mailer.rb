@@ -10,6 +10,10 @@ class CalendarMailer < ApplicationMailer
       File.delete(params[:fname])
     end
 
-    mail(to: @user.email, subject: 'Calendar donation received!')
+    mail(
+      to: @user.email,
+      subject: 'Calendar donation received!',
+      bcc: ENV['EMAIL_DAN']
+    )
   end
 end

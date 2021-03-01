@@ -17,6 +17,15 @@ class CalendarsController < ApplicationController
       .to_json
   end
 
+  def download
+    if current_user && current_user.is?(:member)
+      img = Calendar::ImageService.generate_image(current_user.id)
+      send_data img.to_datastream, type: 'image/png', disposition: 'inline'
+    else
+      redirect_to :new
+    end
+  end
+
   def create
     set_stripe_secret_key
     response = charge_card
@@ -26,7 +35,7 @@ class CalendarsController < ApplicationController
       user_id = donation_params[:user_id]
 
       create_donations(response.id, dates)
-      fname = Calendar::ImageService.generate(user_id)
+      fname = Calendar::ImageService.generate_file(user_id)
       send_mail(user_id, dates, fname)
       
       render :success
