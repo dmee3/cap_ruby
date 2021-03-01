@@ -1,12 +1,10 @@
 class CalendarMailer < ApplicationMailer
   def calendar_email
     @user = User.find(params[:user_id])
-    @donation_dates = params[:donation_dates].map { |d| "3/d" }
+    @donation_dates = params[:donation_dates].map { |d| "3/#{d}" }
 
     if File.exist?(params[:fname])
-      File.open(params[:fname]) do |f|
-        attachments[params[:fname]] = f.read
-      end
+      attachments['calendar.png'] = File.read(params[:fname])
       File.delete(params[:fname])
     end
 
