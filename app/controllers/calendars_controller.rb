@@ -1,4 +1,5 @@
 class CalendarsController < ApplicationController
+  before_action :logout_if_unauthorized, only: :download
   layout 'calendar'
 
   def index
@@ -18,11 +19,11 @@ class CalendarsController < ApplicationController
   end
 
   def download
-    if current_user && current_user.is?(:member)
+    if current_user.is?(:member)
       img = Calendar::ImageService.generate_image(current_user.id)
       send_data img.to_datastream, type: 'image/png', disposition: 'inline'
     else
-      redirect_to :new
+      redirect_to '/calendars/new'
     end
   end
 
