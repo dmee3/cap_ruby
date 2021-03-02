@@ -74,7 +74,7 @@ class CalendarsController < ApplicationController
         amount: donation_params[:amount],
         notes: "Stripe Payment - Charge ID: #{charge_id}",
         donation_date: date,
-        donor_name: nil
+        donor_name: donation_params[:donor_name]
       )
     end
   end
@@ -88,6 +88,6 @@ class CalendarsController < ApplicationController
   end
 
   def donation_params
-    params.require(:calendar_donation).permit(:user_id, :dates, :amount, :stripe_token, :name)
+    params.require(:calendar_donation).permit(:user_id, :dates, :amount, :stripe_token, :donor_name)
   end
 end

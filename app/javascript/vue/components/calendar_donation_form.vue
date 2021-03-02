@@ -52,6 +52,13 @@
       />
     </div>
 
+    <div id="name-wrapper">
+      <div class="form-group">
+        <label for="donor_name">Your name (leave blank to stay anonymous)</label>
+        <input type="text" name="donor_name" id="donor_name" class="form-control" />
+      </div>
+    </div>
+
     <div id="submit-wrapper">
       <button
         id="submit-button"
@@ -208,11 +215,13 @@ export default {
       const userIdInput = document.getElementById('donation_user_id')
       const datesInput = document.getElementById('donation_dates')
       const amountInput = document.getElementById('donation_amount')
+      const nameInput = document.getElementById('donation_donor_name')
       const tokenInput = document.getElementById('donation_stripe_token')
 
       userIdInput.value = this.selectedMember.id
       datesInput.value = JSON.stringify(this.selectedDates)
       amountInput.value = this.totalDonation * 100
+      nameInput.value = document.getElementById('donor_name').value
       tokenInput.value = this.stripeToken.id
       form.submit()
     }
@@ -332,8 +341,13 @@ export default {
   }
 }
 
-#submit-wrapper {
+#name-wrapper {
   margin-top: 1rem;
+  text-align: center;
+}
+
+#submit-wrapper {
+  margin-top: 3rem;
   text-align: center;
 }
 </style>

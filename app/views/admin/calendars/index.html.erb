@@ -17,7 +17,7 @@
                   $<%= donation.donation_date %>
                 </div>
                 <div class="col-3 text-muted">
-                  <%= donation.donor_name ? donation.donor_name : 'Anonymous' %>
+                  <%= donation.donor_name.blank? ? 'Anonymous' : donation.donor_name %>
                 </div>
                 <div class="col-3 text-muted">
                   <%= donation.created_at %>
