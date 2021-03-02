@@ -16,6 +16,8 @@ Rails.application.routes.draw do
   get 'logout', to: 'sessions#destroy'
 
   namespace :admin do
+    resources :calendars, only: :index
+
     get 'conflicts/upcoming', to: 'conflicts#upcoming_conflicts'
     get 'conflicts/statuses', to: 'conflicts#statuses'
     resources :conflicts, except: %i[show destroy]

@@ -40,3 +40,10 @@
     <span class="d-none d-md-inline">Inventory</span>
   <% end %>
 </li>
+<li class="nav-item">
+  <% cl = (page == 'calendars' ? 'nav-link active' : 'nav-link') %>
+  <%= link_to admin_calendars_path, { class: cl } do %>
+    <i class="fa fa-credit-card mr-2"></i>
+    <span class="d-none d-md-inline">Calendars</span>
+  <% end %>
+</li>

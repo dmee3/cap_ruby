@@ -32,7 +32,7 @@ class CalendarsController < ApplicationController
 
       create_donations(response.id, dates)
       fname = Calendar::ImageService.generate_file(user_id)
-      send_mail(user_id, dates, fname)
+      send_mail(user_id, dates, fname, donation_params[:donor_name])
       
       render :success
     else
@@ -74,20 +74,21 @@ class CalendarsController < ApplicationController
         amount: donation_params[:amount],
         notes: "Stripe Payment - Charge ID: #{charge_id}",
         donation_date: date,
-        donor_name: nil
+        donor_name: donation_params[:donor_name]
       )
     end
   end
 
-  def send_mail(user_id, dates, fname)
+  def send_mail(user_id, dates, fname, donor_name)
     CalendarMailer.with(
       user_id: user_id,
       donation_dates: dates,
-      fname: fname
+      fname: fname,
+      donor_name: donor_name
     ).calendar_email.deliver_later
   end
 
   def donation_params
-    params.require(:calendar_donation).permit(:user_id, :dates, :amount, :stripe_token, :name)
+    params.require(:calendar_donation).permit(:user_id, :dates, :amount, :stripe_token, :donor_name)
   end
 end
