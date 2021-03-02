@@ -4,25 +4,27 @@
 
 <% content_for :main do %>
   <div class="row mt-3">
+    <div class="col-12 col-sm-6">
+      <div class="card text-center p-3">
+        <h5 class="text-muted mb-0">TOTAL</h5>
+        <h1>$<%= @total %></h1>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-3">
     <div class="col-12">
       <div class="card">
         <div class="list-group list-group-flush">
-          <% @donations.each do |donation| %>
-            <div class="list-group-item list-group-item-striped">
-              <div class="row">
-                <div class="col-3">
-                  <%= donation.user.full_name %>
-                </div>
-                <div class="col-3">
-                  $<%= donation.donation_date %>
-                </div>
-                <div class="col-3 text-muted">
-                  <%= donation.donor_name.blank? ? 'Anonymous' : donation.donor_name %>
-                </div>
-                <div class="col-3 text-muted">
-                  <%= donation.created_at %>
-                </div>
+          <% @donations_by_person.each do |person, donations| %>
+            <div class="list-group-item">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1"><%= person %></h5>
+                <small class="text-muted">$<%= donations.sum(&:amount) / 100 %></small>
               </div>
+              <p class="mb-1">
+                <%= donations.map(&:donation_date).sort.join(', ') %>
+              </p>
             </div>
           <% end %>
         </div>
