@@ -3,7 +3,7 @@ class Admin::CalendarsController < ApplicationController
   before_action -> { redirect_if_not('admin') }
 
   def index
-    @total = donations.sum(&:amount) / 100
+    @total = donations.sum(&:donation_date) / 100
     @donations_by_person = donations.group_by { |d| d.user.full_name }
   end
 
