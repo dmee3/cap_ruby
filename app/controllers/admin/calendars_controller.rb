@@ -3,6 +3,13 @@ class Admin::CalendarsController < ApplicationController
   before_action -> { redirect_if_not('admin') }
 
   def index
-    @donations = Calendar::Donation.all.order(:created_at)
+    @total = donations.sum(&:amount) / 100
+    @donations_by_person = donations.group_by { |d| d.user.full_name }
+  end
+
+  private
+
+  def donations
+    @donations ||= Calendar::Donation.all
   end
 end
