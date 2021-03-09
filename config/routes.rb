@@ -41,6 +41,8 @@ Rails.application.routes.draw do
   end
 
   namespace :members do
+    resources :calendars, only: %i[index]
+
     resources :conflicts, only: %i[new create]
 
     resources :payments, only: %i[new]
