@@ -1,0 +1,36 @@
+<% content_for :main do %>
+  <div class="row mt-3">
+    <div class="col-12 col-sm-6">
+      <div class="card text-center p-3">
+        <h5 class="text-muted mb-0">TOTAL</h5>
+        <h1>$<%= @total %></h1>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6">
+      <div href="/calendars/download" class="card text-center p-3">
+        <h5 class="text-muted">CALENDAR IMAGE</h5>
+        <a href="/calendars/download" class="btn btn-primary">DOWNLOAD</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-3">
+    <div class="col-12">
+      <div class="card">
+        <div class="list-group list-group-flush">
+          <% @donations.order(:donation_date).each do |donation| %>
+            <div class="list-group-item">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">
+                  <%= donation.donor_name.blank? ? 'Anonymous' : donation.donor_name %>
+                </h5>
+                <small class="text-muted">$<%= donation.donation_date %></small>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
