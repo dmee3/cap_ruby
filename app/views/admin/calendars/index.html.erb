@@ -16,7 +16,7 @@
     <div class="col-12">
       <div class="card">
         <div class="list-group list-group-flush">
-          <% @donations_by_person.each do |person, donations| %>
+          <% @donations_by_person.sort.to_h.each do |person, donations| %>
             <div class="list-group-item">
               <div class="d-flex w-100 justify-content-between">
                 <h5 class="mb-1"><%= person %></h5>
@@ -32,3 +32,4 @@
     </div>
   </div>
 <% end %>
+
