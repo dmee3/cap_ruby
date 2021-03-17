@@ -5,12 +5,20 @@
   </head>
   <body>
     <p>Hi <%= @user.first_name %>,</p>
-    <p>You've received a calendar donation! This donation was for <%= @donation_dates.join(', ') %>.</p>
 
     <% if !@donor_name.blank? %>
-      <p>This donation was from <%= @donor_name %>.</p>
+      <p>You've received a calendar donation from <%= @donor_name %>!</p>
+    <% else %>
+      <p>You've received a calendar donation!</p>
     <% end %>
 
-    <p>Attached, you should find an image of the calendar with all your covered dates marked off. If there's anything wrong with the picture, please reach out to Dan!</p>
+    <P>This donation was for the following dates:</p>
+    <ul>
+      <% @donation_dates.each do |day| %>
+        <li><%= day %></li>
+      <% end %>
+    </ul>
+
+    <p>To view all your donations so far and download an image with the latest calendar, visit <%= members_calendars_url %>. If you have any questions, please reach out to Dan!</p>
   </body>
 </html>

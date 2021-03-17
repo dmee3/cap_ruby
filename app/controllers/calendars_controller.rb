@@ -31,8 +31,7 @@ class CalendarsController < ApplicationController
       user_id = donation_params[:user_id]
 
       create_donations(response.id, dates)
-      fname = Calendar::ImageService.generate_file(user_id)
-      send_mail(user_id, dates, fname, donation_params[:donor_name])
+      send_mail(user_id, dates, donation_params[:donor_name])
       
       render :success
     else
@@ -79,11 +78,10 @@ class CalendarsController < ApplicationController
     end
   end
 
-  def send_mail(user_id, dates, fname, donor_name)
+  def send_mail(user_id, dates, donor_name)
     CalendarMailer.with(
       user_id: user_id,
       donation_dates: dates,
-      fname: fname,
       donor_name: donor_name
     ).calendar_email.deliver_later
   end

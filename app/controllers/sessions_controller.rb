@@ -5,7 +5,7 @@ class SessionsController < ApplicationController
     if user&.authenticate(login_params[:password])
       cookies.permanent[:jwt] = JsonWebToken.encode(user_id: user.id)
       run_post_login_functions(user)
-      redirect_to root_url
+      redirect_to next_path
     end
 
     return if performed?
@@ -15,6 +15,8 @@ class SessionsController < ApplicationController
   end
 
   def new
+    session[:redirect_path] = params[:redirect_path] if params[:redirect_path]
+
     @email_or_username = ''
     redirect_to root_url if current_user
   end
@@ -25,6 +27,16 @@ class SessionsController < ApplicationController
   end
 
   private
+
+  def next_path
+    if session[:redirect_path]
+      path = session[:redirect_path]
+      session[:redirect_path] = nil
+      path
+    else
+      root_path
+    end
+  end
 
   def find_user
     User.find_by_email(@email_or_username) || User.find_by_username(@email_or_username)

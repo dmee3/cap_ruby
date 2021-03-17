@@ -1,13 +1,6 @@
 module Calendar
   class ImageService
     class << self
-      def generate_file(user_id)
-        base_image = generate_image(user_id)
-        fname = tmp_filename
-        base_image.save(fname, :fast_rgba)
-        fname
-      end
-
       def generate_image(user_id)
         dates = Calendar::Donation.where(user_id: user_id).map(&:donation_date)
         ChunkyPNG::Image.from_file(base_image_path).tap do |base_image|

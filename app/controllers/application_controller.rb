@@ -2,7 +2,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   def logout_if_unauthorized
-    logout unless current_user
+    logout(request.env['PATH_INFO']) unless current_user
   end
 
   def logged_in?
@@ -26,9 +26,13 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_season
 
-  def logout
+  def logout(redirect_path = nil)
     cookies.delete :jwt
-    redirect_to '/login'
+    if redirect_path
+      redirect_to login_path(redirect_path: redirect_path)
+    else
+      redirect_to login_path
+    end
   end
 
   def redirect_if_not(role)

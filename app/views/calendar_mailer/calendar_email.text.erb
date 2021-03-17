@@ -1,9 +1,15 @@
 Hi <%= @user.first_name %>,
 
-You've received a calendar donation! This donation was for <%= @donation_dates.join(', ') %>.
-
 <% if !@donor_name.blank? %>
-This donation was from <%= @donor_name %>.
+  You've received a calendar donation from <%= @donor_name %>!
+<% else %>
+  You've received a calendar donation!
 <% end %>
 
-Attached, you should find an image of the calendar with all your covered dates marked off. If there's anything wrong with the picture, please reach out to Dan!
+This donation was for the following dates:
+
+<% @donation_dates.each do |day| %>
+  - <%= day %>
+<% end %>
+
+To view all your donations so far and download an image with the latest calendar, visit <%= members_calendars_url %>. If you have any questions, please reach out to Dan!
