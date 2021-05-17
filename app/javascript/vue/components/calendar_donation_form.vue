@@ -45,7 +45,7 @@
     <div id="card-payment-wrapper">
       <stripe-element-card
         ref="stripeRef"
-        :elementStyle="stripeStyle"
+        :element-style="stripeStyle"
         :pk="pk"
         @element-change="updateSubmittable()"
         @token="tokenCreated"
@@ -55,7 +55,7 @@
     <div id="name-wrapper">
       <div class="form-group">
         <label for="donor_name">Your name (leave blank to stay anonymous)</label>
-        <input type="text" name="donor_name" id="donor_name" class="form-control" />
+        <input type="text" id="donor_name" name="donor_name" class="form-control" />
       </div>
     </div>
 
