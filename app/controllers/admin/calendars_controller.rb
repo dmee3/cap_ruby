@@ -1,7 +1,4 @@
-class Admin::CalendarsController < ApplicationController
-  before_action :logout_if_unauthorized
-  before_action -> { redirect_if_not('admin') }
-
+class Admin::CalendarsController < AdminController
   def index
     @total = donations.sum(&:donation_date)
     @donations_by_person = donations.group_by { |d| d.user.full_name }

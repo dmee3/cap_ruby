@@ -1,7 +1,4 @@
-class Admin::ConflictsController < ApplicationController
-  before_action :logout_if_unauthorized
-  before_action -> { redirect_if_not('admin') }
-
+class Admin::ConflictsController < AdminController
   def index
     respond_to do |format|
       format.html { }
