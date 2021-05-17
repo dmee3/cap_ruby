@@ -68,6 +68,7 @@ seasons = {
 # Create Roles
 admin_role = Role.find_by_name('admin') || Role.create(name: 'admin')
 member_role = Role.find_by_name('member') || Role.create(name: 'member')
+staff_role = Role.find_by_name('staff') || Role.create(name: 'staff')
 puts "\e[035mRoles created\e[0m"
 
 # Create Payment Types

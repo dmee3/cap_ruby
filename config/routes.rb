@@ -29,11 +29,7 @@ Rails.application.routes.draw do
     put 'payments/restore/:id', to: 'payments#restore'
     resources :payments
 
-    resources :users do
-      resources :nine_volts, only: %i[create destroy]
-    end
-
-    resources :nine_volts, only: %i[index]
+    resources :users
 
     delete 'payment_schedules/remove-entry', to: 'payment_schedules#remove_entry'
     post 'payment_schedules/add-entry', to: 'payment_schedules#add_entry'
