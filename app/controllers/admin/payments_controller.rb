@@ -1,7 +1,4 @@
-class Admin::PaymentsController < ApplicationController
-  before_action :logout_if_unauthorized
-  before_action -> { redirect_if_not('admin') }
-
+class Admin::PaymentsController < AdminController
   def index
     respond_to do |format|
       format.html { render('admin/payments/index') }

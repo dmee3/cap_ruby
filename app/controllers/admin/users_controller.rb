@@ -1,7 +1,4 @@
-class Admin::UsersController < ApplicationController
-  before_action :logout_if_unauthorized
-  before_action -> { redirect_if_not 'admin' }
-
+class Admin::UsersController < AdminController
   def index
     user_type = params[:user_type] || 'member'
 

@@ -1,7 +1,4 @@
-class Admin::PaymentSchedulesController < ApplicationController
-  before_action :logout_if_unauthorized
-  before_action -> { redirect_if_not 'admin' }
-
+class Admin::PaymentSchedulesController < AdminController
   def index
     @schedules = PaymentSchedule
       .includes(:payment_schedule_entries)
