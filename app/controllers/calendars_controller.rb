@@ -1,5 +1,5 @@
 class CalendarsController < ApplicationController
-  before_action :logout_if_unauthorized, only: :download
+  before_action :authenticate_user!, only: :download
   layout 'calendar'
 
   def index

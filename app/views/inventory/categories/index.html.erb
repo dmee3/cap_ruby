@@ -1,28 +1,22 @@
-<% content_for :side_nav do %>
-  <%= render 'admin/application/side_nav', page: 'inventory' %>
-<% end %>
+<div class="row">
+  <div class="col-12 d-flex justify-content-between">
+    <h1>Inventory</h1>
+    <span><%= link_to 'New Category', new_inventory_category_path, class: 'btn btn-light' %></span>
+  </div>
+</div>
 
-<% content_for :main do %>
-  <div class="row">
-    <div class="col-12 d-flex justify-content-between">
-      <h1>Inventory</h1>
-      <span><%= link_to 'New Category', new_inventory_category_path, class: 'btn btn-light' %></span>
+<div class="row mt-3">
+  <div class="col-12">
+    <div class="card">
+      <ul class="list-group list-group-flush">
+        <% @categories.sort_by(&:name).each do |category| %>
+          <li class="list-group-item list-group-item-action">
+            <%= link_to inventory_category_path(category), class: 'd-flex w-100 justify-content-between' do %>
+              <span class="text-body"><%= category.name %></span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
     </div>
   </div>
-
-  <div class="row mt-3">
-    <div class="col-12">
-      <div class="card">
-        <ul class="list-group list-group-flush">
-          <% @categories.sort_by(&:name).each do |category| %>
-            <li class="list-group-item list-group-item-action">
-              <%= link_to inventory_category_path(category), class: 'd-flex w-100 justify-content-between' do %>
-                <span class="text-body"><%= category.name %></span>
-              <% end %>
-            </li>
-          <% end %>
-        </ul>
-      </div>
-    </div>
-  </div>
-<% end %>
+</div>

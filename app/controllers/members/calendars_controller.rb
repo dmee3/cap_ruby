@@ -1,5 +1,5 @@
 class Members::CalendarsController < ApplicationController
-  before_action :logout_if_unauthorized
+  before_action :authenticate_user!
 
   def index
     @donations = Calendar::Donation.where(user_id: current_user)

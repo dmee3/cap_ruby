@@ -1,5 +1,5 @@
 class WhistleblowersController < ApplicationController
-  before_action :logout_if_unauthorized
+  before_action :authenticate_user!
 
   def index; end
 

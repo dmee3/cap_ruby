@@ -1,5 +1,5 @@
 class Members::ConflictsController < ApplicationController
-  before_action :logout_if_unauthorized
+  before_action :authenticate_user!
 
   def new
     # Comment out to enable conflict submission

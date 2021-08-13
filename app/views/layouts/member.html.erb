@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cap City Percussion</title>
+    <%= csrf_meta_tags %>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <%= javascript_pack_tag 'application' %>
+    <%= stylesheet_pack_tag 'application' %>
+  </head>
+
+  <body>
+    <div id="toast-container"></div>
+    <div class="container-fluid pb-3">
+      <div class="row">
+        <nav class="navbar navbar-expand-md navbar-light topnav col-12">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a href="/" class="nav-link brand">
+                <%= image_pack_tag 'cc_black_brand.png', size: '25x32' %>
+              </a>
+            </li>
+          </ul>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbar-content">
+            <%= render 'members/application/top_nav' %>
+          </div>
+        </nav>
+
+        <%= render 'flashes' %>
+      </div>
+
+      <div class="row">
+        <main class="col-12 p-3" id="main-content">
+          <%= yield %>
+        </main>
+      </div>
+    </div>
+
+    <%= yield :scripts %>
+  </body>
+</html>

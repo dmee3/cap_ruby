@@ -1,5 +1,5 @@
 class Members::PaymentsController < ApplicationController
-  before_action :logout_if_unauthorized
+  before_action :authenticate_user!
 
   def new
     set_stripe_public_key

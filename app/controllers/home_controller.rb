@@ -1,5 +1,5 @@
 class HomeController < ApplicationController
-  before_action :logout_if_unauthorized
+  before_action :authenticate_user!
 
   def index
     if current_user.is?(:admin)
@@ -14,7 +14,7 @@ class HomeController < ApplicationController
       render('members/home/index')
     else
       Rollbar.warning('User with unknown role accessed home page.')
-      logout
+      sign_out current_user
     end
   end
 

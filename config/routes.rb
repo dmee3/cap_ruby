@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+  devise_for :users, path: '', path_names: { sign_in: 'login', sign_out: 'logout' }
 
   root to: 'home#index'
 
@@ -7,13 +7,8 @@ Rails.application.routes.draw do
   # get '/auditions-spreadsheet-generate', to: 'auditions#update'
 
   get '/documents', to: 'home#documents'
-  #get '/feed', to: 'home#feed'
 
   post 'change-season', to: 'home#change_season'
-
-  get 'login', to: 'sessions#new'
-  post 'login', to: 'sessions#create'
-  get 'logout', to: 'sessions#destroy'
 
   namespace :admin do
     resources :calendars, only: :index
@@ -53,11 +48,6 @@ Rails.application.routes.draw do
 
   get 'settings', to: 'settings#index'
   post 'settings', to: 'settings#update'
-  post 'settings-password', to: 'settings#change_password'
-  get 'forgot', to: 'settings#forgot_password'
-  post 'forgot', to: 'settings#initiate_reset'
-  get 'reset', to: 'settings#reset_password'
-  post 'reset', to: 'settings#complete_reset'
 
   get 'rhythm-converter', to: 'tools#rhythm_converter'
 

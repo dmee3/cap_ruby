@@ -6,119 +6,25 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+    <%= javascript_pack_tag 'application' %>
     <%= stylesheet_pack_tag 'application' %>
-
   </head>
 
   <body>
     <div id="toast-container"></div>
     <div class="container-fluid pb-3">
-
-      <!-- ADMIN VIEW -->
-      <% if logged_in? && current_user&.is?(:admin) %>
-
-        <div class="row flex-xl-nowrap">
-          <!-- SIDE NAV -->
-          <div class="col-12 col-md-2 sidenav">
-            <ul class="nav flex-row flex-md-column">
-              <li class="nav-item">
-                <div class="nav-link brand">
-                  <%= image_pack_tag 'full_logo_small_black.png', size: '144x50', class: 'd-none d-lg-block' %>
-                  <%= image_pack_tag 'cc_black_brand.png', size: '25x32', class: 'd-lg-none' %>
-                </div>
-              </li>
-              <%= yield :side_nav %>
-            </ul>
-          </div>
-
-          <!-- MAIN WINDOW -->
-          <div class="col-12 col-md-10">
-
-            <!-- TOP NAV -->
-            <nav class="navbar navbar-expand-md navbar-light topnav">
-              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-              </button>
-              <div class="collapse navbar-collapse d-flex" id="navbar-content">
-                <%= render 'admin/application/top_nav' %>
-              </div>
-            </nav>
-
-            <!-- FLASH MESSAGES AND TOASTS -->
-            <%= render 'flashes' %>
-
-            <!-- CONTENT -->
-            <main class="col-12 p-3" id="main-content">
-              <%= yield :main %>
-            </main>
-          </div>
-        </div>
-
-      <!-- MEMBER VIEW -->
-      <% elsif logged_in? %>
-        <div class="row">
-          <nav class="navbar navbar-expand-md navbar-light topnav col-12">
-            <ul class="navbar-nav mr-auto">
-              <li class="nav-item">
-                <a href="/" class="nav-link brand">
-                  <%= image_pack_tag 'cc_black_brand.png', size: '25x32' %>
-                </a>
-              </li>
-            </ul>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbar-content">
-              <%= render 'members/application/top_nav' %>
-            </div>
-          </nav>
-
+      <div class="row">
+        <div class="col-12 p-3">
           <%= render 'flashes' %>
         </div>
+      </div>
 
-        <div class="row">
-          <main class="col-12 p-3" id="main-content">
-            <%= yield :main %>
-          </main>
-        </div>
-
-      <!-- ANONYMOUS VIEW -->
-      <% else %>
-
-        <div class="row">
-          <nav class="navbar navbar-expand-md login-nav col-12">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbar-content">
-              <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                  <a href="/" class="nav-link brand">
-                    <%= image_pack_tag 'cc_white_brand.png', size: '25x32' %>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </nav>
-        </div>
-
-        <div class="row">
-          <div class="col-12 p-3">
-            <%= render 'flashes' %>
-          </div>
-        </div>
-
-        <div class="row">
-          <main class="col-12 p-3" id="main-content">
-            <%= yield :main %>
-          </main>
-        </div>
-
-      <% end %>
-
+      <div class="row">
+        <main class="col-12 p-3" id="main-content">
+          <%= yield %>
+        </main>
+      </div>
     </div>
-
-    <%= javascript_pack_tag 'application' %>
 
     <%= yield :scripts %>
   </body>

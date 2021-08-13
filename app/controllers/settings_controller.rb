@@ -1,5 +1,5 @@
 class SettingsController < ApplicationController
-  before_action :logout_if_unauthorized, only: [:index, :update, :change_password]
+  before_action :authenticate_user!, only: [:index, :update, :change_password]
   before_action :ensure_key_param, only: [:reset_password, :complete_reset]
 
   def index

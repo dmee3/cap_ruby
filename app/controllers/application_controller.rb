@@ -1,39 +1,11 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
-  def logout_if_unauthorized
-    logout(request.env['PATH_INFO']) unless current_user
-  end
-
-  def logged_in?
-    return true if current_user
-    false
-  end
-  helper_method :logged_in?
-
-  def current_user
-    return @current if @current
-    token = JsonWebToken.decode(jwt)
-    @current = User.find(token[:user_id]) if token
-  rescue ActiveRecord::RecordNotFound
-    nil
-  end
-  helper_method :current_user
-
   def current_season
     cookies[:cap_season] ||= current_user.seasons.last.to_json
     JSON.parse(cookies[:cap_season])
   end
   helper_method :current_season
-
-  def logout(redirect_path = nil)
-    cookies.delete :jwt
-    if redirect_path
-      redirect_to login_path(redirect_path: redirect_path)
-    else
-      redirect_to login_path
-    end
-  end
 
   def redirect_if_not(role)
     redirect_to(root_url) unless current_user&.is?(role)
@@ -57,11 +29,5 @@ class ApplicationController < ActionController::Base
     else
       Stripe.api_key = ENV['STRIPE_SECRET_TEST_KEY']
     end
-  end
-
-  private
-
-  def jwt
-    request.xhr? ? params[:jwt] : cookies[:jwt]
   end
 end

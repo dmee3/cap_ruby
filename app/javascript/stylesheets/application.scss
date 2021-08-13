@@ -8,7 +8,14 @@
 }
 
 body {
-  background-color: $gray-100;
+  background: no-repeat url('../images/bg.svg');
+  background-size: 100vw auto;
+}
+
+@media (orientation: portrait) {
+  body {
+      background-size: auto 100vh;
+  }
 }
 
 a:hover {

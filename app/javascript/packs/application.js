@@ -26,6 +26,9 @@ import flatpickr from 'flatpickr'
 // eslint-disable-next-line no-undef
 require('flatpickr/dist/flatpickr.min.css') // Needed for now to get CSS
 
+import Rails from '@rails/ujs' // Needed for delete links
+Rails.start()
+
 // Require all images
 // eslint-disable-next-line no-undef
 require.context('../images', true)
