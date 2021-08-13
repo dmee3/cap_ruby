@@ -43,7 +43,6 @@ group :development, :test do
   gem 'rubocop', require: false
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
-  gem 'simplecov'
   gem 'sqlite3'
 end
 
