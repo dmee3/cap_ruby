@@ -53,6 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
+  // Mobile menu logout
+  const mobileLogOut = document.querySelector('#mobile-log-out')
+  if (mobileLogOut) {
+    mobileLogOut.addEventListener('click', () => { mobileLogOut.submit() })
+  }
+
   // Season changing
   const seasonTrigger = document.querySelector('#season-dropdown-trigger')
   if (seasonTrigger) {
