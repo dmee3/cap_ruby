@@ -1,0 +1,13 @@
+.card {
+  @apply
+    bg-white
+    dark:bg-gray-900
+    dark:text-white
+    px-10
+    pt-2
+    pb-6
+    rounded-lg
+    shadow-lg
+    text-gray-900
+  ;
+}

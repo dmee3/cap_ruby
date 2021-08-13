@@ -107,7 +107,6 @@
 
 <script>
 import Utilities from '../../packs/utilities'
-import Toast from '../../packs/toast'
 import moment from 'moment/moment'
 
 export default {
@@ -144,11 +143,11 @@ export default {
         },
       })
         .done(function () {
-          Toast.successToast('Payment was restored. Refresh to see changes')
+          // Toast.successToast('Payment was restored. Refresh to see changes')
           payment.deleted = null
         })
         .fail(function () {
-          Toast.failToast('Unable to restore payment')
+          // Toast.failToast('Unable to restore payment')
         })
     }
   },

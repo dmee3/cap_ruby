@@ -67,7 +67,6 @@
 </template>
 
 <script>
-import Toast from '../../../packs/toast'
 import Utilities from '../../../packs/utilities'
 import UserList from '../../components/user_list.vue'
 
@@ -97,7 +96,7 @@ export default {
         })
         .fail(function (err) {
           self.error = err
-          Toast.failToast('An error occurred getting user info')
+          // Toast.failToast('An error occurred getting user info')
           console.log(err)
         })
     },
@@ -111,7 +110,7 @@ export default {
         })
         .fail(function (err) {
           self.error = err
-          Toast.failToast('An error occurred getting user info')
+          // Toast.failToast('An error occurred getting user info')
           console.log(err)
         })
     },
@@ -133,12 +132,12 @@ export default {
         },
       })
         .done(function () {
-          Toast.successToast(`${self.userToDelete.first_name} was deleted`)
+          // Toast.successToast(`${self.userToDelete.first_name} was deleted`)
           self.members = self.members.filter(u => u.id !== self.userToDelete.id)
           self.userToDelete = {}
         })
         .fail(function () {
-          Toast.failToast(`Unable to delete ${self.userToDelete.first_name}`)
+          // Toast.failToast(`Unable to delete ${self.userToDelete.first_name}`)
         })
     },
   },

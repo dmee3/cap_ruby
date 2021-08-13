@@ -4,7 +4,6 @@ import DifferentialChart from '../vue/components/differential_chart.vue'
 import UpcomingConflicts from '../vue/components/upcoming_conflicts.vue'
 import UpcomingPayments from '../vue/components/upcoming_payments.vue'
 import Utilities from './utilities'
-import Toast from './toast'
 
 document.addEventListener('DOMContentLoaded', () => {
   new Vue({
@@ -34,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
           })
           .fail(function (err) {
             self.error = err
-            Toast.failToast('An error occurred getting payment info')
+            // Toast.failToast('An error occurred getting payment info')
             console.log(err)
           })
       },
@@ -48,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
           })
           .fail(function (err) {
             self.error = err
-            Toast.failToast('An error occurred getting payment info')
+            // Toast.failToast('An error occurred getting payment info')
             console.log(err)
           })
       },

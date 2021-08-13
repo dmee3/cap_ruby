@@ -6,7 +6,6 @@
 
 <script>
 import Utilities from '../../../packs/utilities'
-import Toast from '../../../packs/toast'
 import PaymentUserList from '../../components/payment_user_list.vue'
 
 export default {
@@ -34,7 +33,7 @@ export default {
         })
         .fail(function (err) {
           self.error = err
-          Toast.failToast('An error occurred getting user info')
+          // Toast.failToast('An error occurred getting user info')
           console.log(err)
         })
     },
@@ -48,7 +47,7 @@ export default {
         })
         .fail(function (err) {
           self.error = err
-          Toast.failToast('An error occurred getting payment info')
+          // Toast.failToast('An error occurred getting payment info')
           console.log(err)
         })
     },
@@ -62,7 +61,7 @@ export default {
         })
         .fail(function (err) {
           self.error = err
-          Toast.failToast('An error occurred getting payment info')
+          // Toast.failToast('An error occurred getting payment info')
           console.log(err)
         })
     },

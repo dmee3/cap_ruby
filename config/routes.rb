@@ -11,6 +11,8 @@ Rails.application.routes.draw do
   post 'change-season', to: 'home#change_season'
 
   namespace :admin do
+    get '/', to: 'dashboard#index', as: 'home'
+
     resources :calendars, only: :index
 
     get 'conflicts/upcoming', to: 'conflicts#upcoming_conflicts'

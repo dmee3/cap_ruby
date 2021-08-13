@@ -137,8 +137,7 @@ until User.all.count >= TOTAL_MEMBERS + 1
     last_name: last_name,
     username: username,
     email: email,
-    password: 'abc123',
-    password_confirmation: 'abc123'
+    password: 'abc12345'
   )
   user.role = member_role
 

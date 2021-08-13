@@ -27,48 +27,6 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
-/* Text alignments for different screen sizes */
-@include media-breakpoint-up(xs) {
-  .text-right-xs {
-    text-align: right !important;
-  }
-}
-@include media-breakpoint-up(sm) {
-  .text-right-sm {
-    text-align: right !important;
-  }
-}
-@include media-breakpoint-up(md) {
-  .text-right-md {
-    text-align: right !important;
-  }
-}
-@include media-breakpoint-up(lg) {
-  .text-right-lg {
-    text-align: right !important;
-  }
-}
-@include media-breakpoint-up(xl) {
-  .text-right-xl {
-    text-align: right !important;
-  }
-}
-
-/* Form color overrides */
-.form-control.invalid {
-  border-color: $red;
-}
-.form-control:focus,
-.form-control.is-invalid:focus {
-  border-color: $cap-gray;
-  box-shadow: none;
-}
-.form-control.flatpickr:read-only {
-  background-color: transparent;
-}
-.form-control.flatpickr-dt:read-only {
-  background-color: transparent;
-}
 
 /* Striped list items */
 .list-group-item-striped:nth-child(even) {

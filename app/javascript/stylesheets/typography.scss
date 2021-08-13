@@ -1,0 +1,15 @@
+h1 {
+  @apply
+    text-4xl
+    mt-4
+    mb-2
+  ;
+}
+
+.link {
+  @apply
+    dark:hover:text-gray-300
+    hover:text-gray-600
+    transition
+  ;
+}

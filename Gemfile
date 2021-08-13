@@ -10,7 +10,6 @@ end
 gem 'acts_as_paranoid'
 gem 'bcrypt', '~> 3.1.7'
 gem 'bootsnap', require: false # Reduces boot times through caching; required in config/boot.rb
-gem 'bootstrap' # Can this be removed???
 gem 'chunky_png' # Calendar image processing
 gem 'devise'
 gem 'faraday' # Auditions Processor
@@ -24,6 +23,7 @@ gem 'sass-rails', '>= 6'
 gem 'select2-rails'
 gem 'sidekiq'
 gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'
+gem 'tailwindcss-rails'
 gem 'turbolinks', '~> 5'
 gem 'webpacker', '~> 5.0'
 

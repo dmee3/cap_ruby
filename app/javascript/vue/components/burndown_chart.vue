@@ -8,7 +8,6 @@ import ChartColor from '../packs/chart_color'
 import moment from 'moment/moment'
 import Utilities from '../packs/utilities'
 import Vue from 'vue/dist/vue.esm'
-import Toast from '../packs/toast'
 
 export default {
   data: function () {
@@ -27,7 +26,7 @@ export default {
       })
       .fail(function (err) {
         self.error = err
-        Toast.failToast('Unable to get burndown chart data')
+        // Toast.failToast('Unable to get burndown chart data')
         console.log(err)
       })
   },

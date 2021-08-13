@@ -3,7 +3,7 @@ class HomeController < ApplicationController
 
   def index
     if current_user.is?(:admin)
-      render('admin/home/index')
+      redirect_to admin_home_path
     elsif current_user.is?(:member)
       @conflicts = current_user.conflicts.includes(:conflict_status).for_season(current_season['id']).order(:start_date)
       @documents = find_documents
@@ -30,7 +30,7 @@ class HomeController < ApplicationController
       cookies[:cap_season] = current_user.seasons.last.to_json
     end
 
-    redirect_to root_path
+    redirect_back fallback_location: root_path
   end
 
   private
