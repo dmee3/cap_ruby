@@ -62,6 +62,17 @@ seasons = {
       [30000, Date.parse('2021-02-12')],
       [30000, Date.parse('2021-03-12')]
     ]
+  },
+  '2022' => {
+    season: Season.find_or_create_by(year: '2022'),
+    payment_schedule_entries: [
+      [30000, Date.parse('2021-08-01')],
+      [30000, Date.parse('2021-10-17')],
+      [30000, Date.parse('2021-11-14')],
+      [30000, Date.parse('2021-12-12')],
+      [30000, Date.parse('2022-01-09')],
+      [30000, Date.parse('2022-02-13')]
+    ]
   }
 }
 
@@ -109,7 +120,7 @@ unless User.find_by_email ENV['ROOT_USER_EMAIL']
     password_confirmation: ENV['ROOT_USER_PASSWORD']
   )
 
-  %W(2018 2019 2020 2021).each { |year| me.seasons << seasons[year][:season] }
+  %W(2018 2019 2020 2021 2022).each { |year| me.seasons << seasons[year][:season] }
   me.role = admin_role
 
   if me.save!
@@ -146,10 +157,11 @@ until User.all.count >= TOTAL_MEMBERS + 1
   puts "\e[034m#{first_name} #{last_name} created (#{User.all.count - 1} / #{TOTAL_MEMBERS})\e[0m"
 
   # Add seasons
-  user.seasons << seasons['2018'][:season] if [true, false].sample
-  user.seasons << seasons['2019'][:season] if [true, false].sample
+  user.seasons << seasons['2018'][:season] if [true, false, false].sample
+  user.seasons << seasons['2019'][:season] if [true, false, false].sample
   user.seasons << seasons['2020'][:season] if [true, false].sample
-  user.seasons << seasons['2021'][:season] if user.seasons.empty? || [true, false].sample
+  user.seasons << seasons['2021'][:season] if [true, false].sample
+  user.seasons << seasons['2022'][:season] if user.seasons.empty? || [true, false].sample
 
   # Add sections and payment schedules for each season
   seasons.each do |year, details|

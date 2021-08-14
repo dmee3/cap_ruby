@@ -49,16 +49,12 @@ class User < ApplicationRecord
 
   validates :email, presence: true
   validates :email, uniqueness: { case_sensitive: false }
-  
   validates :first_name, presence: true
   validates :last_name, presence: true
-  
   validates :password, presence: true, on: :create
   validates :password, length: { minimum: 6, message: 'must be at least 6 characters' }, if: :password
   validates_confirmation_of :password
-
   validates :role, presence: true
-  
   validates :username, presence: true
   validates :username, uniqueness: { case_sensitive: false }
 
