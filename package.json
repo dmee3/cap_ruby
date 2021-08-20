@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@babel/preset-react": "^7.14.5",
+    "@babel/preset-typescript": "^7.15.0",
     "@fortawesome/fontawesome-free": "^5.11.2",
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
     "@fortawesome/free-brands-svg-icons": "^5.11.2",
@@ -13,8 +15,11 @@
     "@rails/webpacker": "5.4.0",
     "@stripe/stripe-js": "^1.11.0",
     "@tailwindcss/forms": "^0.3.3",
+    "@types/react": "^17.0.17",
+    "@types/react-dom": "^17.0.9",
     "@vue-stripe/vue-stripe": "^4.0.3",
     "autoprefixer": "^9",
+    "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "bootstrap": "^4.5.3",
     "chart.js": "^2.9.4",
     "css-loader": "^5.0.0",
@@ -27,8 +32,12 @@
     "popper.js": "^1.16.1",
     "postcss": "^7",
     "prettier": "^2.1.2",
+    "prop-types": "^15.7.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "select2": "^4.0.10",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat",
+    "typescript": "^4.3.5",
     "vue": "^2.6.10",
     "vue-loader": "^15.7.1",
     "vue-template-compiler": "^2.6.10"
