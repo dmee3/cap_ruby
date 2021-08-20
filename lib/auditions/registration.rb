@@ -10,6 +10,14 @@ class Registration
     'CC22 Visual Ensemble Audition Registration'
   ].freeze
 
+  # Because I messed up naming the product on Squarespace originally
+  TYPE_MAP = {
+    'CC22 Music Audition Registration' => 'Music Registration',
+    'CC22 Music Ensemble Audition Registration' => 'Music Registration',
+    'CC22 Visual Audition Registration' => 'Visual Registration',
+    'CC22 Visual Ensemble Audition Registration' => 'Visual Registration',
+  }.freeze
+
   FIELD_TO_SYMBOL = {
     'Name' => :name,
     'Email' => :email,
@@ -27,13 +35,13 @@ class Registration
   end
 
   def initialize(args)
-    @type = args[:type]
+    @type = TYPE_MAP[args[:type]]
     @name = args[:name]
     @email = args[:email]
     @city = args[:city]
     @state = args[:state]
     @instrument = args[:instrument]
-    @date = args[:date]
+    @date = args[:date] - 4.hours
     @experience = args[:experience]
     @age_in_april = args[:age_in_april]
   end

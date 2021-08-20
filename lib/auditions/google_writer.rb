@@ -2,6 +2,7 @@
 
 require 'google/apis/sheets_v4'
 
+# rubocop:disable Metrics/ClassLength
 class GoogleWriter
   include Singleton
 
@@ -9,7 +10,7 @@ class GoogleWriter
 
   class << self
     def write_registrations(registrations)
-      #instance.write_sheet('Registrations', registrations)
+      instance.write_registrations(registrations)
     end
 
     def write_packets(packets, registered_emails)
@@ -29,83 +30,25 @@ class GoogleWriter
   def write_packets(packets, registered_emails)
     current_sheet = sheets.find { |s| s.properties.title == 'Packets' }
     sheet_id = current_sheet.properties.sheet_id
-    sheet_cols = current_sheet.properties.grid_properties.column_count
-    sheet_rows = current_sheet.properties.grid_properties.row_count
-    last_col_letter = (65 + sheet_cols - 1).chr
 
-    data = []
-    header_rows = []
-    start_row_idx = 1
-    packets.map(&:type).uniq.sort.each do |type|
-      packet_type_rows = packets
-        .select { |p| p.type == type }
-        .sort_by { |p| [p.instrument, p.name] }
-        .map!(&:to_row)
-      end_row_idx = start_row_idx + packet_type_rows.length
-      range_name = "'Packets'!A#{start_row_idx}:#{last_col_letter}#{end_row_idx}"
-      data << { range: range_name, values: [[type]] + packet_type_rows }
+    # Turn raw packet objects into an array of { range: range_name, values: packet_rows }
+    # then magically parse out the header row for each range
+    data = data_for_sheet(packet_data_rows(packets), 'Packets')
+    header_rows = data.map { |d| d[:range][/A(\d+)/, 1].to_i }
 
-      header_rows << start_row_idx
-      start_row_idx = end_row_idx + 2
-    end
-
-    return false unless reset_sheet(
-      sheet_id, last_col_letter, sheet_rows, header_rows, data, registered_emails)
-    )
-
-    batch_update_values = Google::Apis::SheetsV4::BatchUpdateValuesRequest.new(
-      data:               data,
-      value_input_option: 'RAW'
-    )
-
-    result = reset_formatting(sheet_id, header_rows, data, registered_emails)
-    return false if !result
-
-    result = service.batch_update_values(SPREADSHEET_ID, batch_update_values)
-    return false if !result
-
-    true
+    write_sheet(data, header_rows, sheet_id)
   end
 
-  def write_sheet(sheet_name, instruments, registered_emails = nil)
-
-    # Find current sheet by name and get properties
-    current_sheet = sheets.find { |s| s.properties.title == sheet_name }
+  def write_registrations(registrations)
+    current_sheet = sheets.find { |s| s.properties.title == 'Registrations' }
     sheet_id = current_sheet.properties.sheet_id
-    sheet_columns = current_sheet.properties.grid_properties.column_count
-    sheet_rows = current_sheet.properties.grid_properties.row_count
-    last_col_letter = (65 + sheet_columns - 1).chr
 
-    # Organize data for ranges and record header rows
-    start_row_idx = 3
-    header_rows = []
-    data = []
-    instruments.each do |name, items|
-      values = [[name]] + items.map { |i| i.to_row }
-      end_row_idx = start_row_idx + values.length
-      range_name = "'#{sheet_name}'!A#{start_row_idx}:#{last_col_letter}#{end_row_idx}"
-      data << { range: range_name, values: values }
+    # Turn raw packet objects into an array of { range: range_name, values: registration_rows }
+    # then magically parse out the header row for each range
+    data = data_for_sheet(registration_data_rows(registrations), 'Registrations')
+    header_rows = data.map { |d| d[:range][/A(\d+)/, 1].to_i }
 
-      header_rows << start_row_idx
-      start_row_idx = end_row_idx + 1
-    end
-
-    # Reset sheet and format for new data
-    result = clear_data(sheet_name, last_col_letter, sheet_rows)
-    return false if !result
-
-    result = reset_formatting(sheet_id, header_rows, data, registered_emails)
-    return false if !result
-
-    # Send new data
-    batch_update_values = Google::Apis::SheetsV4::BatchUpdateValuesRequest.new(
-      data:               data,
-      value_input_option: 'RAW'
-    )
-    result = service.batch_update_values(SPREADSHEET_ID, batch_update_values)
-    return false if !result
-
-    return true
+    write_sheet(data, header_rows, sheet_id)
   end
 
   private
@@ -114,30 +57,81 @@ class GoogleWriter
 
   def sheets
     return @sheets if @sheets
-    result = service.get_spreadsheet(SPREADSHEET_ID)
-    @sheets = result.sheets
+
+    @sheets = service.get_spreadsheet(SPREADSHEET_ID).sheets
   end
 
-  def sheet_info(id)
-    @sheet_info ||= {}
-    return @sheet_info[id] if @sheet_info[id].present?
+  def sheet_metadata(id)
+    @sheet_metadata ||= {}
+    return @sheet_metadata[id] if @sheet_metadata[id].present?
 
     current = sheets.find { |s| s.properties.sheet_id == id }
-    @sheet_info[id] = {
-      cols: current.properties.grid_properties.column_count
-      rows: current.properties.grid_properties.row_count
-      last_col_letter: (65 + current.properties.grid_properties.column_count - 1).chr
+    props = current.properties
+    @sheet_metadata[id] = {
+      name: props.title,
+      cols: props.grid_properties.column_count,
+      rows: props.grid_properties.row_count,
+      last_col_letter: (65 + props.grid_properties.column_count - 1).chr
     }
 
-    @sheet_info[id]
+    @sheet_metadata[id]
+  end
+
+  def write_sheet(data, header_rows, sheet_id)
+    sheet_info = sheet_metadata(sheet_id)
+    return false unless clear_data(sheet_info)
+    return false unless reset_formatting(sheet_id, header_rows)
+
+    batch_update_values = Google::Apis::SheetsV4::BatchUpdateValuesRequest.new(
+      data: data,
+      value_input_option: 'RAW'
+    )
+    result = service.batch_update_values(SPREADSHEET_ID, batch_update_values)
+    return false if !result
+
+    true
+  end
+
+  def data_for_sheet(item_data, sheet_name)
+    [].tap do |data|
+      start_row_idx = 1
+      item_data.each do |section|
+        end_row_idx = start_row_idx + section[:rows].length
+        range_name = "'#{sheet_name}'!A#{start_row_idx}:Z#{end_row_idx}"
+        data << { range: range_name, values: [[section[:name].pluralize]] + section[:rows] }
+        start_row_idx = end_row_idx + 2
+      end
+    end
+  end
+
+  def packet_data_rows(items)
+    items.map(&:type).uniq.sort.map do |type|
+      section_items = items
+        .select { |p| p.type == type }
+        .sort_by { |p| [-p.date.to_i, p.name] }
+        .map!(&:to_row)
+
+      { name: type, rows: section_items }
+    end
+  end
+
+  def registration_data_rows(items)
+    items.map(&:type).uniq.sort.map do |type|
+      section_items = items
+        .select { |p| p.type == type }
+        .sort_by { |p| [-p.date.to_i, p.name] }
+        .map!(&:to_row)
+
+      { name: type, rows: section_items }
+    end
   end
 
   # Clear all data from cells on a sheet
-  def clear_data(sheet_name, last_col_letter, sheet_rows)
+  def clear_data(sheet_info)
     request_body = Google::Apis::SheetsV4::ClearValuesRequest.new
-    response = service.clear_values(
+    service.clear_values(
       SPREADSHEET_ID,
-      "'#{sheet_name}'!A2:#{last_col_letter}#{sheet_rows}",
+      "'#{sheet_info[:name]}'!A1:Z#{sheet_info[:rows]}",
       request_body
     )
   end
@@ -146,7 +140,7 @@ class GoogleWriter
   #   1. Unmerging all cells
   #   2. Clearing formatting for all cells
   #   3. Merging and formatting all instrument header rows
-  def reset_formatting(sheet_id, header_rows, data, registered_emails)
+  def reset_formatting(sheet_id, header_rows)
     requests = [
       unmerge_all_cells_request_body(sheet_id),
       clear_all_cells_format_request_body(sheet_id)
@@ -159,14 +153,14 @@ class GoogleWriter
     end.flatten
 
     # If we're writing packets, highlight rows for people who have registered
-    if registered_emails
-      rows_to_highlight = highlight_registered_rows(registered_emails, data, sheet_id)
-      if rows_to_highlight
-        requests += rows_to_highlight.map do |r|
-          format_registered_row_request_body(sheet_id, r)
-        end
-      end
-    end
+    # if registered_emails
+    #   rows_to_highlight = highlight_registered_rows(registered_emails, data, sheet_id)
+    #   if rows_to_highlight
+    #     requests += rows_to_highlight.map do |r|
+    #       format_registered_row_request_body(sheet_id, r)
+    #     end
+    #   end
+    # end
 
     body = { requests: requests }
     result = service.batch_update_spreadsheet(SPREADSHEET_ID, body, {})
@@ -302,3 +296,4 @@ class GoogleWriter
     }
   end
 end
+# rubocop:enable Metrics/ClassLength

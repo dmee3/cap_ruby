@@ -4,8 +4,10 @@ class AuditionsProcessor
   class << self
     def run
       registrations, packets = OrderProcessor.run
-      GoogleWriter.write_registrations(registrations)
-      GoogleWriter.write_packets(packets, [])
+      return false unless GoogleWriter.write_registrations(registrations)
+      return false unless GoogleWriter.write_packets(packets, [])
+
+      true
     end
   end
 end
