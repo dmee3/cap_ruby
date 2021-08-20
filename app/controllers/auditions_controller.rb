@@ -5,7 +5,7 @@ class AuditionsController < ApplicationController
 
   # rubocop:disable Metrics/AbcSize
   def update
-    if !AuditionsProcessor.run
+    if !Auditions::SpreadsheetService.update
       render 'auditions/google_failure'
       return
     end
