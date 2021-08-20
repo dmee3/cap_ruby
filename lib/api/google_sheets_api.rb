@@ -38,40 +38,33 @@ class GoogleSheetsApi
   def format_sheet(sheet_name, header_rows, subheader_rows, instrument_rows)
     sheet_id = sheet_name_to_id(sheet_name)
 
-    # Full reset
     requests = [
       unmerge_all_cells_request_body(sheet_id),
       clear_all_cells_format_request_body(sheet_id)
     ]
 
-    # Header rows
-    requests += header_rows.map do |h|
-      [
-        merge_row_request_body(sheet_id, h),
-        format_header_row_request_body(sheet_id, h)
-      ]
-    end.flatten
+    header_rows.each do |row|
+      requests << merge_row_request_body(sheet_id, row)
+      requests << format_header_row_request_body(sheet_id, row)
+    end
 
-    # Subheader rows
-    requests += subheader_rows.map { |h| format_subheader_row_request_body(sheet_id, h) }.flatten
+    subheader_rows.each do |row|
+      requests << format_subheader_row_request_body(sheet_id, row)
+    end
 
-    # Instrument rows
-    requests += instrument_rows.map do |h|
-      [
-        merge_row_request_body(sheet_id, h),
-        format_instrument_row_request_body(sheet_id, h)
-      ]
-    end.flatten
+    instrument_rows.each do |row|
+      requests << merge_row_request_body(sheet_id, row)
+      requests << format_instrument_row_request_body(sheet_id, row)
+    end
 
-    body = 
     service.batch_update_spreadsheet(SPREADSHEET_ID, { requests: requests }, {})
   end
 
-  def write_sheet(sheet_name, data)
+  def write_sheet(sheet_name, values)
     service.batch_update_values(
       SPREADSHEET_ID,
       Google::Apis::SheetsV4::BatchUpdateValuesRequest.new(
-        data: data,
+        data: [{ range: "'#{sheet_name}'!A1:Z1000", values: values }],
         value_input_option: 'RAW'
       )
     )

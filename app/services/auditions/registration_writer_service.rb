@@ -9,7 +9,6 @@ module Auditions
       @subheader_rows = []
       @instrument_rows = []
       @sheet_name = 'Registrations'
-      @range = "'#{@sheet_name}'!A1:Z1000"
       @values = []
     end
 
@@ -18,7 +17,7 @@ module Auditions
       prepare_data(data_hash)
       GoogleSheetsApi.clear_sheet(@sheet_name)
       GoogleSheetsApi.format_sheet(@sheet_name, @header_rows, @subheader_rows, @instrument_rows)
-      GoogleSheetsApi.write_sheet(@sheet_name, [{ range: @range, values: @values }])
+      GoogleSheetsApi.write_sheet(@sheet_name, @values)
     end
 
     # {
@@ -56,7 +55,8 @@ module Auditions
     # and instrument rows for formatting
     def prepare_data(registration_hash)
       registration_hash.each do |registration_name, registrations_by_instrument|
-        @values << [registration_name]
+        count = registrations_by_instrument.values.reduce(0) { |sum, i| sum + i.count }
+        @values << ["#{registration_name} (#{count} Total)"]
         @header_rows << @values.length - 1
         @values << Registration.header_row
         @subheader_rows << @values.length - 1

@@ -29,8 +29,8 @@ module Auditions
       @type = args[:type].gsub(/CC22 /, '')
       @name = args[:name].titleize
       @email = args[:email]
-      @city = args[:city]
-      @state = args[:state]
+      @city = args[:city].titleize
+      @state = StateConverterService.abbreviation(args[:state])
       @instrument = args[:instrument]
       @date = args[:date] - 4.hours
     end
