@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'google/apis/sheets_v4'
 
 class GoogleWriter
@@ -6,12 +8,12 @@ class GoogleWriter
   SPREADSHEET_ID = ENV['AUDITIONS_SPREADSHEET_ID']
 
   class << self
-    def write_registrations(sheet_name, instruments)
-      instance.write_sheet(sheet_name, instruments)
+    def write_registrations(registrations)
+      #instance.write_sheet('Registrations', registrations)
     end
 
-    def write_packets(sheet_name, instruments, registered_emails)
-      instance.write_sheet(sheet_name, instruments, registered_emails)
+    def write_packets(packets, registered_emails)
+      instance.write_packets(packets, registered_emails)
     end
   end
 
@@ -22,6 +24,47 @@ class GoogleWriter
     # Initialize the API
     @service = Google::Apis::SheetsV4::SheetsService.new
     service.authorization = authorization
+  end
+
+  def write_packets(packets, registered_emails)
+    current_sheet = sheets.find { |s| s.properties.title == 'Packets' }
+    sheet_id = current_sheet.properties.sheet_id
+    sheet_cols = current_sheet.properties.grid_properties.column_count
+    sheet_rows = current_sheet.properties.grid_properties.row_count
+    last_col_letter = (65 + sheet_cols - 1).chr
+
+    data = []
+    header_rows = []
+    start_row_idx = 1
+    packets.map(&:type).uniq.sort.each do |type|
+      packet_type_rows = packets
+        .select { |p| p.type == type }
+        .sort_by { |p| [p.instrument, p.name] }
+        .map!(&:to_row)
+      end_row_idx = start_row_idx + packet_type_rows.length
+      range_name = "'Packets'!A#{start_row_idx}:#{last_col_letter}#{end_row_idx}"
+      data << { range: range_name, values: [[type]] + packet_type_rows }
+
+      header_rows << start_row_idx
+      start_row_idx = end_row_idx + 2
+    end
+
+    return false unless reset_sheet(
+      sheet_id, last_col_letter, sheet_rows, header_rows, data, registered_emails)
+    )
+
+    batch_update_values = Google::Apis::SheetsV4::BatchUpdateValuesRequest.new(
+      data:               data,
+      value_input_option: 'RAW'
+    )
+
+    result = reset_formatting(sheet_id, header_rows, data, registered_emails)
+    return false if !result
+
+    result = service.batch_update_values(SPREADSHEET_ID, batch_update_values)
+    return false if !result
+
+    true
   end
 
   def write_sheet(sheet_name, instruments, registered_emails = nil)
@@ -73,6 +116,20 @@ class GoogleWriter
     return @sheets if @sheets
     result = service.get_spreadsheet(SPREADSHEET_ID)
     @sheets = result.sheets
+  end
+
+  def sheet_info(id)
+    @sheet_info ||= {}
+    return @sheet_info[id] if @sheet_info[id].present?
+
+    current = sheets.find { |s| s.properties.sheet_id == id }
+    @sheet_info[id] = {
+      cols: current.properties.grid_properties.column_count
+      rows: current.properties.grid_properties.row_count
+      last_col_letter: (65 + current.properties.grid_properties.column_count - 1).chr
+    }
+
+    @sheet_info[id]
   end
 
   # Clear all data from cells on a sheet

@@ -2,7 +2,7 @@ AllCops:
   Exclude:
     - 'Gemfile'
   TargetRubyVersion:
-    '2.4.1'
+    '2.7.2'
     
 Bundler/OrderedGems:
   Enabled: false

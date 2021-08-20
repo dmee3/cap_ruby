@@ -1,5 +1,30 @@
+# frozen_string_literal: true
+
 class Registration
-  attr_reader :type, :name, :email, :phone, :city, :state, :instrument, :date, :experience, :age_in_april
+  attr_reader :type, :name, :email, :city, :state, :instrument, :date, :experience, :age_in_april
+
+  PRODUCT_NAMES = [
+    'CC22 Music Audition Registration',
+    'CC22 Visual Audition Registration',
+    'CC22 Music Ensemble Audition Registration',
+    'CC22 Visual Ensemble Audition Registration'
+  ].freeze
+
+  FIELD_TO_SYMBOL = {
+    'Name' => :name,
+    'Email' => :email,
+    'City' => :city,
+    'State' => :state,
+    'Primary Instrument/Section' => :instrument,
+    'Age by 4/1/2022' => :age_in_april,
+    'Experience' => :experience
+  }.freeze
+
+  class << self
+    def header_row
+      ['Instrument', 'Name', 'Email', 'City', 'State', 'Age in April', 'Downloaded', 'Experience']
+    end
+  end
 
   def initialize(args)
     @type = args[:type]
@@ -14,12 +39,6 @@ class Registration
   end
 
   def to_row
-    [@instrument, @name, @email, @city, @state, @age_in_april, @date.strftime("%-m/%-d %-l:%M %P"), @experience]
-  end
-
-  class << self
-    def header_row
-      ['Instrument', 'Name', 'Email', 'City', 'State', 'Age in April', 'Downloaded', 'Experience']
-    end
+    [@instrument, @name, @email, @city, @state, @age_in_april, @date.strftime('%-m/%-d %-l:%M %P'), @experience]
   end
 end

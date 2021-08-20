@@ -1,11 +1,12 @@
-class AuditionsController < ApplicationController
-  def index
-  end
+# frozen_string_literal: true
 
+class AuditionsController < ApplicationController
+  def index; end
+
+  # rubocop:disable Metrics/AbcSize
   def update
     data = AuditionsProcessor.run
-    music_list = data[:music]
-    visual_list = data[:visual]
+    registrations = data[:registrations]
     packets = data[:packets]
 
     if !GoogleWriter.write_registrations('Music Registrations', music_list.by_instrument)
@@ -31,4 +32,5 @@ class AuditionsController < ApplicationController
   rescue ApiErrors::TooManyRequests => e
     render 'auditions/rate_limited'
   end
+  # rubocop:enable Metrics/AbcSize
 end
