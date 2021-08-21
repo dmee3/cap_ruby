@@ -12,8 +12,8 @@ class GoogleSheetsApi
       instance.clear_sheet(sheet_name)
     end
 
-    def format_sheet(sheet_name, header_rows, subheader_rows, instrument_rows)
-      instance.format_sheet(sheet_name, header_rows, subheader_rows, instrument_rows)
+    def format_sheet(sheet_name, header_rows, subheader_rows, instrument_rows, registered_rows = [])
+      instance.format_sheet(sheet_name, header_rows, subheader_rows, instrument_rows, registered_rows)
     end
 
     def write_sheet(sheet_name, data)
@@ -35,7 +35,7 @@ class GoogleSheetsApi
     service.clear_values(SPREADSHEET_ID, "'#{sheet_name}'!A1:Z1000", request_body)
   end
 
-  def format_sheet(sheet_name, header_rows, subheader_rows, instrument_rows)
+  def format_sheet(sheet_name, header_rows, subheader_rows, instrument_rows, registered_rows)
     sheet_id = sheet_name_to_id(sheet_name)
 
     requests = [
@@ -55,6 +55,10 @@ class GoogleSheetsApi
     instrument_rows.each do |row|
       requests << merge_row_request_body(sheet_id, row)
       requests << format_instrument_row_request_body(sheet_id, row)
+    end
+
+    registered_rows.each do |row|
+      requests << format_registered_row_request_body(sheet_id, row)
     end
 
     service.batch_update_spreadsheet(SPREADSHEET_ID, { requests: requests }, {})
@@ -244,8 +248,8 @@ class GoogleSheetsApi
       repeat_cell: {
         range: {
           sheet_id: sheet_id,
-          start_row_index: row_idx - 1,
-          end_row_index: row_idx
+          start_row_index: row_idx,
+          end_row_index: row_idx + 1
         },
         cell: {
           user_entered_format: {

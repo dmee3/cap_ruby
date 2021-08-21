@@ -6,7 +6,7 @@ module Auditions
       def update
         registrations, packets = OrderService.fetch_items
         return false unless RegistrationWriterService.write_registrations(registrations)
-        return false unless PacketWriterService.write_packets(packets, [])
+        return false unless PacketWriterService.write_packets(packets, registrations.map(&:email))
 
         true
       end
