@@ -12,10 +12,18 @@
 //   })
 // })
 
-import { ReactDOM } from 'react'
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
 import Hello from '../react/hello'
 
-ReactDOM.render(
-  <Hello name="Dan" />,
-  document.getElementById('main')
-)
+const AdminHome = () => {
+  console.log('Admin Home executing')
+  ReactDOM.render(
+    <Hello name="Dan" />,
+    document.getElementById('main-content')
+  )
+}
+
+AdminHome()
+
+export default AdminHome
