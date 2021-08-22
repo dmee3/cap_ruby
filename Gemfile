@@ -9,7 +9,7 @@ end
 
 # Rails gems
 gem 'rails', '~> 6.1'
-gem 'puma', '~> 5.0.4'
+gem 'puma', '~> 5.3.1'
 gem 'uglifier', '>= 1.3.0'
 gem 'turbolinks', '~> 5'
 gem 'bootsnap', require: false # Reduces boot times through caching; required in config/boot.rb
