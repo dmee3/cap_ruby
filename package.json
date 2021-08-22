@@ -46,6 +46,8 @@
     "eslint": "^7.12.1",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-promise": "^4.2.1",
+    "vite": "^2.5.0",
+    "vite-plugin-ruby": "^3.0.0",
     "webpack-dev-server": "^3.11.2"
   }
 }
