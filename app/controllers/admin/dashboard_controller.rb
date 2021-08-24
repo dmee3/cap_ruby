@@ -3,7 +3,6 @@ module Admin
     def index
       @expected_dues = expected_dues
       @actual_dues = actual_dues
-      @upcoming_conflicts = upcoming_conflicts
       @upcoming_payments = upcoming_payments(Date.today, 10.weeks.from_now, current_season['id'])
       @behind_members = behind_members(current_season['id'])
       @next_event = EventService.next_event
@@ -30,10 +29,6 @@ module Admin
           last_payment: m.payments.for_season(season_id).last
         }
       end
-    end
-
-    def upcoming_conflicts
-      Conflict.includes(:user).for_season(current_season['id']).future_conflicts.sort_by(&:start_date)
     end
 
     def upcoming_payments(start_date, end_date, season_id)

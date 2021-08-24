@@ -1,4 +1,4 @@
-<Hello name="Dan" />
+<%= vite_typescript_tag 'admin_index.tsx' %>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 
@@ -71,31 +71,25 @@
     </div>
     <ul class="divide-y divide-green-500">
       <% @upcoming_payments.each do |payment| %>
-        <li class="px-5 py-4 -mx-5 flex justify-between">
-          <div class="flex flex-col">
-            <span class="mb-0.5 text-white"><%= payment[:name] %></span>
-            <span class="text-sm font-medium text-green-200 hidden xl:inline">
-              <%= payment[:date].strftime('%a, %-m/%-d') %>
-            </span>
-          </div>
-          <div>
-            <span class="bg-green-100 text-green-700 rounded-full text-sm font-medium px-3 py-1"><%= number_to_currency(payment[:amount] / 100.0) %></span>
-          </div>
+        <li>
+          <a href="<%= new_admin_payment_path %>" class="px-5 py-4 -mx-5 flex justify-between group hover:bg-green-300">
+            <div class="flex flex-col">
+              <span class="mb-0.5 text-white group-hover:text-gray-900"><%= payment[:name] %></span>
+              <span class="text-sm font-medium text-green-200 hidden xl:inline group-hover:text-gray-700">
+                <%= payment[:date].strftime('%a, %-m/%-d') %>
+              </span>
+            </div>
+            <div>
+              <span class="bg-green-100 text-green-600 rounded-full text-sm font-medium px-3 py-1 group-hover:bg-green-600 group-hover:text-green-100"><%= number_to_currency(payment[:amount] / 100.0) %></span>
+            </div>
+          </a>
         </li>
       <% end %>
     </ul>
   </div>
 
-  <!-- UPCOMING CONFLICTS -->
-  <div class="p-5 rounded-lg order-5 border border-gray-300 row-span-2 col-span-1 md:col-span-2 xl:col-span-3">
-    <div class="text-sm font-medium text-gray-500">UPCOMING CONFLICTS</div>
-    <% @upcoming_conflicts.each do |conflict| %>
-      <div>
-        <%= conflict.user.full_name %>
-        <%= conflict.start_date %>
-        <%= conflict.end_date %>
-      </div>
-    <% end %>
+  <!-- UPCOMING CONFLICTS (React) -->
+  <div id="upcoming-conflicts" class="p-5 rounded-lg order-5 border border-gray-300 row-span-2 col-span-1 md:col-span-2 xl:col-span-3">
   </div>
 
 </div>

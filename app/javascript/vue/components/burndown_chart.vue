@@ -45,14 +45,14 @@ export default {
               data: this.dates['actual'].map(function (point) {
                 return point[1]
               }),
-              backgroundColor: ChartColor.orange().rgbaString(),
+              backgroundColor: ChartColor.orange().rgbString(),
             },
             {
               label: 'Scheduled Amount',
               data: this.dates['scheduled'].map(function (point) {
                 return point[1]
               }),
-              backgroundColor: ChartColor.blue().rgbaString(),
+              backgroundColor: ChartColor.blue().rgbString(),
             },
           ],
         },

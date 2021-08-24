@@ -56,6 +56,8 @@ export default {
     newRhythm: 8,
     rhythms: [
       { text: 'Quarter Note', value: 4 },
+      { text: 'Quarter Note Fivelet', value: 5 },
+      { text: 'Quarter Note Triplet', value: 6 },
       { text: 'Eighth Note', value: 8 },
       { text: 'Eighth Note Fivelet', value: 10 },
       { text: 'Eighth Note Triplet', value: 12 },
