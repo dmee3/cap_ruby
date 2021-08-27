@@ -40,7 +40,7 @@ const UpcomingPayment = ({
   const total = payments.map(p => p.owed).reduce((sum, curr) => sum + curr, 0)
 
   return (
-    <>
+    <div className="p-5 shadow-md bg-green-600 row-span-2">
       <div className="flex flex-col">
         <span className="text-sm font-medium text-green-200">UPCOMING PAYMENTS</span>
         <span className="text-3xl text-white font-extrabold font-mono">
@@ -50,32 +50,34 @@ const UpcomingPayment = ({
       <ul className="divide-y divide-green-500">
         {payments.map(payment => {
           return <li key={payment.user_id}>
-            <a href={`/admin/users/${payment.user_id}`} className="px-5 py-4 -mx-5 flex justify-between group hover:bg-green-300">
-              <div className="flex flex-col">
-                <span className="mb-0.5 text-white group-hover:text-gray-900">{payment.name}</span>
-                <span className="text-sm font-medium text-green-200 hidden xl:inline group-hover:text-gray-700">
-                  {Utilities.displayDate(payment.date)}
-                </span>
+            <a href={`/admin/users/${payment.user_id}`} className="px-5 py-4 -mx-5 flex flex-col hover:bg-green-500 transition">
+              <div className="flex justify-between">
+                <div className="flex flex-col">
+                  <span className="mb-0.5 text-white">{payment.name}</span>
+                  <span className="text-sm font-medium text-green-200 hidden xl:inline">
+                    {Utilities.displayDate(payment.date)}
+                  </span>
+                </div>
+                <div>
+                  <Badge
+                    text={Utilities.formatMoney(payment.owed)}
+                    color='green'
+                  />
+                </div>
               </div>
-              <div>
-                <Badge
-                  text={Utilities.formatMoney(payment.owed)}
-                  color='green'
-                />
-              </div>
+              {
+                payment.owed > payment.current_amount &&
+                <div>
+                  <span className="text-green-200 font-medium text-xs">
+                  {Utilities.formatMoney(payment.current_amount)} + {Utilities.formatMoney(payment.owed - payment.current_amount)} past due
+                  </span>
+                </div>
+              }
             </a>
-            {
-              payment.owed > payment.current_amount &&
-              <>
-                <span className="text-green-200 group-hover:text-gray-700 font-medium text-xs">
-                  {Utilities.formatMoney(payment.owed - payment.current_amount)} past due, {Utilities.formatMoney(payment.current_amount)} owed
-                </span>
-              </>
-            }
           </li>
         })}
       </ul>
-    </>
+    </div>
   )
 }
 

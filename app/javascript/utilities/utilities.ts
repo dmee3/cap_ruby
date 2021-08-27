@@ -11,9 +11,9 @@ export default class {
   // Display date as "dow, mm/dd"
   static displayDate(date: Date) {
     const format = {
-      weekday: 'short',
-      month: 'numeric',
-      day: 'numeric'
+      weekday: 'short' as const, // Deal with TS error
+      month: 'numeric' as const,
+      day: 'numeric' as const
     }
     return new Intl.DateTimeFormat('en-US', format).format(date)
   }
