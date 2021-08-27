@@ -21,7 +21,7 @@ import { Calendar, formatDate } from '@fullcalendar/core'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
-import ChartColor from '../../packs/chart_color'
+import ChartColor from '../../utilities/chart_color'
 import 'bootstrap/js/dist/popover'
 
 export default {
@@ -100,14 +100,14 @@ export default {
     },
     statusColor(status) {
       if (status == 'Pending') {
-        return ChartColor.yellow().rgbaString()
+        return ChartColor.yellow().rgbString()
       } else if (status == 'Approved') {
-        return ChartColor.green().rgbaString()
+        return ChartColor.green().rgbString()
       } else if (status == 'Denied') {
-        return ChartColor.red().rgbaString()
+        return ChartColor.red().rgbString()
       }
 
-      return ChartColor.grey().rgbaString()
+      return ChartColor.grey().rgbString()
     },
   },
 }

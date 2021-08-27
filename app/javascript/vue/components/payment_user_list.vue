@@ -123,7 +123,7 @@
 
 <script>
 import moment from 'moment/moment'
-import Utilities from '../../packs/utilities'
+import Utilities from '../../utilities/utilities'
 import PaymentsMadeCard from './payments_made_card'
 import PaymentScheduleCard from './payment_schedule_card'
 

@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import Utilities from '../../../packs/utilities'
+import Utilities from '../../../utilities/utilities'
 import PaymentUserList from '../../components/payment_user_list.vue'
 
 export default {
