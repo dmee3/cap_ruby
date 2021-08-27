@@ -13,6 +13,11 @@ Rails.application.routes.draw do
   namespace :admin do
     get '/', to: 'dashboard#index', as: 'home'
 
+    namespace :api do
+      resources :conflicts, only: %i[index]
+      resources :payments, only: %i[index]
+    end
+
     resources :calendars, only: :index
 
     get 'conflicts/upcoming', to: 'conflicts#upcoming_conflicts'
