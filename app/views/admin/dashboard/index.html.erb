@@ -62,30 +62,7 @@
   </div>
 
   <!-- UPCOMING PAYMENTS -->
-  <div class="p-5 rounded-lg order-4 md:order-2 lg:order-4 shadow-md bg-green-600 row-span-2 max-h-96 overflow-scroll">
-    <div class="flex flex-col">
-      <span class="text-sm font-medium text-green-200">UPCOMING PAYMENTS</span>
-      <span class="text-3xl text-white font-extrabold font-mono">
-        <%= number_to_currency(@upcoming_payments.sum { |p| p[:amount] } / 100.0) %>
-      </span>
-    </div>
-    <ul class="divide-y divide-green-500">
-      <% @upcoming_payments.each do |payment| %>
-        <li>
-          <a href="<%= new_admin_payment_path %>" class="px-5 py-4 -mx-5 flex justify-between group hover:bg-green-300">
-            <div class="flex flex-col">
-              <span class="mb-0.5 text-white group-hover:text-gray-900"><%= payment[:name] %></span>
-              <span class="text-sm font-medium text-green-200 hidden xl:inline group-hover:text-gray-700">
-                <%= payment[:date].strftime('%a, %-m/%-d') %>
-              </span>
-            </div>
-            <div>
-              <span class="bg-green-100 text-green-600 rounded-full text-sm font-medium px-3 py-1 group-hover:bg-green-600 group-hover:text-green-100"><%= number_to_currency(payment[:amount] / 100.0) %></span>
-            </div>
-          </a>
-        </li>
-      <% end %>
-    </ul>
+  <div id="upcoming-payments" class="p-5 rounded-lg order-4 md:order-2 lg:order-4 shadow-md bg-green-600 row-span-2 max-h-96 overflow-scroll">
   </div>
 
   <!-- UPCOMING CONFLICTS (React) -->

@@ -3,7 +3,6 @@ module Admin
     def index
       @expected_dues = expected_dues
       @actual_dues = actual_dues
-      @upcoming_payments = upcoming_payments(Date.today, 10.weeks.from_now, current_season['id'])
       @behind_members = behind_members(current_season['id'])
       @next_event = EventService.next_event
     end
@@ -29,21 +28,6 @@ module Admin
           last_payment: m.payments.for_season(season_id).last
         }
       end
-    end
-
-    def upcoming_payments(start_date, end_date, season_id)
-      entries = PaymentScheduleEntry
-        .for_season(5)
-        .includes(payment_schedule: { user: :payments })
-        .where(pay_date: Date.today..10.weeks.from_now)
-
-      entries.map do |e|
-        {
-          amount: e.schedule.scheduled_to_date(e.pay_date) - e.schedule.user.amount_paid_for(season_id),
-          date: e.pay_date,
-          name: e.schedule.user.full_name
-        }
-      end.select { |e| e[:amount] > 0 }.sort { |e| e[:date] }
     end
   end
 end

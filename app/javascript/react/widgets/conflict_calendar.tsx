@@ -1,17 +1,18 @@
-import * as React from 'react'
+import React, { useState, useEffect } from 'react'
 import '@fullcalendar/react/dist/vdom' // solves problem with Vite
 import FullCalendar from '@fullcalendar/react' // must go before plugins
 import dayGridPlugin from '@fullcalendar/daygrid'
 import listPlugin from '@fullcalendar/list'
-import statusColor from '../utilities/status_color'
+import statusColor from '../../utilities/status_color'
 
 type ConflictCalendarProps = {
 }
 
 const ConflictCalendar = ({
 }: ConflictCalendarProps) => {
-  const [conflicts, setConflicts] = React.useState([])
-  React.useEffect(() => {
+  const [conflicts, setConflicts] = useState([])
+
+  useEffect(() => {
     fetch('/admin/api/conflicts')
       .then(resp => {
         if (resp.ok) {
@@ -31,12 +32,12 @@ const ConflictCalendar = ({
         setConflicts(data)
       })
       .catch(error => {
-        console.error(`Error setting conflicts: ${error}`)
+        console.error(error)
       })
   }, [])
 
   return (
-    <div>
+    <>
       <span className="text-sm font-medium text-gray-500">UPCOMING CONFLICTS</span>
       <FullCalendar
         events={conflicts}
@@ -49,7 +50,7 @@ const ConflictCalendar = ({
         plugins={[dayGridPlugin, listPlugin]}
         themeSystem={'standard'}
       />
-    </div>
+    </>
   )
 }
 

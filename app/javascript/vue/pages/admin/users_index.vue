@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import Utilities from '../../../packs/utilities'
+import Utilities from '../../../utilities/utilities'
 import UserList from '../../components/user_list.vue'
 
 export default {

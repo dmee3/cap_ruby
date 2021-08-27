@@ -15,6 +15,7 @@ Rails.application.routes.draw do
 
     namespace :api do
       resources :conflicts, only: %i[index]
+      resources :payments, only: %i[index]
     end
 
     resources :calendars, only: :index
