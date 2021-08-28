@@ -52,10 +52,6 @@ FactoryBot.define do
     user
   end
 
-  factory :role do
-    name { 'member' }
-  end
-
   factory :user do
     sequence(:email) { |n| "#{Faker::Internet.email}#{n}" }
     first_name { Faker::Name.first_name }

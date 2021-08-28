@@ -16,14 +16,12 @@
 #  username               :string
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
-#  role_id                :integer
 #
 # Indexes
 #
 #  index_users_on_deleted_at            (deleted_at)
 #  index_users_on_email                 (email) UNIQUE
 #  index_users_on_reset_password_token  (reset_password_token) UNIQUE
-#  index_users_on_role_id               (role_id)
 #  index_users_on_username              (username) UNIQUE
 #
 class User < ApplicationRecord
@@ -37,7 +35,6 @@ class User < ApplicationRecord
 
   acts_as_paranoid
 
-  belongs_to :role
   has_many :activities
   has_many :conflicts, dependent: :destroy
   has_many :payment_schedules, dependent: :destroy
@@ -54,17 +51,16 @@ class User < ApplicationRecord
   validates :password, presence: true, on: :create
   validates :password, length: { minimum: 6, message: 'must be at least 6 characters' }, if: :password
   validates_confirmation_of :password
-  validates :role, presence: true
   validates :username, presence: true
   validates :username, uniqueness: { case_sensitive: false }
 
-  scope :for_season, ->(season_id) {
+  scope :members_for_season, ->(season_id) {
     includes(:seasons)
       .joins(:seasons_users)
       .where('seasons_users.season_id' => season_id)
+      .where('seasons_users.role' => 'member')
   }
   scope :with_payments, -> { includes(payments: :payment_type, payment_schedules: :payment_schedule_entries) }
-  scope :with_role, ->(role) { where(role: Role.find_by_name(role.to_s)) }
 
   before_save do
     self.email = email.downcase
@@ -110,16 +106,18 @@ class User < ApplicationRecord
     seasons_users.select { |su| su.season_id == season_id }.first.ensemble
   end
 
+  # Using ruby methods instead of AR query builder to save DB calls
+  # if we've got the object loaded in memory
+  def role_for(season_id)
+    seasons_users.select { |su| su.season_id == season_id }.first.role
+  end
+
   def total_dues_for(season_id)
     payment_schedule_for(season_id)&.entries&.sum(:amount)
   end
 
   def quartermaster?
     inventory_access
-  end
-
-  def is?(name)
-    role.name == name.to_s
   end
 
   def initiate_password_reset

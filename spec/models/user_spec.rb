@@ -16,14 +16,12 @@
 #  username               :string
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
-#  role_id                :integer
 #
 # Indexes
 #
 #  index_users_on_deleted_at            (deleted_at)
 #  index_users_on_email                 (email) UNIQUE
 #  index_users_on_reset_password_token  (reset_password_token) UNIQUE
-#  index_users_on_role_id               (role_id)
 #  index_users_on_username              (username) UNIQUE
 #
 require 'rails_helper'
@@ -71,11 +69,6 @@ RSpec.describe User, type: :model do
       expect(subject).to_not be_valid
     end
 
-    it 'requires a role' do
-      subject.role_id = nil
-      expect(subject).to_not be_valid
-    end
-
     it 'requires a username' do
       subject.username = nil
       expect(subject).to_not be_valid
@@ -92,18 +85,10 @@ RSpec.describe User, type: :model do
     let(:last_season) { create(:season, year: '2018') }
     let!(:current_user) { create(:user, seasons: [season]) }
     let!(:old_user) { create(:user, seasons: [last_season]) }
-    let(:admin_role) { create(:role, name: 'admin') }
-    let!(:admin_user) { create(:user, role: admin_role) }
 
     context 'for_season' do
       it 'returns users for the given season' do
         expect(described_class.for_season(season.id)).to eq([current_user])
-      end
-    end
-
-    context 'with_role' do
-      it 'returns users of the given role' do
-        expect(described_class.with_role('admin')).to eq([admin_user])
       end
     end
   end
@@ -184,22 +169,6 @@ RSpec.describe User, type: :model do
       subject { user.total_dues_for(season.id) }
 
       it { is_expected.to eq(user.payment_schedule_for(season.id).entries.sum(&:amount)) }
-    end
-
-    context 'is?' do
-      let(:user) { build(:user) }
-
-      subject { user.is?(role_name) }
-
-      context 'when role matches' do
-        let(:role_name) { user.role.name.to_s }
-        it { is_expected.to be(true) }
-      end
-
-      context 'when role does not match' do
-        let(:role_name) { "#{user.role.name}banana" }
-        it { is_expected.to be(false) }
-      end
     end
   end
 

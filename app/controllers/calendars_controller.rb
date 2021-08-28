@@ -14,7 +14,7 @@ class CalendarsController < ApplicationController
   end
 
   def download
-    if current_user.is?(:member)
+    if current_user_role == 'member'
       img = Calendar::ImageService.generate_image(current_user.id)
       send_data img.to_datastream, type: 'image/png', disposition: 'inline'
     else
@@ -55,8 +55,7 @@ class CalendarsController < ApplicationController
 
   def get_calendar_members
     members = User
-      .with_role(:member)
-      .for_season(Season.last.id)
+      .members_for_season(Season.last.id)
       .select(:id, :first_name, :last_name)
       .order(:first_name)
 

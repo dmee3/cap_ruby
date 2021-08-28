@@ -18,7 +18,7 @@ module Admin
     end
 
     def behind_members(season_id)
-      members = User.for_season(season_id).with_payments.with_role(:member).to_a
+      members = User.members_for_season(season_id).with_payments.to_a
       members.reject! { |m| m.dues_status_okay?(season_id) }
       members.map do |m|
         {

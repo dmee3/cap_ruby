@@ -4,6 +4,7 @@
 #
 #  id        :integer          not null, primary key
 #  ensemble  :string
+#  role      :string           default("member")
 #  section   :string
 #  season_id :integer
 #  user_id   :integer

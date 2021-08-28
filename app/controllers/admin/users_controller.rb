@@ -1,36 +1,5 @@
 class Admin::UsersController < AdminController
-  def index
-    user_type = params[:user_type] || 'member'
-
-    respond_to do |format|
-      format.html { }
-      format.json do
-
-        if user_type == 'member'
-        @users = User
-          .includes(:payment_schedules)
-          .for_season(current_season['id'])
-          .with_role(user_type)
-          .map do |u|
-            {
-              id: u.id,
-              first_name: u.first_name,
-              last_name: u.last_name,
-              section: u.section_for(current_season['id']),
-              ensemble: u.ensemble_for(current_season['id']),
-              payment_schedule_id: u.payment_schedule_for(current_season['id']).id
-            }
-          end
-        else
-          @users = User
-            .with_role(user_type)
-            .select(:id, :first_name, :last_name)
-        end
-
-        render json: { users: @users }
-      end
-    end
-  end
+  def index; end
 
   def show
     @user = User.find(params[:id])
@@ -126,7 +95,6 @@ class Admin::UsersController < AdminController
       :password,
       :password_confirmation,
       :phone,
-      :role_id,
       :section,
       :username,
       season_ids:[]

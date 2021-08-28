@@ -2,9 +2,9 @@ class HomeController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    if current_user.is?(:admin)
+    if current_user_role == 'admin'
       redirect_to admin_home_path
-    elsif current_user.is?(:member)
+    elsif current_user_role == 'member'
       @conflicts = current_user.conflicts.includes(:conflict_status).for_season(current_season['id']).order(:start_date)
       @documents = find_documents
       @payments = current_user.payments_for(current_season['id']).sort_by(&:date_paid)

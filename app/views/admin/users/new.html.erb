@@ -1,14 +1,61 @@
-<div class="row">
-  <div class="col-9">
-    <h1>New User</h1>
-  </div>
-  <div class="col-md-3 text-right-md mb-1">
-    <%= link_to 'All Users', '/admin/users', class: 'btn btn-light align-middle' %>
-  </div>
+<div class="flex flex-col">
+  <h1 class="text-4xl mt-4 mb-2">New User</h1>
+
+  <%= form_with(model: [:admin, @user]) do |f| %>
+    <h2 class="text-2xl mt-2 mb-2">Basic Info</h2>
+    <div class="grid grid-cols-5 gap-x-6 gap-y-2">
+      <div class="col-span-5 sm:col-span-1 flex items-center">
+        <%= f.label :first_name, 'Name', class: 'input-label' %>
+      </div>
+      <div class="col-span-5 sm:col-span-2 flex items-center">
+        <%= f.text_field :first_name, autofocus: true, placeholder: 'First', class: "input-text" %>
+      </div>
+      <div class="col-span-5 sm:col-span-2 flex items-center">
+        <%= f.text_field :last_name, placeholder: 'Last', class: "input-text" %>
+      </div>
+
+      <div class="col-span-5 sm:col-span-1 flex items-center">
+        <%= f.label :email, 'Email', class: 'input-label' %>
+      </div>
+      <div class="col-span-5 sm:col-span-4">
+        <%= f.text_field :email, class: "input-text" %>
+      </div>
+
+      <div class="col-span-5 sm:col-span-1 flex items-center">
+        <%= f.label :password, 'Password', class: 'input-label' %>
+      </div>
+      <div class="col-span-5 sm:col-span-4">
+        <%= f.text_field :password, class: "input-text" %>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <h2>Roles</h2>
+    </div>
+
+    <table class="min-w-full divide-y divide-gray-500">
+      <thead>
+        <tr>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Seasons
+          </th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Role
+          </th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Ensemble
+          </th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Section
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+
+    <div class="mt-4 flex flex-row justify-end">
+      <%= f.submit 'Save', class: "btn-primary" %>
+    </div>
+  <% end %>
 </div>
-
-<%= render 'admin/users/form', user: @user, url: admin_users_path %>
-
-<% content_for :scripts do %>
-  <%= javascript_pack_tag 'user_phone_input_mask' %>
-<% end %>
