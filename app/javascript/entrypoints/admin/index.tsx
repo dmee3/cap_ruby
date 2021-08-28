@@ -1,7 +1,7 @@
 import React from 'react'
 import { render } from 'react-dom'
-import ConflictCalendar from '../react/widgets/conflict_calendar'
-import UpcomingPayments from '../react/widgets/upcoming_payments'
+import ConflictCalendar from '../../react/widgets/conflict_calendar'
+import UpcomingPayments from '../../react/widgets/upcoming_payments'
 
 const AdminHome = () => {
   render(
@@ -16,5 +16,3 @@ const AdminHome = () => {
 }
 
 AdminHome()
-
-export default AdminHome
