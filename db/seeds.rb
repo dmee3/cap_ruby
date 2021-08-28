@@ -6,7 +6,7 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
-TOTAL_MEMBERS = 60
+TOTAL_MEMBERS = 10
 SHOW_POSSIBILITIES = [
   Faker::TvShows::HowIMetYourMother,
   Faker::TvShows::FamilyGuy,
@@ -76,12 +76,6 @@ seasons = {
   }
 }
 
-# Create Roles
-admin_role = Role.find_by_name('admin') || Role.create(name: 'admin')
-member_role = Role.find_by_name('member') || Role.create(name: 'member')
-staff_role = Role.find_by_name('staff') || Role.create(name: 'staff')
-puts "\e[035mRoles created\e[0m"
-
 # Create Payment Types
 PaymentType.create(name: 'Cash') unless PaymentType.find_by_name('Cash')
 PaymentType.create(name: 'Stripe') unless PaymentType.find_by_name('Stripe')
@@ -120,8 +114,9 @@ unless User.find_by_email ENV['ROOT_USER_EMAIL']
     password_confirmation: ENV['ROOT_USER_PASSWORD']
   )
 
-  %W(2018 2019 2020 2021 2022).each { |year| me.seasons << seasons[year][:season] }
-  me.role = admin_role
+  %w(2018 2019 2020 2021 2022).each { |year| me.seasons << seasons[year][:season] }
+
+  me.seasons_users.each { |su| su.role = 'admin' }
 
   if me.save!
     puts "\e[035mRoot User created\e[0m"
@@ -131,16 +126,11 @@ unless User.find_by_email ENV['ROOT_USER_EMAIL']
 end
 
 # Create all members
-until User.all.count >= TOTAL_MEMBERS + 1
-
-  # Create user
+TOTAL_MEMBERS.times do |i|
   name = ''
-  until name.split(' ').length == 2
-    name = SHOW_POSSIBILITIES.sample.character
-  end
+  name = SHOW_POSSIBILITIES.sample.character until name.split(' ').length == 2
 
-  first_name = name.split(' ').first
-  last_name = name.split(' ').last
+  first_name, last_name = name.split(' ')
   username = "#{first_name[0]}#{last_name}"
   email = "#{username}@example.com"
   user = User.new(
@@ -150,11 +140,9 @@ until User.all.count >= TOTAL_MEMBERS + 1
     email: email,
     password: 'abc12345'
   )
-  user.role = member_role
+  user.save
 
-  next unless user.save
-
-  puts "\e[034m#{first_name} #{last_name} created (#{User.all.count - 1} / #{TOTAL_MEMBERS})\e[0m"
+  puts "\e[034m#{first_name} #{last_name} created (#{i+1} / #{TOTAL_MEMBERS})\e[0m"
 
   # Add seasons
   user.seasons << seasons['2018'][:season] if [true, false, false].sample
@@ -178,6 +166,7 @@ until User.all.count >= TOTAL_MEMBERS + 1
         su = user.seasons_users.where(season: details[:season]).first
         su.section = SECTIONS.sample
         su.ensemble = ENSEMBLES.sample
+        su.role = 'member'
 
         # Save everything
         su.save

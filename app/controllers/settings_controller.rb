@@ -71,7 +71,7 @@ class SettingsController < ApplicationController
   private
 
   def render_index
-    if current_user.is?(:admin)
+    if current_user_role == 'admin'
       render 'admin/settings/index'
     else
       render 'members/settings/index'

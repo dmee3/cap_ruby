@@ -10,8 +10,7 @@ module Admin
 
       def members
         User
-          .for_season(current_season['id'])
-          .with_role(:member)
+          .members_for_season(current_season['id'])
           .map do |u|
             {
               id: u.id,

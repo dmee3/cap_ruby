@@ -19,7 +19,7 @@ class Admin::PaymentsController < AdminController
   end
 
   def new
-    @members = User.for_season(current_season['id']).with_role(:member).order(:first_name)
+    @members = User.members_for_season(current_season['id']).order(:first_name)
     @payment = Payment.new
     @payment.user_id = params[:user_id] if params[:user_id]
     render('admin/payments/new')
@@ -34,7 +34,7 @@ class Admin::PaymentsController < AdminController
       ActivityLogger.log_payment(@payment, current_user)
       redirect_to(admin_payments_path)
     else
-      @members = User.for_season(current_season['id']).with_role(:member).order(:first_name)
+      @members = User.members_for_season(current_season['id']).order(:first_name)
       flash.now[:error] = @payment.errors.full_messages.to_sentence
       render('admin/payments/new')
     end

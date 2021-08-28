@@ -4,7 +4,7 @@ module Admin
 
     def new
       @conflict = Conflict.new
-      @members = User.for_season(current_season['id']).with_role(:member).order(:first_name)
+      @members = User.members_for_season(current_season['id']).order(:first_name)
       render('admin/conflicts/new')
     end
 
@@ -17,14 +17,14 @@ module Admin
       else
         Rollbar.info('Conflict could not be created.', errors: @conflict.errors.full_messages)
         flash.now[:error] = @conflict.errors.full_messages.to_sentence
-        @members = User.for_season(current_season['id']).with_role(:member).order(:first_name)
+        @members = User.members_for_season(current_season['id']).order(:first_name)
         render('admin/conflicts/new')
       end
     end
 
     def edit
       @conflict = Conflict.find(params[:id])
-      @members = User.for_season(current_season['id']).with_role(:member).order(:first_name)
+      @members = User.members_for_season(current_season['id']).order(:first_name)
       render('admin/conflicts/edit')
     end
 

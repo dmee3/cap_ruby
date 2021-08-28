@@ -95,7 +95,6 @@ class Admin::UsersController < AdminController
       :password,
       :password_confirmation,
       :phone,
-      :role_id,
       :section,
       :username,
       season_ids:[]
