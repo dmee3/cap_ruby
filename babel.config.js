@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 module.exports = function(api) {
   var validEnv = ['development', 'test', 'production']
   var currentEnv = api.env()
