@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: inventory_transactions
@@ -16,6 +18,8 @@
 #  index_inventory_transactions_on_inventory_item_id  (inventory_item_id)
 #  index_inventory_transactions_on_user_id            (user_id)
 #
-class Inventory::Transaction < ApplicationRecord
-  belongs_to :item, class_name: 'Inventory::Item', foreign_key: :inventory_item_id
+module Inventory
+  class Transaction < ApplicationRecord
+    belongs_to :item, class_name: 'Inventory::Item', foreign_key: :inventory_item_id
+  end
 end

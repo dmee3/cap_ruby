@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: payment_schedule_entries
@@ -16,7 +18,9 @@ class PaymentScheduleEntry < ApplicationRecord
   alias_attribute :schedule, :payment_schedule
 
   scope :past_entries, -> { where('pay_date < ?', Date.today) }
-  scope :for_season, ->(season_id) { joins(:payment_schedule).where(payment_schedule: { season_id: season_id }) }
+  scope :for_season, lambda { |season_id|
+                       joins(:payment_schedule).where(payment_schedule: { season_id: season_id })
+                     }
 
   def user
     payment_schedule.user

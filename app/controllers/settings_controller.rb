@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 class SettingsController < ApplicationController
-  before_action :authenticate_user!, only: [:index, :update, :change_password]
-  before_action :ensure_key_param, only: [:reset_password, :complete_reset]
+  before_action :authenticate_user!, only: %i[index update change_password]
+  before_action :ensure_key_param, only: %i[reset_password complete_reset]
 
   def index
     render_index
@@ -11,7 +13,7 @@ class SettingsController < ApplicationController
       flash[:success] = 'Your settings have been updated!'
       redirect_to(root_url)
     else
-      @settings_errors = current_user.errors.full_messages.join("<br />")
+      @settings_errors = current_user.errors.full_messages.join('<br />')
       render_index
     end
   end
@@ -23,11 +25,12 @@ class SettingsController < ApplicationController
       return
     end
 
-    if current_user.update(password: params[:new_password], password_confirmation: params[:new_password_confirmation])
+    if current_user.update(password: params[:new_password],
+                           password_confirmation: params[:new_password_confirmation])
       flash[:success] = 'Password updated'
       redirect_to(root_url)
     else
-      @pw_errors = current_user.errors.full_messages.join("<br />")
+      @pw_errors = current_user.errors.full_messages.join('<br />')
       render_index
     end
   end
@@ -39,7 +42,7 @@ class SettingsController < ApplicationController
   def initiate_reset
     @user = User.find_by(email: params[:email])
 
-    @user.initiate_password_reset if @user
+    @user&.initiate_password_reset
 
     # Even if we didn't find a user, tell them to check their email to prevent
     # people from finding out user emails
@@ -58,12 +61,13 @@ class SettingsController < ApplicationController
       return
     end
 
-    if @user.update(password: params[:password], password_confirmation: params[:password_confirmation])
+    if @user.update(password: params[:password],
+                    password_confirmation: params[:password_confirmation])
       ActivityLogger.log_pw_reset_completed(@user)
       flash[:success] = 'Your password has been reset!'
       redirect_to(root_url)
     else
-      @errors = @user.errors.full_messages.join("<br />")
+      @errors = @user.errors.full_messages.join('<br />')
       render :reset
     end
   end

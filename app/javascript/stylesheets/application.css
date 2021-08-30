@@ -1,12 +1,6 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-
 @import "buttons";
-@import "cards";
 @import "forms";
 @import "typography";
-
-@import "tailwindcss/utilities";
 
 body.bg-sound-wave {
   background: no-repeat url('../images/bg.svg');

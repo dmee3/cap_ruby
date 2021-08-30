@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Auditions
   class RegistrationWriterService
     def self.write_registrations(registrations)

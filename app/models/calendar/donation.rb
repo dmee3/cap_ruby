@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: calendar_donations
@@ -15,7 +17,9 @@
 #
 #  index_calendar_donations_on_user_id  (user_id)
 #
-class Calendar::Donation < ApplicationRecord
-  belongs_to :user
-  validates :amount, presence: true
+module Calendar
+  class Donation < ApplicationRecord
+    belongs_to :user
+    validates :amount, presence: true
+  end
 end

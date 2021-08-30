@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MailerInterceptor
   def self.delivering_email(message)
     unless Rails.env.production?

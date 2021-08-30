@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class EventService
   class << self
     def next_event
@@ -40,6 +42,6 @@ class EventService
       name: 'Zoom Rehearsal',
       start_date: DateTime.parse('2021-11-14 10:00 am'),
       end_date: DateTime.parse('2021-11-14 06:00 pm')
-    },
-  ]
+    }
+  ].freeze
 end

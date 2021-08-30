@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class DefaultPaymentSchedule
   class << self
     def create(user_id, season_id)

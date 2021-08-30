@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PostOffice
   class << self
     def send_email(to, subject, text)

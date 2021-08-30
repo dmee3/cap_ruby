@@ -1,7 +1,8 @@
-# rubocop:disable AbcSize
+# frozen_string_literal: true
+
+# rubocop:disable Metrics/AbcSize
 class DashboardUtilities
   class << self
-
     # rubocop:disable Metrics/MethodLength
     def upcoming_payments(start_date, end_date, season_id)
       schedules = PaymentSchedule.for_season(season_id)
@@ -29,19 +30,19 @@ class DashboardUtilities
 
     def recent_payments(start_date, end_date, season_id)
       payments = Payment
-        .for_season(season_id)
-        .includes(:user)
-        .where(date_paid: start_date..end_date)
-        .map do |p|
-          {
-            amount: p.amount.to_f / 100,
-            date_paid: p.date_paid.strftime('%-m/%-d/%y'),
-            id: p.id,
-            name: "#{p.user.first_name} #{p.user.last_name}",
-            payment_type: p.payment_type.name,
-            user_id: p.user.id
-          }
-        end
+                 .for_season(season_id)
+                 .includes(:user)
+                 .where(date_paid: start_date..end_date)
+                 .map do |p|
+        {
+          amount: p.amount.to_f / 100,
+          date_paid: p.date_paid.strftime('%-m/%-d/%y'),
+          id: p.id,
+          name: "#{p.user.first_name} #{p.user.last_name}",
+          payment_type: p.payment_type.name,
+          user_id: p.user.id
+        }
+      end
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -85,8 +86,10 @@ class DashboardUtilities
       season_id = Season.last.id
       entries = PaymentScheduleEntry.for_season(season_id).order(:pay_date)
       dates = (entries.first.pay_date..entries.last.pay_date).select { |d| d.wday.zero? }
-      dates.map { |d| [d, Payment.for_season(season_id).where('date_paid <= ?', d).sum(:amount).to_f / 100.0] }
+      dates.map do |d|
+        [d, Payment.for_season(season_id).where('date_paid <= ?', d).sum(:amount).to_f / 100.0]
+      end
     end
   end
 end
-# rubocop:enable AbcSize
+# rubocop:enable Metrics/AbcSize

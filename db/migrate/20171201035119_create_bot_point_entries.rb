@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateBotPointEntries < ActiveRecord::Migration[5.1]
   def change
     create_table :bot_point_entries do |t|

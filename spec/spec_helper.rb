@@ -1,5 +1,7 @@
-require "webmock/rspec"
-require "timecop"
+# frozen_string_literal: true
+
+require 'webmock/rspec'
+require 'timecop'
 
 # http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
@@ -12,7 +14,7 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 
-  config.example_status_persistence_file_path = "tmp/rspec_examples.txt"
+  config.example_status_persistence_file_path = 'tmp/rspec_examples.txt'
   config.order = :random
 end
 

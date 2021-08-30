@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Inventory
   class ItemsController < ApplicationController
     before_action :authenticate_user!
@@ -29,7 +31,7 @@ module Inventory
         flash[:success] = "Updated #{@item.name} item"
         redirect_to inventory_category_path(@category)
       else
-        flash.now[:error] = "Unable to update item"
+        flash.now[:error] = 'Unable to update item'
         render :edit
       end
     end

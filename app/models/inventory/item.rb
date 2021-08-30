@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: inventory_items
@@ -17,9 +19,12 @@
 #
 #  inventory_category_id  (inventory_category_id => inventory_categories.id)
 #
-class Inventory::Item < ApplicationRecord
-  validates :name, :quantity, presence: true
+module Inventory
+  class Item < ApplicationRecord
+    validates :name, :quantity, presence: true
 
-  belongs_to :inventory_category, class_name: 'Inventory::Category', foreign_key: :inventory_category_id
-  has_many :transactions, class_name: 'Inventory::Transaction', foreign_key: :inventory_item_id
+    belongs_to :inventory_category, class_name: 'Inventory::Category',
+                                    foreign_key: :inventory_category_id
+    has_many :transactions, class_name: 'Inventory::Transaction', foreign_key: :inventory_item_id
+  end
 end

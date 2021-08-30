@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ExtendActivities < ActiveRecord::Migration[5.1]
   def change
     change_table :activities do |t|

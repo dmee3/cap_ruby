@@ -1,8 +1,11 @@
 console.log('Vite ⚡️ Rails')
 
-console.log('Visit the guide for more information: ', 'https://vite-ruby.netlify.app/guide/rails')
+import 'virtual:windi-base.css'
+import 'virtual:windi-components.css'
 
-import '~/stylesheets/application.scss'
+import '~/stylesheets/application.css'
+
+import 'virtual:windi-utilities.css'
 
 document.addEventListener('DOMContentLoaded', () => {
   // Navigation bar responsiveness

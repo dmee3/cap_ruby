@@ -338,7 +338,6 @@ GEM
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
     sqlite3 (1.4.2)
-    tailwindcss-rails (0.3.3)
       rails (>= 6.0.0)
     thor (1.1.0)
     tilt (2.0.10)
@@ -417,7 +416,6 @@ DEPENDENCIES
   spring
   sqlite3
   stripe!
-  tailwindcss-rails
   turbolinks (~> 5)
   vite_rails
   web-console (>= 4.1.0)

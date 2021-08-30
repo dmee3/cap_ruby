@@ -1,10 +1,9 @@
-module.exports = {
-  purge: [
-    "./app/**/*.html.erb",
-    "./app/helpers/**/*.rb",
-    "./app/javascript/**/*.js",
-    "./app/javascript/**/*.vue",
-  ],
+import { defineConfig } from 'windicss/helpers'
+import colors from 'windicss/colors'
+import plugin from 'windicss/plugin'
+import forms from 'windicss/plugin/forms'
+
+export default defineConfig({
   darkMode: 'media', // or 'media' or 'class'
   theme: {
     extend: {
@@ -41,10 +40,5 @@ module.exports = {
       }
     },
   },
-  variants: {
-    extend: {},
-  },
-  plugins: [
-    require('@tailwindcss/forms')
-  ],
-}
+  plugins: [forms],
+})
