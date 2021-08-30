@@ -1,11 +1,11 @@
 console.log('Vite ⚡️ Rails')
 
-import 'windi-base.css'
-import 'windi-components.css'
+import 'virtual:windi-base.css'
+import 'virtual:windi-components.css'
 
 import '~/stylesheets/application.css'
 
-import 'windi-utilities.css'
+import 'virtual:windi-utilities.css'
 
 document.addEventListener('DOMContentLoaded', () => {
   // Navigation bar responsiveness
