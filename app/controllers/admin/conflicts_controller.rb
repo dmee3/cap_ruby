@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Admin
   class ConflictsController < AdminController
     def index; end
@@ -37,7 +39,9 @@ module Admin
             flash[:success] = "Conflict for #{@conflict.user.full_name} updated"
             redirect_to(admin_conflicts_path)
           end
-          format.json { render(json: { message: "Conflict for #{@conflict.user.full_name} updated" }) }
+          format.json do
+            render(json: { message: "Conflict for #{@conflict.user.full_name} updated" })
+          end
         end
       else
         Rollbar.info('Conflict could not be updated.', errors: @conflict.errors.full_messages)
@@ -61,8 +65,9 @@ module Admin
       end
 
       render(json: {
-        conflicts: DashboardUtilities.upcoming_conflicts(start_date, end_date, current_season['id'])
-      })
+               conflicts: DashboardUtilities.upcoming_conflicts(start_date, end_date,
+                                                                current_season['id'])
+             })
     end
 
     def statuses

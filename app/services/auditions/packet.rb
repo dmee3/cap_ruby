@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Auditions
   class Packet
     attr_reader :type, :name, :email, :city, :state, :instrument, :date

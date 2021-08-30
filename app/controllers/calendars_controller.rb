@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CalendarsController < ApplicationController
   before_action :authenticate_user!, only: :download
   layout 'calendar'
@@ -32,7 +34,7 @@ class CalendarsController < ApplicationController
 
       create_donations(response.id, dates)
       send_mail(user_id, dates, donation_params[:donor_name])
-      
+
       render :success
     else
       render :error
@@ -55,9 +57,9 @@ class CalendarsController < ApplicationController
 
   def get_calendar_members
     members = User
-      .members_for_season(Season.last.id)
-      .select(:id, :first_name, :last_name)
-      .order(:first_name)
+              .members_for_season(Season.last.id)
+              .select(:id, :first_name, :last_name)
+              .order(:first_name)
 
     # Filter people who quit
     members.reject do |u|

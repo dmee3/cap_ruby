@@ -3,22 +3,35 @@ AllCops:
     - 'Gemfile'
   TargetRubyVersion:
     '2.7.2'
+  NewCops: enable
     
 Bundler/OrderedGems:
   Enabled: false
 
-Metrics/BlockLength:
-  ExcludedMethods: ['describe', 'context', 'shared_examples', 'shared_context', 'scenario']
-Metrics/LineLength:
+Layout/LineLength:
   Max: 100
+  Exclude:
+    - 'config/**'
+    - 'db/**'
+
+Metrics/BlockLength:
+  IgnoredMethods: ['describe', 'context', 'shared_examples', 'shared_context', 'scenario']
+  Exclude:
+    - 'config/**'
+    - 'db/**'
 Metrics/MethodLength:
   Max: 15
+  Exclude:
+    - 'config/**'
+    - 'db/**'
 
 Style/ConditionalAssignment:
   Enabled: false
 Style/Documentation:
   Enabled: false
 Style/FormatString:
+  Enabled: false
+Style/MixinUsage:
   Enabled: false
 Style/NumericLiterals:
   Enabled: false

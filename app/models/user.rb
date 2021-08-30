@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: users
@@ -49,18 +51,21 @@ class User < ApplicationRecord
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :password, presence: true, on: :create
-  validates :password, length: { minimum: 6, message: 'must be at least 6 characters' }, if: :password
+  validates :password, length: { minimum: 6, message: 'must be at least 6 characters' },
+                       if: :password
   validates_confirmation_of :password
   validates :username, presence: true
   validates :username, uniqueness: { case_sensitive: false }
 
-  scope :members_for_season, ->(season_id) {
+  scope :members_for_season, lambda { |season_id|
     includes(:seasons)
       .joins(:seasons_users)
       .where('seasons_users.season_id' => season_id)
       .where('seasons_users.role' => 'member')
   }
-  scope :with_payments, -> { includes(payments: :payment_type, payment_schedules: :payment_schedule_entries) }
+  scope :with_payments, lambda {
+                          includes(payments: :payment_type, payment_schedules: :payment_schedule_entries)
+                        }
 
   before_save do
     self.email = email.downcase
@@ -69,11 +74,13 @@ class User < ApplicationRecord
 
   def full_name
     return "#{first_name} #{last_name}" if first_name && last_name
+
     first_name
   end
 
   def dues_status_okay?(season_id)
     return @status unless @status.nil?
+
     dues_paid = amount_paid_for(season_id)
     schedule = payment_schedule_for(season_id)
     @status = schedule.present? && dues_paid >= schedule.scheduled_to_date

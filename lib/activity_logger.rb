@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ActivityLogger
   class << self
     def log_activity(args)
@@ -14,6 +16,7 @@ class ActivityLogger
 
     def log_conflict(conflict, current_user)
       return unless conflict
+
       start = conflict.start_date.strftime('%a, %-m/%-d %I:%M %p')
       status = conflict.status.name.downcase
       log_activity(
@@ -27,6 +30,7 @@ class ActivityLogger
 
     def log_login(user)
       return unless user
+
       log_activity(
         user_id: user.id,
         description: 'Login',
@@ -38,6 +42,7 @@ class ActivityLogger
 
     def log_payment(payment, current_user)
       return unless payment
+
       amount = '%.2f' % (payment.amount / 100.0)
       log_activity(
         user_id: payment.user_id,
@@ -51,7 +56,7 @@ class ActivityLogger
     def log_pw_reset_initiated(user)
       log_activity(
         user_id: user.id,
-        description: "User initiated password reset",
+        description: 'User initiated password reset',
         activity_date: Date.today,
         created_by_id: user.id,
         activity_type: 'password_reset_initiated'
@@ -61,7 +66,7 @@ class ActivityLogger
     def log_pw_reset_completed(user)
       log_activity(
         user_id: user.id,
-        description: "User completed password reset",
+        description: 'User completed password reset',
         activity_date: Date.today,
         created_by_id: user.id,
         activity_type: 'password_reset_completed'

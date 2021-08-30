@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class WhistleblowersController < ApplicationController
   before_action :authenticate_user!
 
@@ -5,7 +7,8 @@ class WhistleblowersController < ApplicationController
 
   def create
     send_email(params[:email], params[:report])
-    flash[:success] = 'Report submitted. If you provided contact information, expect a response within the next week.'
+    flash[:success] =
+      'Report submitted. If you provided contact information, expect a response within the next week.'
     redirect_to(root_path)
   rescue StandardError => e
     Rollbar.error(e, user: nil)
@@ -16,7 +19,7 @@ class WhistleblowersController < ApplicationController
   private
 
   def send_email(email, report)
-    email = email.present? ? email : '(Anonymous)'
+    email = '(Anonymous)' unless email.present?
     subject = 'Whistleblower Report'
     text = <<~TEXT
       Whistleblower report submitted at #{Time.now.strftime('%d/%m/%Y %l:%M %P')}.\n\n

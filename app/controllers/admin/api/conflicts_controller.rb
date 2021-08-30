@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 module Admin
   module Api
     class ConflictsController < ApiController
       def index
         @conflicts = Conflict
-          .for_season(current_season['id'])
-          .where('start_date > ?', start_param)
-          .where('end_date < ?', end_param)
-          .order(:start_date)
+                     .for_season(current_season['id'])
+                     .where('start_date > ?', start_param)
+                     .where('end_date < ?', end_param)
+                     .order(:start_date)
 
         @conflicts = @conflicts.map do |c|
           {

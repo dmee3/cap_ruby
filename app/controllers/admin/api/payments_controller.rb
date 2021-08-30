@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Admin
   module Api
     class PaymentsController < ApiController
@@ -8,11 +10,11 @@ module Admin
 
       private
 
-      def upcoming_payments(start_date, end_date)
+      def upcoming_payments(_start_date, _end_date)
         entries = PaymentScheduleEntry
-          .for_season(5)
-          .includes(payment_schedule: { user: :payments })
-          .where(pay_date: Date.today..10.weeks.from_now)
+                  .for_season(5)
+                  .includes(payment_schedule: { user: :payments })
+                  .where(pay_date: Date.today..10.weeks.from_now)
 
         entries.map do |e|
           {
@@ -23,7 +25,7 @@ module Admin
             name: e.schedule.user.full_name,
             user_id: e.schedule.user.id
           }
-        end.select { |e| e[:scheduled] - e[:paid] > 0 }.sort { |e| e[:date] }
+        end.select { |e| (e[:scheduled] - e[:paid]).positive? }.sort { |e| e[:date] }
       end
 
       def start_param

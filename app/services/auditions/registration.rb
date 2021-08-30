@@ -16,7 +16,7 @@ module Auditions
       'CC22 Music Audition Registration' => 'Music Registration',
       'CC22 Music Ensemble Audition Registration' => 'Music Registration',
       'CC22 Visual Audition Registration' => 'Visual Registration',
-      'CC22 Visual Ensemble Audition Registration' => 'Visual Registration',
+      'CC22 Visual Ensemble Audition Registration' => 'Visual Registration'
     }.freeze
 
     FIELD_TO_SYMBOL = {
@@ -48,7 +48,8 @@ module Auditions
     end
 
     def to_row
-      [@name, @email, @city, @state, @age_in_april, @date.strftime('%-m/%-d %-l:%M %P'), @experience]
+      [@name, @email, @city, @state, @age_in_april, @date.strftime('%-m/%-d %-l:%M %P'),
+       @experience]
     end
   end
 end

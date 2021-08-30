@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Auditions
   class PacketWriterService
     def self.write_packets(packets, registered_emails)
@@ -17,7 +19,8 @@ module Auditions
       data_hash = packet_hash(packets)
       prepare_data(data_hash, registered_emails)
       GoogleSheetsApi.clear_sheet(@sheet_name)
-      GoogleSheetsApi.format_sheet(@sheet_name, @header_rows, @subheader_rows, @instrument_rows, @registered_rows)
+      GoogleSheetsApi.format_sheet(@sheet_name, @header_rows, @subheader_rows, @instrument_rows,
+                                   @registered_rows)
       GoogleSheetsApi.write_sheet(@sheet_name, @values)
     end
 

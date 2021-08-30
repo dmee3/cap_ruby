@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: users
@@ -164,7 +166,9 @@ RSpec.describe User, type: :model do
       let!(:season) { create(:season) }
       let!(:user) { create(:user, seasons: [season]) }
 
-      before { user.payment_schedules << PaymentSchedule.create(user_id: user.id, season_id: season.id) }
+      before do
+        user.payment_schedules << PaymentSchedule.create(user_id: user.id, season_id: season.id)
+      end
 
       subject { user.total_dues_for(season.id) }
 

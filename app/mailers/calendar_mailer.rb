@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CalendarMailer < ApplicationMailer
   def calendar_email
     @user = User.find(params[:user_id])

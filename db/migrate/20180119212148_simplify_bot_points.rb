@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SimplifyBotPoints < ActiveRecord::Migration[5.1]
   def change
     BotPointEntry.delete_all

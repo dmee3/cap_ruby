@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Calendar
   class ImageService
     class << self
@@ -23,8 +25,8 @@ module Calendar
         'public/images/calendar-logo.png'
       end
 
-      ROWS = [650, 735, 821, 906, 992]
-      COLS = [145, 264, 383, 502, 621, 740, 859]
+      ROWS = [650, 735, 821, 906, 992].freeze
+      COLS = [145, 264, 383, 502, 621, 740, 859].freeze
 
       DATE_COORDINATES = [
         [COLS[1], ROWS[0]],
@@ -58,7 +60,7 @@ module Calendar
         [COLS[1], ROWS[4]],
         [COLS[2], ROWS[4]],
         [COLS[3], ROWS[4]]
-      ]
+      ].freeze
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: payment_schedules
@@ -33,7 +35,8 @@ RSpec.describe PaymentSchedule, type: :model do
     context 'scheduled_to_date' do
       before do
         [-10, -2, 0, 4].each do |i|
-          create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.today + i.days, amount: 10000)
+          create(:payment_schedule_entry, payment_schedule: schedule,
+                                          pay_date: Date.today + i.days, amount: 10000)
         end
       end
 
