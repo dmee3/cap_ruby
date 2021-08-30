@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 module.exports = {
   plugins: [
     require('tailwindcss')("./app/javascript/stylesheets/tailwind.config.js"),
