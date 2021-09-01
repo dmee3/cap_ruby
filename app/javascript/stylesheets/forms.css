@@ -12,8 +12,8 @@
     block
     border-transparent
     hover:border-gray-300
-    focus:border-teal
     hover:focus:border-teal
+    focus:border-teal
     focus:bg-white
     focus:ring-0
     mt-1
@@ -35,5 +35,65 @@
     hover:border-gray-300
     rounded
     text-teal
+  ;
+}
+
+.input-select {
+  @apply
+    mt-1
+    block
+    w-full
+    rounded-md
+    bg-gray-100
+    border-transparent
+    border-2
+    hover:border-gray-300
+    hover:focus:border-teal
+    focus:border-teal
+    focus:bg-white
+    focus:ring-0
+    px-3
+    py-2
+  ;
+}
+
+.input-toggle-wrapper {
+  @apply
+    flex
+    items-center
+    cursor-pointer
+    block
+    relative
+  ;
+}
+.input-toggle {
+  @apply sr-only;
+}
+.input-toggle-dot {
+  @apply
+    absolute
+    left-1
+    top-1
+    bg-white
+    w-4
+    h-4
+    rounded-full
+    transition
+  ;
+}
+.input-toggle:checked ~ .input-toggle-dot {
+  transform: translateX(100%);
+}
+.input-toggle:checked ~ .input-toggle-bg {
+  @apply bg-teal;
+}
+.input-toggle-bg {
+  @apply
+    block
+    bg-gray-300
+    w-10
+    h-6
+    rounded-full
+    transition
   ;
 }

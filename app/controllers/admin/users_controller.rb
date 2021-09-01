@@ -9,7 +9,9 @@ module Admin
     end
 
     def new
+      @seasons = Season.all.order(:year)
       @user = User.new
+      @seasons.each { |s| @user.seasons_users.build(season_id: s.id) }
     end
 
     def create

@@ -3,6 +3,8 @@ console.log('Vite ⚡️ Rails')
 import 'virtual:windi-base.css'
 import 'virtual:windi-components.css'
 
+import 'virtual:windi-devtools'
+
 import '~/stylesheets/application.css'
 
 import 'virtual:windi-utilities.css'

@@ -1,5 +1,5 @@
 <div class="flex flex-col">
-  <h1 class="text-4xl mt-4 mb-2">New User</h1>
+  <h1>New User</h1>
 
   <%= form_with(model: [:admin, @user]) do |f| %>
     <h2 class="text-2xl mt-2 mb-2">Basic Info</h2>
@@ -8,7 +8,7 @@
         <%= f.label :first_name, 'Name', class: 'input-label' %>
       </div>
       <div class="col-span-5 sm:col-span-2 flex items-center">
-        <%= f.text_field :first_name, autofocus: true, placeholder: 'First', class: '' %>
+        <%= f.text_field :first_name, autofocus: true, placeholder: 'First', class: 'input-text' %>
       </div>
       <div class="col-span-5 sm:col-span-2 flex items-center">
         <%= f.text_field :last_name, placeholder: 'Last', class: 'input-text' %>
@@ -51,6 +51,31 @@
         </tr>
       </thead>
       <tbody>
+        <%= f.fields_for :seasons_users do |r| %>
+          <tr>
+            <td class="text-sm px-6 py-3">
+              <%= @seasons[r.index].year %>
+              <label for="" class="input-toggle-wrapper">
+                <input type="checkbox" id="toggleB" class="input-toggle">
+                <div class="input-toggle-bg input-toggle-bg"></div>
+                <div class="input-toggle-dot"></div>
+                <div class="ml-3 input-label">
+                  Toggle Me!
+                </div>
+              </label>
+              <%= r.hidden_field(:season, value: r.object.season_id) %>
+            </td>
+            <td class="text-sm px-6 py-3">
+              <%= r.select(:role, %w[member staff coordinator admin], { prompt: 'None' }, { class: 'input-select' }) %>
+            </td>
+            <td class="text-sm px-6 py-3">
+              <%= r.select(:ensemble, %w[World CC2], { prompt: 'None' }, { class: 'input-select' }) %>
+            </td>
+            <td class="text-sm px-6 py-3">
+              <%= r.select(:section, %w[Snares Tenors Basses Cymbals Woods Metals Electronics Auxiliary Visual], { prompt: 'None' }, { class: 'input-select' }) %>
+            </td>
+          </tr>
+        <% end %>
       </tbody>
     </table>
 
