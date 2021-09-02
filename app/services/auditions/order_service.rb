@@ -35,7 +35,7 @@ module Auditions
 
     def add_packet(item, date)
       args = { date: date, type: item['productName'] }
-      item['customizations'].each do |field|
+      item['customizations']&.each do |field|
         question = field['label']
         args[Packet::FIELD_TO_SYMBOL[question]] = field['value']
       end
@@ -45,7 +45,7 @@ module Auditions
 
     def add_registration(item, date)
       args = { date: date, type: item['productName'] }
-      item['customizations'].each do |field|
+      item['customizations']&.each do |field|
         question = field['label']
         args[Registration::FIELD_TO_SYMBOL[question]] = field['value']
       end
