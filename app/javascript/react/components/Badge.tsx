@@ -5,15 +5,16 @@ type BadgeProps = {
   color: 'green' | 'red'
 }
 
-export const Badge = ({
-  text,
-  color
-}: BadgeProps) => {
-  return(
-    <span
-      className={`w-min bg-${color}-100 text-${color}-600 rounded-full text-sm font-medium px-3 py-1`}
-    >
-      {text}
-    </span>
-  )
+class Badge extends React.Component<BadgeProps> {
+  render() {
+    return(
+      <span
+        className={`w-min bg-${this.props.color}-100 text-${this.props.color}-600 rounded-full text-sm font-medium px-3 py-1`}
+      >
+        {this.props.text}
+      </span>
+    )
+  }
 }
+
+export default Badge

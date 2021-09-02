@@ -54,15 +54,14 @@
         <%= f.fields_for :seasons_users do |r| %>
           <tr>
             <td class="text-sm px-6 py-3">
-              <%= @seasons[r.index].year %>
-              <label for="" class="input-toggle-wrapper">
-                <input type="checkbox" id="toggleB" class="input-toggle">
+              <%= r.label :_destroy, class: 'input-toggle-wrapper' do %>
+                <%= r.check_box :_destroy, class: 'input-toggle' %>
                 <div class="input-toggle-bg input-toggle-bg"></div>
                 <div class="input-toggle-dot"></div>
                 <div class="ml-3 input-label">
-                  Toggle Me!
+                  <%= @seasons[r.index].year %>
                 </div>
-              </label>
+              <% end %>
               <%= r.hidden_field(:season, value: r.object.season_id) %>
             </td>
             <td class="text-sm px-6 py-3">
