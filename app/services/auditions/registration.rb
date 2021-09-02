@@ -39,8 +39,9 @@ module Auditions
       @type = TYPE_MAP[args[:type]]
       @name = args[:name]
       @email = args[:email]
-      @city = args[:city].titleize
-      @state = StateConverterService.abbreviation(args[:state])
+
+      @city = args[:city]&.titleize
+      @state = args[:state] ? StateConverterService.abbreviation(args[:state]) : ''
       @instrument = args[:instrument]
       @date = args[:date] - 4.hours
       @experience = args[:experience]

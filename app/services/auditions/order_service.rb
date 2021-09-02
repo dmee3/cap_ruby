@@ -45,9 +45,17 @@ module Auditions
 
     def add_registration(item, date)
       args = { date: date, type: item['productName'] }
-      item['customizations']&.each do |field|
-        question = field['label']
-        args[Registration::FIELD_TO_SYMBOL[question]] = field['value']
+      if item['id'] == '61301752837128523e7e760a' # Handle my mistake
+        args[:name] = 'Kiersten Clinger'
+        args[:email] = 'k2clinger@gmail.com'
+        args[:city] = 'Xenia'
+        args[:state] = 'Ohio'
+        args[:instrument] = 'Visual Ensemble'
+      else
+        item['customizations']&.each do |field|
+          question = field['label']
+          args[Registration::FIELD_TO_SYMBOL[question]] = field['value']
+        end
       end
 
       @registrations << Registration.new(args)
