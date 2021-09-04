@@ -15,7 +15,7 @@ module Admin
     end
 
     def create
-      @user = User.new(user_params.merge(password: SecureRandom.uuid))
+      @user = User.new(user_params)
       if @user.save
         update_seasons
         @user.welcome
@@ -101,7 +101,6 @@ module Admin
         :password,
         :password_confirmation,
         :phone,
-        :section,
         :username,
         season_ids: []
       )

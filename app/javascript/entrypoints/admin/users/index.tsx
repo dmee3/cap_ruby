@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { render } from 'react-dom'
 
-import UserTable from '../../react/widgets/user_table'
+import UserTable from '../../../react/widgets/user_table'
 
 const AdminUsers = () => {
   render(

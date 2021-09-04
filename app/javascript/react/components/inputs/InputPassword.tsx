@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-type InputTextProps = {
+type InputPasswordProps = {
   autofocus?: boolean,
   id?: string,
   name: string,
@@ -8,13 +8,13 @@ type InputTextProps = {
   value?: string
 }
 
-const InputText = ({
+const InputPassword = ({
   autofocus = false,
   id,
   name,
   placeholder,
   value = ''
-}: InputTextProps) => {
+}: InputPasswordProps) => {
   const [internalValue, setValue] = React.useState(value)
 
   return (
@@ -22,7 +22,7 @@ const InputText = ({
       autoFocus={autofocus}
       placeholder={placeholder}
       className="input-text"
-      type="text"
+      type="password"
       name={name}
       id={id}
       value={internalValue}
@@ -31,4 +31,4 @@ const InputText = ({
   )
 }
 
-export default InputText
+export default InputPassword

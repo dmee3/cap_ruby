@@ -19,6 +19,7 @@ Rails.application.routes.draw do
       resources :conflicts, only: %i[index]
       resources :payments, only: %i[index]
       resources :users, only: %i[index]
+      resources :seasons, only: %i[index]
     end
 
     resources :calendars, only: :index

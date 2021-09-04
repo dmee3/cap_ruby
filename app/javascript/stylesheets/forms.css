@@ -47,6 +47,7 @@
     bg-gray-100
     border-transparent
     border-2
+    disabled:hover:border-transparent
     hover:border-gray-300
     hover:focus:border-teal
     focus:border-teal
