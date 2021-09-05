@@ -14,14 +14,20 @@ const UserRoleRow = ({
   season
 }: UserRoleRowProps) => {
   const [checked, setChecked] = useState(false)
-  const [disabled, setDisabled] = useState(true)
+  const [destroy, setDestroy] = useState(checked ? '0' : '1')
+  const [roleDisabled, setRoleDisabled] = useState(true)
+  const [ensembleDisabled, setEnsembleDisabled] = useState(true)
+  const [sectionDisabled, setSectionDisabled] = useState(true)
   const [role, setRole] = useState('')
   const [ensemble, setEnsemble] = useState('')
   const [section, setSection] = useState('')
 
   const handleToggle = (newValue) => {
     setChecked(newValue)
-    setDisabled(!newValue)
+    setDestroy(newValue ? '0' : '1')
+    setRoleDisabled(!newValue)
+    setEnsembleDisabled(!newValue)
+    setSectionDisabled(!newValue)
     if (!newValue) {
       setRole('')
       setEnsemble('')
@@ -31,6 +37,13 @@ const UserRoleRow = ({
 
   const handleRoleChange = (newValue) => {
     setRole(newValue)
+    if (newValue !== 'member') {
+      setEnsembleDisabled(true)
+      setSectionDisabled(true)
+    } else {
+      setEnsembleDisabled(false)
+      setSectionDisabled(false)
+    }
   }
 
   const handleEnsembleChange = (newValue) => {
@@ -46,16 +59,18 @@ const UserRoleRow = ({
       <td className="text-sm px-6 py-3">
         <InputToggle
           checked={checked}
-          id={`user_seasons_users_attributes_${season.id}__destroy`}
-          name={`user[seasons_users_attributes][${season.id}][_destroy]`}
+          id={`user_seasons_users_attributes_${season.id}__active`}
+          name={`user[seasons_users_attributes][][_active]`}
           onChange={handleToggle}
           text={season.year}
         />
+        <input type="hidden" name="season_id" value={season.id} />
+        <input type="hidden" name="_destroy" value={destroy} />
       </td>
       <td className="text-sm px-6 py-3">
         <InputSelect
-          disabled={disabled}
-          name={`user[seasons_users_attributes][${season.id}][role]`}
+          disabled={roleDisabled}
+          name={`user[seasons_users_attributes][][role]`}
           onChange={handleRoleChange}
           options={['member', 'staff', 'coordinator', 'admin']}
           prompt="None"
@@ -64,8 +79,8 @@ const UserRoleRow = ({
       </td>
       <td className="text-sm px-6 py-3">
         <InputSelect
-            disabled={disabled}
-            name={`user[seasons_users_attributes][${season.id}][ensemble]`}
+            disabled={ensembleDisabled}
+            name={`user[seasons_users_attributes][][ensemble]`}
             onChange={handleEnsembleChange}
             options={['World', 'CC2']}
             prompt="None"
@@ -74,8 +89,8 @@ const UserRoleRow = ({
       </td>
       <td className="text-sm px-6 py-3">
         <InputSelect
-          disabled={disabled}
-          name={`user[seasons_users_attributes][${season.id}][section]`}
+          disabled={sectionDisabled}
+          name={`user[seasons_users_attributes][][section]`}
           onChange={handleSectionChange}
           options={['Snares', 'Tenors', 'Basses', 'Cymbals', 'Woods', 'Metals', 'Electronics', 'Auxiliary', 'Visual']}
           prompt="None"

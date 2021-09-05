@@ -16,8 +16,7 @@ const InputToggle = ({
 }: InputToggleProps) => {
   return (
     <label className="input-toggle-wrapper" htmlFor={id}>
-      <input name={name} type="hidden" value="0"></input>
-      <input className="input-toggle" type="checkbox" checked={checked} name={name} id={id} onChange={e => onChange(e.target.checked)} />
+      <input className="input-toggle" type="checkbox" checked={checked} name={name} id={id} onChange={e => onChange(e.target.checked)} value="1" />
       <div className="input-toggle-bg input-toggle-bg"></div>
       <div className="input-toggle-dot"></div>
       <div className="ml-3 input-label">

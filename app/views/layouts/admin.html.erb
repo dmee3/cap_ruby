@@ -98,7 +98,7 @@
             <div class="absolute z-50 bottom-0 right-0 w-1/3">
               
               <% flash.each do |type, message| %>
-                <div class="flash flex flex-row rounded-lg m-4 p-2 bg-gradient-to-br from-red-600 to-red-500 text-white shadow-md">
+                <div class="flash flex flex-row rounded-lg m-4 p-2 bg-gradient-to-br from-<%= flash_color(type) %>-600 to-<%= flash_color(type) %>-500 text-white shadow-md">
                   <span class="block flex-1">
                     <%= message %>
                   </span>

@@ -56,43 +56,6 @@ module Admin
       end
     end
 
-    private
-
-    # This code sucks
-    def update_seasons
-      Season.all.each do |season|
-        section = params["section_#{season.year}"]
-        ensemble = params["ensemble_#{season.year}"]
-
-        # Deleting season
-        if ensemble == ''
-          SeasonsUser.where(season_id: season.id, user_id: @user.id).destroy_all
-
-        # Updating season
-        elsif su = SeasonsUser.find_by(season_id: season.id, user_id: @user.id)
-          if su.ensemble != ensemble || su.section != section
-            su.update(ensemble: ensemble, section: section)
-          end
-
-        # Creating season
-        else
-          SeasonsUser.create(season_id: season.id, user_id: @user.id, ensemble: ensemble,
-                             section: section)
-          create_payment_schedule(season)
-        end
-      end
-    end
-
-    def create_payment_schedule(season)
-      return unless PaymentSchedule.find_by(season_id: season.id, user_id: @user_id).blank?
-
-      if season.year == '2021'
-        @user.payment_schedules << DefaultPaymentSchedule.create(@user.id, season.id)
-      else
-        @user.payment_schedules << PaymentSchedule.create(user_id: @user_id, season_id: season.id)
-      end
-    end
-
     def user_params
       params.require(:user).permit(
         :first_name,
