@@ -17,7 +17,7 @@ export default defineConfig({
           light: '#d9596a',
           lightest: '#e89b86'
         },
-        teal: {
+        ocean: {
           dark: '#213b45',
           DEFAULT: '#386374',
           light: '#498197',

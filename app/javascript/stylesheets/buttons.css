@@ -1,16 +1,44 @@
-.btn-primary {
+.btn-base {
   @apply
-    bg-teal
     cursor-pointer
     flex
-    hover:bg-teal-light
+    font-medium
     items-center
     justify-center
-    px-4
-    py-2
     rounded-md
-    text-lg
     text-white
     transition
+  ;
+}
+
+.btn-primary {
+  @apply
+    bg-ocean
+    btn-base
+    hover:bg-ocean-light
+  ;
+}
+
+.btn-green {
+  @apply
+    bg-green-600
+    btn-base
+    hover:bg-green-500
+  ;
+}
+
+.btn-md {
+  @apply
+    px-4
+    py-2
+    text-lg
+  ;
+}
+
+.btn-sm {
+  @apply
+    px-2
+    py-1
+    text-md
   ;
 }

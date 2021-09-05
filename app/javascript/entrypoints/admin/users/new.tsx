@@ -100,7 +100,7 @@ const AdminUsersNew = () => {
         </table>
 
         <div className="mt-4 flex flex-row justify-end">
-          <input type="submit" name="commit" value="Save" className="btn-primary" />
+          <input type="submit" name="commit" value="Save" className="btn-primary btn-md" />
         </div>
       </form>
     </div>

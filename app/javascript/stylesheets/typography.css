@@ -22,3 +22,12 @@ h3 {
     mb-2
   ;
 }
+
+.text-primary {
+  @apply text-gray-900;
+}
+
+.text-secondary {
+  color: teal;
+  @apply font-medium;
+}

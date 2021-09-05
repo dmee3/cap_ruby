@@ -36,7 +36,6 @@ module Admin
     def update
       @user = User.find(params[:id])
       if @user.update(user_params.reject { |_k, v| v.blank? }) # only update non-empty fields
-        update_seasons
         @user.initiate_password_reset if params['reset_password']
         flash[:success] = "#{@user.first_name} updated"
         redirect_to('/admin/users')

@@ -47,7 +47,7 @@ const UserTable = ({
                     {member.full_name}
                   </a>
                 </div>
-                <div className="text-gray-500">
+                <div className="text-secondary">
                   {member.email}
                 </div>
               </div>
@@ -57,7 +57,7 @@ const UserTable = ({
               <div>
                 {member.ensemble}
               </div>
-              <div className="font-medium text-gray-500">
+              <div className="text-secondary">
                 {member.section}
               </div>
             </td>
