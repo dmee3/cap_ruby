@@ -16,22 +16,10 @@ module Inventory
       @category = Inventory::Category.new(category_params)
       if @category.save
         flash[:success] = "Created #{@category.name} category"
-        redirect_to @category
+        redirect_to inventory_categories_path
       else
         flash.now[:error] = @category.errors.full_messages
         render :new
-      end
-    end
-
-    def edit; end
-
-    def update
-      if @category.update(category_params)
-        flash[:success] = "Updated #{@category.name} category"
-        redirect_to @category
-      else
-        flash.now[:error] = @category.errors.full_messages
-        render :edit
       end
     end
 

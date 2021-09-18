@@ -60,8 +60,8 @@ Rails.application.routes.draw do
   end
 
   namespace :inventory do
-    resources :categories, only: %i[index new create edit update] do
-      resources :items, only: %i[new create edit update show]
+    resources :categories, only: %i[index new create] do
+      resources :items, only: %i[new create show]
     end
   end
 

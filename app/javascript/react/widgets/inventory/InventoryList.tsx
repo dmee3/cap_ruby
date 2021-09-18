@@ -36,7 +36,7 @@ const InventoryList = ({
   return(
     <>
       {categories.map((category) => {
-        return <div key={category.id}>
+        return <div key={category.id} className="mb-6">
             <InventoryListHeading
               category={category}
             />
