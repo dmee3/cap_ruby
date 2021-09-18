@@ -13,7 +13,7 @@ const ConflictCalendar = ({
   const [conflicts, setConflicts] = useState([])
 
   useEffect(() => {
-    fetch('/admin/api/conflicts')
+    fetch('/api/admin/conflicts')
       .then(resp => {
         if (resp.ok) {
           return resp.json()

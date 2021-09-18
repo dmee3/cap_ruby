@@ -12,15 +12,23 @@ Rails.application.routes.draw do
 
   post 'change-season', to: 'home#change_season'
 
-  namespace :admin do
-    get '/', to: 'dashboard#index', as: 'home'
-
-    namespace :api do
+  namespace :api do
+    namespace :admin do
       resources :conflicts, only: %i[index]
       resources :payments, only: %i[index]
       resources :users, only: %i[index]
       resources :seasons, only: %i[index]
     end
+
+    namespace :inventory do
+      resources :categories, only: %i[index create update] do
+        resources :items, only: %i[create update show]
+      end
+    end
+  end
+
+  namespace :admin do
+    get '/', to: 'dashboard#index', as: 'home'
 
     resources :calendars, only: :index
 
@@ -52,7 +60,7 @@ Rails.application.routes.draw do
   end
 
   namespace :inventory do
-    resources :categories, only: %i[index show new create edit update] do
+    resources :categories, only: %i[index new create edit update] do
       resources :items, only: %i[new create edit update show]
     end
   end

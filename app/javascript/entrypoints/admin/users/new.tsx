@@ -10,7 +10,7 @@ const AdminUsersNew = () => {
   const [seasons, setSeasons] = useState([])
 
   useEffect(() => {
-    fetch('/admin/api/seasons')
+    fetch('/api/admin/seasons')
       .then(resp => {
         if (resp.ok) {
           return resp.json()
@@ -27,9 +27,9 @@ const AdminUsersNew = () => {
 
   return(
     <div className="flex flex-col">
-      <h1 className="text-4xl">New User</h1>
+      <h1>New User</h1>
       <form action="/admin/users" method="post">
-      <input type='hidden' name='authenticity_token' value={csrfToken} />
+        <input type='hidden' name='authenticity_token' value={csrfToken} />
         <h2>Basic Info</h2>
         <div className="grid grid-cols-5 gap-x-6 gap-y-4">
           <div className="col-span-5 sm:col-span-1 flex items-center">
@@ -100,7 +100,7 @@ const AdminUsersNew = () => {
         </table>
 
         <div className="mt-4 flex flex-row justify-end">
-          <input type="submit" name="commit" value="Save" className="btn-primary btn-md" />
+          <input type="submit" name="commit" value="Save" className="btn-primary btn-lg" />
         </div>
       </form>
     </div>

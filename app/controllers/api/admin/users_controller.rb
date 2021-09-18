@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module Admin
-  module Api
-    class UsersController < ApiController
+module Api
+  module Admin
+    class UsersController < Api::AdminController
       def index
         @users = members
         render json: @users

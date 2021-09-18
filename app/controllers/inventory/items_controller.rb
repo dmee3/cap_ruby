@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 module Inventory
-  class ItemsController < ApplicationController
-    before_action :authenticate_user!
-    before_action :redirect_if_no_inventory_access
+  class ItemsController < InventoryController
     before_action :set_category
     before_action :set_item, only: %i[edit update show]
 

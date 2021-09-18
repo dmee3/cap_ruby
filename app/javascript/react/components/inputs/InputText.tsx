@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { forwardRef } from 'react'
 
 type InputTextProps = {
   autofocus?: boolean,
@@ -8,13 +9,17 @@ type InputTextProps = {
   value?: string
 }
 
-const InputText = ({
-  autofocus = false,
-  id,
-  name,
-  placeholder,
-  value = ''
-}: InputTextProps) => {
+const InputText = forwardRef<HTMLInputElement, InputTextProps>(
+  (
+    {
+      autofocus = false,
+      id,
+      name,
+      placeholder,
+      value = ''
+    }: InputTextProps,
+    ref
+  ) => {
   const [internalValue, setValue] = React.useState(value)
 
   return (
@@ -25,10 +30,11 @@ const InputText = ({
       type="text"
       name={name}
       id={id}
+      ref={ref}
       value={internalValue}
       onChange={e => setValue(e.target.value)}
     />
   )
-}
+})
 
 export default InputText

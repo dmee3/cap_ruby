@@ -1,16 +1,12 @@
 # frozen_string_literal: true
 
 module Inventory
-  class CategoriesController < ApplicationController
-    before_action :authenticate_user!
-    before_action :redirect_if_no_inventory_access
+  class CategoriesController < InventoryController
     before_action :set_category, only: %i[show edit update]
 
     def index
       @categories = Inventory::Category.all
     end
-
-    def show; end
 
     def new
       @category = Category.new

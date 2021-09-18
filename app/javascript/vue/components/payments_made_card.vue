@@ -4,7 +4,7 @@
       <h5>Payments</h5>
       <a
         :href="`/admin/payments/new?user_id=${userId}`"
-        class="btn btn-sm btn-outline-secondary"
+        class="btn btn-md btn-outline-secondary"
       >
         <i class="fa fa-plus"></i>
       </a>
@@ -54,7 +54,7 @@
             <div class="dropdown d-inline-block ml-2">
               <button
                 :id="`dropdown-${payment.id}`"
-                class="btn btn-outline-secondary btn-xs"
+                class="btn btn-outline-secondary btn-sm"
                 data-toggle="dropdown"
                 aria-haspopup="true"
                 aria-expanded="false"

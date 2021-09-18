@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module Admin
-  module Api
-    class ConflictsController < ApiController
+module Api
+  module Admin
+    class ConflictsController < Api::AdminController
       def index
         @conflicts = Conflict
                      .for_season(current_season['id'])

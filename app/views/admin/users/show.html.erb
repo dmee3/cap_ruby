@@ -1,26 +1,27 @@
 <div class="flex flex-col">
-<div class="flex flex-row items-center justify-between mt-4 mb-2">
-  <div>
-    <h1 class="my-0"><%= @user.full_name %></h1>
-    <span class="text-secondary"><%= @user.ensemble_for(current_season['id']) %> <%= @user.section_for(current_season['id']) %></span>
+  <div class="flex flex-row items-center justify-between mt-4 mb-2">
+    <div>
+      <h1 class="my-0"><%= @user.full_name %></h1>
+      <span class="text-secondary"><%= @user.ensemble_for(current_season['id']) %> <%= @user.section_for(current_season['id']) %></span>
+    </div>
+    <div>
+      <%= link_to [:edit, :admin, @user], class: 'btn-primary btn-lg' do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+        </svg>
+        Edit
+      <% end %>
+    </div>
   </div>
-  <div>
-    <%= link_to [:edit, :admin, @user], class: 'btn-primary btn-md' do %>
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-      </svg>
-      Edit
+  <div class="flex items-center text-gray-500">
+    @<%= @user.username %>
+      <div class="mx-2">·</div>
+    <%= @user.email %>
+    <% if @user.phone.present? %>
+      <div class="mx-2">·</div>
+      <%= @user.phone %>
     <% end %>
   </div>
-</div>
-<div class="flex items-center text-gray-500">
-  @<%= @user.username %>
-    <div class="mx-2">·</div>
-  <%= @user.email %>
-  <% if @user.phone.present? %>
-    <div class="mx-2">·</div>
-    <%= @user.phone %>
-  <% end %>
 </div>
 
 <% if @user.conflicts.for_season(current_season['id']).any? %>
@@ -47,7 +48,7 @@
   <div class="col-span-2 md:col-span-1">
     <div class="flex flex-row items-center justify-between mt-2 mb-2">
       <h2 class="m-0">Payment Schedule</h2>
-      <%= link_to [:admin, @user.payment_schedule_for(current_season['id'])], class: 'btn-primary btn-sm' do %>
+      <%= link_to [:admin, @user.payment_schedule_for(current_season['id'])], class: 'btn-primary btn-md' do %>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
         </svg>
@@ -69,7 +70,7 @@
   <div class="col-span-2 md:col-span-1">
     <div class="flex flex-row items-center justify-between mt-2 mb-2">
       <h2 class="m-0">Payments Made</h2>
-      <%= link_to new_admin_payment_path(user_id: @user.id), class: 'btn-green btn-sm' do %>
+      <%= link_to new_admin_payment_path(user_id: @user.id), class: 'btn-green btn-md' do %>
         <svg class="mr-2" width="12" height="20" fill="currentColor">
           <path fillRule="evenodd" clipRule="evenodd" d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"/>
         </svg>

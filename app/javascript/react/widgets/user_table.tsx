@@ -7,7 +7,7 @@ const UserTable = ({
   const [members, setMembers] = useState([])
 
   useEffect(() => {
-    fetch(`/admin/api/users`)
+    fetch(`/api/admin/users`)
       .then(resp => {
         if (resp.ok) {
           return resp.json()
@@ -62,7 +62,7 @@ const UserTable = ({
               </div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-right font-medium">
-              <a href={`/admin/users/${member.id}/edit`} className="text-gray-700 hover:text-gray-900 transition">
+              <a href={`/admin/users/${member.id}/edit`} className="text-gray-500 hover:text-gray-900 transition">
                 Edit
               </a>
             </td>

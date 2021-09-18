@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module Admin
-  module Api
-    class SeasonsController < ApiController
+module Api
+  module Admin
+    class SeasonsController < Api::AdminController
       def index
         @seasons = Season.all.order(:year)
         render json: @seasons

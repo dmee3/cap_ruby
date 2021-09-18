@@ -1,6 +1,7 @@
 .input-label {
   @apply
     block
+    text-gray-700
     text-sm
     font-medium
   ;

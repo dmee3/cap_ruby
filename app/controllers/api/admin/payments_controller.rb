@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module Admin
-  module Api
-    class PaymentsController < ApiController
+module Api
+  module Admin
+    class PaymentsController < Api::AdminController
       def index
         @payments = upcoming_payments(start_param, end_param)
         render json: @payments
