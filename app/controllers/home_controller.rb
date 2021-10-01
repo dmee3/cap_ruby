@@ -21,11 +21,6 @@ class HomeController < ApplicationController
     end
   end
 
-  def documents
-    @documents = find_documents
-    render 'admin/home/documents'
-  end
-
   def change_season
     if params[:season_id].present?
       cookies[:cap_season] = Season.find(params[:season_id]).to_json

@@ -8,8 +8,6 @@ Rails.application.routes.draw do
   get '/auditions-spreadsheet', to: 'auditions#index'
   get '/auditions-spreadsheet-generate', to: 'auditions#update'
 
-  get '/documents', to: 'home#documents'
-
   post 'change-season', to: 'home#change_season'
 
   namespace :api do
@@ -25,6 +23,8 @@ Rails.application.routes.draw do
         resources :items, only: %i[create update show]
       end
     end
+
+    resources :files, only: %i[index show]
   end
 
   namespace :admin do
@@ -35,6 +35,8 @@ Rails.application.routes.draw do
     get 'conflicts/upcoming', to: 'conflicts#upcoming_conflicts'
     get 'conflicts/statuses', to: 'conflicts#statuses'
     resources :conflicts, except: %i[show destroy]
+
+    resources :files, only: %i[index]
 
     get 'payments/upcoming', to: 'payments#upcoming_payments'
     get 'payments/behind-members', to: 'payments#behind_members'
