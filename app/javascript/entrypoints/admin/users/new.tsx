@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
 import InputPassword from '../../../react/components/inputs/InputPassword'
 import InputText from '../../../react/components/inputs/InputText'
-import UserRoleRow from '../../../react/widgets/user_role_row'
+import UserRoleRow from '../../../react/widgets/UserRoleRow'
 
 const AdminUsersNew = () => {
   const csrfToken = (document.getElementsByName('csrf-token')[0] as HTMLMetaElement).content
