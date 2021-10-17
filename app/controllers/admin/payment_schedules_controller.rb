@@ -23,7 +23,7 @@ class Admin::PaymentSchedulesController < AdminController
 
   def update
     @schedule = PaymentSchedule.find update_params[:id]
-    if @schedule.update_attributes update_params
+    if @schedule.update update_params
       head :no_content
     else
       render json: { errors: @schedule.errors.messages }, status: 422
