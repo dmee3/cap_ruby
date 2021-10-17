@@ -14,7 +14,7 @@ const UpcomingPayment = ({
 
   useEffect(() => {
     let params = `start=${Utilities.formatIsoDate(start)}&end=${Utilities.formatIsoDate(end)}`
-    fetch(`/api/admin/payments?${params}`)
+    fetch(`/api/admin/payments/upcoming?${params}`)
       .then(resp => {
         if (resp.ok) {
           return resp.json()

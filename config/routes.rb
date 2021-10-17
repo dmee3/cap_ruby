@@ -14,6 +14,7 @@ Rails.application.routes.draw do
     namespace :admin do
       resources :conflicts, only: %i[index]
       resources :payments, only: %i[index]
+      get 'payments/upcoming', to: 'payments#upcoming'
       resources :users, only: %i[index]
       resources :seasons, only: %i[index]
     end
