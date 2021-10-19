@@ -105,19 +105,19 @@ class User < ApplicationRecord
   # Using ruby methods instead of AR query builder to save DB calls
   # if we've got the object loaded in memory
   def section_for(season_id)
-    seasons_users.select { |su| su.season_id == season_id }.first.section
+    seasons_users.select { |su| su.season_id == season_id }&.first&.section
   end
 
   # Using ruby methods instead of AR query builder to save DB calls
   # if we've got the object loaded in memory
   def ensemble_for(season_id)
-    seasons_users.select { |su| su.season_id == season_id }.first.ensemble
+    seasons_users.select { |su| su.season_id == season_id }&.first&.ensemble
   end
 
   # Using ruby methods instead of AR query builder to save DB calls
   # if we've got the object loaded in memory
   def role_for(season_id)
-    seasons_users.select { |su| su.season_id == season_id }.first.role
+    seasons_users.select { |su| su.season_id == season_id }&.first&.role
   end
 
   def total_dues_for(season_id)

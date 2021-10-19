@@ -17,7 +17,7 @@ class PaymentScheduleEntry < ApplicationRecord
   belongs_to :payment_schedule
   alias_attribute :schedule, :payment_schedule
 
-  scope :past_entries, -> { where('pay_date < ?', Date.today) }
+  scope :past_entries, -> { where('pay_date <= ?', Date.today) }
   scope :for_season, lambda { |season_id|
                        joins(:payment_schedule).where(payment_schedule: { season_id: season_id })
                      }

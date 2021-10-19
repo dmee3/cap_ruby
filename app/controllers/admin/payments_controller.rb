@@ -39,6 +39,7 @@ module Admin
       else
         @members = User.members_for_season(current_season['id']).order(:first_name)
         flash.now[:error] = @payment.errors.full_messages.to_sentence
+        @payment.amount /= 100
         render('admin/payments/new')
       end
     end

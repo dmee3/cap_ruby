@@ -9,6 +9,8 @@ import '~/stylesheets/application.css'
 
 import 'virtual:windi-utilities.css'
 
+import flatpickr from 'flatpickr'
+
 document.addEventListener('DOMContentLoaded', () => {
   // Navigation bar responsiveness
   const mobileNavBtn = document.querySelector('#mobile-menu-btn')
@@ -54,5 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
     close.addEventListener('click', () => {
       flash.parentNode.removeChild(flash)
     })
+  })
+
+  flatpickr('.flatpickr', {
+    altInput: true,
+    altFormat: 'F j, Y',
+    altInputClass: 'input-text',
+    dateFormat: 'Y-m-d',
   })
 })

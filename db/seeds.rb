@@ -8,7 +8,7 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
-TOTAL_MEMBERS = 10
+TOTAL_MEMBERS = 60
 SHOW_POSSIBILITIES = [
   Faker::TvShows::HowIMetYourMother,
   Faker::TvShows::FamilyGuy,
@@ -68,12 +68,12 @@ seasons = {
   '2022' => {
     season: Season.find_or_create_by(year: '2022'),
     payment_schedule_entries: [
-      [30000, Date.parse('2021-08-01')],
       [30000, Date.parse('2021-10-17')],
-      [30000, Date.parse('2021-11-14')],
-      [30000, Date.parse('2021-12-12')],
-      [30000, Date.parse('2022-01-09')],
-      [30000, Date.parse('2022-02-13')]
+      [28000, Date.parse('2021-11-19')],
+      [28000, Date.parse('2021-12-17')],
+      [28000, Date.parse('2022-01-14')],
+      [28000, Date.parse('2022-02-18')],
+      [28000, Date.parse('2022-03-18')]
     ]
   }
 }
@@ -134,12 +134,15 @@ unless User.find_by_email ENV['ROOT_USER_EMAIL']
 end
 
 # Create all members
+chosen_usernames = []
 TOTAL_MEMBERS.times do |i|
   name = ''
-  name = SHOW_POSSIBILITIES.sample.character until name.split.length == 2
+  until name.split.length == 2 && !chosen_usernames.include?("#{name.split[0][0].downcase}#{name.split[1].downcase}")
+    name = SHOW_POSSIBILITIES.sample.character
+  end
 
   first_name, last_name = name.split
-  username = "#{first_name[0]}#{last_name}"
+  username = "#{first_name[0].downcase}#{last_name.downcase}"
   email = "#{username}@example.com"
   user = User.new(
     first_name: first_name,
@@ -148,8 +151,9 @@ TOTAL_MEMBERS.times do |i|
     email: email,
     password: 'abc12345'
   )
-  user.save
 
+  user.save
+  chosen_usernames << user.username
   puts "\e[034m#{first_name} #{last_name} created (#{i + 1} / #{TOTAL_MEMBERS})\e[0m"
 
   # Add seasons
@@ -164,7 +168,7 @@ TOTAL_MEMBERS.times do |i|
     next unless user.seasons.map(&:year).include?(year)
 
     # Add payment schedule
-    PaymentSchedule.new(season: details[:season]).tap do |sched|
+    PaymentSchedule.new(season_id: details[:season].id).tap do |sched|
       details[:payment_schedule_entries].each do |info|
         entry = PaymentScheduleEntry.create(amount: info[0], pay_date: info[1])
         sched.payment_schedule_entries << entry
@@ -172,7 +176,8 @@ TOTAL_MEMBERS.times do |i|
       user.payment_schedules << sched
 
       # Add section
-      su = user.seasons_users.where(season: details[:season]).first
+      su = user.seasons_users.find_by_season_id(details[:season].id)
+      byebug if su.nil?
       su.section = SECTIONS.sample
       su.ensemble = ENSEMBLES.sample
       su.role = 'member'
@@ -210,7 +215,7 @@ TOTAL_MEMBERS.times do |i|
   # Create payments
   user.seasons.each do |season|
     schedule = user.payment_schedule_for(season.id)
-    possibilities = schedule.entries.select { |s| s.pay_date < Date.today }
+    possibilities = schedule.entries.select { |s| s.pay_date <= Date.today }
 
     possibilities.each do |p|
       next unless [true, true, true, true, true, true, true, true, true, false].sample
