@@ -2,40 +2,29 @@
 
 module Api
   module Admin
+    # jbuilder
     class PaymentsController < Api::AdminController
       def index
-        @payments = upcoming_payments(start_param, end_param)
+        @users = PaymentService.season_payment_details(current_season['id'])
+      end
+
+      def upcoming
+        @payments = PaymentService.upcoming_payments(start_param, end_param, current_season['id'])
         render json: @payments
       end
 
       private
 
-      def upcoming_payments(_start_date, _end_date)
-        entries = PaymentScheduleEntry
-                  .for_season(5)
-                  .includes(payment_schedule: { user: :payments })
-                  .where(pay_date: Date.today..10.weeks.from_now)
-
-        entries.map do |e|
-          {
-            scheduled: e.schedule.scheduled_to_date(e.pay_date),
-            paid: e.schedule.user.amount_paid_for(current_season['id']),
-            current_amount: e.amount,
-            date: e.pay_date,
-            name: e.schedule.user.full_name,
-            user_id: e.schedule.user.id
-          }
-        end.select { |e| (e[:scheduled] - e[:paid]).positive? }.sort { |e| e[:date] }
-      end
-
       def start_param
-        DateTime.parse(params[:start]) if params[:start]
-        DateTime.parse('2000-01-01')
+        return DateTime.parse(params[:start]) if params[:start]
+        
+        Date.today
       end
 
       def end_param
-        DateTime.parse(params[:end]) if params[:end]
-        DateTime.parse('2030-01-01')
+        return DateTime.parse(params[:end]) if params[:end]
+
+        10.weeks.from_now
       end
     end
   end

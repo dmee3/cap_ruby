@@ -46,14 +46,17 @@
 
 <div class="mt-4 grid grid-cols-2 gap-x-8 gap-y-4">
   <div class="col-span-2 md:col-span-1">
-    <div class="flex flex-row items-center justify-between mt-2 mb-2">
+    <div class="flex flex-row items-center justify-between mt-2 mb-0">
       <h2 class="m-0">Payment Schedule</h2>
       <%= link_to [:admin, @user.payment_schedule_for(current_season['id'])], class: 'btn-primary btn-md' do %>
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
         </svg>
         Edit
       <% end %>
+    </div>
+    <div class="text-secondary mb-2">
+      Total: $<%= '%.2f' % (@user.payment_schedule_for(current_season['id']).entries.sum(&:amount) / 100.0) %>
     </div>
     <ul class="divide-y divide-gray-300">
       <% @user.payment_schedule_for(current_season['id']).entries.order(:pay_date).each do |entry| %>
@@ -68,14 +71,17 @@
   </div>
 
   <div class="col-span-2 md:col-span-1">
-    <div class="flex flex-row items-center justify-between mt-2 mb-2">
+    <div class="flex flex-row items-center justify-between mt-2 mb-0">
       <h2 class="m-0">Payments Made</h2>
       <%= link_to new_admin_payment_path(user_id: @user.id), class: 'btn-green btn-md' do %>
-        <svg class="mr-2" width="12" height="20" fill="currentColor">
+        <svg class="mr-1 h-4 w-4" width="16" height="16" fill="currentColor">
           <path fillRule="evenodd" clipRule="evenodd" d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"/>
         </svg>
         New
       <% end %>
+    </div>
+    <div class="text-secondary mb-2">
+      Total: $<%= '%.2f' % (@user.payments_for(current_season['id']).sum(&:amount) / 100.0) %>
     </div>
     <ul class="divide-y divide-gray-300">
       <% @user.payments_for(current_season['id']).sort_by(&:date_paid).each do |payment| %>

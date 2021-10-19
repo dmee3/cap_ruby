@@ -14,6 +14,7 @@ gem 'chunky_png' # Calendar image processing
 gem 'devise'
 gem 'faraday' # Auditions Processor
 gem 'google-api-client' # Auditions Processor
+gem 'jbuilder'
 gem 'jwt'
 gem 'mailgun-ruby', '~>1.1.6'
 gem 'puma', '~> 5.0.4'

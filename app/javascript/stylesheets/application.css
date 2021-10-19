@@ -2,6 +2,8 @@
 @import "forms";
 @import "typography";
 
+@import 'flatpickr/dist/flatpickr.css';
+
 body.bg-sound-wave {
   background: no-repeat url('../images/bg.svg');
   background-size: 100vw auto;

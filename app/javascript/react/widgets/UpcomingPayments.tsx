@@ -14,7 +14,7 @@ const UpcomingPayment = ({
 
   useEffect(() => {
     let params = `start=${Utilities.formatIsoDate(start)}&end=${Utilities.formatIsoDate(end)}`
-    fetch(`/api/admin/payments?${params}`)
+    fetch(`/api/admin/payments/upcoming?${params}`)
       .then(resp => {
         if (resp.ok) {
           return resp.json()
@@ -40,7 +40,7 @@ const UpcomingPayment = ({
   const total = payments.map(p => p.owed).reduce((sum, curr) => sum + curr, 0)
 
   return (
-    <div className="p-5 shadow-md bg-green-600 row-span-2">
+    <div className="p-5 shadow-md bg-gradient-to-br from-green-500 to-green-600 row-span-2">
       <div className="flex flex-col">
         <span className="text-sm font-medium text-green-200">UPCOMING PAYMENTS</span>
         <span className="text-3xl text-white font-extrabold font-mono">
