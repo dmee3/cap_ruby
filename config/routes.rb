@@ -54,6 +54,7 @@ Rails.application.routes.draw do
   end
 
   namespace :members do
+    get '/', to: 'dashboard#index', as: 'home'
     resources :calendars, only: %i[index]
 
     resources :conflicts, only: %i[new create]

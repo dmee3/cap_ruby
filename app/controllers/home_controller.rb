@@ -8,13 +8,7 @@ class HomeController < ApplicationController
     when 'admin'
       redirect_to admin_home_path
     when 'member'
-      @conflicts = current_user.conflicts.includes(:conflict_status).for_season(current_season['id']).order(:start_date)
-      @documents = find_documents
-      @payments = current_user.payments_for(current_season['id']).sort_by(&:date_paid)
-      @payment_schedule = current_user.payment_schedule_for(current_season['id'])
-      @total_paid = @payments.sum(&:amount) / 100
-      @total_dues = @payment_schedule.entries.sum(:amount) / 100
-      render('members/home/index')
+      redirect_to members_home_path
     else
       Rollbar.warning('User with unknown role accessed home page.')
       sign_out current_user
@@ -29,12 +23,5 @@ class HomeController < ApplicationController
     end
 
     redirect_back fallback_location: root_path
-  end
-
-  private
-
-  def find_documents
-    document_directory = "#{Rails.root}/public/pdf"
-    Dir.glob("#{document_directory}/**/*").map { |path| path.split('/').last }
   end
 end
