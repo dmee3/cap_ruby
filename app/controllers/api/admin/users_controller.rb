@@ -19,8 +19,7 @@ module Api
               full_name: u.full_name,
               email: u.email,
               section: u.section_for(current_season['id']),
-              ensemble: u.ensemble_for(current_season['id']),
-              payment_schedule_id: u.payment_schedule_for(current_season['id']).id
+              ensemble: u.ensemble_for(current_season['id'])
             }
           end
       end

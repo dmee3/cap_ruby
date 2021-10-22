@@ -3,6 +3,8 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
+  layout :get_layout
+
   def current_season
     return nil unless current_user
 
@@ -37,6 +39,21 @@ class ApplicationController < ActionController::Base
       Stripe.api_key = ENV['STRIPE_SECRET_KEY']
     else
       Stripe.api_key = ENV['STRIPE_SECRET_TEST_KEY']
+    end
+  end
+
+  private
+
+  def get_layout
+    return nil unless current_user
+
+    case current_user_role
+    when 'admin'
+      'admin'
+    when 'member'
+      'members'
+    else
+      nil
     end
   end
 end

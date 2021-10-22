@@ -37,8 +37,6 @@ Rails.application.routes.draw do
     get 'conflicts/statuses', to: 'conflicts#statuses'
     resources :conflicts, except: %i[show destroy]
 
-    resources :files, only: %i[index]
-
     get 'payments/upcoming', to: 'payments#upcoming_payments'
     get 'payments/behind-members', to: 'payments#behind_members'
     get 'payments/burndown-chart', to: 'payments#burndown_chart'
@@ -59,7 +57,7 @@ Rails.application.routes.draw do
 
     resources :conflicts, only: %i[new create]
 
-    resources :payments, only: %i[new]
+    resources :payments, only: %i[index new]
     post 'charge', to: 'payments#charge'
   end
 
@@ -68,6 +66,8 @@ Rails.application.routes.draw do
       resources :items, only: %i[new create show]
     end
   end
+
+  resources :files, only: %i[index]
 
   get 'settings', to: 'settings#index'
   post 'settings', to: 'settings#update'

@@ -4,7 +4,7 @@
 
   <!-- DUES EXPECTED / NEXT EVENT -->
   <div class="order-1 h-48 md:h-96 xl:h-48 flex flex-col">
-    <%= link_to admin_payments_path, class: 'p-5 flex-grow rounded-lg border border-gray-300 group hover:shadow-md hover:border-transparent hover:bg-gradient-to-br hover:from-green-500 hover:to-green-600 flex flex-col sm:flex-row md:flex-col justify-between place-content-stretch transition' do %>
+    <%= link_to admin_payments_path, class: 'p-5 flex-grow rounded-lg border border-gray-300 group hover:shadow-md hover:border-transparent hover:bg-gradient-to-br hover:from-green-500 hover:to-green-700 flex flex-col sm:flex-row md:flex-col justify-between place-content-stretch transition' do %>
       <div class="flex flex-col md:h-1/2 justify-center">
         <span class="text-sm font-medium text-gray-500 group-hover:text-green-200 transition">
           DUES OWED
@@ -67,7 +67,7 @@
   
 
   <!-- NEXT EVENT -->
-  <div class="p-5 rounded-lg order-3 shadow-md bg-gray-500 group hidden xl:block">
+  <div class="p-5 rounded-lg order-3 shadow-md bg-gradient-to-br from-gray-500 to-gray-700 group hidden xl:block">
     <div class="text-sm font-medium text-gray-300">NEXT EVENT</div>
     <div class="flex flex-col">
       <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
