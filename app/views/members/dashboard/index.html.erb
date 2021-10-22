@@ -43,7 +43,7 @@
                       </span>
                       <span class="text-white">$<%= '%.2f' % (payment.amount / 100.0) %></span>
                     </div>
-                    <span class="text-sm text-green-200"><%= payment.date_paid.strftime('%-m/%-d/%-y') %></span>
+                    <span class="text-sm font-light text-green-200"><%= payment.date_paid.strftime('%-m/%-d/%-y') %></span>
                   </div>
 
                   <% unless payment.notes.blank? %>
@@ -66,7 +66,7 @@
         <% @payment_schedule.entries.each do |entry| %>
           <li class="flex justify-between py-2">
             <span><%= number_to_currency(entry.amount / 100.0) %></span>
-            <span class="text-gray-500"><%= entry.pay_date.strftime('%a, %-m/%-d') %></span>
+            <span class="text-secondary"><%= entry.pay_date.strftime('%a, %-m/%-d') %></span>
           </li>
         <% end %>
       </ul>
@@ -105,7 +105,7 @@
                   <% end %>
                   <%= render 'conflict_status_icon', status: c.status %>
                 </div>
-                <div class="mx-6 mt-0 mb-2 text-sm flex flex-col text-gray-500">
+                <div class="mx-6 mt-0 mb-2 text-sm flex flex-col text-secondary">
                   Submitted: <%= c.created_at.strftime('%a, %-m/%-d') %>
                 </div>
               </li>

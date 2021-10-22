@@ -28,6 +28,5 @@ h3 {
 }
 
 .text-secondary {
-  color: teal;
-  @apply font-medium;
+  @apply text-gray-500 font-light;
 }
