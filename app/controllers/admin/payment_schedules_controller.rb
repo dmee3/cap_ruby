@@ -24,12 +24,13 @@ module Admin
       end
     end
 
-  def update
-    @schedule = PaymentSchedule.find update_params[:id]
-    if @schedule.update update_params
-      head :no_content
-    else
-      render json: { errors: @schedule.errors.messages }, status: 422
+    def update
+      @schedule = PaymentSchedule.find update_params[:id]
+      if @schedule.update update_params
+        head :no_content
+      else
+        render json: { errors: @schedule.errors.messages }, status: 422
+      end
     end
 
     def remove_entry
@@ -54,9 +55,10 @@ module Admin
     private
 
     def update_params
-      params.require(:payment_schedule).permit :id,
-                                               payment_schedule_entries_attributes: %i[id pay_date
-                                                                                       amount]
+      params.require(:payment_schedule).permit(
+        :id,
+        payment_schedule_entries_attributes: %i[id pay_date amount]
+      )
     end
 
     def add_entry_params
