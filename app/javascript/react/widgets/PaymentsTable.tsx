@@ -2,7 +2,7 @@ import { PlusSmIcon } from '@heroicons/react/outline'
 import moment from 'moment'
 import fuzzysort from 'fuzzysort'
 import React, { useState, useEffect } from 'react'
-import Badge from '../components/badge'
+import Badge from '../components/Badge'
 
 type PaymentsTableProps = {}
 
