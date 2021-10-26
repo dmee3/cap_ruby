@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Utilities from '../../utilities/utilities'
 
-import Badge from '../components/badge'
+import Badge from '../components/Badge'
 
 type UpcomingPaymentProps = {
 }
