@@ -26,7 +26,6 @@ gem 'sidekiq'
 gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'
 gem 'turbolinks', '~> 5'
 gem 'vite_rails'
-gem 'webpacker', '~> 5.0'
 
 group :production do
   gem 'pg'
