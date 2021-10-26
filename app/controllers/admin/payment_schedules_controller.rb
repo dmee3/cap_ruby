@@ -24,13 +24,12 @@ module Admin
       end
     end
 
-    def update
-      @schedule = PaymentSchedule.find update_params[:id]
-      if @schedule.update_attributes update_params
-        head :no_content
-      else
-        render json: { errors: @schedule.errors.messages }, status: 422
-      end
+  def update
+    @schedule = PaymentSchedule.find update_params[:id]
+    if @schedule.update update_params
+      head :no_content
+    else
+      render json: { errors: @schedule.errors.messages }, status: 422
     end
 
     def remove_entry
