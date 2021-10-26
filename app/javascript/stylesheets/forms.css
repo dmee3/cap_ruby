@@ -1,7 +1,7 @@
 .input-label {
   @apply
     block
-    text-gray-700
+    text-gray-500
     text-sm
     font-medium
   ;
@@ -12,13 +12,14 @@
     bg-gray-100
     block
     border-transparent
-    hover:border-gray-300
+    hover:enabled:border-gray-300
     hover:focus:border-ocean
     focus:border-ocean
     focus:bg-white
     focus:ring-0
     mt-1
     rounded-md
+    disabled:text-gray-500
     w-full
     border-2
   ;

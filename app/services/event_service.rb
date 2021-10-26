@@ -34,14 +34,19 @@ class EventService
       end_date: DateTime.parse('2021-10-31 06:00 pm')
     },
     {
-      name: 'Rehearsal',
+      name: 'Zoom Rehearsal',
       start_date: DateTime.parse('2021-11-07 10:00 am'),
       end_date: DateTime.parse('2021-11-07 06:00 pm')
     },
     {
-      name: 'Zoom Rehearsal',
+      name: 'Rehearsal',
       start_date: DateTime.parse('2021-11-14 10:00 am'),
       end_date: DateTime.parse('2021-11-14 06:00 pm')
+    },
+    {
+      name: 'Rehearsal Weekend',
+      start_date: DateTime.parse('2021-11-19 7:30 pm'),
+      end_date: DateTime.parse('2021-11-21 06:00 pm')
     }
   ].freeze
 end

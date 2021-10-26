@@ -3,7 +3,6 @@ import moment from 'moment'
 import fuzzysort from 'fuzzysort'
 import React, { useState, useEffect } from 'react'
 import Badge from '../components/badge'
-import InputText from '../components/inputs/InputText'
 
 type PaymentsTableProps = {}
 

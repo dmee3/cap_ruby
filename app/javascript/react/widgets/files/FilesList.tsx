@@ -9,6 +9,7 @@ const FilesList = ({
   folderId
 }: FilesListProps) => {
   const [files, setFiles] = useState([])
+  const [loading, setLoading] = useState(true)
 
   const sortFiles = array => {
     return array.sort((a, b) => {
@@ -36,6 +37,7 @@ const FilesList = ({
           name: f.name,
           fileType: f.file_type
         }))))
+        setLoading(false)
       })
       .catch(error => {
         console.error(error)
@@ -44,12 +46,28 @@ const FilesList = ({
 
   return (
     <>
-      <ul className="divide-y divide-gray-100">
-        {files.length === 0 &&
-          <div className="px-9 py-4">
-            <span className="italic">Nothing Here</span>
-          </div>
-        }
+      {loading &&
+        <ul className="divide-y divide-gray-300 animate-pulse">
+          <li className="pl-9 py-4 flex flex-col">
+            <div className="flex justify-start">
+              <div className="rounded-full bg-gray-300 h-6 w-6"></div>
+              <div className="ml-2 w-48 bg-gray-300 rounded"></div>
+            </div>
+          </li>
+          <li className="pl-9 py-4 flex flex-col">
+            <div className="flex justify-start">
+              <div className="rounded-full bg-gray-300 h-6 w-6"></div>
+              <div className="ml-2 w-48 bg-gray-300 rounded"></div>
+            </div>
+          </li>
+        </ul>
+      }
+      {files.length === 0 && !loading &&
+        <div className="px-9 py-4">
+          <span className="italic">Nothing Here</span>
+        </div>
+      }
+      <ul className="divide-y divide-gray-300">
         {files.map(file => {
           return <li key={file.id}>
             <FilesListItem

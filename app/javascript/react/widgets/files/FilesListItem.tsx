@@ -46,18 +46,16 @@ const FilesListItem = ({
       break
   }
 
-  const fileName = <div className="flex justify-start">
-    {icon}
-    <span className="font-medium ml-2">
-      {name}
-    </span>
-  </div>
-
   if (fileType === 'folder') {
     return (
       <>
         <div className="px-2 py-4 flex flex-col hover:bg-gray-100 transition cursor-pointer" onClick={toggleExpanded}>
-          {fileName}
+          <div className="flex justify-start">
+            {icon}
+            <span className="font-medium ml-2">
+              {name}
+            </span>
+          </div>
         </div>
         <div className={`ml-6 ${expanded ? 'block' : 'hidden'}`}>
           <FilesList
@@ -69,7 +67,12 @@ const FilesListItem = ({
   } else {
     return (
       <a target="_blank" href={`https://drive.google.com/file/d/${id}/view`} className="pl-9 py-4 flex flex-col hover:bg-gray-100 transition">
-        {fileName}
+        <div className="flex justify-start">
+          {icon}
+          <span className="font-light ml-2">
+            {name}
+          </span>
+        </div>
       </a>
     )
   }

@@ -31,12 +31,12 @@
       <% @user.conflicts.for_season(current_season['id']).each do |c| %>
         <li class="flex flex-col">
           <div class="flex justify-between mt-2">
-            <span><%= c.start_date.strftime('%a, %-m/%-d %I:%M %p') %> - <%= c.end_date.strftime('%a, %-m/%-d %I:%M %p') %></span>
+            <span><%= c.start_date.strftime('%a, %-m/%-d %l:%M %p') %> - <%= c.end_date.strftime('%a, %-m/%-d %l:%M %p') %></span>
             <%= render 'conflict_status_icon', status: c.status %>
           </div>
-          <div class="mx-4 my-2 text-sm flex flex-col">
+          <div class="mx-6 my-2 text-sm flex flex-col">
             <span class="text-gray-500"><%= c.reason %></span>
-            <span class="text-secondary">(Submitted: <%= c.created_at.strftime('%a, %-m/%-d %I:%M %p') %>)</span>
+            <span class="text-secondary">(Submitted: <%= c.created_at.strftime('%a, %-m/%-d %l:%M %p') %>)</span>
           </div>
         </li>
       <% end %>
@@ -97,7 +97,7 @@
           </div>
 
           <% unless payment.notes.blank? %>
-            <div class="mx-4 my-2 text-sm text-gray-500">
+            <div class="mx-6 my-2 text-sm text-gray-500">
               <span><%= payment.notes %></span>
             </div>
           <% end %>

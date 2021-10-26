@@ -1,0 +1,120 @@
+<h1 class="mb-0"><%= current_user.full_name %></h1>
+<h2 class="text-secondary mt-0"><%= current_user.ensemble_for(current_season['id']) %> <%= current_user.section_for(current_season['id']) %></h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+  <div class="order-1 block md:hidden">
+    <div class="p-5 rounded-lg shadow-md bg-gradient-to-br from-gray-500 to-gray-700">
+      <div class="flex flex-col">
+        <div class="text-sm font-medium text-gray-300">NEXT EVENT</div>
+        <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
+        <div class="text-gray-300 text-sm font-medium">
+          <% if @next_event[:start_date].day == @next_event[:end_date].day %>
+            <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%l:%M%P') %>
+          <% else %>
+            <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%a, %l:%M%P') %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="order-2 md:order-1 grid grid-cols-1 lg:grid-cols-5 lg:col-span-2 gap-4">
+    <!-- PAYMENTS -->
+    <div class="p-5 rounded-lg shadow-md bg-gradient-to-br from-green-500 to-green-700 lg:col-span-3">
+      <div class="flex flex-col">
+        <span class="text-sm font-medium text-green-200">DUES</span>
+        <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= number_to_currency(@paid) %>/<%= number_to_currency(@total_dues) %></span>
+        <% if @paid >= @total_dues %>
+          <span class="text-green-200 text-sm font-medium">You're all done paying. Thanks!</span>
+        <% else %>
+          <span class="text-green-200 text-sm font-medium">Next payment: <span class="font-bold text-white"><%= number_to_currency(@next_payment_amount) %></span> on <span class="font-bold text-white"><%= @next_payment_date.pay_date.strftime('%a, %-m/%-d') %></span></span>
+        <% end %>
+
+        <% if @payments.present? %>
+          <div class="flex flex-col mt-4">
+            <span class="text-sm font-medium text-green-200">PAYMENTS</span>
+            <ul class="divide-y divide-green-200">
+              <% @payments.each do |payment| %>
+                <li class="py-2">
+                  <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                      <span class="text-green-200 mr-1">
+                        <%= render 'payment_type_icon', name: payment.payment_type.name %>
+                      </span>
+                      <span class="text-white">$<%= '%.2f' % (payment.amount / 100.0) %></span>
+                    </div>
+                    <span class="text-sm font-light text-green-200"><%= payment.date_paid.strftime('%-m/%-d/%-y') %></span>
+                  </div>
+
+                  <% unless payment.notes.blank? %>
+                    <div class="mx-6 my-2 text-sm text-green-200">
+                      <span><%= payment.notes %></span>
+                    </div>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- PAYMENT SCHEDULE -->
+    <div class="p-5 rounded-lg border border-green-500 flex flex-col lg:col-span-2 justify-self-stretch items-stretch">
+      <span class="text-sm font-medium text-green-500">PAYMENT SCHEDULE</span>
+      <ul class="divide-y divide-gray-300">
+        <% @payment_schedule.entries.each do |entry| %>
+          <li class="flex justify-between py-2">
+            <span><%= number_to_currency(entry.amount / 100.0) %></span>
+            <span class="text-secondary"><%= entry.pay_date.strftime('%a, %-m/%-d') %></span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+
+  <div class="flex flex-col order-3 justify-items-stretch grid grid-cols-1 gap-4">
+    <!-- NEXT EVENT (md+) -->
+    <div class="hidden md:block p-5 rounded-lg shadow-md bg-gradient-to-br from-gray-500 to-gray-700">
+      <div class="flex flex-col">
+        <div class="text-sm font-medium text-gray-300">NEXT EVENT</div>
+        <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
+        <div class="text-gray-300 text-sm font-medium">
+          <% if @next_event[:start_date].day == @next_event[:end_date].day %>
+            <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%l:%M%P') %>
+          <% else %>
+            <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%a, %l:%M%P') %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFLICTS -->
+    <div class="p-5 rounded-lg bg-white border border-red-500">
+      <div class="flex flex-col">
+        <div class="text-sm font-medium text-red-500">CONFLICTS</div>
+        <% if @conflicts.present? %>
+          <ul class="divide-y divide-red-200">
+            <% @conflicts.for_season(current_season['id']).each do |c| %>
+              <li class="flex flex-col py-2">
+                <div class="flex justify-between items-center">
+                  <% if c.start_date.day == c.end_date.day %>
+                    <%= c.start_date.strftime('%a, %-m/%-d %l:%M %p') %> to <%= c.end_date.strftime('%l:%M %p') %>
+                  <% else %>
+                    <%= c.start_date.strftime('%a, %-m/%-d %l:%M %p') %> to<br /><%= c.end_date.strftime('%a, %-m/%-d %l:%M %p') %>
+                  <% end %>
+                  <%= render 'conflict_status_icon', status: c.status %>
+                </div>
+                <div class="mx-6 mt-0 mb-2 text-sm flex flex-col text-secondary">
+                  Submitted: <%= c.created_at.strftime('%a, %-m/%-d') %>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <span class="text-3xl font-extrabold font-mono mb-0.5">None</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -3,39 +3,39 @@
 
   <%= form_for @payment, url: admin_payments_path do |p| %>
     <div class="grid grid-cols-5 gap-x-6 gap-y-4">
-      <div class="col-span-5 sm:col-span-1 flex items-center">
+      <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
         <label for="payment_user_id" class="input-label">User</label>
       </div>
       <div class="col-span-5 sm:col-span-4 flex items-center">
         <%= p.collection_select :user_id, @members, :id, :full_name, {}, { class: 'input-select' } %>
       </div>
 
-      <div class="col-span-5 sm:col-span-1 flex items-center">
+      <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
         <label for="payment_payment_type_id" class="input-label">Method</label>
       </div>
       <div class="col-span-5 sm:col-span-4 flex items-center">
         <%= p.collection_select :payment_type_id, PaymentType.all, :id, :name, {}, { class: 'input-select' } %>
       </div>
 
-      <div class="col-span-5 sm:col-span-1 flex items-center">
+      <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
         <label for="payment_amount" class="input-label">Amount</label>
       </div>
       <div class="col-span-5 sm:col-span-4 flex items-center">
         <%= p.number_field :amount, placeholder: '0.00', step: :any, class: 'input-text' %>
       </div>
 
-      <div class="col-span-5 sm:col-span-1 flex items-center">
+      <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
         <label for="payment_date_paid" class="input-label">Date Paid</label>
       </div>
       <div class="col-span-5 sm:col-span-4 flex items-center">
         <%= p.text_field :date_paid, { class: 'flatpickr input-select' } %>
       </div>
 
-      <div class="col-span-5 sm:col-span-1 flex items-center">
+      <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
         <label for="payment_notes" class="input-label">Notes</label>
       </div>
       <div class="col-span-5 sm:col-span-4 flex items-center">
-        <%= p.text_area :notes, { class: 'input-select', placeholder: 'Notes' } %>
+        <%= p.text_area :notes, { class: 'input-text', placeholder: 'Notes' } %>
       </div>
     </div>
 

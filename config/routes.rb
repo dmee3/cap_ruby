@@ -25,6 +25,10 @@ Rails.application.routes.draw do
       end
     end
 
+    namespace :members do
+      resources :payment_intents, only: %i[create]
+    end
+
     resources :files, only: %i[index show]
   end
 
@@ -36,8 +40,6 @@ Rails.application.routes.draw do
     get 'conflicts/upcoming', to: 'conflicts#upcoming_conflicts'
     get 'conflicts/statuses', to: 'conflicts#statuses'
     resources :conflicts, except: %i[show destroy]
-
-    resources :files, only: %i[index]
 
     get 'payments/upcoming', to: 'payments#upcoming_payments'
     get 'payments/behind-members', to: 'payments#behind_members'
@@ -54,11 +56,12 @@ Rails.application.routes.draw do
   end
 
   namespace :members do
+    get '/', to: 'dashboard#index', as: 'home'
     resources :calendars, only: %i[index]
 
     resources :conflicts, only: %i[new create]
 
-    resources :payments, only: %i[new]
+    resources :payments, only: %i[index new]
     post 'charge', to: 'payments#charge'
   end
 
@@ -68,10 +71,14 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :files, only: %i[index]
+
   get 'settings', to: 'settings#index'
   post 'settings', to: 'settings#update'
 
   get 'rhythm-converter', to: 'tools#rhythm_converter'
 
   resources :whistleblowers, only: %i[index create]
+
+  post 'stripe/webhook', to: 'stripe#webhook'
 end

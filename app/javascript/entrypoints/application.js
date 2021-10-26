@@ -63,5 +63,15 @@ document.addEventListener('DOMContentLoaded', () => {
     altFormat: 'F j, Y',
     altInputClass: 'input-text',
     dateFormat: 'Y-m-d',
+    disableMobile: true,
+  })
+
+  flatpickr('.flatpickr-dt', {
+    altInput: true,
+    altFormat: 'F j, Y h:i K',
+    altInputClass: 'input-text',
+    dateFormat: 'Y-m-d H:i',
+    disableMobile: true,
+    enableTime: true,
   })
 })

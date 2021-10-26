@@ -32,10 +32,10 @@ const AdminUsersNew = () => {
         <input type='hidden' name='authenticity_token' value={csrfToken} />
         <h2>Basic Info</h2>
         <div className="grid grid-cols-5 gap-x-6 gap-y-4">
-          <div className="col-span-5 sm:col-span-1 flex items-center">
+          <div className="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
             <label htmlFor="first_name" className="input-label">Name</label>
           </div>
-          <div className="col-span-5 sm:col-span-2 flex items-center">
+          <div className="col-span-5 sm:col-span-2 -mb-2 sm:mb-0 flex items-center">
             <InputText
               autofocus={true}
               name='user[first_name]'
@@ -49,7 +49,7 @@ const AdminUsersNew = () => {
             />
           </div>
 
-          <div className="col-span-5 sm:col-span-1 flex items-center">
+          <div className="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
             <label htmlFor="username" className="input-label">Username</label>
           </div>
           <div className="col-span-5 sm:col-span-4">
@@ -58,7 +58,7 @@ const AdminUsersNew = () => {
             />
           </div>
 
-          <div className="col-span-5 sm:col-span-1 flex items-center">
+          <div className="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
             <label htmlFor="email" className="input-label">Email</label>
           </div>
           <div className="col-span-5 sm:col-span-4">
@@ -67,7 +67,7 @@ const AdminUsersNew = () => {
             />
           </div>
 
-          <div className="col-span-5 sm:col-span-1 flex items-center">
+          <div className="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
             <label htmlFor="password" className="input-label">Password</label>
           </div>
           <div className="col-span-5 sm:col-span-4">

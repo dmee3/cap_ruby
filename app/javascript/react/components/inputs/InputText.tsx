@@ -3,6 +3,7 @@ import { forwardRef } from 'react'
 
 type InputTextProps = {
   autofocus?: boolean,
+  disabled?: boolean,
   id?: string,
   name: string,
   placeholder?: string,
@@ -13,6 +14,7 @@ const InputText = forwardRef<HTMLInputElement, InputTextProps>(
   (
     {
       autofocus = false,
+      disabled = false,
       id,
       name,
       placeholder,
@@ -25,6 +27,7 @@ const InputText = forwardRef<HTMLInputElement, InputTextProps>(
   return (
     <input
       autoFocus={autofocus}
+      disabled={disabled}
       placeholder={placeholder}
       className="input-text"
       type="text"

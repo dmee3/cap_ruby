@@ -23,5 +23,14 @@ class PaymentService
         }
       end.select { |e| (e[:scheduled] - e[:paid]).positive? }.sort { |e| e[:date] }
     end
+
+    def amount_owed_on_date(user, date, season_id)
+      schedule = user.payment_schedule_for(season_id)
+      return 0 unless schedule.present?
+
+      owed = schedule.entries.select { |e| e.pay_date <= date }.sum(&:amount)
+      paid = user.payments_for(season_id).sum(&:amount)
+      (owed - paid) / 100.0
+    end
   end
 end
