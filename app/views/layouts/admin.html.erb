@@ -58,7 +58,7 @@
                 </span>
               </div>
               <div id="season-dropdown-menu" class="absolute hidden z-50 mt-2 w-full rounded-md shadow-lg px-2 py-1 bg-white text-gray-900 ring-1 ring-black ring-opacity-5 focus:outline-none" aria-labelledby="season-dropdown-trigger">
-                <% Season.all.reverse.each.with_index do |s, i| %>
+                <% Season.all.order(:year).reverse.each.with_index do |s, i| %>
                   <% if i == 0 %>
                     <span class="text-gray-500 text-sm font-medium">CURRENT</span>
                   <% elsif i == 1 %>
