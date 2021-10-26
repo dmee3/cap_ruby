@@ -30,3 +30,11 @@ h3 {
 .text-secondary {
   @apply text-gray-500 font-light;
 }
+
+.link {
+  @apply
+    text-ocean
+    hover:text-ocean-lightest
+    transition
+  ;
+}

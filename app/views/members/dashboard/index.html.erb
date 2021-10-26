@@ -26,7 +26,7 @@
         <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= number_to_currency(@paid) %>/<%= number_to_currency(@total_dues) %></span>
         <% if @paid >= @total_dues %>
           <span class="text-green-200 text-sm font-medium">You're all done paying. Thanks!</span>
-        <% else %>
+        <% elsif @next_payment_amount > 0 %>
           <span class="text-green-200 text-sm font-medium">Next payment: <span class="font-bold text-white"><%= number_to_currency(@next_payment_amount) %></span> on <span class="font-bold text-white"><%= @next_payment_date.pay_date.strftime('%a, %-m/%-d') %></span></span>
         <% end %>
 
