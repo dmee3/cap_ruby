@@ -2,6 +2,11 @@
 
 # rubocop:disable Metrics/BlockLength
 FactoryBot.define do
+  factory :payment_intent do
+    references { "" }
+    amount { "" }
+  end
+
   factory :inventory_category, class: 'Inventory::Category' do
     name { 'Mallets' }
   end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_09_01_161323) do
+ActiveRecord::Schema.define(version: 2021_10_26_034055) do
 
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
@@ -94,6 +94,17 @@ ActiveRecord::Schema.define(version: 2021_09_01_161323) do
     t.integer "change"
     t.index ["inventory_item_id"], name: "index_inventory_transactions_on_inventory_item_id"
     t.index ["user_id"], name: "index_inventory_transactions_on_user_id"
+  end
+
+  create_table "payment_intents", force: :cascade do |t|
+    t.integer "amount"
+    t.string "stripe_pi_id"
+    t.integer "user_id"
+    t.integer "season_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["season_id"], name: "index_payment_intents_on_season_id"
+    t.index ["user_id"], name: "index_payment_intents_on_user_id"
   end
 
   create_table "payment_schedule_entries", force: :cascade do |t|

@@ -99,9 +99,9 @@
               <li class="flex flex-col py-2">
                 <div class="flex justify-between items-center">
                   <% if c.start_date.day == c.end_date.day %>
-                    <%= c.start_date.strftime('%a, %-m/%-d %l:%M %p') %> - <%= c.end_date.strftime('%l:%M %p') %>
+                    <%= c.start_date.strftime('%a, %-m/%-d %l:%M %p') %> to <%= c.end_date.strftime('%l:%M %p') %>
                   <% else %>
-                    <%= c.start_date.strftime('%a, %-m/%-d %l:%M %p') %> - <%= c.end_date.strftime('%a, %-m/%-d %l:%M %p') %>
+                    <%= c.start_date.strftime('%a, %-m/%-d %l:%M %p') %> to<br /><%= c.end_date.strftime('%a, %-m/%-d %l:%M %p') %>
                   <% end %>
                   <%= render 'conflict_status_icon', status: c.status %>
                 </div>

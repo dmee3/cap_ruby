@@ -25,6 +25,10 @@ Rails.application.routes.draw do
       end
     end
 
+    namespace :members do
+      resources :payment_intents, only: %i[create]
+    end
+
     resources :files, only: %i[index show]
   end
 
@@ -75,4 +79,6 @@ Rails.application.routes.draw do
   get 'rhythm-converter', to: 'tools#rhythm_converter'
 
   resources :whistleblowers, only: %i[index create]
+
+  post 'stripe/webhook', to: 'stripe#webhook'
 end
