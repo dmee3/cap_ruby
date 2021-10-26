@@ -34,7 +34,7 @@
             <div class="dropdown">
               <button
                 :id="`dropdown-${user.id}`"
-                class="btn btn-outline-secondary btn-xs"
+                class="btn btn-outline-secondary btn-sm"
                 data-toggle="dropdown"
                 aria-haspopup="true"
                 aria-expanded="false"

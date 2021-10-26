@@ -63,7 +63,6 @@
 
 <script>
 import Utilities from '../../packs/utilities'
-import Toast from '../../packs/toast'
 
 export default {
   props: {
@@ -100,7 +99,7 @@ export default {
         })
         .fail((err) => {
           self.error = err
-          Toast.failToast('An error occurred getting conflict statuses')
+          // Toast.failToast('An error occurred getting conflict statuses')
           console.log(err)
         })
     },
@@ -121,11 +120,11 @@ export default {
         }),
       })
         .done(() => {
-          Toast.successToast(`Conflict for ${conflict.name} marked as ${newStatus.name}`)
+          // Toast.successToast(`Conflict for ${conflict.name} marked as ${newStatus.name}`)
           self.$emit('conflict-changed')
         })
         .fail((err) => {
-          Toast.failToast(`Unable to update conflict for ${conflict.name}`)
+          // Toast.failToast(`Unable to update conflict for ${conflict.name}`)
           console.log(err)
         })
     },

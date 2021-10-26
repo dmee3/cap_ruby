@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import Utilities from '../../packs/utilities'
+import Utilities from '../../utilities/utilities'
 import fuzzysort from 'fuzzysort'
 
 export default {

@@ -24,7 +24,6 @@
 
 <script>
 import Utilities from '../../packs/utilities'
-import Toast from '../../packs/toast'
 
 export default {
   data: function () {
@@ -41,7 +40,7 @@ export default {
       })
       .fail(function (err) {
         self.error = err
-        Toast.failToast('Unable to get details on behind members')
+        // Toast.failToast('Unable to get details on behind members')
         console.log(err)
       })
   },

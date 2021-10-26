@@ -1,11 +1,3 @@
-<% content_for :side_nav do %>
-  <%= render 'admin/application/side_nav', page: 'users' %>
-<% end %>
+<%= vite_typescript_tag 'entrypoints/admin/users/index.tsx' %>
 
-<% content_for :main do %>
-  <div class="row mt-3">
-    <div class="col-12" id="admin-users-index">
-      <admin-users-index></admin-users-index>
-    </div>
-  </div>
-<% end %>
+<div id="users"></div>

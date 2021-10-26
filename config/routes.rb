@@ -1,21 +1,40 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+  devise_for :users, path: '', path_names: { sign_in: 'login', sign_out: 'logout' }
 
   root to: 'home#index'
 
   get '/auditions-spreadsheet', to: 'auditions#index'
   get '/auditions-spreadsheet-generate', to: 'auditions#update'
 
-  get '/documents', to: 'home#documents'
-  #get '/feed', to: 'home#feed'
-
   post 'change-season', to: 'home#change_season'
 
-  get 'login', to: 'sessions#new'
-  post 'login', to: 'sessions#create'
-  get 'logout', to: 'sessions#destroy'
+  namespace :api do
+    namespace :admin do
+      resources :conflicts, only: %i[index]
+      resources :payments, only: %i[index]
+      get 'payments/upcoming', to: 'payments#upcoming'
+      resources :users, only: %i[index]
+      resources :seasons, only: %i[index]
+    end
+
+    namespace :inventory do
+      resources :categories, only: %i[index create update] do
+        resources :items, only: %i[create update show]
+      end
+    end
+
+    namespace :members do
+      resources :payment_intents, only: %i[create]
+    end
+
+    resources :files, only: %i[index show]
+  end
 
   namespace :admin do
+    get '/', to: 'dashboard#index', as: 'home'
+
     resources :calendars, only: :index
 
     get 'conflicts/upcoming', to: 'conflicts#upcoming_conflicts'
@@ -37,29 +56,29 @@ Rails.application.routes.draw do
   end
 
   namespace :members do
+    get '/', to: 'dashboard#index', as: 'home'
     resources :calendars, only: %i[index]
 
     resources :conflicts, only: %i[new create]
 
-    resources :payments, only: %i[new]
+    resources :payments, only: %i[index new]
     post 'charge', to: 'payments#charge'
   end
 
   namespace :inventory do
-    resources :categories, only: %i[index show new create edit update] do
-      resources :items, only: %i[new create edit update show]
+    resources :categories, only: %i[index new create] do
+      resources :items, only: %i[new create show]
     end
   end
 
+  resources :files, only: %i[index]
+
   get 'settings', to: 'settings#index'
   post 'settings', to: 'settings#update'
-  post 'settings-password', to: 'settings#change_password'
-  get 'forgot', to: 'settings#forgot_password'
-  post 'forgot', to: 'settings#initiate_reset'
-  get 'reset', to: 'settings#reset_password'
-  post 'reset', to: 'settings#complete_reset'
 
   get 'rhythm-converter', to: 'tools#rhythm_converter'
 
   resources :whistleblowers, only: %i[index create]
+
+  post 'stripe/webhook', to: 'stripe#webhook'
 end

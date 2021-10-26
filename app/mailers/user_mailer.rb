@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 class UserMailer < ApplicationMailer
   def reset_password_email
     @user = params[:user]
     ensure_reset_key
 
-    @url  = "#{reset_url}?key=#{@user.reset_key}"
+    @url = "#{reset_url}?key=#{@user.reset_key}"
     mail(to: @user.email, subject: 'Cap City Password Reset')
   end
 
@@ -11,7 +13,7 @@ class UserMailer < ApplicationMailer
     @user = params[:user]
     ensure_reset_key
 
-    @url  = "#{reset_url}?key=#{@user.reset_key}"
+    @url = "#{reset_url}?key=#{@user.reset_key}"
     mail(to: @user.email, subject: 'Welcome to Cap City')
   end
 

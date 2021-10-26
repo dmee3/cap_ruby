@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreatePaymentScheduleEntries < ActiveRecord::Migration[5.1]
   def change
     create_table :payment_schedule_entries do |t|

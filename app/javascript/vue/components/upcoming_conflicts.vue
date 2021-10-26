@@ -62,7 +62,6 @@
 
 <script>
 import Utilities from '../../packs/utilities'
-import Toast from '../../packs/toast'
 import moment from 'moment/moment'
 
 export default {
@@ -114,7 +113,7 @@ export default {
         })
         .fail((err) => {
           self.error = err
-          Toast.failToast('Unable to get details about upcoming conflicts')
+          // Toast.failToast('Unable to get details about upcoming conflicts')
           console.log(err)
         })
     },

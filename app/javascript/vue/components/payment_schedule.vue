@@ -52,7 +52,6 @@
 
 <script>
 import Utilities from '../../packs/utilities'
-import Toast from '../../packs/toast'
 import Vue from 'vue/dist/vue.esm'
 import flatpickr from 'flatpickr'
 
@@ -116,7 +115,7 @@ export default {
         })
         .fail(function (err) {
           self.errors = err
-          Toast.failToast("Couldn't add entry to payment schedule")
+          // Toast.failToast("Couldn't add entry to payment schedule")
           console.log(err)
         })
     },
@@ -136,7 +135,7 @@ export default {
         })
         .fail(function (err) {
           self.error = err
-          Toast.failToast("Couldn't remove entry from payment schedule")
+          // Toast.failToast("Couldn't remove entry from payment schedule")
           console.log(err)
         })
     },
@@ -161,11 +160,11 @@ export default {
         },
       })
         .done(function () {
-          Toast.successToast('Payment schedule saved')
+          // Toast.successToast('Payment schedule saved')
         })
         .fail(function (err) {
           self.error = err
-          Toast.failToast('Unable to save payment schedule')
+          // Toast.failToast('Unable to save payment schedule')
           console.log(err)
         })
     },

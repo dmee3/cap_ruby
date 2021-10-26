@@ -13,7 +13,8 @@ class GoogleSheetsApi
     end
 
     def format_sheet(sheet_name, header_rows, subheader_rows, instrument_rows, registered_rows = [])
-      instance.format_sheet(sheet_name, header_rows, subheader_rows, instrument_rows, registered_rows)
+      instance.format_sheet(sheet_name, header_rows, subheader_rows, instrument_rows,
+                            registered_rows)
     end
 
     def write_sheet(sheet_name, data)
@@ -89,7 +90,7 @@ class GoogleSheetsApi
     current_sheet.properties.sheet_id
   end
 
-  def highlight_registered_rows(emails, data, sheet_id)
+  def highlight_registered_rows(emails, data, _sheet_id)
     rows_to_highlight = []
     data.each do |curr_section|
       first_row = curr_section[:range].match(/!A(\d+)/)[1].to_i
@@ -98,7 +99,7 @@ class GoogleSheetsApi
       end
     end
 
-    return rows_to_highlight
+    rows_to_highlight
   end
 
   def merge_row_request_body(sheet_id, row_idx)
@@ -111,7 +112,7 @@ class GoogleSheetsApi
           start_column_index: 0,
           end_column_index: 1000
         },
-        merge_type: "MERGE_ALL"
+        merge_type: 'MERGE_ALL'
       }
     }
   end
@@ -131,7 +132,7 @@ class GoogleSheetsApi
               green: 1.0,
               blue: 1.0
             },
-            horizontal_alignment: "LEFT",
+            horizontal_alignment: 'LEFT',
             text_format: {
               foreground_color: {
                 red: 0.0,
@@ -143,7 +144,7 @@ class GoogleSheetsApi
             }
           }
         },
-        fields: "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)"
+        fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)'
       }
     }
   end
@@ -163,7 +164,7 @@ class GoogleSheetsApi
               green: 0.18,
               blue: 0.27
             },
-            horizontal_alignment: "CENTER",
+            horizontal_alignment: 'CENTER',
             text_format: {
               foreground_color: {
                 red: 1.0,
@@ -175,7 +176,7 @@ class GoogleSheetsApi
             }
           }
         },
-        fields: "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)"
+        fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)'
       }
     }
   end
@@ -206,7 +207,7 @@ class GoogleSheetsApi
             }
           }
         },
-        fields: "userEnteredFormat(backgroundColor,textFormat)"
+        fields: 'userEnteredFormat(backgroundColor,textFormat)'
       }
     }
   end
@@ -226,7 +227,7 @@ class GoogleSheetsApi
               green: 0.81,
               blue: 0.81
             },
-            horizontal_alignment: "CENTER",
+            horizontal_alignment: 'CENTER',
             text_format: {
               foreground_color: {
                 red: 0.0,
@@ -238,7 +239,7 @@ class GoogleSheetsApi
             }
           }
         },
-        fields: "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)"
+        fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)'
       }
     }
   end
@@ -263,7 +264,7 @@ class GoogleSheetsApi
             }
           }
         },
-        fields: "userEnteredFormat(backgroundColor,textFormat)"
+        fields: 'userEnteredFormat(backgroundColor,textFormat)'
       }
     }
   end

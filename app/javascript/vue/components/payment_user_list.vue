@@ -123,8 +123,7 @@
 
 <script>
 import moment from 'moment/moment'
-import Toast from '../../packs/toast'
-import Utilities from '../../packs/utilities'
+import Utilities from '../../utilities/utilities'
 import PaymentsMadeCard from './payments_made_card'
 import PaymentScheduleCard from './payment_schedule_card'
 
@@ -255,11 +254,11 @@ export default {
         },
       })
         .done(function () {
-          Toast.successToast('Payment was deleted. Refresh to see changes')
+          // Toast.successToast('Payment was deleted. Refresh to see changes')
           self.paymentToDelete = {}
         })
         .fail(function () {
-          Toast.failToast('Unable to delete payment')
+          // Toast.failToast('Unable to delete payment')
         })
     },
   },

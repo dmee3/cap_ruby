@@ -20,7 +20,6 @@
 import PendingConflicts from '../../components/pending_conflicts.vue'
 import ConflictChart from '../../components/conflict_chart.vue'
 import Utilities from '../../../packs/utilities'
-import Toast from '../../../packs/toast'
 
 export default {
   components: {
@@ -44,7 +43,7 @@ export default {
         })
         .fail((err) => {
           self.error = err
-          Toast.failToast('An error occurred getting conflicts')
+          // Toast.failToast('An error occurred getting conflicts')
           console.log(err)
         })
     },

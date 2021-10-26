@@ -1,0 +1,26 @@
+<h1>Log In</h1>
+
+<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+  <div class="flex flex-col mb-4">
+    <%= f.label :email, class: 'input-label' %>
+    <%= f.email_field :email, autofocus: true, autocomplete: 'email', class: 'input-text' %>
+  </div>
+
+  <div class="flex flex-col mb-4">
+    <%= f.label :password, class: 'input-label' %>
+    <%= f.password_field :password, autocomplete: 'current-password', class: 'input-text' %>
+  </div>
+
+  <% if devise_mapping.rememberable? %>
+    <div class="flex flex-row items-center space-x-2 mb-4">
+      <%= f.check_box :remember_me, class: 'input-checkbox' %>
+      <%= f.label :remember_me, 'Remember Me' %>
+    </div>
+  <% end %>
+
+  <div class="p-4 flex justify-center">
+    <%= f.submit 'Log In', class: 'btn-primary btn-lg' %>
+  </div>
+<% end %>
+
+<%= render "devise/shared/links" %>

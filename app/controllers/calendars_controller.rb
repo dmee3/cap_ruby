@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class CalendarsController < ApplicationController
-  before_action :logout_if_unauthorized, only: :download
+  before_action :authenticate_user!, only: :download
   layout 'calendar'
 
   def index
@@ -14,7 +16,7 @@ class CalendarsController < ApplicationController
   end
 
   def download
-    if current_user.is?(:member)
+    if current_user_role == 'member'
       img = Calendar::ImageService.generate_image(current_user.id)
       send_data img.to_datastream, type: 'image/png', disposition: 'inline'
     else
@@ -32,7 +34,7 @@ class CalendarsController < ApplicationController
 
       create_donations(response.id, dates)
       send_mail(user_id, dates, donation_params[:donor_name])
-      
+
       render :success
     else
       render :error
@@ -55,10 +57,9 @@ class CalendarsController < ApplicationController
 
   def get_calendar_members
     members = User
-      .with_role(:member)
-      .for_season(Season.last.id)
-      .select(:id, :first_name, :last_name)
-      .order(:first_name)
+              .members_for_season(Season.last.id)
+              .select(:id, :first_name, :last_name)
+              .order(:first_name)
 
     # Filter people who quit
     members.reject do |u|

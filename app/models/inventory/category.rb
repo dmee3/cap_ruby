@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: inventory_categories
@@ -7,7 +9,9 @@
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
-class Inventory::Category < ApplicationRecord
-  validates :name, presence: true
-  has_many :items, class_name: 'Inventory::Item', foreign_key: :inventory_category_id
+module Inventory
+  class Category < ApplicationRecord
+    validates :name, presence: true
+    has_many :items, class_name: 'Inventory::Item', foreign_key: :inventory_category_id
+  end
 end

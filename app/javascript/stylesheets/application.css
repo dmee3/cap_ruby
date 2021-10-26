@@ -1,0 +1,25 @@
+@import "buttons";
+@import "forms";
+@import "typography";
+
+@import 'flatpickr/dist/flatpickr.css';
+
+body.bg-sound-wave {
+  background: no-repeat url('../images/bg.svg');
+  background-size: 100% 100%;
+}
+
+.form-control.flatpickr:read-only {
+  background-color: transparent;
+}
+.form-control.flatpickr-dt:read-only {
+  background-color: transparent;
+}
+
+#omni-bar {
+  flex-grow: 1;
+}
+
+#omni-bar-results .highlighted {
+  background-color: #f8f9fa;
+}

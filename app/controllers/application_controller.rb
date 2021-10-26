@@ -1,46 +1,29 @@
+# frozen_string_literal: true
+
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
-  def logout_if_unauthorized
-    logout(request.env['PATH_INFO']) unless current_user
-  end
-
-  def logged_in?
-    return true if current_user
-    false
-  end
-  helper_method :logged_in?
-
-  def current_user
-    return @current if @current
-    token = JsonWebToken.decode(jwt)
-    @current = User.find(token[:user_id]) if token
-  rescue ActiveRecord::RecordNotFound
-    nil
-  end
-  helper_method :current_user
+  layout :get_layout
 
   def current_season
+    return nil unless current_user
+
     cookies[:cap_season] ||= current_user.seasons.last.to_json
     JSON.parse(cookies[:cap_season])
   end
   helper_method :current_season
 
-  def logout(redirect_path = nil)
-    cookies.delete :jwt
-    if redirect_path
-      redirect_to login_path(redirect_path: redirect_path)
-    else
-      redirect_to login_path
+  def redirect_if_not(role)
+    unless current_user_role == role
+      respond_to do |format|
+        format.html { redirect_to(root_url) }
+        format.json { head :unauthorized }
+      end
     end
   end
 
-  def redirect_if_not(role)
-    redirect_to(root_url) unless current_user&.is?(role)
-  end
-
-  def redirect_if_no_inventory_access
-    redirect_to(root_url) unless current_user&.is?(:admin) || current_user.quartermaster?
+  def current_user_role
+    current_user.role_for(current_season['id'])
   end
 
   def set_stripe_public_key
@@ -61,7 +44,16 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def jwt
-    request.xhr? ? params[:jwt] : cookies[:jwt]
+  def get_layout
+    return nil unless current_user
+
+    case current_user_role
+    when 'admin'
+      'admin'
+    when 'member'
+      'members'
+    else
+      nil
+    end
   end
 end

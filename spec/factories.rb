@@ -1,7 +1,14 @@
+# frozen_string_literal: true
+
 # rubocop:disable Metrics/BlockLength
 FactoryBot.define do
+  factory :payment_intent do
+    references { "" }
+    amount { "" }
+  end
+
   factory :inventory_category, class: 'Inventory::Category' do
-    name { "Mallets" }
+    name { 'Mallets' }
   end
 
   factory :season do
@@ -50,10 +57,6 @@ FactoryBot.define do
     start_date { DateTime.now }
     conflict_status
     user
-  end
-
-  factory :role do
-    name { 'member' }
   end
 
   factory :user do

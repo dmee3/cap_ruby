@@ -56,8 +56,12 @@
           <h3>Season Management</h3>
         </div>
         <div class="col-12 form-group">
-          <%= u.label :role_id, 'Role' %>
-          <%= u.collection_select :role_id, Role.all.reverse_order, :id, :name, {}, { class: 'form-control' } %>
+          <%= u.label :role, 'Role' %>
+          <select class="form-control">
+            <option value="member">Member</option>
+            <option value="staff">Staff</option>
+            <option value="admin">Admin</option>
+          </select>
         </div>
 
         <div class="col-12 form-group">

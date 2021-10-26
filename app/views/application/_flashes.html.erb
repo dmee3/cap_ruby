@@ -10,10 +10,10 @@
     </div>
   <% end %>
 
-  <% if flash[:error] %>
+  <% if flash[:error] || flash[:alert] %>
     <div class="alert alert-dismissible alert-danger" role="alert">
       <div class="container">
-        <%= flash[:error] %>
+        <%= flash[:error] || flash[:alert] %>
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -21,10 +21,10 @@
     </div>
   <% end %>
 
-  <% if flash[:info] %>
+  <% if flash[:info] || flash[:notice] %>
     <div class="alert alert-dismissible alert-info" role="alert">
       <div class="container">
-        <%= flash[:info] %>
+        <%= flash[:info] || flash[:notice] %>
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>

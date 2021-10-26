@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateConflicts < ActiveRecord::Migration[5.1]
   def change
     create_table :conflicts do |t|

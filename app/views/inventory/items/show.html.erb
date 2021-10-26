@@ -1,33 +1,31 @@
-<% content_for :side_nav do %>
-  <%= render 'admin/application/side_nav', page: 'inventory' %>
-<% end %>
+<div class="flex flex-col">
+  <h1><%= @item.name %> History</h1>
 
-<% content_for :main do %>
-  <div class="row">
-    <div class="col-12 d-flex justify-content-between">
-      <h1><%= @item.name %></h1>
-      <span>
-        <%= link_to 'Edit', edit_inventory_category_item_path(@category, @item), class: 'btn btn-light' %>
-        <%= link_to 'Back', inventory_categories_path, class: 'btn btn-light' %>
-      </span>
-    </div>
-  </div>
+  <ul class="divide-y divide-gray-100">
+    <li class="p-4 flex text-secondary">
+      Current: <%= @item.quantity %>
+    </li>
+    <% @item.transactions.order('performed_on desc, created_at desc').each do |t| %>
+      <li class="p-4 flex justify-between items-start">
+        <div class="flex flex-col">
+          <span class="font-medium">
+            <%= t.previous_quantity + t.change %>
+          </span>
+          <span class="text-gray-500 text-sm">
+            <%= t.performed_on.strftime('%a, %-m/%-d') %>
+          </span>
+        </div>
 
-  <div class="row mt-3 card">
-    <ul class="list-group list-group-flush">
-      <li class="list-group-item d-flex w-100 justify-content-between text-body">
-        <span>Current</span>
-        <span><%= @item.quantity %></span>
+        <% if t.change > 0 %>
+          <span class="w-min bg-green-100 text-green-600 rounded-full text-sm font-medium px-3 py-1">
+            <%= t.change %>
+          </span>
+        <% else %>
+          <span class="w-min bg-red-100 text-red-600 rounded-full text-sm font-medium px-3 py-1">
+            <%= t.change %>
+          </span>
+        <% end %>
       </li>
-      <% @item.transactions.order('performed_on desc, created_at desc').each do |t| %>
-        <li class="list-group-item d-flex w-100 justify-content-between text-body">
-          <span><%= t.performed_on %></span>
-          <span>
-            <%= t.previous_quantity %>
-            <span class="text-<%= t.change > 0 ? "success" : "danger" %>"><%= t.change > 0 ? "+#{t.change}" : t.change %></span>
-              = <span class="font-weight-bold"><%= t.previous_quantity + t.change %></span>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-<% end %>
+    <% end %>
+  </ul>
+</div>

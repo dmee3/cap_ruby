@@ -7,63 +7,49 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-# Rails gems
-gem 'rails', '~> 6.1'
-gem 'puma', '~> 5.3.1'
-gem 'uglifier', '>= 1.3.0'
-gem 'turbolinks', '~> 5'
-gem 'bootsnap', require: false # Reduces boot times through caching; required in config/boot.rb
-gem 'webpacker', '~> 4.x'
-
-# App-specific gems
-gem 'rollbar', '~> 3.1.0'
+gem 'acts_as_paranoid'
 gem 'bcrypt', '~> 3.1.7'
-gem 'paranoia', '~> 2.4.2'
+gem 'bootsnap', require: false # Reduces boot times through caching; required in config/boot.rb
+gem 'chunky_png' # Calendar image processing
+gem 'devise'
+gem 'faraday' # Auditions Processor
+gem 'google-api-client' # Auditions Processor
+gem 'jbuilder'
 gem 'jwt'
-gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'
 gem 'mailgun-ruby', '~>1.1.6'
-gem 'sidekiq'
-
-# UI gems
-gem 'bootstrap' # Can this be removed???
-gem 'sassc-rails'
+gem 'puma', '~> 5.3.1'
+gem 'rails', '~> 6.1.3', '>= 6.1.3.2'
+gem 'rollbar', '~> 3.1.0'
+gem 'sass-rails', '>= 6'
 gem 'select2-rails'
-
-# Auditions Processor gems
-gem 'faraday'
-gem 'google-api-client'
-
-# Calendar image processing
-gem 'chunky_png'
+gem 'sidekiq'
+gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'
+gem 'turbolinks', '~> 5'
+gem 'vite_rails'
 
 group :production do
-  gem 'scout_apm', '~> 2.6.10'
-  gem 'rails_12factor'
   gem 'pg'
-
-  # Bot gems
-  gem 'slack-ruby-bot'
-  gem 'celluloid-io'
+  gem 'rails_12factor'
+  gem 'scout_apm', '~> 2.6.10'
 end
 
 group :development, :test do
-  gem 'sqlite3'
   gem 'byebug'
   gem 'capybara', '~> 2.15', '< 4.0'
   gem 'dotenv-rails'
+  gem 'factory_bot_rails'
+  gem 'faker', '~> 1.9.6'
   gem 'rspec-rails'
   gem 'rubocop', require: false
-  gem 'factory_bot_rails'
-  gem 'simplecov'
-  gem 'faker', '~> 1.9.6'
+  gem 'rubocop-rails'
+  gem 'rubocop-rspec'
+  gem 'sqlite3'
 end
 
 group :development do
   gem 'annotate'
-  gem 'web-console', '>= 3.3.0'
   gem 'letter_opener'
-  gem 'listen', '>= 3.0.5', '< 3.2'
+  gem 'listen', '~> 3.3'
   gem 'spring'
-  gem 'spring-watcher-listen', '~> 2.0.0'
-  gem 'rails_real_favicon'
+  gem 'web-console', '>= 4.1.0'
 end

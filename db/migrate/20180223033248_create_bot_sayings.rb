@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateBotSayings < ActiveRecord::Migration[5.1]
   def change
     create_table :bot_sayings do |t|

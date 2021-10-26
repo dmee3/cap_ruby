@@ -1,0 +1,40 @@
+h1 {
+  @apply
+    text-4xl
+    mt-4
+    mb-2
+  ;
+}
+
+h2 {
+  @apply
+    text-2xl
+    font-medium
+    mt-2
+    mb-2
+  ;
+}
+
+h3 {
+  @apply
+    text-xl
+    mt-2
+    mb-2
+  ;
+}
+
+.text-primary {
+  @apply text-gray-900;
+}
+
+.text-secondary {
+  @apply text-gray-500 font-light;
+}
+
+.link {
+  @apply
+    text-ocean
+    hover:text-ocean-lightest
+    transition
+  ;
+}

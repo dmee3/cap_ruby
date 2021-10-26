@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: seasons_users
 #
 #  id        :integer          not null, primary key
 #  ensemble  :string
+#  role      :string
 #  section   :string
 #  season_id :integer
 #  user_id   :integer

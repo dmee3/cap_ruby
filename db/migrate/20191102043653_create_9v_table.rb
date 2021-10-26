@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Create9vTable < ActiveRecord::Migration[5.2]
   def change
     create_table :nine_volts do |t|

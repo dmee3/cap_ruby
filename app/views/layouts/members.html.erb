@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cap City Percussion</title>
+    <%= csrf_meta_tags %>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <%= vite_client_tag %>
+    <%= vite_javascript_tag 'application' %>
+  </head>
+
+  <body class="bg-gray-900 text-white">
+    <div class="h-screen md:flex">
+      <!-- mobile menu bar -->
+      <div class="text-mint flex justify-between md:hidden">
+        <!-- logo -->
+        <span class="flex items-center space-x-2 p-4">
+          <img src="<%= vite_asset_path 'images/cc_white_brand.png' %>" />
+          <span class="text-xl">Cap City</span>
+        </span>
+
+        <!-- mobile menu button -->
+        <button id="mobile-menu-btn" class="p-4 focus:bg-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- sidebar -->
+      <%= render 'members/application/sidebar' %>
+
+      <!-- main section -->
+      <div class="md:flex flex-1 flex-col h-full overflow-y-auto">
+
+        <!-- top bar -->
+        <div class="hidden md:flex flex-row w-auto h-12 py-2 px-4 items-center justify-end">
+          <div class="flex flex-row items-center space-x-4">
+            <!-- choose season -->
+            <div id="season-dropdown-trigger" class="relative">
+              <div class="flex flex-row w-full pl-2 h-8 py-0 text-sm text-gray-900 rounded-md bg-gray-100 border-transparent focus:bg-white focus:ring-0">
+                <span class="flex items-center">
+                  <%= current_season ? current_season['year'] : '???' %>
+                </span>
+                <span class="ml-6 flex items-center">
+                  <!-- Heroicon name: solid/selector -->
+                  <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                </span>
+              </div>
+              <div id="season-dropdown-menu" class="absolute hidden z-50 mt-2 w-full rounded-md shadow-lg px-2 py-1 bg-white text-gray-900 ring-1 ring-black ring-opacity-5 focus:outline-none" aria-labelledby="season-dropdown-trigger">
+                <% Season.all.reverse.each.with_index do |s, i| %>
+                  <% if i == 0 %>
+                    <span class="text-gray-500 text-sm font-medium">CURRENT</span>
+                  <% elsif i == 1 %>
+                    <span class="text-gray-500 text-sm font-medium">PAST</span>
+                  <% end %>
+                  <%= form_with url: change_season_path, id: 'season-form', class: 'block p-2 -mx-2 text-sm text-gray-900 hover:bg-gray-300 cursor-pointer' do |f| %>
+                    <%= hidden_field_tag :season_id, s.id, { id: "season_id_#{s.id}" } %>
+                    <%= submit_tag "#{s.year}", class: 'cursor-pointer bg-transparent text-gray-900 text-sm' %>
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+
+            <!-- Profile dropdown -->
+            <div id="user-menu-trigger" class="ml-3 relative">
+              <div id="user-menu-btn">
+                <span class="sr-only">Open user menu</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 p-1 rounded hover:bg-gray-700 transition cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+
+              <div id="user-menu" class="hidden z-50 origin-top-right absolute right-0 mt-2 w-36 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
+                <%= link_to 'Settings', '/', class: 'block p-2 text-sm text-gray-900 hover:bg-gray-300' %>
+                <%= link_to 'Whistleblower', whistleblowers_path, class: 'block p-2 text-sm text-gray-900 hover:bg-gray-300' %>
+                <%= form_with url: destroy_user_session_path, method: :delete, class: 'block p-2 text-sm text-gray-900 hover:bg-gray-300 cursor-pointer' do %>
+                  <%= submit_tag 'Log Out', class: 'cursor-pointer bg-transparent text-gray-900 text-sm' %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- page content -->
+        <main class="md:flex-grow rounded-t-2xl md:rounded-tr-none mx-4 md:mx-0 p-6 bg-white text-gray-900" id="main-content">
+          <!-- flash notices -->
+          <% if flash.present? %>
+            <div class="absolute z-50 bottom-0 right-0 w-1/3">
+              <% flash.each do |type, message| %>
+                <div class="flash flex flex-row rounded-lg m-4 p-2 bg-gradient-to-br from-<%= flash_color(type) %>-500 to-<%= flash_color(type) %>-600 text-white shadow-md">
+                  <span class="block flex-1">
+                    <%= message %>
+                  </span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="flash-close cursor-pointer h-6 w-6 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+
+          <!-- actual content -->
+          <%= yield %>
+        </main>
+      </div>
+    </div>
+
+    <%= yield :scripts %>
+  </body>
+</html>
