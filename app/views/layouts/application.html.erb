@@ -22,18 +22,7 @@
 
   <body class="bg-sound-wave">
     <% if flash.present? %>
-      <div class="absolute z-50 top-0 right-0 w-full md:w-1/3">
-        <% flash.each do |type, message| %>
-          <div class="flash <%= flash_color(type) %>">
-            <span class="block flex-1">
-              <%= message %>
-            </span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="flash-close cursor-pointer h-6 w-6 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </div>
-        <% end %>
-      </div>
+      <% render 'flashes' %>
     <% end %>
 
     <div class="flex items-center justify-center h-screen pt-2">
