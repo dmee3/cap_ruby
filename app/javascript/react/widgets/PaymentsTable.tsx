@@ -73,8 +73,8 @@ const PaymentsTable = ({
     return currentEntries.reduce((sum, entry) => sum + entry.amount, 0)
   }
 
-  const handleMemberClick = member => {
-    window.location.href = `/admin/users/${member}`
+  const handleMemberClick = memberId => {
+    window.location.href = `/admin/users/${memberId}`
   }
 
   fetchPayment()
@@ -97,10 +97,13 @@ const PaymentsTable = ({
               Name
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Paid / Owed
+              Paid
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              total
+              Remaining
+            </th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Total
             </th>
             <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
               Status
@@ -128,7 +131,10 @@ const PaymentsTable = ({
                 </div>
               </td>
               <td className="px-6 py-4 text-left whitespace-nowrap">
-                {`${moneyFormatter.format(member.paid / 100.0)} / ${moneyFormatter.format(member.owed / 100.0)}`}
+                {moneyFormatter.format(member.paid / 100.0)}
+              </td>
+              <td className="px-6 py-4 text-left whitespace-nowrap">
+                {moneyFormatter.format((member.total - member.paid) / 100.0)}
               </td>
               <td className="px-6 py-4 text-left whitespace-nowrap">
                 {`${moneyFormatter.format(member.total / 100.0)}`}

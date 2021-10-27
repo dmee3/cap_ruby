@@ -14,7 +14,7 @@
         <label for="payment_payment_type_id" class="input-label">Method</label>
       </div>
       <div class="col-span-5 sm:col-span-4 flex items-center">
-        <%= p.collection_select :payment_type_id, PaymentType.all, :id, :name, {}, { class: 'input-select' } %>
+        <%= p.collection_select :payment_type_id, PaymentType.all, :id, :name, { selected: PaymentType.venmo.id }, { class: 'input-select' } %>
       </div>
 
       <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
