@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { PlusSmIcon, CheckIcon, XIcon } from '@heroicons/react/outline'
-import Utilities from '../../../utilities/utilities'
+
 import Badge from '../../../react/components/Badge'
+
+import Utilities from '../../../utilities/utilities'
+import addFlash from '../../../utilities/flashes'
 
 const AdminConflicts = () => {
   const [conflicts, setConflicts] = useState([])
@@ -49,10 +52,11 @@ const AdminConflicts = () => {
       .then(resp => {
         if (resp.ok) {
           fetchAllConflicts()
-        } else {
-          throw resp
+          return resp.json()
         }
+        throw resp
       })
+      .then(data => addFlash('success', data.message))
       .catch(error => {
         console.error(error)
       })

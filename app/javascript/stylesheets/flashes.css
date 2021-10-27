@@ -1,0 +1,44 @@
+.flash-base {
+  @apply
+    flex
+    flex-row
+    rounded-lg
+    m-4
+    p-2
+    bg-gradient-to-br
+    text-white
+    shadow-md
+  ;
+}
+
+.flash-success {
+  @apply
+    flash-base
+    from-green-400
+    to-cyan-500
+  ;
+}
+
+.flash-error {
+  @apply
+    flash-base
+    from-pink-500
+    to-red-600
+  ;
+}
+
+.flash-info {
+  @apply
+    flash-base
+    from-light-blue-400
+    to-indigo-500
+  ;
+}
+
+.flash-default {
+  @apply
+    flash-base
+    from-gray-500
+    to-gray-700
+  ;
+}

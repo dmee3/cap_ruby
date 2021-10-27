@@ -4,13 +4,13 @@ module ApplicationHelper
   def flash_color(type)
     case type.to_sym
     when :alert, :error
-      'red'
+      'flash-error'
     when :success
-      'green'
+      'flash-success'
     when :info
-      'blue'
+      'flash-info'
     else
-      'gray'
+      'flash-default'
     end
   end
 end
