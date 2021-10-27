@@ -12,7 +12,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :admin do
-      resources :conflicts, only: %i[index]
+      resources :conflicts, only: %i[index update]
       resources :payments, only: %i[index]
       get 'payments/upcoming', to: 'payments#upcoming'
       resources :users, only: %i[index]
@@ -29,6 +29,7 @@ Rails.application.routes.draw do
       resources :payment_intents, only: %i[create]
     end
 
+    resources :conflict_statuses, only: %i[index]
     resources :files, only: %i[index show]
   end
 

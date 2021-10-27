@@ -1,8 +1,21 @@
 export default class {
-  static displayDateTime(dt: string | number | Date) {
+  static displayDateTimeShort(dt: string | number | Date) {
     const format = {
       dateStyle: 'short',
       timeStyle: 'short',
+    }
+    const date = new Date(dt)
+    return new Intl.DateTimeFormat('en-US', format).format(date)
+  }
+
+  static displayDateTimeReadable(dt: string | number | Date) {
+    const format = {
+      weekday: 'short' as const, // Deal with TS error
+      month: 'numeric' as const,
+      day: 'numeric' as const,
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
     }
     const date = new Date(dt)
     return new Intl.DateTimeFormat('en-US', format).format(date)

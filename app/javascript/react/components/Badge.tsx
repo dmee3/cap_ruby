@@ -2,7 +2,7 @@ import React from 'react'
 
 type BadgeProps = {
   text: string,
-  color: 'green' | 'red'
+  color: 'green' | 'red' | 'yellow' | 'gray'
 }
 
 class Badge extends React.Component<BadgeProps> {

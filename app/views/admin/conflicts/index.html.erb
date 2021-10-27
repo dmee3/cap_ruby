@@ -1,14 +1,3 @@
-<div class="row">
-  <div class="col-12 text-right mb-3">
-    <%= link_to new_admin_conflict_path, class: 'btn btn-light mt-1' do %>
-      <span class="d-none d-sm-inline">New Conflict</span>
-      <span class="d-sm-none"><i class="fas fa-plus"></i></span>
-    <% end %>
-  </div>
-</div>
+<%= vite_typescript_tag 'entrypoints/admin/conflicts/index.tsx' %>
 
-<div class="row">
-  <div class="col-12" id="admin-conflicts-index">
-    <admin-conflicts-index></admin-conflicts-index>
-  </div>
-</div>
+<div id="conflicts"></div>
