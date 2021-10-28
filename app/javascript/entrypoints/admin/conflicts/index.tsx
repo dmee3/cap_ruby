@@ -6,6 +6,7 @@ import Badge from '../../../react/components/Badge'
 
 import Utilities from '../../../utilities/utilities'
 import addFlash from '../../../utilities/flashes'
+import ConflictCalendar from '../../../react/widgets/ConflictCalendar'
 
 const AdminConflicts = () => {
   const [conflicts, setConflicts] = useState([])
@@ -149,6 +150,7 @@ const AdminConflicts = () => {
           })}
         </ul>
       </div>
+      <ConflictCalendar />
     </div>
   )
 }
