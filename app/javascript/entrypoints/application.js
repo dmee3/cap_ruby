@@ -37,11 +37,21 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     })
   }
+  const mobileSeasonTrigger = document.querySelector('#mobile-season-dropdown-trigger')
+  if (mobileSeasonTrigger) {
+    const mobileSeasonDropdown = document.querySelector('#mobile-season-dropdown-menu')
+    mobileSeasonTrigger.addEventListener('click', () => { mobileSeasonDropdown.classList.remove('hidden') })
+    document.addEventListener('click', (e) => {
+      if (!mobileSeasonTrigger.contains(e.target)) {
+        mobileSeasonDropdown.classList.add('hidden')
+      }
+    })
+  }
 
   // User menu dropdown
-  const userMenuTrigger = document.querySelector('#user-menu-trigger')
+  const userMenuTrigger = document.getElementById('user-menu-trigger')
   if (userMenuTrigger) {
-    const userMenu = document.querySelector('#user-menu')
+    const userMenu = document.getElementById('user-menu')
     userMenuTrigger.addEventListener('click', () => { userMenu.classList.remove('hidden') })
     document.addEventListener('click', (e) => {
       if (!userMenuTrigger.contains(e.target)) {
