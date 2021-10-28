@@ -17,7 +17,6 @@ module Admin
     def create
       @user = User.new(user_params)
       if @user.save
-        update_seasons
         @user.welcome
 
         flash[:success] = "#{@user.first_name} created"
@@ -64,7 +63,7 @@ module Admin
         :password_confirmation,
         :phone,
         :username,
-        season_ids: []
+        seasons_users_attributes: []
       )
     end
   end

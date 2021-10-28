@@ -19,7 +19,7 @@ module Members
       if @conflict.save
         flash[:success] = 'Conflict submitted for review.'
         ActivityLogger.log_conflict(@conflict, current_user)
-        send_email
+        EmailService.send_conflict_submitted_email(@conflict)
         redirect_to(root_url)
       else
         Rollbar.info('Conflict could not be submitted.', errors: @conflict.errors.full_messages)
@@ -29,23 +29,6 @@ module Members
     end
 
     private
-
-    def send_email
-      subject = "Conflict submitted by #{current_user.full_name}"
-      text = <<~TEXT
-        #{current_user.full_name} has submitted a conflict for #{@conflict.start_date}.\n\n
-        Start: #{@conflict.start_date}\n
-        End: #{@conflict.end_date}\n
-        Reason: #{@conflict.reason}
-      TEXT
-      [ENV['EMAIL_DAN'], ENV['EMAIL_DONNIE'], ENV['EMAIL_TIM'], ENV['EMAIL_ANDREW'], ENV['EMAIL_JAMES']].each do |to|
-        PostOffice.send_email(to, subject, text)
-      end
-
-    # Suppress all exceptions because it's just an email
-    rescue StandardError => e
-      Rollbar.error(e, user: current_user)
-    end
 
     def conflict_params
       params.require(:conflict)
