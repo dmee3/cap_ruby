@@ -1,10 +1,23 @@
+.flash-bar {
+  @apply
+    absolute
+    z-50
+    bottom-0
+    right-0
+    w-full
+    md:w-1/3
+  ;
+}
+
 .flash-base {
   @apply
     flex
     flex-row
-    rounded-lg
-    m-4
-    p-2
+    items-center
+    md:rounded-lg
+    md:m-4
+    p-4
+    md:p-2
     bg-gradient-to-br
     text-white
     shadow-md

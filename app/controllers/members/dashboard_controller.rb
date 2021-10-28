@@ -13,6 +13,7 @@ module Members
       @total_dues = @payment_schedule.entries.sum(:amount) / 100
 
       @next_event = EventService.next_event
+      flash[:success] = 'Test Long Flash Message'
     end
   end
 end

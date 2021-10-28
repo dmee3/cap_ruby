@@ -19,7 +19,7 @@ const getFlashBar = () => {
   let flashBar = document.getElementById('flash-bar')
   if (flashBar === null) {
     flashBar = document.createElement('div')
-    flashBar.classList.add('absolute', 'z-50', 'bottom-0', 'right-0', 'w-1/3')
+    flashBar.classList.add('flash-bar')
     document.getElementById('page-content').appendChild(flashBar)
   }
   return flashBar
