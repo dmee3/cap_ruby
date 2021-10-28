@@ -18,5 +18,19 @@ TEXT
     rescue StandardError => e
       Rollbar.error(e, user: current_user)
     end
+
+    def send_whistleblower_email(email, report)
+      email = '(Anonymous)' unless email.present?
+      subject = 'Whistleblower Report'
+      text = <<~TEXT
+Whistleblower report submitted at #{Time.now.strftime('%d/%m/%Y %l:%M %P')}.\n\n
+Email: #{email}\n
+Report:\n\n#{report}
+TEXT
+  
+      [ENV['EMAIL_AARON'], ENV['EMAIL_DONNIE'], ENV['EMAIL_DAN']].each do |to|
+        PostOffice.send_email(to, subject, text)
+      end
+    end
   end
 end

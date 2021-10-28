@@ -14,31 +14,31 @@
 .flash-success {
   @apply
     flash-base
-    from-green-400
-    to-cyan-500
+    from-lime-500
+    to-teal-600
   ;
 }
 
 .flash-error {
   @apply
     flash-base
-    from-pink-500
-    to-red-600
+    from-red-400
+    to-rose-600
   ;
 }
 
 .flash-info {
   @apply
     flash-base
-    from-light-blue-400
-    to-indigo-500
+    from-cyan-400
+    to-violet-500
   ;
 }
 
 .flash-default {
   @apply
     flash-base
-    from-gray-500
-    to-gray-700
+    from-blue-gray-400
+    to-warm-gray-700
   ;
 }
