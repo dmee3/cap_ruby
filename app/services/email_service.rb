@@ -2,7 +2,7 @@
 
 class EmailService
   class << self
-    def send_conflict_submitted_email(conflict)
+    def send_conflict_submitted_email(conflict, current_user)
       subject = "Conflict submitted by #{current_user.full_name}"
       text = <<~TEXT
 #{current_user.full_name} has submitted a conflict for #{conflict.start_date}.\n\n

@@ -19,7 +19,7 @@ module Members
       if @conflict.save
         flash[:success] = 'Conflict submitted for review.'
         ActivityLogger.log_conflict(@conflict, current_user)
-        EmailService.send_conflict_submitted_email(@conflict)
+        EmailService.send_conflict_submitted_email(@conflict, current_user)
         redirect_to(root_url)
       else
         Rollbar.info('Conflict could not be submitted.', errors: @conflict.errors.full_messages)
