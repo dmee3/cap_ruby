@@ -6,7 +6,7 @@
   <div class="order-1 h-48 md:h-96 xl:h-48 flex flex-col">
     <%= link_to admin_payments_path, class: 'p-5 flex-grow rounded-lg border border-gray-300 group hover:shadow-md hover:border-transparent hover:bg-gradient-to-br hover:from-green-500 hover:to-green-700 flex flex-col sm:flex-row md:flex-col justify-between place-content-stretch transition' do %>
       <div class="flex flex-col md:h-1/2 justify-center">
-        <span class="text-sm font-medium text-gray-500 group-hover:text-green-200 transition">
+        <span class="font-medium text-gray-500 group-hover:text-green-200 transition">
           DUES OWED
         </span>
         <span class="text-3xl group-hover:text-white font-extrabold font-mono transition">
@@ -14,7 +14,7 @@
         </span>
       </div>
       <div class="flex flex-col md:h-1/2 justify-center">
-        <span class="text-sm font-medium text-gray-500 group-hover:text-green-200 transition">
+        <span class="font-medium text-gray-500 group-hover:text-green-200 transition">
           DUES COLLECTED
         </span>
         <span class="text-3xl group-hover:text-white font-extrabold font-mono transition">
@@ -24,7 +24,7 @@
     <% end %>
 
     <div class="p-5 mt-4 rounded-lg shadow-md bg-gradient-to-br from-gray-500 to-gray-700 group hidden md:block lg:block xl:hidden">
-      <div class="text-sm font-medium text-gray-300">NEXT EVENT</div>
+      <div class="font-medium text-gray-300">NEXT EVENT</div>
       <div class="flex flex-col">
         <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
         <div class="text-gray-300 text-sm font-medium">
@@ -42,7 +42,7 @@
   <!-- BEHIND MEMBERS -->
   <div class="order-2 md:order-3 lg:order-2 col-span-1 md:col-span-2 lg:col-span-1 xl:col-span-2 max-h-96 xl:max-h-48 flex flex-col">
     <div class="p-5 rounded-lg border border-gray-300 overflow-scroll flex-grow">
-      <span class="text-sm font-medium text-gray-500">BEHIND MEMBERS</span>
+      <span class="font-medium text-gray-500">BEHIND MEMBERS</span>
       <ul class="divide-y divide-gray-100">
         <% @behind_members.each do |member| %>
           <li>
@@ -68,7 +68,7 @@
 
   <!-- NEXT EVENT -->
   <div class="p-5 rounded-lg order-3 shadow-md bg-gradient-to-br from-gray-500 to-gray-700 group hidden xl:block">
-    <div class="text-sm font-medium text-gray-300">NEXT EVENT</div>
+    <div class="font-medium text-gray-300">NEXT EVENT</div>
     <div class="flex flex-col">
       <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
       <div class="text-gray-300 text-sm font-medium">

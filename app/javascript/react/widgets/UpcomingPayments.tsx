@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import Utilities from '../../utilities/utilities'
 
 import Badge from '../components/Badge'
@@ -8,12 +8,17 @@ type UpcomingPaymentProps = {
 
 const UpcomingPayment = ({
 }: UpcomingPaymentProps) => {
-  const [payments, setPayments] = useState([])
-  const [start, setStart] = useState(new Date(Date.now()))
-  const [end, endDate] = useState(new Date(Date.now() + 12096e5)) // 14 days away
+  const daysToSeconds = numDays => {
+    return numDays * 86400000
+  }
 
-  useEffect(() => {
-    let params = `start=${Utilities.formatIsoDate(start)}&end=${Utilities.formatIsoDate(end)}`
+  const [payments, setPayments] = useState([])
+  const [days, setDays] = useState(14)
+  const [end, setEnd] = useState(new Date(Date.now() + daysToSeconds(14))) // 14 days away
+  const start = new Date(Date.now())
+
+  const fetchPayments = () => {
+    const params = `start=${Utilities.formatIsoDate(start)}&end=${Utilities.formatIsoDate(end)}`
     fetch(`/api/admin/payments/upcoming?${params}`)
       .then(resp => {
         if (resp.ok) {
@@ -35,16 +40,35 @@ const UpcomingPayment = ({
       .catch(error => {
         console.error(error)
       })
-  }, [])
+  }
+
+  useEffect(() => {
+    fetchPayments()
+  }, [end])
+
+  const handleEndChange = value => {
+    setDays(value)
+    setEnd(new Date(Date.now() + daysToSeconds(value)))
+  }
 
   const total = payments.map(p => p.owed).reduce((sum, curr) => sum + curr, 0)
 
   return (
     <div className="p-5 shadow-md bg-gradient-to-br from-green-500 to-green-700 row-span-2">
       <div className="flex flex-col">
-        <span className="text-sm font-medium text-green-200">UPCOMING PAYMENTS</span>
+        <span className="font-medium text-green-200">UPCOMING PAYMENTS</span>
         <span className="text-3xl text-white font-extrabold font-mono">
           {Utilities.formatMoney(total)}
+        </span>
+        <span className="text-sm text-green-200">
+          Next&nbsp;
+          <input
+            type="number"
+            className="inline bg-transparent border-0 border-b-1 border-white p-0 text-white font-medium w-10 focus:ring-0 focus:border-white"
+            value={days}
+            onChange={(e) => handleEndChange(+e.target.value)}
+          />
+          &nbsp;days
         </span>
       </div>
       <ul className="divide-y divide-green-500">
