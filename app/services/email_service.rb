@@ -2,6 +2,16 @@
 
 class EmailService
   class << self
+    def send_payment_submitted_email(payment, current_user)
+      subject = "Payment submitted by #{current_user.full_name} for $#{payment.amount / 100}"
+      text = "#{current_user.full_name} has submitted a payment for $#{payment.amount / 100}."
+      [ENV['EMAIL_AARON'], ENV['EMAIL_DAN']].each do |to|
+        PostOffice.send_email(to, subject, text)
+      end
+    rescue StandardError => e
+      Rollbar.error(e, user: current_user)
+    end
+
     def send_conflict_submitted_email(conflict, current_user)
       subject = "Conflict submitted by #{current_user.full_name}"
       text = <<~TEXT
@@ -13,8 +23,6 @@ TEXT
       [ENV['EMAIL_DAN'], ENV['EMAIL_DONNIE'], ENV['EMAIL_TIM'], ENV['EMAIL_ANDREW'], ENV['EMAIL_JAMES']].each do |to|
         PostOffice.send_email(to, subject, text)
       end
-
-    # Suppress all exceptions because it's just an email
     rescue StandardError => e
       Rollbar.error(e, user: current_user)
     end

@@ -1,6 +1,6 @@
 <script type="text/javascript">
   var stripePublicKey = '<%= @stripe_public_key %>';
-  var returnUrl = '<%= root_url %>';
+  var returnUrl = '<%= "#{root_url}members/payments/post_processing" %>';
 </script>
 
 <%= vite_typescript_tag 'entrypoints/members/payments/index.tsx' %>

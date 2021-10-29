@@ -62,8 +62,8 @@ Rails.application.routes.draw do
 
     resources :conflicts, only: %i[new create]
 
-    resources :payments, only: %i[index new]
-    post 'charge', to: 'payments#charge'
+    resources :payments, only: %i[new]
+    get 'payments/post_processing', to: 'payments#post_processing'
   end
 
   namespace :inventory do
