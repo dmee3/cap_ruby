@@ -47,8 +47,10 @@ const UpcomingPayment = ({
   }, [end])
 
   const handleEndChange = value => {
-    setDays(value)
-    setEnd(new Date(Date.now() + daysToSeconds(value)))
+    if (Number.parseInt(value)) {
+      setDays(value)
+      setEnd(new Date(Date.now() + daysToSeconds(value)))
+    }
   }
 
   const total = payments.map(p => p.owed).reduce((sum, curr) => sum + curr, 0)
@@ -63,17 +65,17 @@ const UpcomingPayment = ({
         <span className="text-sm text-green-200">
           Next&nbsp;
           <input
-            type="number"
-            className="inline bg-transparent border-0 border-b-1 border-white p-0 text-white font-medium w-10 focus:ring-0 focus:border-white"
+            type="text"
+            className="inline bg-transparent border-0 border-b-1 border-white p-0 text-white text-center font-medium w-8 focus:ring-0 focus:border-white"
             value={days}
-            onChange={(e) => handleEndChange(+e.target.value)}
+            onChange={(e) => handleEndChange(e.target.value)}
           />
           &nbsp;days
         </span>
       </div>
       <ul className="divide-y divide-green-500">
         {payments.map(payment => {
-          return <li key={payment.user_id}>
+          return <li key={payment.id}>
             <a href={`/admin/users/${payment.user_id}`} className="px-5 py-4 -mx-5 flex flex-col hover:bg-green-500 transition">
               <div className="flex justify-between">
                 <div className="flex flex-col">

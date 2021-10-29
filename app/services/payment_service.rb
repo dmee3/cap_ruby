@@ -14,6 +14,7 @@ class PaymentService
 
       entries.map do |e|
         {
+          id: e.id,
           scheduled: e.schedule.scheduled_to_date(e.pay_date),
           paid: e.schedule.user.amount_paid_for(season_id),
           current_amount: e.amount,
