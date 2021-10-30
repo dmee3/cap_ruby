@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 class SettingsController < ApplicationController
-  before_action :authenticate_user!, only: %i[index update change_password]
-  before_action :ensure_key_param, only: %i[reset_password complete_reset]
+  before_action :authenticate_user!
 
   def index
     render_index
@@ -19,56 +18,25 @@ class SettingsController < ApplicationController
   end
 
   def change_password
-    unless current_user.authenticate(params[:old_password])
+    unless current_user.valid_password?(params[:old_password])
       @pw_errors = 'Old password was incorrect'
       render_index
       return
     end
 
-    if current_user.update(password: params[:new_password],
-                           password_confirmation: params[:new_password_confirmation])
+    unless params[:new_password] == params[:new_password_confirmation]
+      @pw_errors = 'Password confirmation does not match password'
+      render_index
+      return
+    end
+
+    if current_user.update(password: params[:new_password])
+      sign_in(current_user, bypass: true)
       flash[:success] = 'Password updated'
       redirect_to(root_url)
     else
       @pw_errors = current_user.errors.full_messages.join('<br />')
       render_index
-    end
-  end
-
-  def forgot_password
-    render :forgot
-  end
-
-  def initiate_reset
-    @user = User.find_by(email: params[:email])
-
-    @user&.initiate_password_reset
-
-    # Even if we didn't find a user, tell them to check their email to prevent
-    # people from finding out user emails
-    render :initiated
-  end
-
-  def reset_password
-    render :reset
-  end
-
-  def complete_reset
-    @user = User.find_by(reset_key: @key)
-
-    if @user.blank?
-      redirect_to(root_url)
-      return
-    end
-
-    if @user.update(password: params[:password],
-                    password_confirmation: params[:password_confirmation])
-      ActivityLogger.log_pw_reset_completed(@user)
-      flash[:success] = 'Your password has been reset!'
-      redirect_to(root_url)
-    else
-      @errors = @user.errors.full_messages.join('<br />')
-      render :reset
     end
   end
 
@@ -80,10 +48,5 @@ class SettingsController < ApplicationController
     else
       render 'members/settings/index'
     end
-  end
-
-  def ensure_key_param
-    redirect_to root_url if params[:key].blank?
-    @key = params[:key]
   end
 end

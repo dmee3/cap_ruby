@@ -1,75 +1,65 @@
-<div class="row">
-  <div class="col-12 col-md-6 mb-3">
-    <div class="card">
-      <%= form_tag '/settings', { method: :post, class: 'card-body' } do %>
-        <div class="row">
-          <div class="col-sm-12">
-            <h3>Basic Info</h3>
-          </div>
+<div class="flex flex-col">
+  <h1>Settings</h1>
+  <h2>Basic Info</h2>
+  <%= form_with url: settings_path, method: :post do |f| %>
+    <div class="grid grid-cols-5 gap-x-6 gap-y-4">
+      <% if @settings_errors %>
+        <div class="col-span-5 flex text-red-500 items-center">
+          <%= raw(@settings_errors) %>
         </div>
-        <div class="row mt-3">
-          <% if @settings_errors %>
-            <div class="col-12 text-danger mb-3"><%= raw(@settings_errors) %></div>
-          <% end %>
-          <div class="col-12">
-            <%= label_tag :username, 'Username' %>
-            <%= text_field_tag :username, current_user.username, { class: 'form-control', placeholder: 'Username' } %>
-          </div>
-        </div>
-        <div class="row mt-3">
-          <div class="col-sm-12">
-            <%= label_tag :email, 'Email' %>
-            <%= text_field_tag :email, current_user.email, { class: 'form-control', placeholder: 'Email' } %>
-          </div>
-        </div>
-
-        <div class="row mt-3">
-          <div class="col-sm-12 text-center">
-            <%= submit_tag 'Save', { class: 'btn btn-success' } %>
-          </div>
-        </div>
-        
       <% end %>
+      <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+        <%= f.label :username, class: 'input-label' %>
+      </div>
+      <div class="col-span-5 sm:col-span-4">
+        <%= text_field_tag :username, current_user.username, class: 'input-text' %>
+      </div>
+
+      <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+        <%= f.label :email, class: 'input-label' %>
+      </div>
+      <div class="col-span-5 sm:col-span-4">
+        <%= text_field_tag :email, current_user.email, class: 'input-text' %>
+      </div>
     </div>
-  </div>
 
-  <div class="col-12 col-md-6">
-    <div class="card">
-      <%= form_tag '/settings-password', { method: :post, class: 'card-body' } do %>
-        <div class="row">
-          <div class="col-sm-12">
-            <h3>Change Password</h3>
-          </div>
-        </div>
-        <div class="row mt-3">
-          <% if @pw_errors %>
-            <div class="col-12 text-danger mb-3"><%= raw(@pw_errors) %></div>
-          <% end %>
-          <div class="col-sm-12">
-            <%= label_tag :old_password, 'Old Password' %>
-            <%= password_field_tag :old_password, nil, { class: 'form-control', placeholder: 'Old Password' } %>
-          </div>
-        </div>
-        <div class="row mt-3">
-          <div class="col-sm-12">
-            <%= label_tag :new_password, 'New Password' %>
-            <%= password_field_tag :new_password, nil, { class: 'form-control', placeholder: 'New Password' } %>
-          </div>
-        </div>
-        <div class="row mt-3">
-          <div class="col-sm-12">
-            <%= label_tag :new_password_confirmation, 'New Password Confirmation' %>
-            <%= password_field_tag :new_password_confirmation, nil, { class: 'form-control', placeholder: 'Confirm New Password' } %>
-          </div>
-        </div>
+    <div class="my-4 flex flex-row justify-end">
+      <%= f.submit class: 'btn-primary btn-lg' %>
+    </div>
+  <% end %>
 
-        <div class="row mt-3">
-          <div class="col-sm-12 text-center">
-            <%= submit_tag 'Save', { class: 'btn btn-success' } %>
-          </div>
+  <h2 class="mt-6">Password</h2>
+  <%= form_with url: '/settings-password', method: :post do |f| %>
+    <div class="grid grid-cols-5 gap-x-6 gap-y-4">
+      <% if @pw_errors %>
+        <div class="col-span-5 flex text-red-500 items-center">
+          <%= raw(@pw_errors) %>
         </div>
-      
       <% end %>
+      <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+        <%= f.label :old_password, class: 'input-label' %>
+      </div>
+      <div class="col-span-5 sm:col-span-4">
+        <%= password_field_tag :old_password, nil, class: 'input-text' %>
+      </div>
+
+      <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+        <%= f.label :new_password, class: 'input-label' %>
+      </div>
+      <div class="col-span-5 sm:col-span-4">
+        <%= password_field_tag :new_password, nil, class: 'input-text' %>
+      </div>
+
+      <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+        <%= f.label :new_password_confirmation, 'Confirm', class: 'input-label' %>
+      </div>
+      <div class="col-span-5 sm:col-span-4">
+        <%= password_field_tag :new_password_confirmation, nil, class: 'input-text' %>
+      </div>
     </div>
-  </div>
+
+    <div class="my-4 flex flex-row justify-end">
+      <%= f.submit class: 'btn-primary btn-lg' %>
+    </div>
+  <% end %>
 </div>

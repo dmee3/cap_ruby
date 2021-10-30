@@ -76,6 +76,7 @@ Rails.application.routes.draw do
 
   get 'settings', to: 'settings#index'
   post 'settings', to: 'settings#update'
+  post 'settings-password', to: 'settings#change_password'
 
   get 'rhythm-converter', to: 'tools#rhythm_converter'
 
