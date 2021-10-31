@@ -10,7 +10,11 @@ module Api
         payment_intent = Stripe::PaymentIntent.create(
           amount: total,
           currency: 'usd',
-          payment_method_types: ['card']
+          payment_method_types: ['card'],
+          metadata: {
+            user_id: current_user.id,
+            user_name: current_user.full_name
+          }
         )
 
         PaymentIntent.create(
