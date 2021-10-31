@@ -17,7 +17,7 @@ const UserForm = ({
   seasons
 }: UserFormType) => {
   const csrfToken = (document.getElementsByName('csrf-token')[0] as HTMLMetaElement).content
-  const [internalUser, setInternalUser] = useState({} : User)
+  const [internalUser, setInternalUser] = useState({})
   const [formUrl, setFormUrl] = useState('/admin/users')
   const [formPut, setFormPut] = useState(false)
 
