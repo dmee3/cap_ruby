@@ -1,52 +1,42 @@
-<div class="card">
-  <%= form_for @conflict, url: url do |c| %>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-sm-6 form-group">
-          <label for="conflict_user_id">User</label>
-          <%= c.collection_select :user_id, @members, :id, :full_name, {}, { class: 'form-control select2-form-control select2-enable' } %>
-        </div>
-        <div class="col-sm-6 form-group">
-          <label for="conflict_status_id">Status</label>
-          <%= c.collection_select :status_id, ConflictStatus.all.order(:name), :id, :name, {}, { class: 'form-control' } %>
-        </div>
-      </div>
-
-      <div class="row mt-3">
-        <div class="container">
-          <div class="row">
-            <div class="col-12 col-lg-6">
-              <div class="form-group">
-                <label for="conflict_start_date">Start</label>
-                <%= c.text_field :start_date, { class: 'flatpickr-dt form-control', required: true } %>
-              </div>
-
-              <hr class="mt-3 d-md-none">
-
-              <div class="form-group">
-                <label for="conflict_end_date">End</label>
-                <%= c.text_field :end_date, { class: 'flatpickr-dt form-control', required: true } %>
-              </div>
-            </div>
-
-            <div class="col-12 col-lg-6">
-              <hr class="mt-3 d-md-none">
-              <div class="form-group">
-                <label for="conflict_reason">Reason</label>
-                <%= c.text_area :reason, { class: 'form-control mr-2 mb-2', placeholder: 'Reason for Absence' } %>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+<%= form_for @conflict, url: url do |f| %>
+  <div class="grid grid-cols-5 gap-x-6 gap-y-4">
+    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+      <%= f.label :user_id, 'User', class: 'input-label' %>
+    </div>
+    <div class="col-span-5 sm:col-span-4 flex items-center">
+      <%= f.collection_select :user_id, @members, :id, :full_name, {}, { class: 'input-select select2-form-control select2-enable' } %>
     </div>
 
-    <div class="card-footer">
-      <div class="row">
-        <div class="col-12 form-group text-center">
-          <%= c.submit 'Submit', class: 'btn btn-success' %>
-        </div>
-      </div>
+    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+      <%= f.label :status_id, 'Status', class: 'input-label' %>
     </div>
-  <% end %>
-</div>
+    <div class="col-span-5 sm:col-span-4 flex items-center">
+      <%= f.collection_select :status_id, ConflictStatus.all.order(:name), :id, :name, {}, { class: 'input-select' } %>
+    </div>
+
+    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+      <%= f.label :start_date, 'Start', class: 'input-label' %>
+    </div>
+    <div class="col-span-5 sm:col-span-4 flex items-center">
+      <%= f.text_field :start_date, { class: 'flatpickr-dt input-text', required: true } %>
+    </div>
+
+    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+      <%= f.label :end_date, 'End', class: 'input-label' %>
+    </div>
+    <div class="col-span-5 sm:col-span-4 flex items-center">
+      <%= f.text_field :end_date, { class: 'flatpickr-dt input-text', required: true } %>
+    </div>
+
+    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+      <%= f.label :reason, class: 'input-label' %>
+    </div>
+    <div class="col-span-5 sm:col-span-4 flex items-center">
+      <%= f.text_area :reason, { class: 'input-text', placeholder: 'Notes' } %>
+    </div>
+  </div>
+
+  <div class="mt-4 flex flex-row justify-end">
+    <%= f.submit 'Submit', class: 'btn-primary btn-lg' %>
+  </div>
+<% end %>

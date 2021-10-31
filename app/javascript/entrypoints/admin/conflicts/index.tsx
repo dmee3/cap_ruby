@@ -7,9 +7,12 @@ import Badge from '../../../react/components/Badge'
 import Utilities from '../../../utilities/utilities'
 import addFlash from '../../../utilities/flashes'
 import ConflictCalendar from '../../../react/widgets/ConflictCalendar'
+import InputToggle from '../../../react/components/inputs/InputToggle'
 
 const AdminConflicts = () => {
   const [conflicts, setConflicts] = useState([])
+  const [displayedConflicts, setDisplayedConflicts] = useState([])
+  const [showPast, setShowPast] = useState(false)
   const [conflictStatuses, setConflictStatuses] = useState([])
   const [pendingConflicts, setPendingConflicts] = useState([])
 
@@ -74,9 +77,22 @@ const AdminConflicts = () => {
       .then(data => {
         data = data.sort((a, b) => a.start - b.start)
         setConflicts(data.filter(c => c.status.name !== 'Pending'))
+        setDisplayedConflicts(
+          data.filter(c => c.status.name !== 'Pending')
+            .filter(c => new Date(c.start) >= new Date(Date.now()))
+        )
         setPendingConflicts(data.filter(c => c.status.name === 'Pending'))
       })
       .catch(error => console.error(error))
+  }
+
+  const togglePast = shouldShowPast => {
+    setShowPast(shouldShowPast)
+    if (shouldShowPast) {
+      setDisplayedConflicts(conflicts)
+    } else {
+      setDisplayedConflicts(conflicts.filter(c => new Date(c.start) >= new Date(Date.now())))
+    }
   }
 
   useEffect(() => {
@@ -95,7 +111,7 @@ const AdminConflicts = () => {
   return (
     <div className="flex flex-col">
       <div className="flex flex-row items-center justify-between mt-4 mb-2">
-        <h1>Conflicts</h1>
+        <h1 className="my-0">Conflicts</h1>
         <div>
           <a href="/admin/conflicts/new" className="btn-green btn-lg">
             <PlusSmIcon className="mr-2 h-6 w-6" />
@@ -132,10 +148,21 @@ const AdminConflicts = () => {
           })}
         </ul>
       </div>
-      <div className="">
-        <h2>Upcoming</h2>
+      <div>
+        <div className="flex flex-row items-center justify-between mt-6 mb-2">
+          <h2 className="my-0">Upcoming</h2>
+          <div className="pr-4">
+            <InputToggle
+              checked={showPast}
+              id={'show-past-conflicts'}
+              name={'show-past-conflicts'}
+              onChange={() => togglePast(!showPast)}
+              text={'Show Past'}
+            />
+          </div>
+        </div>
         <ul className="divide-y divide-gray-300">
-          {conflicts.map(conflict => {
+          {displayedConflicts.map(conflict => {
             return <li key={conflict.id} className="flex flex-row space-x-2 p-4 items-start hover:bg-gray-100 cursor-pointer">
               <div className="flex flex-1 flex-col">
                 <span className="font-medium">{conflict.title}</span>
