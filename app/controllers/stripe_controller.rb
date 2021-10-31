@@ -45,7 +45,7 @@ class StripeController < ApplicationController
       return
     end
 
-    Payment.create!(
+    payment = Payment.create!(
       amount: intent_record.amount,
       user_id: intent_record.user_id,
       date_paid: Date.today,
@@ -53,5 +53,8 @@ class StripeController < ApplicationController
       notes: "Stripe: #{pi_id}",
       payment_type: PaymentType.stripe
     )
+    user = User.find(intent_record.user_id)
+    ActivityLogger.log_payment(payment, user)
+    EmailService.send_payment_submitted_email(payment, user)
   end
 end

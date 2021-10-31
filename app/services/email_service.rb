@@ -2,20 +2,20 @@
 
 class EmailService
   class << self
-    def send_payment_submitted_email(payment, current_user)
-      subject = "Payment submitted by #{current_user.full_name} for $#{payment.amount / 100}"
-      text = "#{current_user.full_name} has submitted a payment for $#{payment.amount / 100}."
+    def send_payment_submitted_email(payment, user)
+      subject = "Payment submitted by #{user.full_name} for $#{payment.amount / 100}"
+      text = "#{user.full_name} has submitted a payment for $#{payment.amount / 100}."
       [ENV['EMAIL_AARON'], ENV['EMAIL_DAN']].each do |to|
         PostOffice.send_email(to, subject, text)
       end
     rescue StandardError => e
-      Rollbar.error(e, user: current_user)
+      Rollbar.error(e, user: user)
     end
 
-    def send_conflict_submitted_email(conflict, current_user)
-      subject = "Conflict submitted by #{current_user.full_name}"
+    def send_conflict_submitted_email(conflict, user)
+      subject = "Conflict submitted by #{user.full_name}"
       text = <<~TEXT
-#{current_user.full_name} has submitted a conflict for #{conflict.start_date}.\n\n
+#{user.full_name} has submitted a conflict for #{conflict.start_date}.\n\n
 Start: #{conflict.start_date}\n
 End: #{conflict.end_date}\n
 Reason: #{conflict.reason}
@@ -24,7 +24,7 @@ TEXT
         PostOffice.send_email(to, subject, text)
       end
     rescue StandardError => e
-      Rollbar.error(e, user: current_user)
+      Rollbar.error(e, user: user)
     end
 
     def send_whistleblower_email(email, report)

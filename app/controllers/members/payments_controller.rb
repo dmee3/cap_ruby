@@ -13,8 +13,6 @@ module Members
     def post_processing
       if params['redirect_status'] == 'succeeded'
         flash[:success] = 'Payment submitted. Thank you! Please wait a moment and refresh to see your dues updated.'
-        ActivityLogger.log_payment(@payment, current_user)
-        EmailService.send_payment_submitted_email(@payment, current_user)
         redirect_to(root_url)
       else
         flash[:error] = 'Payment could not be submitted. Please contact a director for further help.'
