@@ -1,9 +1,5 @@
-<div class="row">
-  <div class="col-md-9">
-    <h1>Edit Conflict</h1>
-  </div>
-  <div class="col-md-3 text-right-md">
-    <%= link_to 'All Conflicts', admin_conflicts_path, class: 'btn btn-light align-middle' %>
-  </div>
+<div class="flex flex-col">
+  <h1>Edit Conflict</h1>
+
+  <%= render 'admin/conflicts/form', conflict: @conflict, url: admin_conflict_path(@conflict) %>
 </div>
-<%= render 'admin/conflicts/form', conflict: @conflict, url: admin_conflict_path(@conflict) %>

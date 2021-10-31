@@ -6,7 +6,7 @@ import Badge from '../../../react/components/Badge'
 
 import Utilities from '../../../utilities/utilities'
 import addFlash from '../../../utilities/flashes'
-import ConflictCalendar from '../../../react/widgets/ConflictCalendar'
+import ConflictCalendar from '../../../react/widgets/admin/ConflictCalendar'
 import InputToggle from '../../../react/components/inputs/InputToggle'
 
 const AdminConflicts = () => {

@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React, { useEffect, useState } from 'react'
 import { forwardRef } from 'react'
 
 type InputTextProps = {
@@ -7,7 +7,7 @@ type InputTextProps = {
   id?: string,
   name: string,
   placeholder?: string,
-  value?: string
+  value?: string,
 }
 
 const InputText = forwardRef<HTMLInputElement, InputTextProps>(
@@ -18,11 +18,14 @@ const InputText = forwardRef<HTMLInputElement, InputTextProps>(
       id,
       name,
       placeholder,
-      value = ''
+      value = '',
     }: InputTextProps,
     ref
   ) => {
-  const [internalValue, setValue] = React.useState(value)
+  const [internalValue, setInternalValue] = useState(value)
+  useEffect(() => {
+    setInternalValue(value)
+  }, [value])
 
   return (
     <input
@@ -35,7 +38,7 @@ const InputText = forwardRef<HTMLInputElement, InputTextProps>(
       id={id}
       ref={ref}
       value={internalValue}
-      onChange={e => setValue(e.target.value)}
+      onChange={e => setInternalValue(e.target.value)}
     />
   )
 })

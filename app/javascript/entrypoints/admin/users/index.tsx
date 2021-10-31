@@ -2,7 +2,7 @@ import React from 'react'
 import { render } from 'react-dom'
 import { PlusSmIcon } from '@heroicons/react/outline'
 
-import UserTable from '../../../react/widgets/UserTable'
+import UserTable from '../../../react/widgets/admin/UserTable'
 
 const AdminUsers = () => {
   render(

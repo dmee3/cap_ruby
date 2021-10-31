@@ -8,11 +8,7 @@ module Admin
       @user = User.find(params[:id])
     end
 
-    def new
-      @seasons = Season.all.order(:year)
-      @user = User.new
-      @seasons.each { |s| @user.seasons_users.build(season_id: s.id) }
-    end
+    def new; end
 
     def create
       @user = User.new(user_params)

@@ -3,7 +3,7 @@ import '@fullcalendar/react/dist/vdom' // solves problem with Vite
 import FullCalendar from '@fullcalendar/react' // must go before plugins
 import dayGridPlugin from '@fullcalendar/daygrid'
 import listPlugin from '@fullcalendar/list'
-import statusColor from '../../utilities/status_color'
+import statusColor from '../../../utilities/status_color'
 
 type ConflictCalendarProps = {
 }

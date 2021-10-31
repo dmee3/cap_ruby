@@ -1,17 +1,18 @@
-import * as React from 'react'
-import { useState } from 'react'
-import InputSelect from '../components/inputs/InputSelect'
-import InputToggle from '../components/inputs/InputToggle'
+import React, { useEffect, useState } from 'react'
+import InputSelect from '../../components/inputs/InputSelect'
+import InputToggle from '../../components/inputs/InputToggle'
 
 type UserRoleRowProps = {
   season: {
     id: number,
     year: string
-  }
+  },
+  userSeason: any
 }
 
 const UserRoleRow = ({
-  season
+  season,
+  userSeason
 }: UserRoleRowProps) => {
   const [checked, setChecked] = useState(false)
   const [destroy, setDestroy] = useState(checked ? '0' : '1')
@@ -21,6 +22,20 @@ const UserRoleRow = ({
   const [role, setRole] = useState('')
   const [ensemble, setEnsemble] = useState('')
   const [section, setSection] = useState('')
+
+  useEffect(() => {
+    if (!(userSeason.length > 0)) {
+      return
+    }
+    const details = userSeason[0]
+    setChecked(true)
+    setRoleDisabled(false)
+    setRole(details.role)
+    setEnsembleDisabled(false)
+    setEnsemble(details.ensemble)
+    setSectionDisabled(false)
+    setSection(details.section)
+  }, [userSeason])
 
   const handleToggle = (newValue) => {
     setChecked(newValue)
@@ -92,7 +107,7 @@ const UserRoleRow = ({
           disabled={sectionDisabled}
           name={`user[seasons_users_attributes][][section]`}
           onChange={handleSectionChange}
-          options={['Snares', 'Tenors', 'Basses', 'Cymbals', 'Woods', 'Metals', 'Electronics', 'Auxiliary', 'Visual']}
+          options={['Snares', 'Tenors', 'Bass', 'Cymbals', 'Woods', 'Metals', 'Electronics', 'Auxiliary', 'Visual']}
           prompt="None"
           value={section}
         />

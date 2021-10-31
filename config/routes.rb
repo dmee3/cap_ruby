@@ -15,7 +15,7 @@ Rails.application.routes.draw do
       resources :conflicts, only: %i[index update]
       resources :payments, only: %i[index]
       get 'payments/upcoming', to: 'payments#upcoming'
-      resources :users, only: %i[index]
+      resources :users, only: %i[index show]
       resources :seasons, only: %i[index]
     end
 

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
-import UserRoleRow from '../../../react/widgets/UserRoleRow'
+import UserForm from '../../../react/widgets/admin/UserForm'
 
 const AdminUsersEdit = () => {
   const [seasons, setSeasons] = useState([])
+  const [user, setUser] = useState({})
 
   useEffect(() => {
     fetch('/api/admin/seasons')
@@ -13,40 +14,32 @@ const AdminUsersEdit = () => {
         }
         throw resp
       })
-      .then(data => {
-        setSeasons(data)
+      .then(data => setSeasons(data))
+      .catch(error => console.error(error))
+
+    fetch(`/api/admin/users/${window.userId}`)
+      .then(resp => {
+        if (resp.ok) {
+          return resp.json()
+        }
+        throw resp
       })
-      .catch(error => {
-        console.error(error)
-      })
+      .then(data => setUser(data))
+      .catch(error => console.error(error))
   }, [])
 
   return(
-    <table className="min-w-full divide-y divide-gray-500">
-      <thead>
-        <tr>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Seasons
-          </th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Role
-          </th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Ensemble
-          </th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Section
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {seasons.map(season => <UserRoleRow key={season.id} season={season} />)}
-      </tbody>
-    </table>
+    <div className="flex flex-col">
+      <h1>Edit {user.first_name}</h1>
+      <UserForm
+        user={user}
+        seasons={seasons}
+      />
+    </div>
   )
 }
 
 ReactDOM.render(
   <AdminUsersEdit />,
-  document.getElementById('roles-section')
+  document.getElementById('root')
 )

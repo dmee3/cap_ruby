@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react'
-import Utilities from '../../utilities/utilities'
+import React, { useState, useEffect } from 'react'
+import Utilities from '../../../utilities/utilities'
 
-import Badge from '../components/Badge'
+import Badge from '../../components/Badge'
 
 type UpcomingPaymentProps = {
 }

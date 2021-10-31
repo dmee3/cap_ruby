@@ -2,7 +2,7 @@ import React from 'react'
 import { render } from 'react-dom'
 import { PlusSmIcon } from '@heroicons/react/outline'
 
-import PaymentsTable from '../../../react/widgets/PaymentsTable'
+import PaymentsTable from '../../../react/widgets/admin/PaymentsTable'
 
 const AdminPayments = () => {
   render(
