@@ -63,7 +63,7 @@
     <div class="p-5 rounded-lg border border-green-500 flex flex-col lg:col-span-2 justify-self-stretch items-stretch">
       <span class="text-sm font-medium text-green-500">PAYMENT SCHEDULE</span>
       <ul class="divide-y divide-gray-300">
-        <% @payment_schedule.entries.each do |entry| %>
+        <% @entries.each do |entry| %>
           <li class="flex justify-between py-2">
             <span><%= number_to_currency(entry.amount / 100.0) %></span>
             <span class="text-secondary"><%= entry.pay_date.strftime('%a, %-m/%-d') %></span>
