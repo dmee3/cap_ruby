@@ -60,6 +60,7 @@ const FilesListItem = ({
         <div className={`ml-6 ${expanded ? 'block' : 'hidden'}`}>
           <FilesList
             folderId={id}
+            expanded={expanded}
           />
         </div>
       </>

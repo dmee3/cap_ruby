@@ -177,7 +177,6 @@ TOTAL_MEMBERS.times do |i|
 
       # Add section
       su = user.seasons_users.find_by_season_id(details[:season].id)
-      byebug if su.nil?
       su.section = SECTIONS.sample
       su.ensemble = ENSEMBLES.sample
       su.role = 'member'

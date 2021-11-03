@@ -1,14 +1,16 @@
 <div id="flash-bar" class="flash-bar">
-  <% flash.each do |type, message| %>
-    <% if message.length > 0 %>
-      <div class="flash <%= flash_color(type) %>">
-        <span class="block flex-1">
-          <%= message %>
-        </span>
-        <svg xmlns="http://www.w3.org/2000/svg" class="flash-close cursor-pointer h-6 w-6 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </div>
+  <% flash.each do |type, messages| %>
+  <% Array.wrap(messages).each do |message| %>
+      <% if message.length > 0 %>
+        <div class="flash <%= flash_color(type) %>">
+          <span class="block flex-1">
+            <%= message %>
+          </span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="flash-close cursor-pointer h-6 w-6 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </div>
+      <% end %>
     <% end %>
   <% end %>
 </div>

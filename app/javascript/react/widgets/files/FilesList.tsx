@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react'
 import FilesListItem from './FilesListItem'
 
 type FilesListProps = {
-  folderId?: string
+  folderId?: string,
+  expanded: boolean,
 }
 
 const FilesList = ({
-  folderId
+  folderId,
+  expanded
 }: FilesListProps) => {
   const [files, setFiles] = useState([])
   const [loading, setLoading] = useState(true)
@@ -24,6 +26,8 @@ const FilesList = ({
   }
 
   useEffect(() => {
+    if (!expanded || files.length > 0) { return }
+
     fetch(`/api/files/${folderId || ''}`)
       .then(resp => {
         if (resp.ok) {
@@ -42,7 +46,7 @@ const FilesList = ({
       .catch(error => {
         console.error(error)
       })
-  }, [])
+  }, [expanded])
 
   return (
     <>

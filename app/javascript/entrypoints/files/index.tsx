@@ -6,7 +6,9 @@ const Files = () => {
   render(
     <div className="flex flex-col">
       <h1>Files</h1>
-      <FilesList />
+      <FilesList
+        expanded={true}
+      />
     </div>,
     document.getElementById('files')
   )
