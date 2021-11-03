@@ -23,7 +23,7 @@ module Members
         redirect_to(root_url)
       else
         Rollbar.info('Conflict could not be submitted.', errors: @conflict.errors.full_messages)
-        flash[:error] = 'Conflict could not be submitted.  Please contact a director for help.'
+        flash[:error] = @conflict.errors.full_messages.map { |m| "Error submitting conflict: #{m}" }
         redirect_to('/members/conflicts/new')
       end
     end

@@ -39,7 +39,7 @@ module Admin
 
         ps = m.payment_schedule_for(current_season['id'])
         flash.now[:error] ||= []
-        flash.now[:error] << "Member found with blank payment schedule: <a href='#{admin_payment_schedule_edit_path(ps.id)}'> #{m.full_name}</a>"
+        flash.now[:error] << "Member found with blank payment schedule: #{m.full_name}"
       end
     end
   end
