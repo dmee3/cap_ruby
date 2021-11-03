@@ -13,8 +13,8 @@ module Admin
     def create
       @user = User.new(user_params)
       if @user.save
+        PaymentScheduleService.ensure_payment_schedules_for_user(@user)
         @user.welcome
-
         flash[:success] = "#{@user.first_name} created"
         redirect_to('/admin/users')
       else
@@ -30,8 +30,8 @@ module Admin
 
     def update
       @user = User.find(params[:id])
-      if @user.update(user_params.reject { |_k, v| v.blank? }) # only update non-empty fields
-        @user.initiate_password_reset if params['reset_password']
+      if @user.update(user_params)
+        PaymentScheduleService.ensure_payment_schedules_for_user(@user)
         flash[:success] = "#{@user.first_name} updated"
         redirect_to('/admin/users')
       else
@@ -59,7 +59,7 @@ module Admin
         :password_confirmation,
         :phone,
         :username,
-        seasons_users_attributes: []
+        seasons_users_attributes: [:id, :_destroy, :season_id, :role, :ensemble, :section]
       )
     end
   end

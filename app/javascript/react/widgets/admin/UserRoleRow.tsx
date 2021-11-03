@@ -22,6 +22,7 @@ const UserRoleRow = ({
   const [role, setRole] = useState('')
   const [ensemble, setEnsemble] = useState('')
   const [section, setSection] = useState('')
+  const [userSeasonId, setUserSeasonId] = useState(null)
 
   useEffect(() => {
     if (!(userSeason.length > 0)) {
@@ -29,12 +30,18 @@ const UserRoleRow = ({
     }
     const details = userSeason[0]
     setChecked(true)
+    setDestroy('0')
+    setUserSeasonId(details.id)
+
     setRoleDisabled(false)
     setRole(details.role)
+
     setEnsembleDisabled(false)
-    setEnsemble(details.ensemble)
     setSectionDisabled(false)
-    setSection(details.section)
+    if (details.role === 'member') {
+      setEnsemble(details.ensemble)
+      setSection(details.section)
+    }
   }, [userSeason])
 
   const handleToggle = (newValue) => {
@@ -79,8 +86,11 @@ const UserRoleRow = ({
           onChange={handleToggle}
           text={season.year}
         />
-        <input type="hidden" name="season_id" value={season.id} />
-        <input type="hidden" name="_destroy" value={destroy} />
+        {userSeasonId && <input type="hidden" name="user[seasons_users_attributes][][id]" value={userSeasonId} />}
+        <input type="hidden" name="user[seasons_users_attributes][][season_id]" value={season.id} />
+        {destroy === '1' && (
+          <input type="hidden" name="user[seasons_users_attributes][][_destroy]" value={destroy} />
+        )}
       </td>
       <td className="text-sm px-6 py-3">
         <InputSelect

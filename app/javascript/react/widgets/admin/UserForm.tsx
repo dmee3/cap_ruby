@@ -23,7 +23,7 @@ const UserForm = ({
 
   useEffect(() => {
     setInternalUser(user)
-    if (user) {
+    if (user.id) {
       setFormUrl(`/admin/users/${user.id}`)
       setFormPut(true)
     }
@@ -31,7 +31,7 @@ const UserForm = ({
 
   return (
     <form action={formUrl} method="post">
-      {formPut && <input type="hidden" name="_method" value="patch" />}
+      {formPut && <input type="hidden" name="_method" value="put" />}
       <input type='hidden' name='authenticity_token' value={csrfToken} />
       <h2>Basic Info</h2>
       <div className="grid grid-cols-5 gap-x-6 gap-y-4">
