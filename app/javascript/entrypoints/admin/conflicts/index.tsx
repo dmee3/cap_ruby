@@ -119,65 +119,67 @@ const AdminConflicts = () => {
           </a>
         </div>
       </div>
-      <div>
-        <h2>Pending</h2>
-        <ul className="divide-y divide-gray-300">
-          {pendingConflicts.map(conflict => {
-            return <li key={conflict.id} className="flex flex-col space-y-2 p-4 hover:bg-gray-100 cursor-pointer">
-              <div className="flex flex-row space-x-2 items-start">
-                <div className="flex flex-1 flex-col">
-                  <span className="font-medium">{conflict.title}</span>
-                  <span className="text-sm font-light">{Utilities.displayDateTimeReadable(conflict.start)} to {Utilities.displayDateTimeReadable(conflict.end)}</span>
-                  <span className="text-sm text-secondary">{conflict.reason}</span>
+      {pendingConflicts.length > 0 && (
+        <>
+          <h2>Pending</h2>
+          <ul className="divide-y divide-gray-300">
+            {pendingConflicts.map(conflict => {
+              return <li key={conflict.id} className="flex flex-col space-y-2 p-4 hover:bg-gray-100 cursor-pointer">
+                <div className="flex flex-row space-x-2 items-start">
+                  <div className="flex flex-1 flex-col">
+                    <span className="font-medium">{conflict.title}</span>
+                    <span className="text-sm font-light">{Utilities.displayDateTimeReadable(conflict.start)} to {Utilities.displayDateTimeReadable(conflict.end)}</span>
+                    <span className="text-sm text-secondary">{conflict.reason}</span>
+                  </div>
+                  <Badge
+                    text={conflict.status.name}
+                    color={statusToColor(conflict.status.name)}
+                  />
                 </div>
-                <Badge
-                  text={conflict.status.name}
-                  color={statusToColor(conflict.status.name)}
-                />
-              </div>
-              <div className="flex justify-end space-x-2">
-                <button className="btn-green btn-md" onClick={() => approveConflict(conflict.id)}>
-                  <CheckIcon className="h-6 w-6" />
-                </button>
+                <div className="flex justify-end space-x-2">
+                  <button className="btn-green btn-md" onClick={() => approveConflict(conflict.id)}>
+                    <CheckIcon className="h-6 w-6" />
+                  </button>
 
-                <button className="btn-red btn-md" onClick={() => denyConflict(conflict.id)}>
-                  <XIcon className="h-6 w-6" />
-                </button>
-              </div>
-            </li>
-          })}
-        </ul>
-      </div>
-      <div>
-        <div className="flex flex-row items-center justify-between mt-6 mb-2">
-          <h2 className="my-0">Upcoming</h2>
-          <div className="pr-4">
-            <InputToggle
-              checked={showPast}
-              id={'show-past-conflicts'}
-              name={'show-past-conflicts'}
-              onChange={() => togglePast(!showPast)}
-              text={'Show Past'}
-            />
-          </div>
-        </div>
-        <ul className="divide-y divide-gray-300">
-          {displayedConflicts.map(conflict => {
-            return <li key={conflict.id} className="flex flex-row space-x-2 p-4 items-start hover:bg-gray-100 cursor-pointer">
-              <div className="flex flex-1 flex-col">
-                <span className="font-medium">{conflict.title}</span>
-                <span className="text-sm font-light">{Utilities.displayDateTimeReadable(conflict.start)} to {Utilities.displayDateTimeReadable(conflict.end)}</span>
-                <span className="text-sm text-secondary">{conflict.reason}</span>
-              </div>
-              <Badge
-                text={conflict.status.name}
-                color={statusToColor(conflict.status.name)}
-              />
-            </li>
-          })}
-        </ul>
-      </div>
+                  <button className="btn-red btn-md" onClick={() => denyConflict(conflict.id)}>
+                    <XIcon className="h-6 w-6" />
+                  </button>
+                </div>
+              </li>
+            })}
+          </ul>
+        </>
+      )}
+
       <ConflictCalendar />
+
+      <div className="flex flex-row items-center justify-between mt-6 mb-2">
+        <h2 className="my-0">All Upcoming</h2>
+        <div className="pr-4">
+          <InputToggle
+            checked={showPast}
+            id={'show-past-conflicts'}
+            name={'show-past-conflicts'}
+            onChange={() => togglePast(!showPast)}
+            text={'Show Past'}
+          />
+        </div>
+      </div>
+      <ul className="divide-y divide-gray-300">
+        {displayedConflicts.map(conflict => {
+          return <li key={conflict.id} className="flex flex-row space-x-2 p-4 items-start hover:bg-gray-100 cursor-pointer">
+            <div className="flex flex-1 flex-col">
+              <span className="font-medium">{conflict.title}</span>
+              <span className="text-sm font-light">{Utilities.displayDateTimeReadable(conflict.start)} to {Utilities.displayDateTimeReadable(conflict.end)}</span>
+              <span className="text-sm text-secondary">{conflict.reason}</span>
+            </div>
+            <Badge
+              text={conflict.status.name}
+              color={statusToColor(conflict.status.name)}
+            />
+          </li>
+        })}
+      </ul>
     </div>
   )
 }

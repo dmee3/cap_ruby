@@ -6,6 +6,7 @@ module Members
 
     def new
       # Comment out to enable conflict submission
+      # flash[:error] = "Conflict submission is currently diabled"
       # redirect_to(root_url)
       # return
 

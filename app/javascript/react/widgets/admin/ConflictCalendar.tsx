@@ -21,15 +21,17 @@ const ConflictCalendar = ({
         throw resp
       })
       .then(data => {
-        data = data.map(c => {
-          const color = statusColor(c.status.name)
-          c.backgroundColor = color
-          c.borderColor = color
-          c.url = `/admin/conflicts/${c.id}/edit`
-          c.extendedProps = { reason: c.reason }
-          return c
-        })
-        setConflicts(data)
+        setConflicts(data
+          .filter(c => c.status.name !== 'Denied' && c.status.name !== 'Resolved')
+          .map(c => {
+            const color = statusColor(c.status.name)
+            c.backgroundColor = color
+            c.borderColor = color
+            c.url = `/admin/conflicts/${c.id}/edit`
+            c.extendedProps = { reason: c.reason }
+            return c
+          })
+        )
       })
       .catch(error => {
         console.error(error)
