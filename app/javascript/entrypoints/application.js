@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const mobileNavBtn = document.querySelector('#mobile-menu-btn')
   if (mobileNavBtn) {
     mobileNavBtn.addEventListener('click', () => {
-      document.querySelector('#sidebar').classList.toggle('-translate-x-full')
+      document.getElementById('sidebar').classList.toggle('-translate-x-full')
     })
   }
 
@@ -27,9 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Season changing
-  const seasonTrigger = document.querySelector('#season-dropdown-trigger')
+  const seasonTrigger = document.getElementById('season-dropdown-trigger')
   if (seasonTrigger) {
-    const seasonDropdown = document.querySelector('#season-dropdown-menu')
+    const seasonDropdown = document.getElementById('season-dropdown-menu')
     seasonTrigger.addEventListener('click', () => { seasonDropdown.classList.remove('hidden') })
     document.addEventListener('click', (e) => {
       if (!seasonTrigger.contains(e.target)) {
@@ -37,9 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     })
   }
-  const mobileSeasonTrigger = document.querySelector('#mobile-season-dropdown-trigger')
+  const mobileSeasonTrigger = document.getElementById('mobile-season-dropdown-trigger')
   if (mobileSeasonTrigger) {
-    const mobileSeasonDropdown = document.querySelector('#mobile-season-dropdown-menu')
+    const mobileSeasonDropdown = document.getElementById('mobile-season-dropdown-menu')
     mobileSeasonTrigger.addEventListener('click', () => { mobileSeasonDropdown.classList.remove('hidden') })
     document.addEventListener('click', (e) => {
       if (!mobileSeasonTrigger.contains(e.target)) {

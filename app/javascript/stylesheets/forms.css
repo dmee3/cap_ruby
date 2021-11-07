@@ -1,3 +1,7 @@
+/*
+ * Default form elements
+ */
+
 .input-label {
   @apply
     block
@@ -67,6 +71,85 @@
   ;
 }
 
+/*
+ * Custom form elements
+ */
+
+/* Season Dropdown */
+.dropdown {
+  @apply
+    flex
+    flex-row
+    w-full
+    pl-2
+    h-8
+    py-0
+    text-sm
+    text-gray-900
+    dark:text-white
+    rounded-md
+    bg-gray-100
+    dark:bg-gray-900
+    border-transparent
+    focus:bg-white
+    dark:focus:bg-gray-900
+    focus:ring-0
+    cursor-pointer
+  ;
+}
+
+.dropdown-menu {
+  @apply
+    absolute
+    z-50
+    mt-2
+    rounded-md
+    shadow-lg
+    px-2
+    py-1
+    bg-white
+    dark:bg-gray-800
+    text-gray-900
+    dark:text-white
+    ring-1
+    ring-black
+    ring-opacity-5
+    focus:outline-none
+  ;
+}
+
+.dropdown-menu-form-background {
+  @apply
+    block
+    p-2
+    -mx-2
+    text-sm
+    hover:bg-gray-300
+    dark:hover:bg-gray-600
+    cursor-pointer
+  ;
+}
+
+.dropdown-menu-form-item {
+  @apply
+    cursor-pointer
+    bg-transparent
+  ;
+}
+
+.dropdown-menu-link-item {
+  @apply
+    block
+    p-2
+    -mx-2
+    text-sm
+    hover:bg-gray-300
+    dark:hover:bg-gray-600
+    cursor-pointer
+  ;
+}
+
+ /* Input Toggle */
 .input-toggle-wrapper {
   @apply
     flex
