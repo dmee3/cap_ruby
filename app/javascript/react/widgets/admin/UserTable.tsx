@@ -75,7 +75,7 @@ const UserTable = ({
           onChange={evt => filterList(evt.target.value)}
         />
       </div>
-      <table className="min-w-full divide-y divide-gray-500">
+      <table className="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
         <thead>
           <tr>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -89,9 +89,9 @@ const UserTable = ({
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-300 text-sm">
+        <tbody className="divide-y divide-gray-300 dark:divide-gray-600 text-sm">
           {displayedList.map(member => {
-            return <tr key={member.id} className="hover:bg-gray-100 cursor-pointer" onClick={() => handleMemberClick(member.id)}>
+            return <tr key={member.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer" onClick={() => handleMemberClick(member.id)}>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex flex-col">
                   <span className="font-medium">

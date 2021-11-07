@@ -122,9 +122,9 @@ const AdminConflicts = () => {
       {pendingConflicts.length > 0 && (
         <>
           <h2>Pending</h2>
-          <ul className="divide-y divide-gray-300">
+          <ul className="divide-y divide-gray-300 dark:divide-gray-600">
             {pendingConflicts.map(conflict => {
-              return <li key={conflict.id} className="flex flex-col space-y-2 p-4 hover:bg-gray-100 cursor-pointer">
+              return <li key={conflict.id} className="flex flex-col space-y-2 p-4 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
                 <div className="flex flex-row space-x-2 items-start">
                   <div className="flex flex-1 flex-col">
                     <span className="font-medium">{conflict.title}</span>
@@ -151,10 +151,11 @@ const AdminConflicts = () => {
         </>
       )}
 
+      <h2 className="mt-6">Calendar</h2>
       <ConflictCalendar />
 
       <div className="flex flex-row items-center justify-between mt-6 mb-2">
-        <h2 className="my-0">All Upcoming</h2>
+        <h2 className="my-0">All</h2>
         <div className="pr-4">
           <InputToggle
             checked={showPast}
@@ -165,9 +166,9 @@ const AdminConflicts = () => {
           />
         </div>
       </div>
-      <ul className="divide-y divide-gray-300">
+      <ul className="divide-y divide-gray-300 dark:divide-gray-600">
         {displayedConflicts.map(conflict => {
-          return <li key={conflict.id} className="flex flex-row space-x-2 p-4 items-start hover:bg-gray-100 cursor-pointer">
+          return <li key={conflict.id} className="flex flex-row space-x-2 p-4 items-start hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
             <div className="flex flex-1 flex-col">
               <span className="font-medium">{conflict.title}</span>
               <span className="text-sm font-light">{Utilities.displayDateTimeReadable(conflict.start)} to {Utilities.displayDateTimeReadable(conflict.end)}</span>

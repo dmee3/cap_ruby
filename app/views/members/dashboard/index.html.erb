@@ -62,7 +62,7 @@
     <!-- PAYMENT SCHEDULE -->
     <div class="card-flat border-green-500 flex flex-col lg:col-span-2 justify-self-stretch items-stretch">
       <span class="card-title text-green-500">PAYMENT SCHEDULE</span>
-      <ul class="divide-y divide-gray-300">
+      <ul class="divide-y divide-gray-300 dark:divide-gray-600">
         <% @entries.each do |entry| %>
           <li class="flex justify-between py-2">
             <span><%= number_to_currency(entry.amount / 100.0) %></span>
@@ -94,7 +94,7 @@
       <div class="flex flex-col">
         <div class="card-title text-red-500">CONFLICTS</div>
         <% if @conflicts.present? %>
-          <ul class="divide-y divide-gray-300">
+          <ul class="divide-y divide-gray-300 dark:divide-gray-600">
             <% @conflicts.for_season(current_season['id']).each do |c| %>
               <li class="flex flex-col py-2">
                 <div class="flex justify-between items-center">

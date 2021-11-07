@@ -58,7 +58,7 @@ const UpcomingPayment = ({
   return (
     <div className="p-5 shadow-md green-gradient row-span-2">
       <div className="flex flex-col">
-        <span className="font-medium text-green-200">UPCOMING PAYMENTS</span>
+        <span className="card-title text-green-200">UPCOMING PAYMENTS</span>
         <span className="text-3xl text-white font-extrabold font-mono">
           {Utilities.formatMoney(total)}
         </span>
