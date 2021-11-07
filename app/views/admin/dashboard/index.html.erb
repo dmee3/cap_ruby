@@ -4,9 +4,9 @@
 
   <!-- DUES EXPECTED / NEXT EVENT -->
   <div class="order-1 h-48 md:h-96 xl:h-48 flex flex-col">
-    <%= link_to admin_payments_path, class: 'p-5 flex-grow rounded-lg border border-gray-300 group hover:shadow-md hover:border-transparent hover:bg-gradient-to-br hover:from-green-500 hover:to-green-700 flex flex-col sm:flex-row md:flex-col justify-between place-content-stretch transition' do %>
+    <%= link_to admin_payments_path, class: 'card-flat flex-grow border-gray-300 group hover:shadow-md hover:border-transparent hover:bg-gradient-to-br hover:from-green-500 hover:to-green-700 flex flex-col sm:flex-row md:flex-col justify-between place-content-stretch transition' do %>
       <div class="flex flex-col md:h-1/2 justify-center">
-        <span class="font-medium text-gray-500 group-hover:text-green-200 transition">
+        <span class="card-title text-gray-500 group-hover:text-green-200 transition">
           DUES OWED
         </span>
         <span class="text-3xl group-hover:text-white font-extrabold font-mono transition">
@@ -14,7 +14,7 @@
         </span>
       </div>
       <div class="flex flex-col md:h-1/2 justify-center">
-        <span class="font-medium text-gray-500 group-hover:text-green-200 transition">
+        <span class="card-title text-gray-500 group-hover:text-green-200 transition">
           DUES COLLECTED
         </span>
         <span class="text-3xl group-hover:text-white font-extrabold font-mono transition">
@@ -23,8 +23,8 @@
       </div>
     <% end %>
 
-    <div class="p-5 mt-4 rounded-lg shadow-md bg-gradient-to-br from-gray-500 to-gray-700 group hidden md:block lg:block xl:hidden">
-      <div class="font-medium text-gray-300">NEXT EVENT</div>
+    <div class="card mt-4 gray-gradient group hidden md:block lg:block xl:hidden">
+      <div class="card-title text-gray-300">NEXT EVENT</div>
       <div class="flex flex-col">
         <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
         <div class="text-gray-300 text-sm font-medium">
@@ -41,22 +41,22 @@
 
   <!-- BEHIND MEMBERS -->
   <div class="order-2 md:order-3 lg:order-2 col-span-1 md:col-span-2 lg:col-span-1 xl:col-span-2 max-h-96 xl:max-h-48 flex flex-col">
-    <div class="p-5 rounded-lg border border-gray-300 overflow-scroll flex-grow">
-      <span class="font-medium text-gray-500">BEHIND MEMBERS</span>
-      <ul class="divide-y divide-gray-100">
+    <div class="card-flat border-gray-300 overflow-scroll flex-grow">
+      <span class="card-title text-gray-500">BEHIND MEMBERS</span>
+      <ul class="divide-y divide-gray-300 dark:divide-gray-600">
         <% @behind_members.each do |member| %>
           <li>
-            <%= link_to admin_user_path(member), class: 'px-5 py-4 -mx-5 flex justify-between group hover:bg-red-100' do %>
+            <%= link_to admin_user_path(member), class: 'px-5 py-4 -mx-5 flex justify-between group hover:bg-gray-300 dark:hover:bg-gray-600' do %>
               <div class="flex flex-col">
                 <span class="mb-0.5"><%= member[:name] %></span>
                 <% if member[:last_payment] %>
-                  <span class="text-sm font-medium text-gray-500 group-hover:text-red-400 hidden xl:inline">
+                  <span class="text-sm font-medium text-gray-500 hidden xl:inline">
                     Last paid <%= number_to_currency(member[:last_payment].amount / 100.0) %> on <%= member[:last_payment].date_paid.strftime('%a, %-m/%-d') %>
                   </span>
                 <% end %>
               </div>
               <div>
-                <span class="bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-red-100 rounded-full text-sm font-medium px-3 py-1">-<%= number_to_currency(member[:behind] / 100.0) %></span>
+                <span class="bg-red-100 text-red-600 rounded-full text-sm font-medium px-3 py-1">-<%= number_to_currency(member[:behind] / 100.0) %></span>
               </div>
             <% end %>
           </li>
@@ -67,8 +67,8 @@
   
 
   <!-- NEXT EVENT -->
-  <div class="p-5 rounded-lg order-3 shadow-md bg-gradient-to-br from-gray-500 to-gray-700 group hidden xl:block">
-    <div class="font-medium text-gray-300">NEXT EVENT</div>
+  <div class="card order-3 gray-gradient hidden xl:block">
+    <div class="card-title text-gray-300">NEXT EVENT</div>
     <div class="flex flex-col">
       <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
       <div class="text-gray-300 text-sm font-medium">
@@ -90,7 +90,9 @@
 
   <!-- UPCOMING CONFLICTS -->
   <div class="order-5 row-span-2 col-span-1 md:col-span-2 lg:col-span-3">
-    <div id="upcoming-conflicts" class="p-5 rounded-lg border border-gray-300">
+    <div class="card-flat border-gray-300">
+      <span class="card-title text-gray-500">UPCOMING CONFLICTS</span>
+      <div id="upcoming-conflicts"></div>
     </div>
   </div>
 </div>

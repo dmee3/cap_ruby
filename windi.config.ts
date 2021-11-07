@@ -4,7 +4,7 @@ import plugin from 'windicss/plugin'
 import forms from 'windicss/plugin/forms'
 
 export default defineConfig({
-  darkMode: false, // or 'media' or 'class'
+  darkMode: 'media', // or true/false or 'class'
   theme: {
     extend: {
       transitionDuration: {

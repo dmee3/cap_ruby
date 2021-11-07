@@ -40,7 +40,6 @@ const ConflictCalendar = ({
 
   return (
     <>
-      <span className="font-medium text-gray-500">UPCOMING CONFLICTS</span>
       <FullCalendar
         events={conflicts}
         headerToolbar={{

@@ -82,7 +82,7 @@ const InventoryListItem = ({
         />
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-right font-medium">
-        <a href={`/inventory/categories/${categoryId}/items/${item.id}`} className="text-gray-500 hover:text-gray-900 transition">History</a>
+        <a href={`/inventory/categories/${categoryId}/items/${item.id}`} className="link">History</a>
       </td>
     </tr>
   )

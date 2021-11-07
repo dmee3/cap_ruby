@@ -3,9 +3,9 @@
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
   <div class="order-1 block md:hidden">
-    <div class="p-5 rounded-lg shadow-md bg-gradient-to-br from-gray-500 to-gray-700">
+    <div class="card gray-gradient">
       <div class="flex flex-col">
-        <div class="text-sm font-medium text-gray-300">NEXT EVENT</div>
+        <div class="card-title text-gray-300">NEXT EVENT</div>
         <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
         <div class="text-gray-300 text-sm font-medium">
           <% if @next_event[:start_date].day == @next_event[:end_date].day %>
@@ -20,9 +20,9 @@
 
   <div class="order-2 md:order-1 grid grid-cols-1 lg:grid-cols-5 lg:col-span-2 gap-4">
     <!-- PAYMENTS -->
-    <div class="p-5 rounded-lg shadow-md bg-gradient-to-br from-green-500 to-green-700 lg:col-span-3">
+    <div class="card green-gradient lg:col-span-3">
       <div class="flex flex-col">
-        <span class="text-sm font-medium text-green-200">DUES</span>
+        <span class="card-title text-green-200">DUES</span>
         <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= number_to_currency(@paid) %>/<%= number_to_currency(@total_dues) %></span>
         <% if @paid >= @total_dues %>
           <span class="text-green-200 text-sm font-medium">You're all done paying. Thanks!</span>
@@ -32,7 +32,7 @@
 
         <% if @payments.present? %>
           <div class="flex flex-col mt-4">
-            <span class="text-sm font-medium text-green-200">PAYMENTS</span>
+            <span class="card-title text-green-200">PAYMENTS</span>
             <ul class="divide-y divide-green-200">
               <% @payments.each do |payment| %>
                 <li class="py-2">
@@ -60,9 +60,9 @@
     </div>
 
     <!-- PAYMENT SCHEDULE -->
-    <div class="p-5 rounded-lg border border-green-500 flex flex-col lg:col-span-2 justify-self-stretch items-stretch">
-      <span class="text-sm font-medium text-green-500">PAYMENT SCHEDULE</span>
-      <ul class="divide-y divide-gray-300">
+    <div class="card-flat border-green-500 flex flex-col lg:col-span-2 justify-self-stretch items-stretch">
+      <span class="card-title text-green-500">PAYMENT SCHEDULE</span>
+      <ul class="divide-y divide-gray-300 dark:divide-gray-600">
         <% @entries.each do |entry| %>
           <li class="flex justify-between py-2">
             <span><%= number_to_currency(entry.amount / 100.0) %></span>
@@ -75,9 +75,9 @@
 
   <div class="flex flex-col order-3 justify-items-stretch grid grid-cols-1 gap-4">
     <!-- NEXT EVENT (md+) -->
-    <div class="hidden md:block p-5 rounded-lg shadow-md bg-gradient-to-br from-gray-500 to-gray-700">
+    <div class="hidden md:block card gray-gradient">
       <div class="flex flex-col">
-        <div class="text-sm font-medium text-gray-300">NEXT EVENT</div>
+        <div class="card-title text-gray-300">NEXT EVENT</div>
         <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
         <div class="text-gray-300 text-sm font-medium">
           <% if @next_event[:start_date].day == @next_event[:end_date].day %>
@@ -90,11 +90,11 @@
     </div>
 
     <!-- CONFLICTS -->
-    <div class="p-5 rounded-lg bg-white border border-red-500">
+    <div class="card-flat border-red-500">
       <div class="flex flex-col">
-        <div class="text-sm font-medium text-red-500">CONFLICTS</div>
+        <div class="card-title text-red-500">CONFLICTS</div>
         <% if @conflicts.present? %>
-          <ul class="divide-y divide-red-200">
+          <ul class="divide-y divide-gray-300 dark:divide-gray-600">
             <% @conflicts.for_season(current_season['id']).each do |c| %>
               <li class="flex flex-col py-2">
                 <div class="flex justify-between items-center">

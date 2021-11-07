@@ -1,6 +1,9 @@
 @import "buttons";
+@import "cards";
 @import "flashes";
 @import "forms";
+@import "gradients";
+@import "sidebar";
 @import "typography";
 
 @import 'flatpickr/dist/flatpickr.css';
@@ -23,4 +26,19 @@ body.bg-sound-wave {
 
 #omni-bar-results .highlighted {
   background-color: #f8f9fa;
+}
+
+#main-content {
+  @apply
+    md:flex-grow
+    rounded-t-2xl
+    md:rounded-tr-none
+    mx-4
+    md:mx-0
+    p-6
+    bg-white
+    dark:bg-gray-900
+    text-gray-900
+    dark:text-white
+  ;
 }

@@ -49,7 +49,7 @@ const FilesListItem = ({
   if (fileType === 'folder') {
     return (
       <>
-        <div className="px-2 py-4 flex flex-col hover:bg-gray-100 transition cursor-pointer" onClick={toggleExpanded}>
+        <div className="px-2 py-4 flex flex-col hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer" onClick={toggleExpanded}>
           <div className="flex justify-start">
             {icon}
             <span className="font-medium ml-2">
@@ -67,7 +67,7 @@ const FilesListItem = ({
     )
   } else {
     return (
-      <a target="_blank" href={`https://drive.google.com/file/d/${id}/view`} className="pl-9 py-4 flex flex-col hover:bg-gray-100 transition">
+      <a target="_blank" href={`https://drive.google.com/file/d/${id}/view`} className="pl-9 py-4 flex flex-col hover:bg-gray-100 dark:hover:bg-gray-800 transition">
         <div className="flex justify-start">
           {icon}
           <span className="font-light ml-2">
