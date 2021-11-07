@@ -48,22 +48,21 @@ const FilesList = ({
       })
   }, [expanded])
 
+  const loadingElement = (
+      <li className="pl-9 py-4 flex flex-col">
+      <div className="flex justify-start">
+        <div className="rounded-full bg-gray-300 dark:bg-gray-600 h-6 w-6 animate-pulse"></div>
+        <div className="ml-2 w-48 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+      </div>
+    </li>
+  )
+
   return (
     <>
       {loading &&
         <ul className="divide-y divide-gray-300">
-          <li className="pl-9 py-4 flex flex-col">
-            <div className="flex justify-start">
-              <div className="rounded-full bg-gray-300 h-6 w-6 animate-pulse"></div>
-              <div className="ml-2 w-48 bg-gray-300 rounded animate-pulse"></div>
-            </div>
-          </li>
-          <li className="pl-9 py-4 flex flex-col">
-            <div className="flex justify-start">
-              <div className="rounded-full bg-gray-300 h-6 w-6 animate-pulse"></div>
-              <div className="ml-2 w-48 bg-gray-300 rounded animate-pulse"></div>
-            </div>
-          </li>
+          {loadingElement}
+          {loadingElement}
         </ul>
       }
       {files.length === 0 && !loading &&

@@ -29,6 +29,8 @@
     disabled:text-gray-500
     w-full
     border-2
+    text-gray-900
+    dark:text-white
   ;
 }
 
@@ -58,16 +60,21 @@
     w-full
     rounded-md
     bg-gray-100
+    dark:bg-gray-800
     border-transparent
     border-2
     disabled:hover:border-transparent
     hover:border-gray-300
+    dark:hover:border-gray-600
     hover:focus:border-ocean
     focus:border-ocean
     focus:bg-white
+    dark:focus:bg-gray-900
     focus:ring-0
     px-3
     py-2
+    text-gray-900
+    dark:text-white
   ;
 }
 

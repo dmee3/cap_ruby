@@ -1,0 +1,22 @@
+.card {
+  @apply
+    p-5
+    rounded-lg
+    shadow-md
+  ;
+}
+
+.card-flat {
+  @apply
+    p-5
+    rounded-lg
+    border
+  ;
+}
+
+.card-title {
+  @apply
+    text-sm
+    font-medium
+  ;
+}
