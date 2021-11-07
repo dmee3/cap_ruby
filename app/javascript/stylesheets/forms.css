@@ -10,12 +10,15 @@
 .input-text {
   @apply
     bg-gray-100
+    dark:bg-gray-800
     block
     border-transparent
     hover:enabled:border-gray-300
+    dark:hover:enabled:border-gray-600
     hover:focus:border-ocean
     focus:border-ocean
     focus:bg-white
+    dark:focus:bg-gray-900
     focus:ring-0
     mt-1
     rounded-md
@@ -28,13 +31,17 @@
 .input-checkbox {
   @apply
     bg-gray-100
+    dark:bg-gray-800
     border-transparent
     border-2
     focus:border-transparent
     focus:ring-2
     focus:ring-offset-2
+    focus:ring-offset-white
+    dark:focus:ring-offset-gray-900
     focus:ring-ocean
     hover:border-gray-300
+    dark:hover:border-gray-600
     rounded
     text-ocean
   ;
