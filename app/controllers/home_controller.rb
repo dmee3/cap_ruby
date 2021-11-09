@@ -10,7 +10,11 @@ class HomeController < ApplicationController
     when 'member'
       redirect_to members_home_path
     else
-      Rollbar.warning('User with unknown role accessed home page.')
+      Rollbar.warning(
+        'User with unknown role accessed home page.',
+        user: current_user,
+        role: current_user_role
+      )
       sign_out current_user
     end
   end
