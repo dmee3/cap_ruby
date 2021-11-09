@@ -117,7 +117,7 @@ const UserRoleRow = ({
           disabled={sectionDisabled}
           name={`user[seasons_users_attributes][][section]`}
           onChange={handleSectionChange}
-          options={['Snares', 'Tenors', 'Bass', 'Cymbals', 'Woods', 'Metals', 'Electronics', 'Auxiliary', 'Visual']}
+          options={['Snare', 'Tenors', 'Bass', 'Cymbals', 'Woods', 'Metals', 'Electronics', 'Auxiliary', 'Visual']}
           prompt="None"
           value={section}
         />
