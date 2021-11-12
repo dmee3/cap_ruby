@@ -14,7 +14,7 @@ const PaymentsTable = ({
   const moneyFormatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-  });
+  })
 
   const fetchPayment = () => {
     useEffect(() => {
@@ -80,7 +80,7 @@ const PaymentsTable = ({
   fetchPayment()
 
   return(
-    <div>
+    <>
       <div className="mb-4">
         <input
           placeholder="Filter by name/section/ensemble"
@@ -164,7 +164,7 @@ const PaymentsTable = ({
           })}
         </tbody>
       </table>
-    </div>
+    </>
   )
 }
 

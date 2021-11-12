@@ -13,6 +13,15 @@ module Api
         render json: @payments
       end
 
+      def latest_venmo
+        @payment = Payment
+          .for_season(current_season['id'])
+          .where(payment_type_id: PaymentType.venmo.id)
+          .order(created_at: :desc)
+          .first
+        render json: @payment, include: [:user]
+      end
+
       private
 
       def start_param
