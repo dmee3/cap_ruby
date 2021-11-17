@@ -2,26 +2,9 @@
 
 module Admin
   class PaymentSchedulesController < AdminController
-    def index
-      @schedules = PaymentSchedule
-                   .includes(:payment_schedule_entries)
-                   .joins(:payment_schedule_entries)
-                   .for_season(current_season['id'])
-      respond_to do |format|
-        format.json { render json: { schedules: @schedules }, include: [:payment_schedule_entries] }
-      end
-    end
-
-    def show
-      @schedule = PaymentSchedule.includes(:payment_schedule_entries)
-                                 .where(id: params[:id])
-                                 .order('payment_schedule_entries.pay_date')
-                                 .first
+    def edit
+      @schedule = PaymentSchedule.find(params[:id])
       @user = User.find(@schedule.user_id)
-      respond_to do |format|
-        format.json { render json: @schedule, include: [:payment_schedule_entries] }
-        format.html {}
-      end
     end
 
     def update
