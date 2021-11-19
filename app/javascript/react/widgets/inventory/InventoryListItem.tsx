@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react'
-import InputText from '../../components/inputs/InputText'
-import InventoryList from './InventoryList'
 import InventoryListItemName from './InventoryListItemName'
 import InventoryListItemQuantity from './InventoryListItemQuantity'
 

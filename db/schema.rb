@@ -87,9 +87,9 @@ ActiveRecord::Schema.define(version: 2021_10_26_034055) do
   create_table "inventory_transactions", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.integer "user_id"
+    t.bigint "user_id"
     t.date "performed_on"
-    t.integer "inventory_item_id"
+    t.bigint "inventory_item_id"
     t.integer "previous_quantity"
     t.integer "change"
     t.index ["inventory_item_id"], name: "index_inventory_transactions_on_inventory_item_id"
