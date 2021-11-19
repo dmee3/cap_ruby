@@ -10,6 +10,7 @@ type InputNumberProps = {
   name: string,
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void,
   placeholder?: string,
+  step?: number,
   value?: number
 }
 
@@ -24,6 +25,7 @@ const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(
       name,
       onChange,
       placeholder,
+      step,
       value = 0
     }: InputNumberProps,
     ref
@@ -45,6 +47,7 @@ const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(
         id={id}
         ref={ref}
         min={min}
+        step={step}
         value={currency ? value.toFixed(2) : value}
         onChange={onChange}
       />

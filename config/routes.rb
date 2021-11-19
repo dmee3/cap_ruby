@@ -15,9 +15,12 @@ Rails.application.routes.draw do
       resources :conflicts, only: %i[index update]
 
       resources :payments, only: %i[index]
-      resources :payment_schedules, only: %i[show]
       get 'payments/upcoming', to: 'payments#upcoming'
       get 'payments/latest_venmo', to: 'payments#latest_venmo'
+
+      resources :payment_schedules, only: %i[show update]
+      delete 'payment_schedules/remove-entry', to: 'payment_schedules#remove_entry'
+      post 'payment_schedules/add-entry', to: 'payment_schedules#add_entry'
 
       resources :users, only: %i[index show]
 
@@ -56,9 +59,7 @@ Rails.application.routes.draw do
 
     resources :users
 
-    delete 'payment_schedules/remove-entry', to: 'payment_schedules#remove_entry'
-    post 'payment_schedules/add-entry', to: 'payment_schedules#add_entry'
-    resources :payment_schedules, except: %i[index new create show destroy]
+    resources :payment_schedules, only: %i[edit]
   end
 
   namespace :members do
