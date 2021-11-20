@@ -26,14 +26,18 @@
     <div class="card mt-4 gray-gradient group hidden md:block lg:block xl:hidden">
       <div class="card-title text-gray-300">NEXT EVENT</div>
       <div class="flex flex-col">
-        <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
-        <div class="text-gray-300 text-sm font-medium">
-          <% if @next_event[:start_date].day == @next_event[:end_date].day %>
-            <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%l:%M%P') %>
-          <% else %>
-            <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%a, %l:%M%P') %>
-          <% end %>
-        </div>
+        <% if @next_event %>
+          <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
+          <div class="text-gray-300 text-sm font-medium">
+            <% if @next_event[:start_date].day == @next_event[:end_date].day %>
+              <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%l:%M%P') %>
+            <% else %>
+              <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%a, %-m/%-d %l:%M%P') %>
+            <% end %>
+          </div>
+        <% else %>
+          <span class="text-3xl text-white font-extrabold font-mono mb-0.5">None</span>
+        <% end %>
       </div>
     </div>
   </div>
@@ -70,14 +74,18 @@
   <div class="card order-3 gray-gradient hidden xl:block">
     <div class="card-title text-gray-300">NEXT EVENT</div>
     <div class="flex flex-col">
-      <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
-      <div class="text-gray-300 text-sm font-medium">
-        <% if @next_event[:start_date].day == @next_event[:end_date].day %>
-          <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%l:%M%P') %>
-        <% else %>
-          <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%a, %l:%M%P') %>
-        <% end %>
-      </div>
+      <% if @next_event %>
+        <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
+        <div class="text-gray-300 text-sm font-medium">
+          <% if @next_event[:start_date].day == @next_event[:end_date].day %>
+            <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%l:%M%P') %>
+          <% else %>
+          <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%a, %-m/%-d %l:%M%P') %>
+          <% end %>
+        </div>
+      <% else %>
+        <span class="text-3xl text-white font-extrabold font-mono mb-0.5">None</span>
+      <% end %>
     </div>
   </div>
 

@@ -3,7 +3,7 @@
 class EventService
   class << self
     def next_event
-      SEASON_EVENTS.select { |e| e[:start_date] >= Date.today }.first
+      SEASON_EVENTS.select { |e| e[:end_date] >= Date.today }.first
     end
   end
 
@@ -47,6 +47,11 @@ class EventService
       name: 'Rehearsal Weekend',
       start_date: DateTime.parse('2021-11-19 7:30 pm'),
       end_date: DateTime.parse('2021-11-21 06:00 pm')
+    },
+    {
+      name: 'Rehearsal Weekend',
+      start_date: DateTime.parse('2021-11-26 7:30 pm'),
+      end_date: DateTime.parse('2021-11-28 06:00 pm')
     }
   ].freeze
 end
