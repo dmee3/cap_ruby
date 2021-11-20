@@ -31,6 +31,10 @@ export default class {
     return new Intl.DateTimeFormat('en-US', format).format(date)
   }
 
+  static dateSorter(dateA: string, dateB: string) {
+    return (new Date(dateA)).getTime() - (new Date(dateB)).getTime()
+  }
+
   static formatMmDdYyyy(d: Date) {
     return `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`
   }

@@ -18,18 +18,6 @@ const PaymentScheduleEditRow = ({
   dateChanged,
   deleteClicked,
 }: PaymentScheduleEditRowProps) => {
-
-  useEffect(() => {
-    flatpickr('.flatpickr', {
-      altInput: true,
-      altFormat: 'F j, Y',
-      altInputClass: 'input-text',
-      dateFormat: 'Y-m-d',
-      disableMobile: true,
-      onChange: (_selectedDates, dateStr, _instance) => dateChanged(entry, dateStr)
-    })
-  }, [])
-
   return(
     <>
       <div className="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
@@ -38,10 +26,11 @@ const PaymentScheduleEditRow = ({
       <div className="col-span-5 sm:col-span-2 -mb-2 sm:mb-0 flex items-center">
         <input
           name={`date_${entry.id}`}
-          className="flatpickr input-select"
+          id={`date_${entry.id}`}
+          className="input-text"
           type="text"
           value={entry.pay_date}
-          readOnly
+          onChange={evt => dateChanged(evt)}
         />
       </div>
       <div className="col-span-5 sm:col-span-2 flex items-center space-x-4">

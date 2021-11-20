@@ -14,22 +14,25 @@ const AdminPaymentSchedulesEdit = () => {
     const indexToChange = entries.findIndex(e => e.id === entry.id)
     const newEntry = { ...entries[indexToChange], amount: newVal }
 
-    setEntries([
+    const newArray = [
       ...entries.slice(0, indexToChange), 
       newEntry,
       ...entries.slice(indexToChange + 1)
-    ])
+    ]
+    setEntries(newArray)
   }
 
-  const handleDateChange = (entry, newDate) => {
+  const handleDateChange = (event, entry) => {
+    const newVal = event.target.value
     const indexToChange = entries.findIndex(e => e.id === entry.id)
-    const newEntry = { ...entries[indexToChange], pay_date: newDate }
+    const newEntry = { ...entries[indexToChange], pay_date: newVal }
 
-    setEntries([
+    const newArray = [
       ...entries.slice(0, indexToChange), 
       newEntry,
       ...entries.slice(indexToChange + 1)
-    ])
+    ]
+    setEntries(newArray)
   }
 
   const addEntry = () => {
@@ -127,7 +130,7 @@ const AdminPaymentSchedulesEdit = () => {
       })
       .then(data => {
         setPaymentSchedule(data)
-        setEntries(data.payment_schedule_entries)
+        setEntries(data.payment_schedule_entries.sort((a, b) => Utilities.dateSorter(a.pay_date, b.pay_date)))
       })
       .catch(error => console.error(error))
   }, [])
@@ -151,7 +154,7 @@ const AdminPaymentSchedulesEdit = () => {
               entry={e}
               index={i}
               amountChanged={evt => handleAmountChange(evt, e)}
-              dateChanged={(entry, newDate) => handleDateChange(entry, newDate)}
+              dateChanged={evt => handleDateChange(evt, e)}
               deleteClicked={evt => deleteEntry(evt, e)}
             />
           ))
