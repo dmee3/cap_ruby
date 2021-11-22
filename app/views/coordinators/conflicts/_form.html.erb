@@ -1,0 +1,42 @@
+<%= form_for @conflict, url: url do |f| %>
+  <div class="grid grid-cols-5 gap-x-6 gap-y-4">
+    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+      <%= f.label :user_id, 'User', class: 'input-label' %>
+    </div>
+    <div class="col-span-5 sm:col-span-4 flex items-center">
+      <%= f.collection_select :user_id, @members, :id, :full_name, {}, { class: 'input-select select2-form-control select2-enable' } %>
+    </div>
+
+    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+      <%= f.label :status_id, 'Status', class: 'input-label' %>
+    </div>
+    <div class="col-span-5 sm:col-span-4 flex items-center">
+      <%= f.collection_select :status_id, ConflictStatus.all.order(:name), :id, :name, {}, { class: 'input-select' } %>
+    </div>
+
+    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+      <%= f.label :start_date, 'Start', class: 'input-label' %>
+    </div>
+    <div class="col-span-5 sm:col-span-4 flex items-center">
+      <%= f.text_field :start_date, { class: 'flatpickr-dt input-text', required: true } %>
+    </div>
+
+    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+      <%= f.label :end_date, 'End', class: 'input-label' %>
+    </div>
+    <div class="col-span-5 sm:col-span-4 flex items-center">
+      <%= f.text_field :end_date, { class: 'flatpickr-dt input-text', required: true } %>
+    </div>
+
+    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+      <%= f.label :reason, class: 'input-label' %>
+    </div>
+    <div class="col-span-5 sm:col-span-4 flex items-center">
+      <%= f.text_area :reason, { class: 'input-text', placeholder: 'Notes' } %>
+    </div>
+  </div>
+
+  <div class="mt-4 flex flex-row justify-end">
+    <%= f.submit 'Submit', class: 'btn-primary btn-lg' %>
+  </div>
+<% end %>

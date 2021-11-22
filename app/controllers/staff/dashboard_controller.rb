@@ -7,7 +7,7 @@ module Staff
       @upcoming_conflicts = Conflict
         .for_season(current_season['id'])
         .future_conflicts
-        .where('end_date <= ?', 140.days.from_now)
+        .where('end_date <= ?', 14.days.from_now)
     end
   end
 end

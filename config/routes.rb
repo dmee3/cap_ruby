@@ -27,6 +27,10 @@ Rails.application.routes.draw do
       resources :seasons, only: %i[index]
     end
 
+    namespace :coordinators do
+      resources :conflicts, only: %i[index update]
+    end
+
     namespace :inventory do
       resources :categories, only: %i[index create update] do
         resources :items, only: %i[create update show]
@@ -46,8 +50,6 @@ Rails.application.routes.draw do
 
     resources :calendars, only: :index
 
-    get 'conflicts/upcoming', to: 'conflicts#upcoming_conflicts'
-    get 'conflicts/statuses', to: 'conflicts#statuses'
     resources :conflicts, except: %i[show destroy]
 
     get 'payments/upcoming', to: 'payments#upcoming_payments'
@@ -60,6 +62,11 @@ Rails.application.routes.draw do
     resources :users
 
     resources :payment_schedules, only: %i[edit]
+  end
+
+  namespace :coordinators do
+    get '/', to: 'dashboard#index', as: 'home'
+    resources :conflicts, except: %i[show destroy]
   end
 
   namespace :staff do
