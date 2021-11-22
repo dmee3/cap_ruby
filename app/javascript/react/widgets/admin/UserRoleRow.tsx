@@ -36,9 +36,9 @@ const UserRoleRow = ({
     setRoleDisabled(false)
     setRole(details.role)
 
-    setEnsembleDisabled(false)
-    setSectionDisabled(false)
     if (details.role === 'member') {
+      setEnsembleDisabled(false)
+      setSectionDisabled(false)
       setEnsemble(details.ensemble)
       setSection(details.section)
     }

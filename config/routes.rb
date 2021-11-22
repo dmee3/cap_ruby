@@ -62,6 +62,10 @@ Rails.application.routes.draw do
     resources :payment_schedules, only: %i[edit]
   end
 
+  namespace :staff do
+    get '/', to: 'dashboard#index', as: 'home'
+  end
+
   namespace :members do
     get '/', to: 'dashboard#index', as: 'home'
     resources :calendars, only: %i[index]

@@ -1,0 +1,57 @@
+<%= vite_typescript_tag 'entrypoints/files/index.tsx' %>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+  <div class="md:col-span-3 lg:order-2 space-y-4">
+    <div class="card gray-gradient">
+      <div class="flex flex-col">
+        <div class="card-title text-gray-300">NEXT EVENT</div>
+        <% if @next_event %>
+          <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
+          <div class="text-gray-300 text-sm font-medium">
+            <% if @next_event[:start_date].day == @next_event[:end_date].day %>
+              <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%l:%M%P') %>
+            <% else %>
+              <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%a, %-m/%-d %l:%M%P') %>
+            <% end %>
+          </div>
+        <% else %>
+          <span class="text-3xl text-white font-extrabold font-mono mb-0.5">None</span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="card-flat border-gray-500 hidden lg:block">
+      <div class="card-title text-gray-500">FILES</div>
+      <div id="files"></div>
+    </div>
+  </div>
+
+  <div class="md:col-span-2">
+    <div class="card-flat border-red-500">
+      <div class="flex flex-col">
+        <div class="card-title text-red-500">UPCOMING CONFLICTS</div>
+        <% if @upcoming_conflicts.present? %>
+          <ul class="divide-y divide-gray-300 dark:divide-gray-600">
+            <% @upcoming_conflicts.each do |c| %>
+              <li class="flex flex-col py-2">
+                <div class="flex justify-between items-center">
+                  <%= c.user.full_name %>
+                  <%= render 'conflict_status_icon', status: c.status %>
+                </div>
+                <div class="mx-6 mt-0 mb-2 text-sm flex flex-col text-secondary">
+                  <% if c.start_date.day == c.end_date.day %>
+                    <%= c.start_date.strftime('%a, %-m/%-d %l:%M %p') %> to <%= c.end_date.strftime('%l:%M %p') %>
+                  <% else %>
+                    <%= c.start_date.strftime('%a, %-m/%-d %l:%M %p') %> to<br/><%= c.end_date.strftime('%a, %-m/%-d %l:%M %p') %>
+                  <% end %>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <span class="text-3xl text-white font-extrabold font-mono mb-0.5">None</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
