@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-module Admin
-  class ConflictsController < AdminController
+module Coordinators
+  class ConflictsController < CoordinatorsController
     def index; end
 
     def new
       @conflict = Conflict.new
       @members = User.members_for_season(current_season['id']).order(:first_name)
-      render('admin/conflicts/new')
+      render('coordinators/conflicts/new')
     end
 
     def create
@@ -20,14 +20,14 @@ module Admin
         Rollbar.info('Conflict could not be created.', errors: @conflict.errors.full_messages)
         flash.now[:error] = @conflict.errors.full_messages.to_sentence
         @members = User.members_for_season(current_season['id']).order(:first_name)
-        render('admin/conflicts/new')
+        render('coordinators/conflicts/new')
       end
     end
 
     def edit
       @conflict = Conflict.find(params[:id])
       @members = User.members_for_season(current_season['id']).order(:first_name)
-      render('admin/conflicts/edit')
+      render('coordinators/conflicts/edit')
     end
 
     def update
@@ -37,7 +37,7 @@ module Admin
         respond_to do |format|
           format.html do
             flash[:success] = "Conflict for #{@conflict.user.full_name} updated"
-            redirect_to(admin_conflicts_path)
+            redirect_to(coordinators_conflicts_path)
           end
           format.json do
             render(json: { message: "Conflict for #{@conflict.user.full_name} updated" })
@@ -48,7 +48,7 @@ module Admin
         respond_to do |format|
           format.html do
             flash[:error] = 'Conflict could not be updated.'
-            redirect_to(admin_conflicts_path)
+            redirect_to(coordinators_conflicts_path)
           end
           format.json { head(422) }
         end

@@ -52,6 +52,10 @@ class ApplicationController < ActionController::Base
       'admin'
     when 'member'
       'members'
+    when 'coordinator'
+      'coordinators'
+    when 'staff'
+      'staff'
     else
       nil
     end

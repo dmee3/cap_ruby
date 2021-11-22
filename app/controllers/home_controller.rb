@@ -9,6 +9,10 @@ class HomeController < ApplicationController
       redirect_to admin_home_path
     when 'member'
       redirect_to members_home_path
+    when 'coordinator'
+      redirect_to coordinators_home_path
+    when 'staff'
+      redirect_to staff_home_path
     else
       Rollbar.warning(
         'User with unknown role accessed home page.',

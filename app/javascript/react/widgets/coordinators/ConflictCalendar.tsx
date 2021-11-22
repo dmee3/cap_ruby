@@ -6,14 +6,17 @@ import listPlugin from '@fullcalendar/list'
 import statusColor from '../../../utilities/status_color'
 
 type ConflictCalendarProps = {
+  coordinator: boolean
 }
 
 const ConflictCalendar = ({
+  coordinator
 }: ConflictCalendarProps) => {
   const [conflicts, setConflicts] = useState([])
 
   useEffect(() => {
-    fetch('/api/admin/conflicts')
+    const urlSlug = coordinator ? 'coordinators' : 'admin'
+    fetch(`/api/${urlSlug}/conflicts`)
       .then(resp => {
         if (resp.ok) {
           return resp.json()
@@ -27,7 +30,7 @@ const ConflictCalendar = ({
             const color = statusColor(c.status.name)
             c.backgroundColor = color
             c.borderColor = color
-            c.url = `/admin/conflicts/${c.id}/edit`
+            c.url = `/${urlSlug}/conflicts/${c.id}/edit`
             c.extendedProps = { reason: c.reason }
             return c
           })

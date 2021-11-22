@@ -43,8 +43,13 @@ class SettingsController < ApplicationController
   private
 
   def render_index
-    if current_user_role == 'admin'
+    case current_user_role
+    when 'admin'
       render 'admin/settings/index'
+    when 'coordinator'
+      render 'coordinator/settings/index'
+    when 'staff'
+      render 'staff/settings/index'
     else
       render 'members/settings/index'
     end

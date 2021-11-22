@@ -4,12 +4,9 @@ import FilesList from '../../react/widgets/files/FilesList'
 
 const Files = () => {
   render(
-    <div className="flex flex-col">
-      <h1>Files</h1>
-      <FilesList
-        expanded={true}
-      />
-    </div>,
+    <FilesList
+      expanded={true}
+    />,
     document.getElementById('files')
   )
 }

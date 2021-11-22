@@ -9,9 +9,8 @@ import Badge from '../../../react/components/Badge'
 import InputToggle from '../../../react/components/inputs/InputToggle'
 
 import ConflictCalendar from '../../../react/widgets/coordinators/ConflictCalendar'
-import { createTypeReferenceDirectiveResolutionCache } from 'typescript'
 
-const AdminConflicts = () => {
+const CoordinatorsConflicts = () => {
   const [conflicts, setConflicts] = useState([])
   const [displayedConflicts, setDisplayedConflicts] = useState([])
   const [showPast, setShowPast] = useState(false)
@@ -43,7 +42,7 @@ const AdminConflicts = () => {
 
   const updateConflict = (conflictId, statusId) => {
     fetch(
-      `/api/admin/conflicts/${conflictId}`,
+      `/api/coordinators/conflicts/${conflictId}`,
       {
         method: 'PUT',
         headers: {
@@ -69,7 +68,7 @@ const AdminConflicts = () => {
   }
 
   const fetchAllConflicts = () => {
-    fetch('/api/admin/conflicts')
+    fetch('/api/coordinators/conflicts')
       .then(resp => {
         if (resp.ok) {
           return resp.json()
@@ -98,7 +97,7 @@ const AdminConflicts = () => {
   }
 
   const redirectTo = conflict => {
-    window.location.href = `/admin/conflicts/${conflict.id}/edit`
+    window.location.href = `/coordinators/conflicts/${conflict.id}/edit`
   }
 
   useEffect(() => {
@@ -119,7 +118,7 @@ const AdminConflicts = () => {
       <div className="flex flex-row items-center justify-between mt-4 mb-2">
         <h1 className="my-0">Conflicts</h1>
         <div>
-          <a href="/admin/conflicts/new" className="btn-green btn-lg">
+          <a href="/coordinators/conflicts/new" className="btn-green btn-lg">
             <PlusSmIcon className="mr-2 h-6 w-6" />
             New
           </a>
@@ -130,7 +129,7 @@ const AdminConflicts = () => {
           <h2>Pending</h2>
           <ul className="divide-y divide-gray-300 dark:divide-gray-600">
             {pendingConflicts.map(conflict => {
-              return <li key={conflict.id} className="flex flex-col space-y-2 p-4">
+              return <li key={conflict.id} className="flex flex-col space-y-2 p-4" onClick={() => redirectTo(conflict)}>
                 <div className="flex flex-row space-x-2 items-start">
                   <div className="flex flex-1 flex-col">
                     <span className="font-medium">{conflict.title}</span>
@@ -158,7 +157,7 @@ const AdminConflicts = () => {
       )}
 
       <h2 className="mt-6">Calendar</h2>
-      <ConflictCalendar coordinator={false} />
+      <ConflictCalendar coordinator={true} />
 
       <div className="flex flex-row items-center justify-between mt-6 mb-2">
         <h2 className="my-0">All</h2>
@@ -192,6 +191,6 @@ const AdminConflicts = () => {
 }
 
 ReactDOM.render(
-  <AdminConflicts />,
+  <CoordinatorsConflicts />,
   document.getElementById('conflicts')
 )
