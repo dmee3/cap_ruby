@@ -13,12 +13,12 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_season
 
-  def redirect_if_not(role)
-    unless current_user_role == role
-      respond_to do |format|
-        format.html { redirect_to(root_url) }
-        format.json { head :unauthorized }
-      end
+  def redirect_if_not(*roles)
+    return if Array.wrap(roles).include?(current_user_role)
+
+    respond_to do |format|
+      format.html { redirect_to(root_url) }
+      format.json { head :unauthorized }
     end
   end
 

@@ -23,7 +23,7 @@ module Inventory
   class Item < ApplicationRecord
     validates :name, :quantity, presence: true
 
-    belongs_to :inventory_category, class_name: 'Inventory::Category',
+    belongs_to :category, class_name: 'Inventory::Category',
                                     foreign_key: :inventory_category_id
     has_many :transactions, class_name: 'Inventory::Transaction', foreign_key: :inventory_item_id
   end

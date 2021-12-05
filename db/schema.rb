@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_26_034055) do
+ActiveRecord::Schema.define(version: 2021_12_02_041510) do
 
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
@@ -73,6 +73,17 @@ ActiveRecord::Schema.define(version: 2021_10_26_034055) do
     t.string "name", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "inventory_email_rules", force: :cascade do |t|
+    t.integer "mail_to_user_id"
+    t.integer "inventory_item_id"
+    t.integer "threshold"
+    t.string "operator"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["inventory_item_id"], name: "index_inventory_email_rules_on_inventory_item_id"
+    t.index ["mail_to_user_id"], name: "index_inventory_email_rules_on_mail_to_user_id"
   end
 
   create_table "inventory_items", force: :cascade do |t|

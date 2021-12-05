@@ -24,12 +24,18 @@ module Api
               inventory_item_id: @item.id,
               user_id: current_user.id
             )
+            run_emails
           end
         end
         true
       rescue StandardError => e
         Rollbar.error(e)
         false
+      end
+
+      def run_emails
+        rules = ::Inventory::EmailRule.where(inventory_item_id: @item.id)
+        rules.each { |rule| rule.notify_if_applicable(@item.quantity) }
       end
 
       def item_params

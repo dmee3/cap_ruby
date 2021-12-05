@@ -1,7 +1,7 @@
 import React from 'react'
 import { render } from 'react-dom'
 import { PlusSmIcon } from '@heroicons/react/outline'
-import InventoryList from '../../react/widgets/inventory/InventoryList'
+import InventoryList from '../../../react/widgets/inventory/InventoryList'
 
 const Inventory = () => {
   render(

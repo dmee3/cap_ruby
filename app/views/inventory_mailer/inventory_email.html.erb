@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <p>Hi <%= @user.first_name %>,</p>
+
+    <% case @rule.operator.to_sym %>
+    <% when :eq %>
+      <p>This email is to notify you that Cap City's <%= @item_name %> stock is currently at <%= @rule.threshold %>.</p>
+    <% when :lt %>
+      <p>This email is to notify you that Cap City's <%= @item_name %> stock has fallen below <%= @rule.threshold %>.</p>
+    <% when :lt_eq %>
+      <p>This email is to notify you that Cap City's <%= @item_name %> stock has dropped to <%= @rule.threshold %>.</p>
+    <% when :gt %>
+      <p>This email is to notify you that Cap City's <%= @item_name %> stock has grown past <%= @rule.threshold %>.</p>
+    <% when :gt %>
+      <p>This email is to notify you that Cap City's <%= @item_name %> stock has reached <%= @rule.threshold %>.</p>
+    <% end %>
+
+    <p>Click <%= link_to 'here', inventory_categories_url %> to view the full Cap City inventory.</p>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+Hi <%= @user.first_name %>,
+
+<% case @rule.operator.to_sym %>
+<% when :eq %>
+  This email is to notify you that Cap City's <%= @item_name %> stock is currently at <%= @rule.threshold %>.
+<% when :lt %>
+  This email is to notify you that Cap City's <%= @item_name %> stock has fallen below <%= @rule.threshold %>.
+<% when :lt_eq %>
+  This email is to notify you that Cap City's <%= @item_name %> stock has dropped to <%= @rule.threshold %>.
+<% when :gt %>
+  This email is to notify you that Cap City's <%= @item_name %> stock has grown past <%= @rule.threshold %>.
+<% when :gt %>
+  This email is to notify you that Cap City's <%= @item_name %> stock has reached <%= @rule.threshold %>.
+<% end %>
+
+You can view the full Cap City inventory at <%= inventory_categories_url %>%.

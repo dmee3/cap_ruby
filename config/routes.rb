@@ -87,6 +87,8 @@ Rails.application.routes.draw do
     resources :categories, only: %i[index new create] do
       resources :items, only: %i[new create show]
     end
+
+    resources :email_rules, except: %i[show destroy]
   end
 
   resources :files, only: %i[index]
