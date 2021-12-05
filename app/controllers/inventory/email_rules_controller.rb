@@ -47,7 +47,7 @@ module Inventory
     end
 
     def set_email_rule
-      @rule = EmailRule.find_by(params[:id])
+      @rule = EmailRule.find(params[:id])
     end
 
     def rule_params
