@@ -65,8 +65,14 @@ class User < ApplicationRecord
       .where('seasons_users.role' => 'member')
   }
   scope :with_payments, lambda {
-                          includes(payments: :payment_type, payment_schedules: :payment_schedule_entries)
-                        }
+    includes(payments: :payment_type, payment_schedules: :payment_schedule_entries)
+  }
+  scope :with_role_for_season, lambda { |role, season_id|
+    includes(:seasons)
+      .joins(:seasons_users)
+      .where('seasons_users.season_id' => season_id)
+      .where('seasons_users.role' => role)
+  }
 
   before_save do
     self.email = email.downcase

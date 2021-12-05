@@ -1,0 +1,42 @@
+<%= form_with model: [@rule] do |f| %>
+  <div class="grid grid-cols-5 gap-x-6 gap-y-4">
+    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+      <%= f.label :item, class: 'input-label' %>
+    </div>
+    <div class="col-span-5 sm:col-span-4 flex items-center">
+      <%= f.grouped_collection_select :inventory_item_id, @categories, :items, :name, :id, :name, {}, class: 'input-select' %>
+    </div>
+
+    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+      <%= f.label :operator, 'Rule', class: 'input-label' %>
+    </div>
+    <div class="col-span-2 flex items-center">
+      <%= f.select(
+        :operator,
+        [
+          ["=", :eq],
+          ["<", :lt],
+          ["<=", :lt_eq],
+          [">", :gt],
+          [">=", :gt_eq]
+        ],
+        {},
+        class: 'input-select'
+      ) %>
+    </div>
+    <div class="col-span-2 flex items-center">
+      <%= f.number_field :threshold, placeholder: 'Threshold amount (e.g. 10)', min: 0, class: 'input-select' %>
+    </div>
+
+    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+      <%= f.label :mail_to_user_id, 'User', class: 'input-label' %>
+    </div>
+    <div class="col-span-5 sm:col-span-4 flex items-center">
+      <%= f.collection_select :mail_to_user_id, @users, :id, :full_name, {}, class: 'input-select' %>
+    </div>
+  </div>
+
+  <div class="mt-4 flex flex-row justify-end">
+    <%= f.submit 'Submit', class: 'btn-primary btn-lg' %>
+  </div>
+<% end %>

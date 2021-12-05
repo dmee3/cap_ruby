@@ -2,7 +2,7 @@
   <h1>New Item</h1>
 </div>
 
-<%= form_with model: [@category, @item], url: inventory_category_items_path(@category), html: { class: 'card-body' } do |f| %>
+<%= form_with model: [@category, @item], url: inventory_category_items_path(@category) do |f| %>
   <div class="grid grid-cols-5 gap-x-6 gap-y-4">
     <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
       <%= f.label :name, class: 'input-label' %>

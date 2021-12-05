@@ -10,8 +10,8 @@
 #  previous_quantity :integer
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
-#  inventory_item_id :integer
-#  user_id           :integer
+#  inventory_item_id :bigint
+#  user_id           :bigint
 #
 # Indexes
 #
