@@ -38,7 +38,6 @@ module Inventory
     end
   
     def notify
-      byebug
       InventoryMailer.with(
         user_id: mail_to_user_id,
         item_name: inventory_item.name,
