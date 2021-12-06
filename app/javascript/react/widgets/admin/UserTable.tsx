@@ -6,6 +6,7 @@ type UserTableProps = {}
 const UserTable = ({
 }: UserTableProps) => {
   const [members, setMembers] = useState([])
+  const [staff, setStaff] = useState([])
   const [displayedList, setDisplayedList] = useState([])
 
   useEffect(() => {
@@ -17,22 +18,25 @@ const UserTable = ({
         throw resp
       })
       .then(data => {
-        const users = data.map(member => ({
-          ...member,
-          searchStr: `${member.ensemble} ${member.section} ${member.full_name}`
-        })).sort((a, b) => {
-          if (a.ensemble === 'World' && b.ensemble === 'CC2') {
-            return -1
-          } else if (a.ensemble === 'CC2' && b.ensemble === 'World') {
-            return 1
-          } else {
-            const aCompStr = `${a.section}${a.first_name}${a.last_name}`
-            const bCompStr = `${b.section}${b.first_name}${b.last_name}`
-            return aCompStr > bCompStr ? 1 : -1
-          }
-        })
-        setMembers(users)
-        setDisplayedList(users)
+        setStaff(data.filter(u => u.role !== 'member'))
+
+        const members = data.filter(u => u.role === 'member')
+          .map(member => ({
+            ...member,
+            searchStr: `${member.ensemble} ${member.section} ${member.full_name}`
+          })).sort((a, b) => {
+            if (a.ensemble === 'World' && b.ensemble === 'CC2') {
+              return -1
+            } else if (a.ensemble === 'CC2' && b.ensemble === 'World') {
+              return 1
+            } else {
+              const aCompStr = `${a.section}${a.first_name}${a.last_name}`
+              const bCompStr = `${b.section}${b.first_name}${b.last_name}`
+              return aCompStr > bCompStr ? 1 : -1
+            }
+          })
+        setMembers(members)
+        setDisplayedList(members)
       })
       .catch(error => {
         console.error(error)
@@ -66,6 +70,7 @@ const UserTable = ({
 
   return(
     <>
+      <h2>Members</h2>
       <div className="mb-4">
         <input
           placeholder="Filter by name/section/ensemble"
@@ -108,11 +113,54 @@ const UserTable = ({
                   {member.ensemble}
                 </div>
                 <div className="text-secondary">
-                  {member.section}
+                {member.section}
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right font-medium">
                 <span className="link" onClick={e => handleEditClick(member.id, e)}>
+                  Edit
+                </span>
+              </td>
+            </tr>
+          })}
+        </tbody>
+      </table>
+      <h2 className="mt-6">Staff</h2>
+      <table className="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
+        <thead>
+          <tr>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Name
+            </th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Role
+            </th>
+            <th scope="col" className="relative px-6 py-3">
+              <span className="sr-only">Edit</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-300 dark:divide-gray-600 text-sm">
+          {staff.map(st => {
+            return <tr key={st.id}>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="flex flex-col">
+                  <span className="font-medium">
+                    {st.full_name}
+                  </span>
+                  <span className="text-secondary">
+                    {st.email}
+                  </span>
+                </div>
+              </td>
+
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div>
+                  {st.role}
+                </div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-right font-medium">
+                <span className="link cursor-pointer" onClick={e => handleEditClick(st.id, e)}>
                   Edit
                 </span>
               </td>

@@ -58,6 +58,11 @@ class User < ApplicationRecord
   validates :username, presence: true
   validates :username, uniqueness: { case_sensitive: false }
 
+  scope :for_season, lambda { |season_id|
+    includes(:seasons)
+      .joins(:seasons_users)
+      .where('seasons_users.season_id' => season_id)
+  }
   scope :members_for_season, lambda { |season_id|
     includes(:seasons)
       .joins(:seasons_users)
