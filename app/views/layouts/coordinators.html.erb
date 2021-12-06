@@ -83,6 +83,7 @@
 
               <div id="user-menu" class="hidden dropdown-menu origin-top-right right-0 w-36" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
                 <%= link_to 'Settings', '/settings', class: 'dropdown-menu-link-item' %>
+                <%= link_to 'Whistleblower', whistleblowers_path, class: 'dropdown-menu-link-item' %>
                 <%= form_with url: destroy_user_session_path, method: :delete, class: 'dropdown-menu-form-background' do %>
                   <%= submit_tag 'Log Out', class: 'dropdown-menu-form-item' %>
                 <% end %>
