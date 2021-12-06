@@ -36,7 +36,7 @@ Email: #{email}\n
 Report:\n\n#{report}
 TEXT
   
-      [ENV['EMAIL_AARON'], ENV['EMAIL_DONNIE'], ENV['EMAIL_DAN']].each do |to|
+      [ENV['EMAIL_AARON'], ENV['EMAIL_DONNIE'], ENV['EMAIL_DAN'], ENV['EMAIL_GARRETT']].each do |to|
         PostOffice.send_email(to, subject, text)
       end
     end
