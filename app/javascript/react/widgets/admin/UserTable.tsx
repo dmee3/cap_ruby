@@ -80,13 +80,13 @@ const UserTable = ({
           onChange={evt => filterList(evt.target.value)}
         />
       </div>
-      <table className="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
+      <table className="custom-table">
         <thead>
           <tr>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col" className="table-header">
               Name
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col" className="table-header">
               Section
             </th>
             <th scope="col" className="relative px-6 py-3">
@@ -94,10 +94,10 @@ const UserTable = ({
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-300 dark:divide-gray-600 text-sm">
+        <tbody className="table-body">
           {displayedList.map(member => {
-            return <tr key={member.id} className="hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer" onClick={() => handleMemberClick(member.id)}>
-              <td className="px-6 py-4 whitespace-nowrap">
+            return <tr key={member.id} className="" onClick={() => handleMemberClick(member.id)}>
+              <td className="table-cell">
                 <div className="flex flex-col">
                   <span className="font-medium">
                     {member.full_name}
@@ -108,7 +108,7 @@ const UserTable = ({
                 </div>
               </td>
 
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="table-cell">
                 <div>
                   {member.ensemble}
                 </div>
@@ -116,7 +116,7 @@ const UserTable = ({
                 {member.section}
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-right font-medium">
+              <td className="table-cell text-right font-medium">
                 <span className="link" onClick={e => handleEditClick(member.id, e)}>
                   Edit
                 </span>
@@ -126,13 +126,13 @@ const UserTable = ({
         </tbody>
       </table>
       <h2 className="mt-6">Staff</h2>
-      <table className="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
+      <table className="custom-table">
         <thead>
           <tr>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col" className="table-header">
               Name
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col" className="table-header">
               Role
             </th>
             <th scope="col" className="relative px-6 py-3">
@@ -140,10 +140,10 @@ const UserTable = ({
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-300 dark:divide-gray-600 text-sm">
+        <tbody className="table-body">
           {staff.map(st => {
             return <tr key={st.id}>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="table-cell">
                 <div className="flex flex-col">
                   <span className="font-medium">
                     {st.full_name}
@@ -154,12 +154,12 @@ const UserTable = ({
                 </div>
               </td>
 
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="table-cell">
                 <div>
                   {st.role}
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-right font-medium">
+              <td className="table-cell text-right font-medium">
                 <span className="link cursor-pointer" onClick={e => handleEditClick(st.id, e)}>
                   Edit
                 </span>

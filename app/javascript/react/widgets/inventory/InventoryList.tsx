@@ -42,13 +42,13 @@ const InventoryList = ({
             />
             {category.items && category.items.length > 0 &&
               <div className="overflow-x-auto align-middle inline-block min-w-full">
-                <table className="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
+                <table className="custom-table">
                   <thead>
                     <tr>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="table-header">
                         Name
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="table-header">
                         Qty
                       </th>
                       <th scope="col" className="relative px-6 py-3">
@@ -56,7 +56,7 @@ const InventoryList = ({
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-300 dark:divide-gray-600 text-sm">
+                  <tbody className="table-body">
                     {sortByName(category.items).map((item) => {
                       return <InventoryListItem
                         item={item}

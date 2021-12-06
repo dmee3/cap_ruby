@@ -11,16 +11,16 @@
     </div>
   </div>
   
-  <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
+  <table class="custom-table">
     <thead>
       <tr>
-        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        <th scope="col" class="table-header">
           Item
         </th>
-        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        <th scope="col" class="table-header">
           Rule
         </th>
-        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        <th scope="col" class="table-header">
           Mail To
         </th>
         <th scope="col" class="relative px-6 py-3">
@@ -28,14 +28,14 @@
         </th>
       </tr>
     </thead>
-    <tbody class="divide-y divide-gray-300 dark:divide-gray-600 text-sm">
+    <tbody class="table-body">
       <% @rules.each do |rule| %>
         <tr>
-          <td class="px-6 py-4 whitespace-nowrap"><%= rule.inventory_item.name %></td>
-          <td class="px-6 py-4 whitespace-nowrap">
+          <td class="table-cell"><%= rule.inventory_item.name %></td>
+          <td class="table-cell">
             <%= display_operator(rule.operator) %> <%= rule.threshold %>
           </td>
-          <td class="px-6 py-4 whitespace-nowrap"><%= rule.user.full_name %></td>
+          <td class="table-cell"><%= rule.user.full_name %></td>
           <td>
             <%= link_to 'Edit', edit_inventory_email_rule_path(rule) %>
           </td>

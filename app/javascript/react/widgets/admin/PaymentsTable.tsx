@@ -90,19 +90,19 @@ const PaymentsTable = ({
           onChange={evt => filterList(evt.target.value)}
         />
       </div>
-      <table className="min-w-full divide-y divide-gray-300 dark:divide-gray-600">
+      <table className="custom-table">
         <thead>
           <tr>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col" className="table-header">
               Name
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col" className="table-header">
               Paid
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col" className="table-header">
               Remaining
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col" className="table-header">
               Total
             </th>
             <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -113,14 +113,14 @@ const PaymentsTable = ({
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-300 dark:divide-gray-600 text-sm">
+        <tbody className="table-body">
           {displayedList.map(member => {
             return <tr
               key={member.id}
               className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
               onClick={() => handleMemberClick(member.id)}
             >
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="table-cell">
                 <div className="flex flex-col">
                   <span className="font-medium">
                     {`${member.first_name} ${member.last_name}`}

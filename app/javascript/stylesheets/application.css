@@ -4,6 +4,7 @@
 @import "forms";
 @import "gradients";
 @import "sidebar";
+@import "tables";
 @import "typography";
 
 @import 'flatpickr/dist/flatpickr.css';

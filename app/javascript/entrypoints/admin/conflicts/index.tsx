@@ -174,7 +174,7 @@ const AdminConflicts = () => {
       </div>
       <ul className="divide-y divide-gray-300 dark:divide-gray-600">
         {displayedConflicts.map(conflict => {
-          return <li key={conflict.id} className="flex flex-row space-x-2 p-4 items-start hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer" onClick={() => redirectTo(conflict)}>
+          return <li key={conflict.id} className="flex flex-row space-x-2 p-4 items-start table-row-hover" onClick={() => redirectTo(conflict)}>
             <div className="flex flex-1 flex-col">
               <span className="font-medium">{conflict.title}</span>
               <span className="text-sm font-light">{Utilities.displayDateTimeReadable(conflict.start)} to {Utilities.displayDateTimeReadable(conflict.end)}</span>

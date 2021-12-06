@@ -67,19 +67,19 @@ const InventoryListItem = ({
 
   return(
     <tr>
-      <td className="px-6 py-4 whitespace-nowrap font-medium">
+      <td className="table-cell font-medium">
         <InventoryListItemName
           name={name}
           onSubmit={newName => submitName(newName)}
         />
       </td>
-      <td className="px-6 py-4 whitespace-nowrap font-medium">
+      <td className="table-cell font-medium">
         <InventoryListItemQuantity
           quantity={quantity}
           onSubmit={newQty => submitQuantity(newQty)}
         />
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-right font-medium">
+      <td className="table-cell text-right font-medium">
         <a href={`/inventory/categories/${categoryId}/items/${item.id}`} className="link">History</a>
       </td>
     </tr>
