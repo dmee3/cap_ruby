@@ -96,7 +96,7 @@ const UserTable = ({
         </thead>
         <tbody className="table-body">
           {displayedList.map(member => {
-            return <tr key={member.id} className="" onClick={() => handleMemberClick(member.id)}>
+            return <tr key={member.id} className="table-row-hover" onClick={() => handleMemberClick(member.id)}>
               <td className="table-cell">
                 <div className="flex flex-col">
                   <span className="font-medium">
