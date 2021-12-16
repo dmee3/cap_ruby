@@ -3,7 +3,7 @@
 module Staff
   class DashboardController < StaffController
     def index
-      @next_event = EventService.next_event
+      @next_event = EventService.next_event(current_season['id'])
       @upcoming_conflicts = Conflict
         .for_season(current_season['id'])
         .future_conflicts

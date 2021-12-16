@@ -7,7 +7,7 @@ module Admin
       @expected_dues = expected_dues
       @actual_dues = actual_dues
       @behind_members = behind_members
-      @next_event = EventService.next_event
+      @next_event = EventService.next_event(current_season['id'])
       check_empty_payment_schedules
     end
 

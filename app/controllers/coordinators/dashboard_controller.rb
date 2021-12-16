@@ -3,7 +3,7 @@
 module Coordinators
   class DashboardController < CoordinatorsController
     def index
-      @next_event = EventService.next_event
+      @next_event = EventService.next_event(current_season['id'])
     end
   end
 end

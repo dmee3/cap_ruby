@@ -13,7 +13,7 @@ module Members
       @paid = @payments.sum(&:amount) / 100
       @total_dues = @entries.sum(:amount) / 100
 
-      @next_event = EventService.next_event
+      @next_event = EventService.next_event(current_season['id'])
     end
   end
 end
