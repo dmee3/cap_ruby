@@ -2,8 +2,8 @@
 
 module Api
   module Admin
-    # jbuilder
     class PaymentsController < Api::AdminController
+      # jbuilder
       def index
         @users = PaymentService.season_payment_details(current_season['id'])
       end

@@ -98,13 +98,16 @@ class User < ApplicationRecord
     @status = schedule.present? && dues_paid >= schedule.scheduled_to_date
   end
 
-  # Using ruby methods instead of AR query builder to save DB calls
-  # if we've got the object loaded in memory
+  # Note: several of the following methods use Ruby methods instead of
+  # AR query builder methods to save DB calls if we've got the object
+  # loaded in memory
   def amount_paid_for(season_id)
     made_payments = payments.select { |p| p.season_id == season_id }
     made_payments.sum(&:amount)
   end
 
+  # TODO: is there a way to use `select` here so we save on
+  # N+1 calls from `total_dues_for` ??
   def payment_schedule_for(season_id)
     payment_schedules.find { |s| s.season_id == season_id }
   end
@@ -113,26 +116,32 @@ class User < ApplicationRecord
     payments.select { |p| p.season_id == season_id }
   end
 
-  # Using ruby methods instead of AR query builder to save DB calls
-  # if we've got the object loaded in memory
   def section_for(season_id)
     seasons_users.select { |su| su.season_id == season_id }&.first&.section
   end
 
-  # Using ruby methods instead of AR query builder to save DB calls
-  # if we've got the object loaded in memory
   def ensemble_for(season_id)
     seasons_users.select { |su| su.season_id == season_id }&.first&.ensemble
   end
 
-  # Using ruby methods instead of AR query builder to save DB calls
-  # if we've got the object loaded in memory
   def role_for(season_id)
     seasons_users.select { |su| su.season_id == season_id }&.first&.role
   end
 
   def total_dues_for(season_id)
     payment_schedule_for(season_id)&.entries&.sum(:amount)
+  end
+
+  def remaining_payments_for(season_id)
+    paid = amount_paid_for(season_id)
+    payments = payment_schedule_for(season_id).entries.map do |e|
+      due = [e.amount - paid, 0].max
+      paid = [paid - e.amount, 0].max
+      {
+        amount: due,
+        pay_date: e.pay_date
+      }
+    end
   end
 
   def quartermaster?

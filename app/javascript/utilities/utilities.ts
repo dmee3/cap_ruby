@@ -35,6 +35,13 @@ export default class {
     return (new Date(dateA)).getTime() - (new Date(dateB)).getTime()
   }
 
+  // Returns negative if dateStr is in the past, positive if future, and 0 for today
+  static compareToToday(dateStr: string) {
+    const today = new Date((new Date).toDateString())
+    const dateObj = new Date(dateStr + 'T05:00:00Z')
+    return dateObj.getTime() - today.getTime()
+  }
+
   static formatMmDdYyyy(d: Date) {
     return `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`
   }

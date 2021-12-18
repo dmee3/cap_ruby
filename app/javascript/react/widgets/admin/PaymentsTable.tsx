@@ -1,5 +1,5 @@
 import { PlusSmIcon } from '@heroicons/react/outline'
-import moment from 'moment'
+import Utilities from '../../../utilities/utilities'
 import fuzzysort from 'fuzzysort'
 import React, { useState, useEffect } from 'react'
 import Badge from '../../components/Badge'
@@ -29,19 +29,14 @@ const PaymentsTable = ({
           const users = data.users.map(member => ({
             ...member,
             paid:  member.payments.reduce((sum, payment) => sum + payment.amount, 0),
-            total: member.payment_schedule.entries.reduce((sum, entry) => sum + entry.amount, 0),
-            owed: findOwed(member),
+            total: member.total,
+            status: checkStatus(member),
+            nextPayment: nextPayment(member),
             searchStr: `${member.ensemble} ${member.section} ${member.first_name} ${member.last_name}`
           })).sort((a, b) => {
-            if (a.ensemble === 'World' && b.ensemble === 'CC2') {
-              return -1
-            } else if (a.ensemble === 'CC2' && b.ensemble === 'World') {
-              return 1
-            } else {
-              const aCompStr = `${a.section}${a.first_name}${a.last_name}`
-              const bCompStr = `${b.section}${b.first_name}${b.last_name}`
-              return aCompStr > bCompStr ? 1 : -1
-            }
+            const aCompStr = `${a.first_name}${a.last_name}`
+            const bCompStr = `${b.first_name}${b.last_name}`
+            return aCompStr > bCompStr ? 1 : -1
           })
           setMembers(users)
           setDisplayedList(users)
@@ -68,13 +63,21 @@ const PaymentsTable = ({
     setDisplayedList(filteredList)
   }
 
-  const findOwed = member => {
-    const currentEntries = member.payment_schedule.entries.filter(entry => moment(entry.pay_date) <= moment())
-    return currentEntries.reduce((sum, entry) => sum + entry.amount, 0)
+  const checkStatus = member => {
+    const pastDue = member.remaining_payments.filter(
+      p => Utilities.compareToToday(p.pay_date) < 0 && p.amount > 0
+    )
+    return pastDue.length === 0
   }
 
   const handleMemberClick = memberId => {
     window.location.href = `/admin/users/${memberId}`
+  }
+
+  const nextPayment = member => {
+    return member.remaining_payments.filter(
+      p => Utilities.compareToToday(p.pay_date) >= 0 && p.amount > 0
+    )[0]
   }
 
   fetchPayment()
@@ -105,6 +108,9 @@ const PaymentsTable = ({
             <th scope="col" className="table-header">
               Total
             </th>
+            <th scope="col" className="table-header">
+              Next Payment
+            </th>
             <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
               Status
             </th>
@@ -125,7 +131,7 @@ const PaymentsTable = ({
                   <span className="font-medium">
                     {`${member.first_name} ${member.last_name}`}
                   </span>
-                  <span>
+                  <span className="text-secondary">
                     {`${member.ensemble} ${member.section}`}
                   </span>
                 </div>
@@ -139,8 +145,16 @@ const PaymentsTable = ({
               <td className="px-6 py-4 text-left whitespace-nowrap">
                 {`${moneyFormatter.format(member.total / 100.0)}`}
               </td>
+              <td className="px-6 py-4 text-left whitespace-nowrap">
+                <div className="flex flex-col">
+                  {`${moneyFormatter.format(member.nextPayment.amount / 100.0)}`}
+                  <span className="text-secondary">
+                    {Utilities.displayDate(new Date(member.nextPayment.pay_date))}
+                  </span>
+                </div>
+              </td>
               <td className="px-6 py-4 text-center whitespace-nowrap">
-                {member.paid >= member.owed ?
+                {member.status ?
                   <Badge
                     text='Current'
                     color='green'

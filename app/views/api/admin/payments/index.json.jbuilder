@@ -5,9 +5,6 @@ json.users(@users) do |user|
   json.ensemble(user.ensemble_for(current_season['id']))
   json.section(user.section_for(current_season['id']))
   json.payments(user.payments.select { |p| p.season_id == current_season['id'] })
-  schedule = user.payment_schedules.select { |ps| ps.season_id == current_season['id'] }.first
-  json.payment_schedule do
-    json.id(schedule.id)
-    json.entries(schedule.entries)
-  end
+  json.total(user.total_dues_for(current_season['id']))
+  json.remaining_payments(user.remaining_payments_for(current_season['id']))
 end
