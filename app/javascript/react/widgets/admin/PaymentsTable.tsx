@@ -75,9 +75,21 @@ const PaymentsTable = ({
   }
 
   const nextPayment = member => {
-    return member.remaining_payments.filter(
-      p => Utilities.compareToToday(p.pay_date) >= 0 && p.amount > 0
-    )[0]
+    if (member.total === member.payments.reduce((sum, payment) => sum + payment.amount, 0)) {
+      return false
+    }
+
+    const payments = member.remaining_payments.filter(
+      p => Utilities.compareToToday(p.pay_date) >= 0
+    )
+
+    const amount = member.remaining_payments.filter(
+      p => new Date(p.pay_date) <= new Date(payments[0].pay_date)
+    ).reduce((sum, payment) => sum + payment.amount, 0)
+    return {
+      amount: amount,
+      pay_date: payments[0].pay_date
+    }
   }
 
   fetchPayment()
@@ -146,12 +158,16 @@ const PaymentsTable = ({
                 {`${moneyFormatter.format(member.total / 100.0)}`}
               </td>
               <td className="px-6 py-4 text-left whitespace-nowrap">
-                <div className="flex flex-col">
-                  {`${moneyFormatter.format(member.nextPayment.amount / 100.0)}`}
-                  <span className="text-secondary">
-                    {Utilities.displayDate(new Date(member.nextPayment.pay_date))}
-                  </span>
-                </div>
+                {member.nextPayment ?
+                  <div className="flex flex-col">
+                    {`${moneyFormatter.format(member.nextPayment.amount / 100.0)}`}
+                    <span className="text-secondary">
+                      {Utilities.displayDate(new Date(member.nextPayment.pay_date))}
+                    </span>
+                  </div>
+                  :
+                  <span>None</span>
+                }
               </td>
               <td className="px-6 py-4 text-center whitespace-nowrap">
                 {member.status ?
