@@ -8,7 +8,7 @@ class PaymentService
 
     def upcoming_payments(start_date, end_date, season_id)
       entries = PaymentScheduleEntry
-                .for_season(5)
+                .for_season(season_id)
                 .includes(payment_schedule: { user: :payments })
                 .where(pay_date: start_date..end_date)
 
