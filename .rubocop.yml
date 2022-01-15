@@ -1,6 +1,7 @@
 AllCops:
   Exclude:
     - 'Gemfile'
+    - vendor/**/*.rb
   TargetRubyVersion:
     '2.7.2'
   NewCops: enable
