@@ -1,7 +1,9 @@
 AllCops:
   Exclude:
     - 'Gemfile'
+    # https://github.com/rubocop/rubocop/issues/9832
     - vendor/**/*.rb
+    - vendor/bundle/**/*
   TargetRubyVersion:
     '2.7.2'
   NewCops: enable
