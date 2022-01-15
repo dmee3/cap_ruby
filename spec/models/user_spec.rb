@@ -56,11 +56,6 @@ RSpec.describe User, type: :model do
       expect(subject).to_not be_valid
     end
 
-    it 'requires a password' do
-      subject.password = nil
-      expect(subject).to_not be_valid
-    end
-
     it 'requires a password of length >= 6' do
       subject.password = '12345'
       expect(subject).to_not be_valid
