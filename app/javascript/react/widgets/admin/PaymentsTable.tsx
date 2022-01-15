@@ -28,6 +28,7 @@ const PaymentsTable = ({
         .then(data => {
           const users = data.users.map(member => ({
             ...member,
+            remaining_payments: member.remaining_payments.sort((a, b) => Utilities.dateSorter(a, b)),
             paid:  member.payments.reduce((sum, payment) => sum + payment.amount, 0),
             total: member.total,
             status: checkStatus(member),
