@@ -144,6 +144,10 @@ class User < ApplicationRecord
     end
   end
 
+  def active_for_authentication?
+    super && seasons_users.any?
+  end
+
   def quartermaster?
     inventory_access
   end
