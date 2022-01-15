@@ -2,6 +2,9 @@
 
 require 'google/apis/sheets_v4'
 
+# rubocop:disable Metrics/ClassLength
+# rubocop:disable Metrics/AbcSize
+# rubocop:disable Metrics/MethodLength
 class GoogleSheetsApi
   include Singleton
 
@@ -283,3 +286,6 @@ class GoogleSheetsApi
     }
   end
 end
+# rubocop:enable Metrics/MethodLength
+# rubocop:enable Metrics/AbcSize
+# rubocop:enable Metrics/ClassLength

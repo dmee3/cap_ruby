@@ -5,11 +5,11 @@ module Api
     class ConflictsController < Api::AdminController
       def index
         @conflicts = Conflict
-          .includes(:conflict_status, user: :seasons_users)
-          .for_season(current_season['id'])
-          .where('start_date > ?', start_param)
-          .where('end_date < ?', end_param)
-          .order(:start_date)
+                     .includes(:conflict_status, user: :seasons_users)
+                     .for_season(current_season['id'])
+                     .where('start_date > ?', start_param)
+                     .where('end_date < ?', end_param)
+                     .order(:start_date)
 
         @conflicts = @conflicts.map do |c|
           {

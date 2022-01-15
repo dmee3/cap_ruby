@@ -4,6 +4,7 @@
 # NOTE: are sensitive to local FS writes, and besides -- it's just not proper
 # NOTE: to have a dev-mode tool do its thing in production.
 
+# rubocop:disable Metrics/BlockLength
 if Rails.env.development?
   require 'annotate'
   task :set_annotation_options do
@@ -58,3 +59,4 @@ if Rails.env.development?
 
   Annotate.load_tasks
 end
+# rubocop:enable Metrics/BlockLength

@@ -18,9 +18,9 @@ require 'rails_helper'
 RSpec.describe PaymentScheduleEntry, type: :model do
   context 'scopes' do
     context 'past_entries' do
-      let!(:future) { create(:payment_schedule_entry, pay_date: Date.tomorrow) }
-      let!(:past) { create(:payment_schedule_entry, pay_date: Date.yesterday) }
-      let!(:more_past) { create(:payment_schedule_entry, pay_date: Date.yesterday - 1.day) }
+      let!(:future) { create(:payment_schedule_entry, pay_date: 1.week.from_now) }
+      let!(:past) { create(:payment_schedule_entry, pay_date: 3.days.ago) }
+      let!(:more_past) { create(:payment_schedule_entry, pay_date: 2.weeks.ago) }
 
       it 'returns schedules for the given season' do
         expect(described_class.past_entries).to eq([past, more_past])

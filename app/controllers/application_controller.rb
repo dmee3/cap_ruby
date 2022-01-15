@@ -3,7 +3,7 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
-  layout :get_layout
+  layout :choose_layout
 
   def current_season
     return nil unless current_user
@@ -44,7 +44,8 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def get_layout
+  # rubocop:disable Style/HashLikeCase
+  def choose_layout
     return nil unless current_user
 
     case current_user_role
@@ -56,8 +57,7 @@ class ApplicationController < ActionController::Base
       'coordinators'
     when 'staff'
       'staff'
-    else
-      nil
     end
   end
+  # rubocop:enable Style/HashLikeCase
 end

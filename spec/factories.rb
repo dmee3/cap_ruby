@@ -3,8 +3,8 @@
 # rubocop:disable Metrics/BlockLength
 FactoryBot.define do
   factory :payment_intent do
-    references { "" }
-    amount { "" }
+    references { '' }
+    amount { '' }
   end
 
   factory :inventory_category, class: 'Inventory::Category' do
@@ -59,12 +59,19 @@ FactoryBot.define do
     user
   end
 
+  factory :seasons_user do
+    season
+    user
+    ensemble { %w[World CC2].sample }
+    section { %w[Snare Tenors Woods Metals].sample }
+    role { 'member' }
+  end
+
   factory :user do
     sequence(:email) { |n| "#{Faker::Internet.email}#{n}" }
     first_name { Faker::Name.first_name }
     last_name { Faker::Name.last_name }
     password { Faker::Internet.password }
-    role
     sequence(:username) { |n| "#{Faker::Internet.user_name}#{n}" }
   end
 end

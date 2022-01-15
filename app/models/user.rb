@@ -26,6 +26,7 @@
 #  index_users_on_reset_password_token  (reset_password_token) UNIQUE
 #  index_users_on_username              (username) UNIQUE
 #
+# rubocop:disable Metrics/ClassLength
 class User < ApplicationRecord
   # Include devise modules. Others available are:
   #   :lockable, :registerable, :timeoutable, :trackable and :omniauthable
@@ -98,7 +99,7 @@ class User < ApplicationRecord
     @status = schedule.present? && dues_paid >= schedule.scheduled_to_date
   end
 
-  # Note: several of the following methods use Ruby methods instead of
+  # NOTE: several of the following methods use Ruby methods instead of
   # AR query builder methods to save DB calls if we've got the object
   # loaded in memory
   def amount_paid_for(season_id)
@@ -134,7 +135,7 @@ class User < ApplicationRecord
 
   def remaining_payments_for(season_id)
     paid = amount_paid_for(season_id)
-    payments = payment_schedule_for(season_id).entries.map do |e|
+    payment_schedule_for(season_id).entries.map do |e|
       due = [e.amount - paid, 0].max
       paid = [paid - e.amount, 0].max
       {
@@ -142,6 +143,10 @@ class User < ApplicationRecord
         pay_date: e.pay_date
       }
     end
+  end
+
+  def active_for_authentication?
+    super && seasons_users.any?
   end
 
   def quartermaster?
@@ -152,3 +157,4 @@ class User < ApplicationRecord
     UserMailer.with(user: self).welcome_email.deliver_later
   end
 end
+# rubocop:enable Metrics/ClassLength

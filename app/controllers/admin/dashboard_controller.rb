@@ -28,7 +28,7 @@ module Admin
           id: m.id,
           name: m.full_name,
           behind: (m.payment_schedule_for(s_id).scheduled_to_date - m.amount_paid_for(s_id)),
-          last_payment: m.payments_for(s_id).sort_by(&:date_paid).last
+          last_payment: m.payments_for(s_id).max_by(&:date_paid)
         }
       end
     end
@@ -37,7 +37,6 @@ module Admin
       @members.each do |m|
         next unless m.payment_schedule_for(current_season['id']).entries.blank?
 
-        ps = m.payment_schedule_for(current_season['id'])
         flash.now[:error] ||= []
         flash.now[:error] << "Member found with blank payment schedule: #{m.full_name}"
       end

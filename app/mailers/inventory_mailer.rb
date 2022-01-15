@@ -8,7 +8,7 @@ class InventoryMailer < ApplicationMailer
 
     mail(
       to: @user.email,
-      subject: "Cap City - Inventory Rule Triggered"
+      subject: 'Cap City - Inventory Rule Triggered'
     )
   end
 end

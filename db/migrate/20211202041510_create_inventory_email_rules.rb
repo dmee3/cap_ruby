@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateInventoryEmailRules < ActiveRecord::Migration[6.1]
   def change
     create_table :inventory_email_rules do |t|

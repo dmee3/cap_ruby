@@ -15,10 +15,10 @@ module Api
 
       def latest_venmo
         @payment = Payment
-          .for_season(current_season['id'])
-          .where(payment_type_id: PaymentType.venmo.id)
-          .order(created_at: :desc)
-          .first
+                   .for_season(current_season['id'])
+                   .where(payment_type_id: PaymentType.venmo.id)
+                   .order(created_at: :desc)
+                   .first
         render json: @payment, include: [:user]
       end
 
@@ -26,7 +26,7 @@ module Api
 
       def start_param
         return DateTime.parse(params[:start]) if params[:start]
-        
+
         Date.today
       end
 

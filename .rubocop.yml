@@ -1,6 +1,11 @@
 AllCops:
   Exclude:
-    - 'Gemfile'
+    - Gemfile
+    - bin/**/*
+    - config/**
+    - db/**
+    # https://github.com/rubocop/rubocop/issues/9832
+    - vendor/bundle/**/*
   TargetRubyVersion:
     '2.7.2'
   NewCops: enable
@@ -11,19 +16,26 @@ Bundler/OrderedGems:
 Layout/LineLength:
   Max: 100
   Exclude:
-    - 'config/**'
-    - 'db/**'
+    - config/**/*
+    - db/**/*
 
-Metrics/BlockLength:
-  IgnoredMethods: ['describe', 'context', 'shared_examples', 'shared_context', 'scenario']
+Metrics/AbcSize:
   Exclude:
-    - 'config/**'
-    - 'db/**'
+    - app/controllers/**/*
+Metrics/BlockLength:
+  IgnoredMethods: [describe, context, shared_examples, shared_context, scenario]
+  Exclude:
+    - config/**/*
+    - db/**/*
+Metrics/ClassLength:
+  Exclude:
+    - app/controllers/**/*
 Metrics/MethodLength:
   Max: 15
   Exclude:
-    - 'config/**'
-    - 'db/**'
+    - app/controllers/**/*
+    - config/**/*
+    - db/**/*
 
 Style/ConditionalAssignment:
   Enabled: false
