@@ -37,6 +37,7 @@ module Auditions
     #   },
     #   ...
     # }
+    # rubocop:disable Metrics/AbcSize
     def registration_hash(all_registrations)
       registration_names = all_registrations.map(&:type).uniq.sort
       {}.tap do |hsh|
@@ -51,10 +52,12 @@ module Auditions
         end
       end
     end
+    # rubocop:enable Metrics/AbcSize
 
     # Takes the output of registration_hash() and turns it into a giant array to
     # write to Google Sheets, along with figuring out the header, subheader,
     # and instrument rows for formatting
+    # rubocop:disable Metrics/AbcSize
     def prepare_data(registration_hash)
       registration_hash.each do |registration_name, registrations_by_instrument|
         count = registrations_by_instrument.values.reduce(0) { |sum, i| sum + i.count }
@@ -70,5 +73,6 @@ module Auditions
         end
       end
     end
+    # rubocop:enable Metrics/AbcSize
   end
 end

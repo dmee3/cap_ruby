@@ -10,7 +10,7 @@ class AuditionsController < ApplicationController
     end
 
     render 'auditions/success'
-  rescue ApiErrors::TooManyRequests => e
+  rescue ApiErrors::TooManyRequests => _e
     render 'auditions/rate_limited'
   end
 end

@@ -5,9 +5,9 @@ module Staff
     def index
       @next_event = EventService.next_event(current_season['id'])
       @upcoming_conflicts = Conflict
-        .for_season(current_season['id'])
-        .future_conflicts
-        .where('end_date <= ?', 14.days.from_now)
+                            .for_season(current_season['id'])
+                            .future_conflicts
+                            .where('end_date <= ?', 14.days.from_now)
     end
   end
 end

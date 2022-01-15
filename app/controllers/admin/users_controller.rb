@@ -59,7 +59,7 @@ module Admin
         :password_confirmation,
         :phone,
         :username,
-        seasons_users_attributes: [:id, :_destroy, :season_id, :role, :ensemble, :section]
+        seasons_users_attributes: %i[id _destroy season_id role ensemble section]
       )
     end
   end

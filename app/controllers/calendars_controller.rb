@@ -12,7 +12,7 @@ class CalendarsController < ApplicationController
   def new
     set_stripe_public_key
     @donation = Calendar::Donation.new
-    @members = get_calendar_members.to_json
+    @members = find_calendar_members.to_json
   end
 
   def download
@@ -55,7 +55,7 @@ class CalendarsController < ApplicationController
     nil
   end
 
-  def get_calendar_members
+  def find_calendar_members
     members = User
               .members_for_season(Season.last.id)
               .select(:id, :first_name, :last_name)

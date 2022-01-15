@@ -11,11 +11,13 @@ module Auditions
       new.fetch_items
     end
 
+    # rubocop:disable Metrics/MethodLength
     def fetch_items
       SquarespaceApi.orders.each do |order|
-        if order['orderNumber'] == '2067'
+        case order['orderNumber']
+        when '2067'
           add_kaylee(order)
-        elsif order['orderNumber'] == '2045'
+        when '2045'
           add_kiersten(order)
         else
           date = DateTime.parse(order['createdOn'])
@@ -30,6 +32,7 @@ module Auditions
       end
       [@registrations, @packets]
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
@@ -53,9 +56,10 @@ module Auditions
 
     def add_registration(item, date)
       args = { date: date, type: item['productName'] }
-      if item['id'] == '61301752837128523e7e760a'
+      case item['id']
+      when '61301752837128523e7e760a'
         add_kiersten(args)
-      elsif item['id'] == '61328fff1bcded22f86716ba'
+      when '61328fff1bcded22f86716ba'
         add_kaylee(args)
       else
         item['customizations']&.each do |field|

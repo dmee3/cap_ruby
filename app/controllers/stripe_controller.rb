@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 class StripeController < ApplicationController
   before_action :set_stripe_secret_key
   protect_from_forgery except: :webhook
 
+  # rubocop:disable Lint/DuplicateBranch
   def webhook
     payload = request.body.read
     endpoint_secret = ENV['STRIPE_WEBHOOK_SECRET']
@@ -21,6 +24,7 @@ class StripeController < ApplicationController
       status 400
       return
     end
+    # rubocop:enable Lint/DuplicateBranch
 
     # Handle the event
     case event.type
@@ -40,7 +44,7 @@ class StripeController < ApplicationController
     pi_id = payment_intent['id']
     intent_record = PaymentIntent.find_by_stripe_pi_id(pi_id)
 
-    if !intent_record
+    unless intent_record
       Rollbar.info("Unknown Stripe Payment Intent Succeeded: #{pi_id}")
       return
     end

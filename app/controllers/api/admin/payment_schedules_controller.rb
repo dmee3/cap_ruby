@@ -26,7 +26,7 @@ module Api
           render json: { errors: @entry.errors.messages }, status: 422
         end
       end
-  
+
       def add_entry
         entry_vars = add_entry_params.merge(pay_date: Date.today, amount: 0)
         @entry = PaymentScheduleEntry.new entry_vars
@@ -38,14 +38,14 @@ module Api
       end
 
       private
-  
+
       def update_params
         params.require(:payment_schedule).permit(
           :id,
           payment_schedule_entries_attributes: %i[id pay_date amount]
         )
       end
-  
+
       def add_entry_params
         params.permit(:payment_schedule_id)
       end

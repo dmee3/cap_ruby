@@ -1,18 +1,21 @@
+# frozen_string_literal: true
+
 class PaymentService
   class << self
     def season_payment_details(season_id)
-      users = User
-          .includes(:payments, payment_schedules: :payment_schedule_entries)
-          .members_for_season(season_id)
+      User
+        .includes(:payments, payment_schedules: :payment_schedule_entries)
+        .members_for_season(season_id)
     end
 
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Lint/UnexpectedBlockArity
     def upcoming_payments(start_date, end_date, season_id)
       entries = PaymentScheduleEntry
                 .for_season(season_id)
                 .includes(payment_schedule: { user: :payments })
                 .where(pay_date: start_date..end_date)
 
-      entries.map do |e|
+      entry_data = entries.map do |e|
         {
           id: e.id,
           scheduled: e.schedule.scheduled_to_date(e.pay_date),
@@ -22,8 +25,10 @@ class PaymentService
           name: e.schedule.user.full_name,
           user_id: e.schedule.user.id
         }
-      end.select { |e| (e[:scheduled] - e[:paid]).positive? }.sort { |e| e[:date] }
+      end
+      entry_data.select { |e| (e[:scheduled] - e[:paid]).positive? }.sort { |e| e[:date] }
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Lint/UnexpectedBlockArity
 
     def amount_owed_on_date(user, date, season_id)
       schedule = user.payment_schedule_for(season_id)

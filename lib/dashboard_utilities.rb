@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/AbcSize
+# rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity
 class DashboardUtilities
   class << self
-    # rubocop:disable Metrics/MethodLength
     def upcoming_payments(start_date, end_date, season_id)
       schedules = PaymentSchedule.for_season(season_id)
                                  .includes(:payment_schedule_entries, user: :payments)
@@ -29,22 +28,21 @@ class DashboardUtilities
     end
 
     def recent_payments(start_date, end_date, season_id)
-      payments = Payment
-                 .for_season(season_id)
-                 .includes(:user)
-                 .where(date_paid: start_date..end_date)
-                 .map do |p|
-        {
-          amount: p.amount.to_f / 100,
-          date_paid: p.date_paid.strftime('%-m/%-d/%y'),
-          id: p.id,
-          name: "#{p.user.first_name} #{p.user.last_name}",
-          payment_type: p.payment_type.name,
-          user_id: p.user.id
-        }
-      end
+      Payment
+        .for_season(season_id)
+        .includes(:user)
+        .where(date_paid: start_date..end_date)
+        .map do |p|
+          {
+            amount: p.amount.to_f / 100,
+            date_paid: p.date_paid.strftime('%-m/%-d/%y'),
+            id: p.id,
+            name: "#{p.user.first_name} #{p.user.last_name}",
+            payment_type: p.payment_type.name,
+            user_id: p.user.id
+          }
+        end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def upcoming_conflicts(start_date, end_date, season_id)
       conflicts = Conflict.includes(:user, :conflict_status)
@@ -92,4 +90,4 @@ class DashboardUtilities
     end
   end
 end
-# rubocop:enable Metrics/AbcSize
+# rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity

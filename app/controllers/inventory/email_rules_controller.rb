@@ -17,7 +17,7 @@ module Inventory
     def create
       @rule = EmailRule.new(rule_params)
       if @rule.save
-        flash[:success] = "Created rule"
+        flash[:success] = 'Created rule'
         redirect_to inventory_email_rules_path
       else
         flash.now[:error] = @rule.errors.full_messages
@@ -29,7 +29,7 @@ module Inventory
 
     def update
       if @rule.update(rule_params)
-        flash[:success] = "Updated rule"
+        flash[:success] = 'Updated rule'
         redirect_to inventory_email_rules_path
       else
         flash.now[:error] = @rule.errors.full_messages

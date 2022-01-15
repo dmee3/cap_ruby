@@ -39,6 +39,7 @@ module Auditions
     #   },
     #   ...
     # }
+    # rubocop:disable Metrics/AbcSize
     def packet_hash(all_packets)
       packet_names = all_packets.map(&:type).uniq.sort
       {}.tap do |hsh|
@@ -53,10 +54,12 @@ module Auditions
         end
       end
     end
+    # rubocop:enable Metrics/AbcSize
 
     # Takes the output of packet_hash() and turns it into a giant array to
     # write to Google Sheets, along with figuring out the header, subheader,
     # instrument, and registered rows for formatting
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def prepare_data(packet_hash, registered_emails)
       packet_hash.each do |packet_name, packets_by_instrument|
         count = packets_by_instrument.values.reduce(0) { |sum, i| sum + i.count }
@@ -80,5 +83,6 @@ module Auditions
         end
       end
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
   end
 end

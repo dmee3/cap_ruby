@@ -8,7 +8,7 @@ class WhistleblowersController < ApplicationController
   def create
     EmailService.send_whistleblower_email(params[:email], params[:report])
     flash[:success] =
-      'Report submitted. If you provided contact information, expect a response within the next week.'
+      'Report submitted. If you provided contact information, expect a response within a week.'
     redirect_to(root_path)
   rescue StandardError => e
     Rollbar.error(e, user: nil)

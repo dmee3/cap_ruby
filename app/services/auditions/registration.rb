@@ -35,6 +35,7 @@ module Auditions
       end
     end
 
+    # rubocop:disable Metrics/AbcSize
     def initialize(args)
       @type = TYPE_MAP[args[:type]]
       @name = args[:name]
@@ -47,6 +48,7 @@ module Auditions
       @experience = args[:experience]
       @age_in_april = args[:age_in_april]
     end
+    # rubocop:enable Metrics/AbcSize
 
     def to_row
       [@name, @email, @city, @state, @age_in_april, @date.strftime('%-m/%-d %-l:%M %P'),

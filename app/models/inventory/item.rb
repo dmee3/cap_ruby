@@ -24,7 +24,7 @@ module Inventory
     validates :name, :quantity, presence: true
 
     belongs_to :category, class_name: 'Inventory::Category',
-                                    foreign_key: :inventory_category_id
+                          foreign_key: :inventory_category_id
     has_many :transactions, class_name: 'Inventory::Transaction', foreign_key: :inventory_item_id
   end
 end

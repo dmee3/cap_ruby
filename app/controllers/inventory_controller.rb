@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class InventoryController < ApplicationController
   before_action :authenticate_user!
   before_action :redirect_if_no_inventory_access

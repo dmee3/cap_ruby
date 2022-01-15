@@ -3,8 +3,8 @@
 # rubocop:disable Metrics/BlockLength
 FactoryBot.define do
   factory :payment_intent do
-    references { "" }
-    amount { "" }
+    references { '' }
+    amount { '' }
   end
 
   factory :inventory_category, class: 'Inventory::Category' do
@@ -62,9 +62,9 @@ FactoryBot.define do
   factory :seasons_user do
     season
     user
-    ensemble { %w(World CC2).sample }
-    section { %w(Snare Tenors Woods Metals).sample }
-    role { "member" }
+    ensemble { %w[World CC2].sample }
+    section { %w[Snare Tenors Woods Metals].sample }
+    role { 'member' }
   end
 
   factory :user do

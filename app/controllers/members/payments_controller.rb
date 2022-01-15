@@ -12,12 +12,13 @@ module Members
     # Callback method from stripe payment processing
     def post_processing
       if params['redirect_status'] == 'succeeded'
-        flash[:success] = 'Payment submitted. Thank you! Please wait a moment and refresh to see your dues updated.'
-        redirect_to(root_url)
+        flash[:success] =
+          'Payment submitted. Thank you! Please wait a moment and refresh to see your dues updated.'
       else
-        flash[:error] = 'Payment could not be submitted. Please contact a director for further help.'
-        redirect_to(root_url)
+        flash[:error] =
+          'Payment could not be submitted. Please contact a director for further help.'
       end
+      redirect_to(root_url)
     end
   end
 end
