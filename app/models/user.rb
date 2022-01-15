@@ -135,8 +135,7 @@ class User < ApplicationRecord
 
   def remaining_payments_for(season_id)
     paid = amount_paid_for(season_id)
-    payments = payment_schedule_for(season_id).entries.sort_by(&:pay_date)
-    payments.map do |e|
+    payment_schedule_for(season_id).entries.map do |e|
       due = [e.amount - paid, 0].max
       paid = [paid - e.amount, 0].max
       {

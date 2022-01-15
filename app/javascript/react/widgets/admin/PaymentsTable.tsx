@@ -66,7 +66,7 @@ const PaymentsTable = ({
 
   const checkStatus = member => {
     const pastDue = member.remaining_payments.filter(
-      p => Utilities.compareToToday(p.pay_date) < 0 && p.amount > 0
+      p => Utilities.compareToToday(p.pay_date) <= 0 && p.amount > 0
     )
     return pastDue.length === 0
   }
