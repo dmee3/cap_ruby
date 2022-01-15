@@ -84,9 +84,12 @@ const PaymentsTable = ({
       p => Utilities.compareToToday(p.pay_date) >= 0
     )
 
-    const amount = member.remaining_payments.filter(
-      p => new Date(p.pay_date) <= new Date(payments[0].pay_date)
-    ).reduce((sum, payment) => sum + payment.amount, 0)
+    const amount = member.remaining_payments.filter(p => {
+      console.log(p)
+      const remaining_payment_pay_date = new Date(p.pay_date)
+      const paid_pay_date = new Date(payments[0].pay_date)
+      return remaining_payment_pay_date <= paid_pay_date
+    }).reduce((sum, payment) => sum + payment.amount, 0)
     return {
       amount: amount,
       pay_date: payments[0].pay_date
