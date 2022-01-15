@@ -31,7 +31,7 @@ const UpcomingPayment = ({
           data.map(entry => {
             return {
               ...entry,
-              date: new Date(entry.date),
+              date: Utilities.dateWithTZ(entry.date),
               owed: entry.scheduled - entry.paid
             }
           })

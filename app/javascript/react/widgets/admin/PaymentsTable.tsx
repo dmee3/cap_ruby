@@ -162,7 +162,7 @@ const PaymentsTable = ({
                   <div className="flex flex-col">
                     {`${moneyFormatter.format(member.nextPayment.amount / 100.0)}`}
                     <span className="text-secondary">
-                      {Utilities.displayDate(new Date(member.nextPayment.pay_date))}
+                      {Utilities.displayDate(Utilities.dateWithTZ(member.nextPayment.pay_date))}
                     </span>
                   </div>
                   :

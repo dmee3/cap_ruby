@@ -3,6 +3,7 @@ export default class {
     const format = {
       dateStyle: 'short',
       timeStyle: 'short',
+      timeZone: 'America/New_York',
     }
     const date = new Date(dt)
     return new Intl.DateTimeFormat('en-US', format).format(date)
@@ -26,9 +27,13 @@ export default class {
     const format = {
       weekday: 'short' as const, // Deal with TS error
       month: 'numeric' as const,
-      day: 'numeric' as const
+      day: 'numeric' as const,
     }
     return new Intl.DateTimeFormat('en-US', format).format(date)
+  }
+
+  static dateWithTZ(d: string) {
+    return new Date(`${d}T00:00:00.000-05:00`)
   }
 
   static dateSorter(dateA: string, dateB: string) {
