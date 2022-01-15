@@ -85,6 +85,7 @@ const PaymentsTable = ({
     )
 
     const amount = member.remaining_payments.filter(p => {
+      console.log(member)
       console.log(p)
       const remaining_payment_pay_date = new Date(p.pay_date)
       const paid_pay_date = new Date(payments[0].pay_date)
