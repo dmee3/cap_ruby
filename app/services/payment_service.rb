@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
 class PaymentService
+  DUES_PERIODS = [
+    { start: '2021-12-17', end: '2022-01-13' },
+    { start: '2022-01-14', end: '2022-02-17' },
+    { start: '2022-02-18', end: '2022-03-17' },
+    { start: '2022-03-18', end: '2022-10-01' }
+  ]
+
   class << self
     def season_payment_details(season_id)
       User
@@ -37,6 +44,23 @@ class PaymentService
       owed = schedule.entries.select { |e| e.pay_date <= date }.sum(&:amount)
       paid = user.payments_for(season_id).sum(&:amount)
       (owed - paid) / 100.0
+    end
+
+    def dues_period_breakdown(season_id)
+      period_start = Date.parse(current_dues_period[:start])
+      period_end = Date.parse(current_dues_period[:end])
+
+      schedules = User.members_for_season(season_id).map { |m| m.remaining_payments_for(season_id) }
+      current_entries = schedules.flatten.filter do |s|
+        s[:pay_date] >= period_start && s[:pay_date] <= period_end
+      end
+      total_due = current_entries.sum { |e| e[:amount] }
+      total_paid = Payment.for_season(season_id).where(date_paid: period_start...period_end).sum(&:amount)
+      [total_due, total_paid]
+    end
+
+    def current_dues_period
+      DUES_PERIODS.filter { |p| Date.parse(p[:end]) >= Date.today }.first
     end
   end
 end

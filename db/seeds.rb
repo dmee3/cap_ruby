@@ -89,16 +89,10 @@ PaymentType.create(name: 'Venmo') unless PaymentType.find_by_name('Venmo')
 puts "\e[035mPayment Types created\e[0m"
 
 # Create Conflict Statuses
-denied_status = ConflictStatus.create(name: 'Denied') unless ConflictStatus.find_by_name('Denied')
-unless ConflictStatus.find_by_name('Pending')
-  pending_status = ConflictStatus.create(name: 'Pending')
-end
-unless ConflictStatus.find_by_name('Approved')
-  approved_status = ConflictStatus.create(name: 'Approved')
-end
-unless ConflictStatus.find_by_name('Resolved')
-  resolved_status = ConflictStatus.create(name: 'Resolved')
-end
+denied_status = ConflictStatus.find_or_create_by(name: 'Denied')
+pending_status = ConflictStatus.find_or_create_by(name: 'Pending')
+approved_status = ConflictStatus.find_or_create_by(name: 'Approved')
+resolved_status = ConflictStatus.find_or_create_by(name: 'Resolved')
 puts "\e[035mConflict Statuses created\e[0m"
 
 STATUS_ARRAY = [
@@ -176,7 +170,10 @@ TOTAL_MEMBERS.times do |i|
       user.payment_schedules << sched
 
       # Add section
-      su = user.seasons_users.find_by_season_id(details[:season].id)
+      su = user.seasons_users.find_by(season_id: details[:season].id)
+      if su.nil?
+        su = SeasonsUser.create(user: user, season: details[:season])
+      end
       su.section = SECTIONS.sample
       su.ensemble = ENSEMBLES.sample
       su.role = 'member'
