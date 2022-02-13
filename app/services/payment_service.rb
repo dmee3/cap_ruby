@@ -46,17 +46,21 @@ class PaymentService
       (owed - paid) / 100.0
     end
 
-    def dues_period_breakdown(season_id)
+    def dues_owed_in_current_period(season_id)
       period_start = Date.parse(current_dues_period[:start])
       period_end = Date.parse(current_dues_period[:end])
 
       schedules = User.members_for_season(season_id).map { |m| m.remaining_payments_for(season_id) }
       current_entries = schedules.flatten.filter do |s|
-        s[:pay_date] >= period_start && s[:pay_date] <= period_end
+        s[:pay_date] <= period_end
       end
-      total_due = current_entries.sum { |e| e[:amount] }
-      total_paid = Payment.for_season(season_id).where(date_paid: period_start...period_end).sum(&:amount)
-      [total_due, total_paid]
+      current_entries.sum { |e| e[:amount] }
+    end
+
+    def dues_paid_in_current_period(season_id)
+      period_start = Date.parse(current_dues_period[:start])
+      period_end = Date.parse(current_dues_period[:end])
+      Payment.for_season(season_id).where(date_paid: period_start...period_end).sum(&:amount)
     end
 
     def current_dues_period
