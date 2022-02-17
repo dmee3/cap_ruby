@@ -1,4 +1,4 @@
-// @import 'bootstrap';
+/* @import 'bootstrap'; */
 
 html, body {
   background-color: #323337;
@@ -17,14 +17,14 @@ button {
   -webkit-transition: .1s opacity linear;
   -moz-transition: .1s opacity linear;
   -o-transition: .1s opacity linear;
+}
 
-  &:hover {
-    opacity: 0.8;
-  }
+button:hover {
+  opacity: 0.8;
+}
 
-  &:disabled {
-    opacity: 0.2;
-  }
+button:disabled {
+  opacity: 0.2;
 }
 
 .bg {
@@ -39,11 +39,11 @@ button {
   max-width: 42rem;
   padding: 135px 2rem 0 2rem;
   margin: 0 auto;
+}
 
-  img {
-    height: auto;
-    max-width: 100%;
-  }
+.banner-container img {
+  height: auto;
+  max-width: 100%;
 }
 
 .content {

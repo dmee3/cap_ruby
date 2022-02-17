@@ -5,14 +5,12 @@
     <%= csrf_meta_tags %>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <%= stylesheet_pack_tag 'calendar' %>
   </head>
 
   <body class="cap-gray">
     <div class="bg">
       <div class="banner-container">
-        <%= image_pack_tag 'full_logo_white.png' %>
+        <img src="<%= vite_asset_path 'images/full_logo_white.png' %>">
       </div>
     </div>
 
@@ -20,7 +18,7 @@
       <%= yield :main %>
     </main>
 
-    <%= javascript_pack_tag 'calendar' %>
+    <%= vite_typescript_tag 'entrypoints/calendars/new.tsx' %>
 
     <%= yield :scripts %>
   </body>
