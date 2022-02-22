@@ -41,6 +41,10 @@ Rails.application.routes.draw do
       resources :payment_intents, only: %i[create]
     end
 
+    namespace :calendars do
+      resources :payment_intents, only: %i[create]
+    end
+
     resources :conflict_statuses, only: %i[index]
     resources :files, only: %i[index show]
   end
@@ -100,6 +104,9 @@ Rails.application.routes.draw do
   get 'rhythm-converter', to: 'tools#rhythm_converter'
 
   resources :calendars, only: %i[index new create]
+  get '/calendars/members', to: 'calendars#members'
+  get '/calendars/payment-confirmed', to: 'calendars#confirm_payment'
+  get '/calendars/download', to: 'calendars#download'
 
   resources :whistleblowers, only: %i[index create]
 

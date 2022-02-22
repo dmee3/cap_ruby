@@ -5,6 +5,7 @@
     <%= csrf_meta_tags %>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <%= vite_javascript_tag 'application' %>
   </head>
 
   <body class="cap-gray">
@@ -14,11 +15,9 @@
       </div>
     </div>
 
-    <main class="col-12 p-3" id="main-content">
+    <main class="md:flex flex-1 flex-col h-full">
       <%= yield :main %>
     </main>
-
-    <%= vite_typescript_tag 'entrypoints/calendars/new.tsx' %>
 
     <%= yield :scripts %>
   </body>
