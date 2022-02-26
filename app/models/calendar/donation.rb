@@ -11,11 +11,17 @@
 #  notes         :string
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
+#  season_id     :integer
 #  user_id       :integer
 #
 # Indexes
 #
-#  index_calendar_donations_on_user_id  (user_id)
+#  index_calendar_donations_on_season_id  (season_id)
+#  index_calendar_donations_on_user_id    (user_id)
+#
+# Foreign Keys
+#
+#  season_id  (season_id => seasons.id)
 #
 module Calendar
   class Donation < ApplicationRecord
