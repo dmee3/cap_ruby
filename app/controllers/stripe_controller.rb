@@ -4,7 +4,6 @@ class StripeController < ApplicationController
   before_action :set_stripe_secret_key
   protect_from_forgery except: :webhook
 
-  # rubocop:disable Lint/DuplicateBranch
   def webhook
     payload = request.body.read
     endpoint_secret = ENV['STRIPE_WEBHOOK_SECRET']
@@ -24,7 +23,6 @@ class StripeController < ApplicationController
       head 400
       return
     end
-    # rubocop:enable Lint/DuplicateBranch
 
     # Handle the event
     case event.type
@@ -41,7 +39,7 @@ class StripeController < ApplicationController
   private
 
   def process_payment_intent_success(payment_intent)
-    case payment_intent['metadata'].charge_type
+    case payment_intent['metadata']&.charge_type
     when 'dues_payment'
       process_dues_payment(payment_intent)
     when 'calendar'
