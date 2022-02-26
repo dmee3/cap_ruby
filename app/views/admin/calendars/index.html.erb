@@ -1,28 +1,24 @@
-<div class="row mt-3">
-  <div class="col-12 col-sm-6">
-    <div class="card text-center p-3">
-      <h5 class="text-muted mb-0">TOTAL</h5>
-      <h1>$<%= @total %></h1>
+<h1>Calendar Fundraiser</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <div class="card green-gradient">
+    <div class="flex flex-col">
+      <div class="card-title text-green-200">TOTAL</div>
+      <span class="text-3xl text-white font-extrabold font-mono mb-0.5">$<%= @total %></span>
     </div>
   </div>
 </div>
 
-<div class="row mt-3">
-  <div class="col-12">
-    <div class="card">
-      <div class="list-group list-group-flush">
-        <% @donations_by_person.sort.to_h.each do |person, donations| %>
-          <div class="list-group-item">
-            <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1"><%= person %></h5>
-              <small class="text-muted">$<%= donations.sum(&:donation_date) %></small>
-            </div>
-            <p class="mb-1">
-              <%= donations.map(&:donation_date).sort.join(', ') %>
-            </p>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  </div>
+<div class="flex flex-col">
+  <ul class="divide-y divide-gray-300">
+    <% @donations_by_person.sort.to_h.each do |person, donations| %>
+      <li class="flex flex-col justify-between py-2">
+        <div class="flex justify-between">
+          <span class="text-primary font-medium"><%= person %></span>
+          <small class="text-secondary"><%= donations.map(&:donation_date).sort.join(', ') %></small>
+        </div>
+        <span class="text-secondary">$<%= donations.sum(&:donation_date) %></span>
+      </li>
+    <% end %>
+  </ul>
 </div>
