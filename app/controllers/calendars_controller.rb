@@ -5,7 +5,9 @@ class CalendarsController < ApplicationController
   layout 'calendar'
 
   def index
-    donations = Calendar::Donation.where(user_id: params[:user_id], season_id: Season.last.id).map(&:donation_date)
+    donations = Calendar::Donation.where(
+      user_id: params[:user_id], season_id: Season.last.id
+    ).map(&:donation_date)
     render json: donations, status: 200
   end
 

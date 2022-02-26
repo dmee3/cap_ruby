@@ -6,7 +6,7 @@ class StripeController < ApplicationController
 
   def webhook
     payload = request.body.read
-    endpoint_secret = ENV['STRIPE_WEBHOOK_SECRET']
+    endpoint_secret = 'whsec_3602d43213f760bdf809dab28f9564a624918791cbab69d4112e52a82147a4c1'#ENV['STRIPE_WEBHOOK_SECRET']
     sig_header = request.env['HTTP_STRIPE_SIGNATURE']
 
     event = nil
@@ -55,7 +55,8 @@ class StripeController < ApplicationController
         amount: date.to_i * 100,
         notes: "Stripe: #{payment_intent['id']}",
         donation_date: date.to_i,
-        donor_name: metadata.donor_name
+        donor_name: metadata.donor_name,
+        season_id: Season.last.id
       )
     end
   end

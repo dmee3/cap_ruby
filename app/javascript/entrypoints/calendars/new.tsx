@@ -73,11 +73,7 @@ const CalendarsNew = () => {
   }
 
   const resetCalendar = () => {
-    const datesArray = []
-    for (let i = 0; i < 31; i++) {
-      datesArray.push({ selected: false, available: true })
-    }
-    setDates(datesArray)
+    setDates(emptyDatesArray())
     setSubmittable(false)
   }
 
@@ -107,7 +103,7 @@ const CalendarsNew = () => {
         resetCalendar()
         if (data.length === 0) return
 
-        const localDates = [...dates]
+        const localDates = emptyDatesArray()
         data.forEach((index) => {
           localDates[index - 1].available = false
         })
@@ -144,6 +140,14 @@ const CalendarsNew = () => {
       .then(data => {
         setClientSecret(data['clientSecret'])
       })
+  }
+
+  const emptyDatesArray = () => {
+    const datesArray = []
+    for (let i = 0; i < 31; i++) {
+      datesArray.push({ selected: false, available: true })
+    }
+    return datesArray
   }
 
   const elementsCard = () => {
