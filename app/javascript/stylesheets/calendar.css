@@ -1,0 +1,55 @@
+/* @import 'bootstrap'; */
+
+html, body {
+  background-color: #323337;
+  height: 100%;
+  margin: 0;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+button:disabled {
+  opacity: 0.2;
+}
+
+.bg {
+  background-image: url('../images/calendar-background.jpg');
+  height: 400px;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.banner-container {
+  max-width: 42rem;
+  padding: 135px 2rem 0 2rem;
+  margin: 0 auto;
+}
+
+.banner-container img {
+  height: auto;
+  max-width: 100%;
+}
+
+.content {
+  color: #ffffff;
+  margin: 3rem auto;
+  max-width: 42rem;
+}
+
+.empty {
+  cursor: default;
+}
+
+.unavailable {
+  cursor: auto;
+  color: #dbdbdb;
+  background-color: #000000;
+}
+
+.selected {
+  background-color: #e7f1f0;
+  color: #323337;
+}

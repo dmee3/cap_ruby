@@ -47,12 +47,9 @@ class PaymentService
     end
 
     def dues_owed_in_current_period(season_id)
-      period_start = Date.parse(current_dues_period[:start])
-      period_end = Date.parse(current_dues_period[:end])
-
       schedules = User.members_for_season(season_id).map { |m| m.remaining_payments_for(season_id) }
       current_entries = schedules.flatten.filter do |s|
-        s[:pay_date] <= period_end
+        s[:pay_date] <= Date.parse(current_dues_period[:end])
       end
       current_entries.sum { |e| e[:amount] }
     end

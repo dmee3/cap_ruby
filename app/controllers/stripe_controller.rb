@@ -21,7 +21,7 @@ class StripeController < ApplicationController
     rescue Stripe::SignatureVerificationError => e
       # Invalid signature
       Rollbar.error(e, user: current_user)
-      status 400
+      head 400
       return
     end
     # rubocop:enable Lint/DuplicateBranch
@@ -41,6 +41,28 @@ class StripeController < ApplicationController
   private
 
   def process_payment_intent_success(payment_intent)
+    case payment_intent['metadata'].charge_type
+    when 'dues_payment'
+      process_dues_payment(payment_intent)
+    when 'calendar'
+      process_calendar(payment_intent)
+    end
+  end
+
+  def process_calendar(payment_intent)
+    metadata = payment_intent['metadata']
+    metadata.dates.split(',').each do |date|
+      Calendar::Donation.create(
+        user_id: metadata.member_id,
+        amount: date.to_i * 100,
+        notes: "Stripe: #{payment_intent['id']}",
+        donation_date: date.to_i,
+        donor_name: metadata.donor_name
+      )
+    end
+  end
+
+  def process_dues_payment(payment_intent)
     pi_id = payment_intent['id']
     intent_record = PaymentIntent.find_by_stripe_pi_id(pi_id)
 

@@ -1,10 +1,13 @@
 <% content_for :main do %>
-  <div id="form-container" class="content">
-    <calendar-donation-form
-      :members="<%= @members %>"
-      :pk="'<%= @stripe_public_key %>'"
-    />
+  <div id="root" class="content">
   </div>
+
+  <script type="text/javascript">
+    var stripePk = '<%= @stripe_public_key %>';
+  </script>
+
+  <%= vite_typescript_tag 'entrypoints/calendars/new.tsx' %>
+
 
   <%= form_with model: @donation, url: '/calendars', method: :post, html: { id: 'calendar-form' } do |f| %>
     <%= f.hidden_field :user_id, id: 'donation_user_id' %>

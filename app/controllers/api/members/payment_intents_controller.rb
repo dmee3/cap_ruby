@@ -12,6 +12,7 @@ module Api
           currency: 'usd',
           payment_method_types: ['card'],
           metadata: {
+            charge_type: 'dues_payment',
             user_id: current_user.id,
             user_name: current_user.full_name
           }

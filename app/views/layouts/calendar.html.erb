@@ -5,22 +5,19 @@
     <%= csrf_meta_tags %>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <%= stylesheet_pack_tag 'calendar' %>
+    <%= vite_javascript_tag 'application' %>
   </head>
 
   <body class="cap-gray">
     <div class="bg">
       <div class="banner-container">
-        <%= image_pack_tag 'full_logo_white.png' %>
+        <img src="<%= vite_asset_path 'images/full_logo_white.png' %>">
       </div>
     </div>
 
-    <main class="col-12 p-3" id="main-content">
+    <main class="md:flex flex-1 flex-col h-full">
       <%= yield :main %>
     </main>
-
-    <%= javascript_pack_tag 'calendar' %>
 
     <%= yield :scripts %>
   </body>
