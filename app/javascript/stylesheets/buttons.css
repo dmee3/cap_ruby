@@ -21,6 +21,10 @@
   ;
 }
 
+.btn-primary:disabled {
+  opacity: 0.2;
+}
+
 .btn-green {
   @apply
     bg-green-600
@@ -29,12 +33,20 @@
   ;
 }
 
+.btn-green:disabled {
+  opacity: 0.2;
+}
+
 .btn-red {
   @apply
     bg-red-600
     btn-base
     hover:enabled:bg-red-500
   ;
+}
+
+.btn-red:disabled {
+  opacity: 0.2;
 }
 
 .btn-link {

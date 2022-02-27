@@ -79,7 +79,9 @@ Rails.application.routes.draw do
 
   namespace :members do
     get '/', to: 'dashboard#index', as: 'home'
+
     resources :calendars, only: %i[index]
+    get 'calendars/download', to: 'calendars#download'
 
     resources :conflicts, only: %i[new create]
 
@@ -106,7 +108,6 @@ Rails.application.routes.draw do
   resources :calendars, only: %i[index new create]
   get '/calendars/members', to: 'calendars#members'
   get '/calendars/payment-confirmed', to: 'calendars#confirm_payment'
-  get '/calendars/download', to: 'calendars#download'
 
   resources :whistleblowers, only: %i[index create]
 

@@ -20,15 +20,6 @@ class CalendarsController < ApplicationController
     @donation = Calendar::Donation.new
   end
 
-  def download
-    if current_user_role == 'member'
-      img = Calendar::ImageService.generate_image(current_user.id)
-      send_data img.to_datastream, type: 'image/png', disposition: 'inline'
-    else
-      redirect_to '/calendars/new'
-    end
-  end
-
   def confirm_payment
     render :success
   end

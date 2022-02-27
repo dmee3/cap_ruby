@@ -3,9 +3,9 @@
 module Calendar
   class ImageService
     class << self
-      def generate_image(user_id)
+      def generate_image(user_id, base_img)
         dates = Calendar::Donation.where(user_id: user_id).map(&:donation_date)
-        ChunkyPNG::Image.from_file(base_image_path).tap do |base_image|
+        ChunkyPNG::Image.from_file(base_image_path(base_img)).tap do |base_image|
           logo_image = ChunkyPNG::Image.from_file(logo_image_path)
           dates.each { |date| base_image.compose!(logo_image, *DATE_COORDINATES[date - 1]) }
         end
@@ -17,16 +17,16 @@ module Calendar
         "tmp/#{SecureRandom.hex(4)}.png"
       end
 
-      def base_image_path
-        'public/images/calendar-base.png'
+      def base_image_path(base_img)
+        "public/images/calendars/#{base_img}.png"
       end
 
       def logo_image_path
-        'public/images/calendar-logo.png'
+        'public/images/calendars/logo.png'
       end
 
-      ROWS = [650, 735, 821, 906, 992].freeze
-      COLS = [145, 264, 383, 502, 621, 740, 859].freeze
+      ROWS = [348, 438, 528, 618, 708].freeze
+      COLS = [168, 287, 406, 525, 644, 753, 853].freeze
 
       DATE_COORDINATES = [
         [COLS[1], ROWS[0]],
