@@ -39,6 +39,8 @@ class StripeController < ApplicationController
   private
 
   def process_payment_intent_success(payment_intent)
+    return unless payment_intent['metadata'].respond_to?(:charge_type)
+
     case payment_intent['metadata']&.charge_type
     when 'dues_payment'
       process_dues_payment(payment_intent)

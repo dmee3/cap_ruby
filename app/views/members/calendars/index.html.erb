@@ -1,17 +1,31 @@
 <h1>Calendar Fundraiser</h1>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-  <div class="card green-gradient">
-    <div class="flex flex-col">
-      <div class="card-title text-green-200">TOTAL</div>
-      <span class="text-3xl text-white font-extrabold font-mono mb-0.5">$<%= @total %></span>
+  <div class="flex flex-col">
+    <div class="card green-gradient">
+      <div class="flex flex-col">
+        <div class="card-title text-green-200">TOTAL</div>
+        <span class="text-3xl text-white font-extrabold font-mono mb-0.5">$<%= @total %></span>
+      </div>
+    </div>
+
+    <div class="card gray-gradient mt-4 hidden md:block flex-grow">
+      <span class="card-title text-gray-300">DONATIONS</span>
+      <ul class="divide-y divide-gray-300 dark:divide-gray-600">
+        <% @donations.order(:donation_date).each do |donation| %>
+          <li class="flex justify-between py-2">
+            <span class="text-primary-dark">$<%= donation.donation_date %></span>
+            <span class="text-secondary-dark"><%= donation.donor_name.blank? ? 'Anonymous' : donation.donor_name %></span>
+          </li>
+        <% end %>
+      </ul>
     </div>
   </div>
 
   <div id="calendars" class="card-flat border-ocean">
   </div>
 
-  <div class="card gray-gradient md:col-span-2">
+  <div class="card gray-gradient md:hidden">
     <span class="card-title text-gray-300">DONATIONS</span>
     <ul class="divide-y divide-gray-300 dark:divide-gray-600">
       <% @donations.order(:donation_date).each do |donation| %>
