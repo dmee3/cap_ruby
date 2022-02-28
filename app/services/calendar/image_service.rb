@@ -29,7 +29,6 @@ module Calendar
       COLS = [168, 287, 406, 525, 644, 753, 853].freeze
 
       DATE_COORDINATES = [
-        [COLS[1], ROWS[0]],
         [COLS[2], ROWS[0]],
         [COLS[3], ROWS[0]],
         [COLS[4], ROWS[0]],
@@ -59,7 +58,8 @@ module Calendar
         [COLS[0], ROWS[4]],
         [COLS[1], ROWS[4]],
         [COLS[2], ROWS[4]],
-        [COLS[3], ROWS[4]]
+        [COLS[3], ROWS[4]],
+        [COLS[4], ROWS[4]]
       ].freeze
     end
   end
