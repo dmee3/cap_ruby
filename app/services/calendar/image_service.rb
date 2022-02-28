@@ -4,7 +4,7 @@ module Calendar
   class ImageService
     class << self
       def generate_image(user_id, base_img)
-        dates = Calendar::Donation.where(user_id: user_id).map(&:donation_date)
+        dates = Calendar::Donation.where(user_id: user_id, season_id: Season.last.id).map(&:donation_date)
         ChunkyPNG::Image.from_file(base_image_path(base_img)).tap do |base_image|
           logo_image = ChunkyPNG::Image.from_file(logo_image_path)
           dates.each { |date| base_image.compose!(logo_image, *DATE_COORDINATES[date - 1]) }
