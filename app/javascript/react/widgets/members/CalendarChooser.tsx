@@ -32,8 +32,8 @@ const CalendarChooser = ({
 
   return (
     <div className="flex flex-col">
-      <div className="card-title text-gray-700 mb-2">DOWNLOAD IMAGE</div>
-      <span className="text-secondary">Choose Base Image:</span>
+      <div className="card-title text-gray-700 dark:text-gray-300 mb-2">DOWNLOAD IMAGE</div>
+      <span className="text-secondary dark:text-gray-400">Choose Base Image:</span>
       <div className="grid grid-cols-5 gap-4">
         {images.map(img => {
           return <div key={img}>

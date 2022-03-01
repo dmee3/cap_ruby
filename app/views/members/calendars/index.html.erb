@@ -11,11 +11,11 @@
 
     <div class="card gray-gradient mt-4 hidden md:block flex-grow">
       <span class="card-title text-gray-300">DONATIONS</span>
-      <ul class="divide-y divide-gray-300 dark:divide-gray-600">
+      <ul class="divide-y divide-gray-300">
         <% @donations.order(:donation_date).each do |donation| %>
           <li class="flex justify-between py-2">
-            <span class="text-primary-dark">$<%= donation.donation_date %></span>
-            <span class="text-secondary-dark"><%= donation.donor_name.blank? ? 'Anonymous' : donation.donor_name %></span>
+            <span class="text-gray-100">$<%= donation.donation_date %></span>
+            <span class="text-gray-400"><%= donation.donor_name.blank? ? 'Anonymous' : donation.donor_name %></span>
           </li>
         <% end %>
       </ul>
@@ -30,8 +30,8 @@
     <ul class="divide-y divide-gray-300 dark:divide-gray-600">
       <% @donations.order(:donation_date).each do |donation| %>
         <li class="flex justify-between py-2">
-          <span class="text-primary-dark">$<%= donation.donation_date %></span>
-          <span class="text-secondary-dark"><%= donation.donor_name.blank? ? 'Anonymous' : donation.donor_name %></span>
+          <span class="text-gray-100">$<%= donation.donation_date %></span>
+          <span class="text-gray-400"><%= donation.donor_name.blank? ? 'Anonymous' : donation.donor_name %></span>
         </li>
       <% end %>
     </ul>

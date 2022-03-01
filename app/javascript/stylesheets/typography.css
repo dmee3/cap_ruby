@@ -31,15 +31,6 @@ h3 {
   @apply text-gray-500 font-light;
 }
 
-.text-primary-dark {
-  @apply text-gray-100;
-}
-
-.text-secondary-dark {
-  @apply text-gray-400 font-light;
-}
-
-
 .link {
   @apply
     text-ocean
