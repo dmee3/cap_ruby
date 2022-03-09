@@ -3,17 +3,15 @@
 module Admin
   class CalendarsController < AdminController
     def index
-      @total = donations.sum(&:donation_date)
-      @donations_by_person = donations.group_by { |d| d.user.full_name }
-      User.members_for_season(Season.last.id).map(&:full_name).each do |u|
-        @donations_by_person[u] ||= []
-      end
+      @members = User.includes(calendar_fundraisers: :donations).members_for_season(current_season['id'])
+      @completed_fundraisers = fundraisers.select(&:completed?).count
+      @total = fundraisers.sum(&:total_donations)
     end
 
     private
 
-    def donations
-      @donations ||= Calendar::Donation.where(season_id: Season.last.id)
+    def fundraisers
+      @fundraisers ||= Calendar::Fundraiser.includes(:donations).for_season(current_season['id'])
     end
   end
 end

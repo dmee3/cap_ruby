@@ -51,6 +51,7 @@ class StripeController < ApplicationController
 
   def process_calendar(payment_intent)
     metadata = payment_intent['metadata']
+    fundraiser = Calendar::Fundraiser.find_or_create_incomplete_for_user(metadata.member_id)
     metadata.dates.split(',').each do |date|
       Calendar::Donation.create(
         user_id: metadata.member_id,
@@ -58,9 +59,16 @@ class StripeController < ApplicationController
         notes: "Stripe: #{payment_intent['id']}",
         donation_date: date.to_i,
         donor_name: metadata.donor_name,
-        season_id: Season.last.id
+        season_id: Season.last.id,
+        calendar_fundraiser_id: fundraiser.id
       )
     end
+
+    CalendarMailer.with(
+      user_id: metadata.member_id,
+      donation_dates: metadata.dates.split(',').map(&:to_i),
+      donor_name: metadata.donor_name
+    ).calendar_email.deliver_later
   end
 
   def process_dues_payment(payment_intent)

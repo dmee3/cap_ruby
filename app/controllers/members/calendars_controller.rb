@@ -3,8 +3,9 @@
 module Members
   class CalendarsController < MembersController
     def index
-      @donations = Calendar::Donation.where(user_id: current_user, season_id: Season.last.id)
-      @total = @donations.sum(&:donation_date)
+      @completed_fundraisers = Calendar::Fundraiser.complete_for_user(current_user.id)
+      @current_fundraiser = Calendar::Fundraiser.find_or_create_incomplete_for_user(current_user.id)
+      @total = current_user.calendar_fundraisers.sum(&:total_donations)
 
       @images = []
       (1..14).each { |i| @images << "cc2_#{i}_thumb.jpg" }

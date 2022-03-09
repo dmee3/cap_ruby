@@ -48,6 +48,8 @@ class User < ApplicationRecord
   has_many :seasons, through: :seasons_users
   accepts_nested_attributes_for :seasons_users, allow_destroy: true
 
+  has_many :calendar_fundraisers, class_name: 'Calendar::Fundraiser'
+
   validates :email, presence: true
   validates :email, uniqueness: { case_sensitive: false }
   validates :first_name, presence: true
