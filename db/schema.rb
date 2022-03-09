@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_26_181001) do
+ActiveRecord::Schema.define(version: 2022_03_08_032148) do
 
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
@@ -46,8 +46,19 @@ ActiveRecord::Schema.define(version: 2022_02_26_181001) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "donor_name"
     t.integer "season_id"
+    t.integer "calendar_fundraiser_id"
+    t.index ["calendar_fundraiser_id"], name: "index_calendar_donations_on_calendar_fundraiser_id"
     t.index ["season_id"], name: "index_calendar_donations_on_season_id"
     t.index ["user_id"], name: "index_calendar_donations_on_user_id"
+  end
+
+  create_table "calendar_fundraisers", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "season_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["season_id"], name: "index_calendar_fundraisers_on_season_id"
+    t.index ["user_id"], name: "index_calendar_fundraisers_on_user_id"
   end
 
   create_table "conflict_statuses", force: :cascade do |t|
@@ -200,6 +211,9 @@ ActiveRecord::Schema.define(version: 2022_02_26_181001) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  add_foreign_key "calendar_donations", "calendar_fundraisers"
   add_foreign_key "calendar_donations", "seasons"
+  add_foreign_key "calendar_fundraisers", "seasons"
+  add_foreign_key "calendar_fundraisers", "users"
   add_foreign_key "inventory_items", "inventory_categories"
 end

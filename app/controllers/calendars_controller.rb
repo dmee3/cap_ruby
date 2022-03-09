@@ -5,9 +5,8 @@ class CalendarsController < ApplicationController
   layout 'calendar'
 
   def index
-    donations = Calendar::Donation.where(
-      user_id: params[:user_id], season_id: Season.last.id
-    ).map(&:donation_date)
+    fundraiser = Calendar::Fundraiser.find_or_create_incomplete_for_user(params[:user_id])
+    donations = fundraiser.donations.map(&:donation_date)
     render json: donations, status: 200
   end
 
@@ -36,26 +35,6 @@ class CalendarsController < ApplicationController
     # members.reject do |u|
     #   [196, 202, 265, 277, 281, 282, 289].include?(u.id)
     # end
-  end
-
-  def create_donations(charge_id, dates)
-    dates.each do |date|
-      Calendar::Donation.create(
-        user_id: donation_params[:user_id],
-        amount: donation_params[:amount],
-        notes: "Stripe Payment - Charge ID: #{charge_id}",
-        donation_date: date,
-        donor_name: donation_params[:donor_name]
-      )
-    end
-  end
-
-  def send_mail(user_id, dates, donor_name)
-    CalendarMailer.with(
-      user_id: user_id,
-      donation_dates: dates,
-      donor_name: donor_name
-    ).calendar_email.deliver_later
   end
 
   def donation_params

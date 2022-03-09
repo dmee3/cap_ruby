@@ -6,7 +6,7 @@ class StripeController < ApplicationController
 
   def webhook
     payload = request.body.read
-    endpoint_secret = ENV['STRIPE_WEBHOOK_SECRET']
+    endpoint_secret = 'whsec_3602d43213f760bdf809dab28f9564a624918791cbab69d4112e52a82147a4c1'#ENV['STRIPE_WEBHOOK_SECRET']
     sig_header = request.env['HTTP_STRIPE_SIGNATURE']
 
     event = nil
@@ -51,6 +51,7 @@ class StripeController < ApplicationController
 
   def process_calendar(payment_intent)
     metadata = payment_intent['metadata']
+    fundraiser = Calendar::Fundraiser.find_or_create_incomplete_for_user(metadata.member_id)
     metadata.dates.split(',').each do |date|
       Calendar::Donation.create(
         user_id: metadata.member_id,
@@ -58,9 +59,16 @@ class StripeController < ApplicationController
         notes: "Stripe: #{payment_intent['id']}",
         donation_date: date.to_i,
         donor_name: metadata.donor_name,
-        season_id: Season.last.id
+        season_id: Season.last.id,
+        calendar_fundraiser_id: fundraiser.id
       )
     end
+
+    CalendarMailer.with(
+      user_id: metadata.member_id,
+      donation_dates: metadata.dates.split(',').map(&:to_i),
+      donor_name: metadata.donor_name
+    ).calendar_email.deliver_later
   end
 
   def process_dues_payment(payment_intent)

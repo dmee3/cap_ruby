@@ -7,18 +7,40 @@
       <span class="text-3xl text-white font-extrabold font-mono mb-0.5">$<%= @total %></span>
     </div>
   </div>
+
+  <div class="card-flat border-ocean">
+    <div class="flex flex-col">
+      <div class="card-title text-gray-700 dark:text-gray-300">COMPLETED CALENDARS</div>
+      <span class="text-3xl text-gray-700 dark:text-white font-extrabold font-mono"><%= @completed_fundraisers %></span>
+    </div>
+  </div>
 </div>
 
 <div class="flex flex-col">
-  <ul class="divide-y divide-gray-300">
-    <% @donations_by_person.sort.to_h.each do |person, donations| %>
-      <li class="flex flex-col justify-between py-2">
-        <div class="flex justify-between">
-          <span class="font-medium"><%= person %></span>
-          <small class="text-gray-400 dark:text-gray-500 font-light"><%= donations.map(&:donation_date).sort.join(', ') %></small>
-        </div>
-        <span class="text-gray-400 dark:text-gray-500 font-light">$<%= donations.sum(&:donation_date) %></span>
-      </li>
-    <% end %>
-  </ul>
+  <table class="custom-table">
+    <thead>
+      <th scope="col" class="table-header">Name</th>
+      <th scope="col" class="table-header text-center">Completed</th>
+      <th scope="col" class="table-header text-right">Current Donations</th>
+    </thead>
+    <tbody class="table-body">
+      <% @members.sort_by(&:full_name).each do |member| %>
+        <% completed = member.calendar_fundraisers.select(&:completed?).count %>
+        <tr>
+          <td class="table-cell flex flex-col">
+            <div class="font-medium"><%= member.full_name %></div>
+            <div class="font-light">$<%= member.calendar_fundraisers.sum(&:total_donations) %></div>
+          </td>
+          <td class="table-cell text-center">
+            <% if completed > 0 %>
+              <span class="w-min bg-green-100 text-green-600 rounded-full text-sm font-medium px-3 py-1"><%= completed %></span>
+            <% end %>
+          </td>
+          <td class="table-cell text-right">
+            <span class="font-medium"><%= member.calendar_fundraisers.reject(&:completed?).last.donations.map(&:donation_date).sort.join(', ') %></span>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 </div>
