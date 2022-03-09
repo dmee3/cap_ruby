@@ -20,6 +20,11 @@
   ;
 }
 
+.table-header-right {
+  @apply table-header;
+  text-align: right !important;
+}
+
 .table-body {
   @apply
     divide-y

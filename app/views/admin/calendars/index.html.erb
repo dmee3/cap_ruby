@@ -21,11 +21,12 @@
     <thead>
       <th scope="col" class="table-header">Name</th>
       <th scope="col" class="table-header text-center">Completed</th>
-      <th scope="col" class="table-header text-right">Current Donations</th>
+      <th scope="col" class="table-header-right">Current Donations</th>
     </thead>
     <tbody class="table-body">
       <% @members.sort_by(&:full_name).each do |member| %>
         <% completed = member.calendar_fundraisers.select(&:completed?).count %>
+        <% current = member.calendar_fundraisers.reject(&:completed?).last %>
         <tr>
           <td class="table-cell flex flex-col">
             <div class="font-medium"><%= member.full_name %></div>
@@ -37,7 +38,9 @@
             <% end %>
           </td>
           <td class="table-cell text-right">
-            <span class="font-medium"><%= member.calendar_fundraisers.reject(&:completed?).last.donations.map(&:donation_date).sort.join(', ') %></span>
+            <% if current.present? %>
+              <span class="font-medium"><%= current.donations.map(&:donation_date).sort.join(', ') %></span>
+            <% end %>
           </td>
         </tr>
       <% end %>
