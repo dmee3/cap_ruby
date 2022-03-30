@@ -17,7 +17,7 @@ gem 'google-api-client' # Auditions Processor
 gem 'jbuilder'
 gem 'jwt'
 gem 'mailgun-ruby', '~>1.2.5'
-gem 'puma', '~> 5.3.1'
+gem 'puma', '~> 5.6.4'
 gem 'rails', '~> 6.1.3', '>= 6.1.3.2'
 gem 'rollbar', '~> 3.1.0'
 gem 'sass-rails', '>= 6'
