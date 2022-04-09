@@ -21,7 +21,7 @@
     "eslint-plugin-vue": "^7.1.0",
     "flatpickr": "^4.6.3",
     "fuzzysort": "^1.1.4",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "prettier": "^2.1.2",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
