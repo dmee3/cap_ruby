@@ -18,7 +18,12 @@ module Auditions
       data_hash = registration_hash(registrations)
       prepare_data(data_hash)
       GoogleSheetsApi.clear_sheet(@sheet_name)
-      GoogleSheetsApi.format_sheet(@sheet_name, @header_rows, @subheader_rows, @instrument_rows)
+      GoogleSheetsApi.format_sheet(
+        @sheet_name,
+        @header_rows,
+        @subheader_rows,
+        @instrument_rows
+      )
       GoogleSheetsApi.write_sheet(@sheet_name, @values)
     end
 

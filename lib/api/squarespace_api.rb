@@ -4,8 +4,8 @@ class SquarespaceApi
   API_KEY = ENV['SQUARESPACE_API_KEY']
   ORDERS_URL = 'https://api.squarespace.com/1.0/commerce/orders'
   HEADERS = { 'Authorization' => "Bearer #{API_KEY}", 'User-Agent' => 'ruby' }.freeze
-  ORDER_START_DATE = '2021-08-15T12:00:00Z'
-  ORDER_END_DATE = '2021-11-01T12:30:00Z'
+  ORDER_START_DATE = '2022-08-14T12:00:00Z'
+  ORDER_END_DATE = '2022-11-01T12:30:00Z'
 
   class << self
     def orders
