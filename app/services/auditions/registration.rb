@@ -5,18 +5,18 @@ module Auditions
     attr_reader :type, :name, :email, :city, :state, :instrument, :date, :experience, :age_in_april
 
     PRODUCT_NAMES = [
-      'CC22 Music Audition Registration',
-      'CC22 Visual Audition Registration',
-      'CC22 Music Ensemble Audition Registration',
-      'CC22 Visual Ensemble Audition Registration'
+      'CC23 Music Audition Registration',
+      'CC23 Visual Audition Registration',
+      'CC23 Music Ensemble Audition Registration',
+      'CC23 Visual Ensemble Audition Registration'
     ].freeze
 
     # Because I messed up naming the product on Squarespace originally
     TYPE_MAP = {
-      'CC22 Music Audition Registration' => 'Music Registration',
-      'CC22 Music Ensemble Audition Registration' => 'Music Registration',
-      'CC22 Visual Audition Registration' => 'Visual Registration',
-      'CC22 Visual Ensemble Audition Registration' => 'Visual Registration'
+      'CC23 Music Audition Registration' => 'Music Registration',
+      'CC23 Music Ensemble Audition Registration' => 'Music Registration',
+      'CC23 Visual Audition Registration' => 'Visual Registration',
+      'CC23 Visual Ensemble Audition Registration' => 'Visual Registration'
     }.freeze
 
     FIELD_TO_SYMBOL = {
