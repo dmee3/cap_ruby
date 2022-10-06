@@ -2,10 +2,12 @@
 
 class PaymentService
   DUES_PERIODS = [
-    { start: '2021-12-17', end: '2022-01-13' },
-    { start: '2022-01-14', end: '2022-02-17' },
-    { start: '2022-02-18', end: '2022-03-17' },
-    { start: '2022-03-18', end: '2022-10-01' }
+    { start: '2022-10-23', end: '2022-11-26' },
+    { start: '2022-11-27', end: '2022-12-29' },
+    { start: '2022-12-30', end: '2023-01-21' },
+    { start: '2022-01-22', end: '2023-02-18' },
+    { start: '2022-02-19', end: '2023-03-18' },
+    { start: '2022-03-19', end: '2023-10-01' }
   ]
 
   class << self
@@ -48,6 +50,9 @@ class PaymentService
 
     def dues_owed_in_current_period(season_id)
       schedules = User.members_for_season(season_id).map { |m| m.remaining_payments_for(season_id) }
+      byebug
+      return 0 if schedules.blank?
+
       current_entries = schedules.flatten.filter do |s|
         s[:pay_date] <= Date.parse(current_dues_period[:end])
       end
