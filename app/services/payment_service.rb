@@ -50,7 +50,6 @@ class PaymentService
 
     def dues_owed_in_current_period(season_id)
       schedules = User.members_for_season(season_id).map { |m| m.remaining_payments_for(season_id) }
-      byebug
       return 0 if schedules.blank?
 
       current_entries = schedules.flatten.filter do |s|
