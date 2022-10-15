@@ -25,10 +25,11 @@ const PaymentScheduleEditRow = ({
       </div>
       <div className="col-span-5 sm:col-span-2 -mb-2 sm:mb-0 flex items-center">
         <input
+          autoFocus
           name={`date_${entry.id}`}
           id={`date_${entry.id}`}
           className="input-text"
-          type="text"
+          type="date"
           value={entry.pay_date}
           onChange={evt => dateChanged(evt)}
         />

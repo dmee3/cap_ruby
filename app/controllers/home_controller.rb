@@ -14,22 +14,40 @@ class HomeController < ApplicationController
     when 'staff'
       redirect_to staff_home_path
     else
-      Rollbar.warning(
-        'User with unknown role accessed home page.',
-        user: current_user,
-        role: current_user_role
-      )
-      sign_out current_user
+      handle_unknown_role
     end
   end
 
   def change_season
     if params[:season_id].present?
-      cookies[:cap_season] = Season.find(params[:season_id]).to_json
+      set_season_cookie(Season.find(params[:season_id]).to_json)
     else
-      cookies[:cap_season] = current_user.seasons.last.to_json
+      set_season_cookie(current_user.seasons.last.to_json)
     end
 
     redirect_back fallback_location: root_path
+  end
+
+  private
+
+  def set_season_cookie(season_id)
+    cookies[:cap_season] = season_id
+  end
+
+  def handle_unknown_role
+    Rollbar.warning(
+      'User with unknown role for current season accessed home page.',
+      user: current_user,
+      season: current_season['id'],
+      role: current_user_role
+    )
+
+    if current_user.seasons_users.any?
+      set_season_cookie(current_user.seasons.last.to_json)
+    else
+      sign_out current_user
+    end
+
+    redirect_to root_path
   end
 end

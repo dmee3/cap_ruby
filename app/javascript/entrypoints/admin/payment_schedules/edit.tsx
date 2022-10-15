@@ -6,8 +6,11 @@ import { PlusSmIcon } from '@heroicons/react/outline'
 import PaymentScheduleEditRow from '../../../react/widgets/admin/PaymentScheduleEditRow'
 
 const AdminPaymentSchedulesEdit = () => {
-  const [paymentSchedule, setPaymentSchedule] = useState({})
+  const [paymentSchedule, setPaymentSchedule] = useState<PaymentSchedule>({})
   const [entries, setEntries] = useState([])
+  const userId = window.userId
+  const fullName = window.fullName
+  const scheduleId = window.scheduleId
 
   const handleAmountChange = (event, entry) => {
     const newVal = +(event.target.value) * 100
@@ -112,7 +115,7 @@ const AdminPaymentSchedulesEdit = () => {
       }
     })
     .then(() => {
-      window.location.href = `/admin/users/${window.userId}`
+      window.location.href = `/admin/users/${userId}`
     })
     .catch(error => {
       addFlash('error', "Couldn't save payment schedule")
@@ -121,7 +124,7 @@ const AdminPaymentSchedulesEdit = () => {
   }
 
   useEffect(() => {
-    fetch(`/api/admin/payment_schedules/${window.scheduleId}`)
+    fetch(`/api/admin/payment_schedules/${scheduleId}`)
       .then(resp => {
         if (resp.ok) {
           return resp.json()
@@ -138,11 +141,11 @@ const AdminPaymentSchedulesEdit = () => {
   return(
     <div className="flex flex-col">
       <div className="flex flex-row items-center justify-between mt-4 mb-6">
-        <h1>Edit Payment Schedule for {window.fullName}</h1>
+        <h1>Edit Payment Schedule for {fullName}</h1>
         <div>
           <button className="btn-green btn-lg" onClick={() => addEntry()}>
             <PlusSmIcon className="mr-2 h-6 w-6" />
-            New
+            New Entry
           </button>
         </div>
       </div>
@@ -162,6 +165,12 @@ const AdminPaymentSchedulesEdit = () => {
       </div>
 
       <div className="mt-4 flex flex-row justify-end">
+        {entries.length > 0 &&
+          <button className="btn-green btn-lg mr-6" onClick={() => addEntry()}>
+            <PlusSmIcon className="mr-2 h-6 w-6" />
+            New Entry
+          </button>
+        }
         <button onClick={() => saveSchedule()} className="btn-primary btn-lg">
           Save
         </button>
