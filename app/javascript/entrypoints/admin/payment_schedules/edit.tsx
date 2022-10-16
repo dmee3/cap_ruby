@@ -6,11 +6,15 @@ import { PlusSmIcon } from '@heroicons/react/outline'
 import PaymentScheduleEditRow from '../../../react/widgets/admin/PaymentScheduleEditRow'
 
 const AdminPaymentSchedulesEdit = () => {
-  const [paymentSchedule, setPaymentSchedule] = useState<PaymentSchedule>({})
+  const [paymentSchedule, setPaymentSchedule] = useState<PaymentSchedule | {}>({})
   const [entries, setEntries] = useState([])
   const userId = window.userId
   const fullName = window.fullName
   const scheduleId = window.scheduleId
+  const defaultSchedule = window.defaultSchedule
+  const ensemble = window.ensemble
+  const section = window.section
+  const vet = window.vet
 
   const handleAmountChange = (event, entry) => {
     const newVal = +(event.target.value) * 100
@@ -150,30 +154,50 @@ const AdminPaymentSchedulesEdit = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-5 gap-x-6 gap-y-4">
-        {entries.map((e, i) => (
-            <PaymentScheduleEditRow
-              key={e.id}
-              entry={e}
-              index={i}
-              amountChanged={evt => handleAmountChange(evt, e)}
-              dateChanged={evt => handleDateChange(evt, e)}
-              deleteClicked={evt => deleteEntry(evt, e)}
-            />
-          ))
-        }
-      </div>
+      <div className="grid grid-cols-4 gap-x-6 gap-y-4">
+        <div className="col-span-4 sm:col-span-3">
+          <div className="grid grid-cols-5 gap-x-6 gap-y-4">
+              {entries.map((e, i) => (
+                  <PaymentScheduleEditRow
+                    key={e.id}
+                    entry={e}
+                    index={i}
+                    amountChanged={evt => handleAmountChange(evt, e)}
+                    dateChanged={evt => handleDateChange(evt, e)}
+                    deleteClicked={evt => deleteEntry(evt, e)}
+                  />
+                ))
+              }
+          </div>
+          <div className="mt-4 flex flex-row justify-end">
+            {entries.length > 0 &&
+              <button className="btn-green btn-lg mr-6" onClick={() => addEntry()}>
+                <PlusSmIcon className="mr-2 h-6 w-6" />
+                New Entry
+              </button>
+            }
+            <button onClick={() => saveSchedule()} className="btn-primary btn-lg">
+              Save
+            </button>
+          </div>
+        </div>
 
-      <div className="mt-4 flex flex-row justify-end">
-        {entries.length > 0 &&
-          <button className="btn-green btn-lg mr-6" onClick={() => addEntry()}>
-            <PlusSmIcon className="mr-2 h-6 w-6" />
-            New Entry
-          </button>
-        }
-        <button onClick={() => saveSchedule()} className="btn-primary btn-lg">
-          Save
-        </button>
+        <div className="col-span-4 sm:col-span-1">
+          <div className="card-flat">
+            <div className="card-title text-gray-700 dark:text-gray-300">DEFAULT PAYMENT SCHEDULE</div>
+            <div className="text-secondary text-sm uppercase mb-2">{ensemble} {section} {vet ? 'Vet' : 'Rookie' }</div>
+            <div className="flex flex-col">
+              {
+                Object.entries(JSON.parse(defaultSchedule)).map(([date, amount]) => {
+                  return <div className="flex flex-row justify-between">
+                    <div className="text-secondary">{date}</div>
+                    <div>${amount}</div>
+                  </div>
+                })
+              }
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
