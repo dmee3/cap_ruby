@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.7.2' # make sure to update the .ruby-version file as well
+ruby '3.0.3' # make sure to update the .ruby-version file as well
 
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
@@ -9,7 +9,7 @@ end
 
 gem 'acts_as_paranoid'
 gem 'bcrypt', '~> 3.1.7'
-gem 'bootsnap', require: false # Reduces boot times through caching; required in config/boot.rb
+gem 'bootsnap', '~> 1.9.2', require: false # Reduces boot times through caching; required in config/boot.rb
 gem 'chunky_png' # Calendar image processing
 gem 'devise'
 gem 'faraday' # Auditions Processor
