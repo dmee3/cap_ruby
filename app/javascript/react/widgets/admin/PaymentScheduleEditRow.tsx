@@ -34,7 +34,7 @@ const PaymentScheduleEditRow = ({
           onChange={evt => dateChanged(evt)}
         />
       </div>
-      <div className="col-span-5 sm:col-span-2 flex items-center space-x-4">
+      <div className="col-span-5 sm:col-span-2 flex items-center justify-between space-x-4">
         <div className="flex grow flex-row items-center">
           <span className="font-bold text-gray-500 mr-2">$</span>
           <InputNumber

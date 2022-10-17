@@ -127,6 +127,31 @@ const AdminPaymentSchedulesEdit = () => {
     })
   }
 
+  const createDefaultSchedule = (event) => {
+    event.target.disabled = true
+    event.target.classList.add('.btn-disabled')
+    fetch(`/api/admin/payment_schedules/create-default`, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': Utilities.getAuthToken(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        payment_schedule_id: paymentSchedule.id
+      })
+    })
+      .then(resp => {
+        if (resp.ok) {
+          window.location.reload()
+        }
+      })
+      .catch(error => {
+        console.error(error)
+        event.target.disabled = false
+        event.target.classList.remove('.btn-disabled')
+      })
+  }
+
   useEffect(() => {
     fetch(`/api/admin/payment_schedules/${scheduleId}`)
       .then(resp => {
@@ -196,6 +221,7 @@ const AdminPaymentSchedulesEdit = () => {
                 })
               }
             </div>
+            <button id="create-default" className="btn-green btn-md mt-2 w-full" onClick={evt => createDefaultSchedule(evt)}>CREATE DEFAULT</button>
           </div>
         </div>
       </div>
