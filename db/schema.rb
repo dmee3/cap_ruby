@@ -10,13 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_03_08_032148) do
-
+ActiveRecord::Schema[7.0].define(version: 2022_10_17_201727) do
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
     t.string "description"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.date "activity_date"
     t.integer "created_by_id"
     t.string "activity_type"
@@ -25,16 +24,16 @@ ActiveRecord::Schema.define(version: 2022_03_08_032148) do
 
   create_table "bot_points", force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.integer "score", default: 0
     t.string "reason"
   end
 
   create_table "bot_sayings", force: :cascade do |t|
     t.string "saying"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "calendar_donations", force: :cascade do |t|
@@ -42,8 +41,8 @@ ActiveRecord::Schema.define(version: 2022_03_08_032148) do
     t.integer "amount"
     t.string "notes"
     t.integer "donation_date"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "donor_name"
     t.integer "season_id"
     t.integer "calendar_fundraiser_id"
@@ -55,27 +54,27 @@ ActiveRecord::Schema.define(version: 2022_03_08_032148) do
   create_table "calendar_fundraisers", force: :cascade do |t|
     t.integer "user_id"
     t.integer "season_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["season_id"], name: "index_calendar_fundraisers_on_season_id"
     t.index ["user_id"], name: "index_calendar_fundraisers_on_user_id"
   end
 
   create_table "conflict_statuses", force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "conflicts", force: :cascade do |t|
     t.integer "user_id"
-    t.datetime "start_date"
-    t.datetime "end_date"
+    t.datetime "start_date", precision: nil
+    t.datetime "end_date", precision: nil
     t.text "reason"
     t.integer "status_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.datetime "deleted_at"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "deleted_at", precision: nil
     t.integer "season_id"
     t.index ["season_id"], name: "index_conflicts_on_season_id"
     t.index ["status_id"], name: "index_conflicts_on_status_id"
@@ -85,15 +84,15 @@ ActiveRecord::Schema.define(version: 2022_03_08_032148) do
   create_table "events", force: :cascade do |t|
     t.integer "season_id"
     t.string "name"
-    t.datetime "start_date"
-    t.datetime "end_date"
+    t.datetime "start_date", precision: nil
+    t.datetime "end_date", precision: nil
     t.index ["season_id"], name: "index_events_on_season_id"
   end
 
   create_table "inventory_categories", force: :cascade do |t|
     t.string "name", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "inventory_email_rules", force: :cascade do |t|
@@ -101,8 +100,8 @@ ActiveRecord::Schema.define(version: 2022_03_08_032148) do
     t.integer "inventory_item_id"
     t.integer "threshold"
     t.string "operator"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["inventory_item_id"], name: "index_inventory_email_rules_on_inventory_item_id"
     t.index ["mail_to_user_id"], name: "index_inventory_email_rules_on_mail_to_user_id"
   end
@@ -111,14 +110,14 @@ ActiveRecord::Schema.define(version: 2022_03_08_032148) do
     t.string "name"
     t.integer "quantity"
     t.integer "inventory_category_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["inventory_category_id"], name: "index_inventory_items_on_inventory_category_id"
   end
 
   create_table "inventory_transactions", force: :cascade do |t|
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "user_id"
     t.date "performed_on"
     t.bigint "inventory_item_id"
@@ -133,8 +132,8 @@ ActiveRecord::Schema.define(version: 2022_03_08_032148) do
     t.string "stripe_pi_id"
     t.integer "user_id"
     t.integer "season_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["season_id"], name: "index_payment_intents_on_season_id"
     t.index ["user_id"], name: "index_payment_intents_on_user_id"
   end
@@ -155,8 +154,8 @@ ActiveRecord::Schema.define(version: 2022_03_08_032148) do
 
   create_table "payment_types", force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "payments", force: :cascade do |t|
@@ -165,9 +164,9 @@ ActiveRecord::Schema.define(version: 2022_03_08_032148) do
     t.integer "amount"
     t.date "date_paid"
     t.string "notes"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.datetime "deleted_at"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "deleted_at", precision: nil
     t.integer "season_id"
     t.index ["deleted_at"], name: "index_payments_on_deleted_at"
     t.index ["payment_type_id"], name: "index_payments_on_payment_type_id"
@@ -177,8 +176,8 @@ ActiveRecord::Schema.define(version: 2022_03_08_032148) do
 
   create_table "seasons", force: :cascade do |t|
     t.string "year"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "seasons_users", force: :cascade do |t|
@@ -195,16 +194,16 @@ ActiveRecord::Schema.define(version: 2022_03_08_032148) do
     t.string "first_name"
     t.string "last_name"
     t.string "email", default: "", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.datetime "deleted_at"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "deleted_at", precision: nil
     t.string "username"
     t.string "phone"
     t.boolean "inventory_access", default: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at", precision: nil
+    t.datetime "remember_created_at", precision: nil
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
