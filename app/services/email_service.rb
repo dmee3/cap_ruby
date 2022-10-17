@@ -20,8 +20,7 @@ class EmailService
         End: #{conflict.end_date}\n
         Reason: #{conflict.reason}
       TEXT
-      [ENV['EMAIL_DAN'], ENV['EMAIL_DONNIE'], ENV['EMAIL_TIM'], ENV['EMAIL_ANDREW'],
-       ENV['EMAIL_JAMES']].each do |to|
+      [ENV['EMAIL_DAN'], ENV['EMAIL_DONNIE'], ENV['EMAIL_TIM'], ENV['EMAIL_ANDREW']].each do |to|
         PostOffice.send_email(to, subject, text)
       end
     rescue StandardError => e
