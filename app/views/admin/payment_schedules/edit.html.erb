@@ -2,6 +2,10 @@
   var fullName = "<%= @user.full_name %>";
   var userId = <%= @user.id %>;
   var scheduleId = <%= @schedule.id %>;
+  var defaultSchedule = '<%= @default_schedule.to_json.html_safe %>';
+  var ensemble = "<%= @ensemble %>";
+  var section = "<%= @section %>";
+  var vet = <%= @vet %>;
 </script>
 
 <%= vite_typescript_tag 'entrypoints/admin/payment_schedules/edit.tsx' %>

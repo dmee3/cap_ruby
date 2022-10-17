@@ -135,6 +135,13 @@ class User < ApplicationRecord
     payment_schedule_for(season_id)&.entries&.sum(:amount)
   end
 
+  def vet_in?(season_id)
+    role = seasons_users.select { |su| su.season_id == season_id }&.first
+    return false unless role.present?
+
+    seasons_users.any? { |su| su.season.year < role.season.year }
+  end
+
   def remaining_payments_for(season_id)
     paid = amount_paid_for(season_id)
     payments = payment_schedule_for(season_id).entries.sort_by(&:pay_date)
