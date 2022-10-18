@@ -16,7 +16,7 @@ module Admin
         PaymentScheduleService.ensure_payment_schedules_for_user(@user)
         @user.welcome
         flash[:success] = "#{@user.first_name} created"
-        redirect_to(@user)
+        redirect_to("/admin/users/#{@user.id}")
       else
         Rollbar.info('User could not be created.', errors: @user.errors.full_messages)
         flash.now[:error] = @user.errors.full_messages.to_sentence
