@@ -12,7 +12,8 @@ class EmailService
       Rollbar.error(e, user: user)
     end
 
-    def send_conflict_submitted_email(conflict, user, role)
+    def send_conflict_submitted_email(conflict, user, season_id)
+      role = user.seasons_users.select { |su| su.season_id == season_id }&.first
       subject = "Conflict submitted by #{user.full_name}"
       text = <<~TEXT
         #{user.full_name} has submitted a conflict for #{conflict.start_date}.\n\n
