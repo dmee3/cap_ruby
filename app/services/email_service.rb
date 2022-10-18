@@ -12,15 +12,20 @@ class EmailService
       Rollbar.error(e, user: user)
     end
 
-    def send_conflict_submitted_email(conflict, user)
+    def send_conflict_submitted_email(conflict, user, role)
       subject = "Conflict submitted by #{user.full_name}"
       text = <<~TEXT
         #{user.full_name} has submitted a conflict for #{conflict.start_date}.\n\n
+        Section: #{role.ensemble} #{role.section}\n
         Start: #{conflict.start_date}\n
         End: #{conflict.end_date}\n
         Reason: #{conflict.reason}
       TEXT
-      [ENV['EMAIL_DAN'], ENV['EMAIL_DONNIE'], ENV['EMAIL_TIM'], ENV['EMAIL_ANDREW']].each do |to|
+      [
+        ENV['EMAIL_DAN'], ENV['EMAIL_DONNIE'], ENV['EMAIL_GARRETT'],
+        ENV['EMAIL_TIM'], ENV['EMAIL_ANDREW'], ENV['EMAIL_ROBERT'],
+        ENV['EMAIL_NIKKI'], ENV['EMAIL_KAYLEIGH']
+      ].each do |to|
         PostOffice.send_email(to, subject, text)
       end
     rescue StandardError => e
