@@ -6,8 +6,8 @@ class GoogleDriveApi
   include Singleton
 
   class << self
-    def get_files(folder = '')
-      instance.get_files(folder)
+    def get_files(year, folder = '')
+      instance.get_files(year, folder)
     end
   end
 
@@ -20,8 +20,10 @@ class GoogleDriveApi
     service.authorization = authorization
   end
 
-  def get_files(folder_id)
-    folder_id = ENV['BASE_DRIVE_FOLDER_ID'] if folder_id.blank?
+  def get_files(year, folder_id)
+    if folder_id.blank?
+      folder_id = ENV.fetch("BASE_DRIVE_FOLDER_ID_#{year}")
+    end
     result = service.list_files(q: "'#{folder_id}' in parents", page_size: 100)
     format(result.files)
   end
