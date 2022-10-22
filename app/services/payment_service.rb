@@ -48,6 +48,17 @@ class PaymentService
       (owed - paid) / 100.0
     end
 
+    def total_dues_owed_to_date(season_id)
+      PaymentScheduleEntry
+        .for_season(season_id)
+        .where(pay_date: Date.strptime('2000-01-01')..Date.today)
+        .sum(&:amount)
+    end
+
+    def total_dues_paid_to_date(season_id)
+      Payment.for_season(season_id).sum(&:amount)
+    end
+
     def dues_owed_in_current_period(season_id)
       schedules = User.members_for_season(season_id).map { |m| m.remaining_payments_for(season_id) }
       return 0 if schedules.blank?
