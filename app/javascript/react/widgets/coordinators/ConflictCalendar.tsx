@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import '@fullcalendar/react/dist/vdom' // solves problem with Vite
-import FullCalendar from '@fullcalendar/react' // must go before plugins
+import FullCalendar, { ViewApi } from '@fullcalendar/react' // must go before plugins
 import dayGridPlugin from '@fullcalendar/daygrid'
 import listPlugin from '@fullcalendar/list'
 import statusColor from '../../../utilities/status_color'
@@ -13,6 +13,23 @@ const ConflictCalendar = ({
   coordinator
 }: ConflictCalendarProps) => {
   const [conflicts, setConflicts] = useState([])
+
+  const displayTooltip = arg => {
+    // Only show tooltips on grid view
+    if (arg.view.type !== 'dayGridMonth') {
+      return
+    }
+
+    const reason = arg.event.extendedProps.reason
+    const div = document.createElement('div')
+    div.id = `conflict-${arg.event.id}-tooltip`
+    div.classList.add(
+      'block', 'absolute', 'bottom-8', 'z-10', 'py-2', 'px-3', 'text-sm', 'bg-gray-200', 'dark:bg-gray-600','rounded-lg', 'shadow-sm', 'w-80', 'break-normal', 'whitespace-normal'
+    )
+    div.textContent = reason
+
+    arg.el.prepend(div)
+  }
 
   useEffect(() => {
     const urlSlug = coordinator ? 'coordinators' : 'admin'
@@ -45,6 +62,10 @@ const ConflictCalendar = ({
     <>
       <FullCalendar
         events={conflicts}
+        eventMouseEnter={(arg) => displayTooltip(arg)}
+        eventMouseLeave={(arg) => {
+          document.getElementById(`conflict-${arg.event.id}-tooltip`).remove()
+        }}
         headerToolbar={{
           start: 'title',
           center: '',
