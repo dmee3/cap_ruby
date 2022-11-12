@@ -4,9 +4,8 @@ module Admin
   class DashboardController < AdminController
     def index
       @members = User.members_for_season(current_season['id']).with_payments
-      @expected_dues = PaymentService.dues_owed_in_current_period(current_season['id'])
-      @actual_dues = PaymentService.dues_paid_in_current_period(current_season['id'])
-      @dues_period = PaymentService.current_dues_period
+      @expected_dues = PaymentService.total_dues_owed_to_date(current_season['id'])
+      @actual_dues = PaymentService.total_dues_paid_to_date(current_season['id'])
       @behind_members = behind_members
       @next_event = EventService.next_event(current_season['id'])
       check_empty_payment_schedules
