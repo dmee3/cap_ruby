@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import InputNumber from "../../components/inputs/InputNumber"
+import InputSearch from "../../components/inputs/InputSearch"
 import InputSelect from "../../components/inputs/InputSelect"
 
 const RhythmConverter = () => {
@@ -10,6 +11,7 @@ const RhythmConverter = () => {
 
   const rhythms = [
     { text: 'Whole Note', value: 3 },
+    { text: 'Dotted Half Note', value: 4 },
     { text: 'Half Note', value: 6 },
     { text: 'Dotted Quarter Note', value: 8 },
     { text: 'Half Note Triplet', value: 9 },
@@ -19,10 +21,15 @@ const RhythmConverter = () => {
     { text: 'Quarter Note Triplet', value: 18 },
     { text: 'Eighth Note', value: 24 },
     { text: 'Eighth Note Fivelet', value: 30 },
+    { text: 'Dotted Sixteenth Note', value: 32 },
     { text: 'Eighth Note Triplet', value: 36 },
     { text: 'Sixteenth Note', value: 48 },
+    { text: 'Sixteenth Note Ninelet', value: 54 },
     { text: 'Sixteenth Note Fivelet', value: 60 },
+    { text: 'Dotted Thirty Second Note', value: 64 },
+    { text: 'Sextuplet', value: 72 },
     { text: 'Sixteenth Note Triplet', value: 72 },
+    { text: 'Thirty Second Note', value: 96 },
   ]
 
   const findRhythmByValue = (value) => {
@@ -65,9 +72,9 @@ const RhythmConverter = () => {
           <label htmlFor="original_rhythm" className="input-label">Original Rhythm</label>
         </div>
         <div className="col-span-6 sm:col-span-2 flex items-center">
-          <InputSelect
-            name="original_rhythm"
-            onChange={evt => updateOriginalRhythm(evt)}
+          <InputSearch
+            name="original_rhythm_search"
+            onChange={selectedRhythm => updateOriginalRhythm(selectedRhythm)}
             options={rhythms.map(r => r.text)}
             value={findRhythmByValue(originalRhythm).text}
           />
@@ -77,9 +84,9 @@ const RhythmConverter = () => {
           <label htmlFor="converted_rhythm" className="input-label">Converted Rhythm</label>
         </div>
         <div className="col-span-6 sm:col-span-2 flex items-center">
-          <InputSelect
-            name="converted_rhythm"
-            onChange={evt => updateConvertedRhythm(evt)}
+          <InputSearch
+            name="converted_rhythm_search"
+            onChange={selectedRhythm => updateConvertedRhythm(selectedRhythm)}
             options={rhythms.map(r => r.text)}
             value={findRhythmByValue(convertedRhythm).text}
           />
