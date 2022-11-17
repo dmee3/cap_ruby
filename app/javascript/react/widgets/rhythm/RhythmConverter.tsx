@@ -108,7 +108,7 @@ const RhythmConverter = () => {
         </div>
 
         <div className="col-span-6 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
-          <label htmlFor="original_tempo" className="input-label">Original Tempo</label>
+          <label htmlFor="converted_tempo" className="input-label">Converted Tempo</label>
         </div>
         <div className="col-span-6 sm:col-span-2 -mb-2 sm:mb-0 flex items-center">
           <h3>{convertedTempo} bpm</h3>
