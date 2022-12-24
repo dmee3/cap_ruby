@@ -1,4 +1,4 @@
-import { PlusSmIcon } from '@heroicons/react/outline'
+import { PlusSmallIcon } from '@heroicons/react/24/outline'
 import Utilities from '../../../utilities/utilities'
 import fuzzysort from 'fuzzysort'
 import React, { useState, useEffect } from 'react'
@@ -192,7 +192,7 @@ const PaymentsTable = ({
               <td className="px-6 py-4 text-right whitespace-nowrap">
                 <div className="flex justify-end">
                   <a href={`/admin/payments/new?user_id=${member.id}`} className="btn-green btn-md">
-                    <PlusSmIcon className="mr-1 h-4 w-4" />
+                    <PlusSmallIcon className="mr-1 h-4 w-4" />
                     New
                   </a>
                 </div>

@@ -1,4 +1,4 @@
-import { XIcon } from '@heroicons/react/outline'
+import { XMarkIcon } from '@heroicons/react/24/outline'
 import flatpickr from 'flatpickr'
 import React, { useEffect } from 'react'
 import InputNumber from '../../components/inputs/InputNumber'
@@ -45,7 +45,7 @@ const PaymentScheduleEditRow = ({
           />
         </div>
         <button className="btn-red btn-md self-stretch my-1" onClick={evt => deleteClicked(evt)}>
-          <XIcon className="h-6 w-6" />
+          <XMarkIcon className="h-6 w-6" />
         </button>
       </div>
     </>

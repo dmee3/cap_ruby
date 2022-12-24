@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom'
 import Utilities from '../../../utilities/utilities'
 import addFlash from '../../../utilities/flashes'
 
-import { PlusSmIcon, CheckIcon, XIcon } from '@heroicons/react/outline'
+import { PlusSmallIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import Badge from '../../../react/components/Badge'
 import InputToggle from '../../../react/components/inputs/InputToggle'
 
@@ -119,7 +119,7 @@ const CoordinatorsConflicts = () => {
         <h1 className="my-0">Conflicts</h1>
         <div>
           <a href="/coordinators/conflicts/new" className="btn-green btn-lg">
-            <PlusSmIcon className="mr-2 h-6 w-6" />
+            <PlusSmallIcon className="mr-2 h-6 w-6" />
             New
           </a>
         </div>
@@ -147,7 +147,7 @@ const CoordinatorsConflicts = () => {
                   </button>
 
                   <button className="btn-red btn-md" onClick={() => denyConflict(conflict.id)}>
-                    <XIcon className="h-6 w-6" />
+                    <XMarkIcon className="h-6 w-6" />
                   </button>
                 </div>
               </li>

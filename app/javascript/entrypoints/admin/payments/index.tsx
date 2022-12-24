@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
-import { PlusSmIcon } from '@heroicons/react/outline'
+import { PlusSmallIcon } from '@heroicons/react/24/outline'
 import Utilities from '../../../utilities/utilities'
 
 import PaymentsTable from '../../../react/widgets/admin/PaymentsTable'
@@ -31,7 +31,7 @@ const AdminPayments = () => {
         <h1>Payments</h1>
         <div>
           <a href="/admin/payments/new" className="btn-green btn-lg">
-            <PlusSmIcon className="mr-2 h-6 w-6" />
+            <PlusSmallIcon className="mr-2 h-6 w-6" />
             New
           </a>
         </div>

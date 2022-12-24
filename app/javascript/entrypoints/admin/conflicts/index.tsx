@@ -4,12 +4,11 @@ import ReactDOM from 'react-dom'
 import Utilities from '../../../utilities/utilities'
 import addFlash from '../../../utilities/flashes'
 
-import { PlusSmIcon, CheckIcon, XIcon } from '@heroicons/react/outline'
+import { PlusSmallIcon, CheckIcon, XMarkIcon, ArchiveBoxXMarkIcon } from '@heroicons/react/24/outline'
 import Badge from '../../../react/components/Badge'
 import InputToggle from '../../../react/components/inputs/InputToggle'
 
 import ConflictCalendar from '../../../react/widgets/coordinators/ConflictCalendar'
-import { createTypeReferenceDirectiveResolutionCache } from 'typescript'
 
 const AdminConflicts = () => {
   const [conflicts, setConflicts] = useState([])
@@ -38,6 +37,11 @@ const AdminConflicts = () => {
 
   const denyConflict = id => {
     const newStatus = conflictStatuses.filter(c => c.name === 'Denied')[0]
+    updateConflict(id, newStatus.id)
+  }
+
+  const resolveConflict = id => {
+    const newStatus = conflictStatuses.filter(c => c.name === 'Resolved')[0]
     updateConflict(id, newStatus.id)
   }
 
@@ -120,7 +124,7 @@ const AdminConflicts = () => {
         <h1 className="my-0">Conflicts</h1>
         <div>
           <a href="/admin/conflicts/new" className="btn-green btn-lg">
-            <PlusSmIcon className="mr-2 h-6 w-6" />
+            <PlusSmallIcon className="mr-2 h-6 w-6" />
             New
           </a>
         </div>
@@ -148,7 +152,11 @@ const AdminConflicts = () => {
                   </button>
 
                   <button className="btn-red btn-md" onClick={() => denyConflict(conflict.id)}>
-                    <XIcon className="h-6 w-6" />
+                    <XMarkIcon className="h-6 w-6" />
+                  </button>
+
+                  <button className="btn-gray btn-md" onClick={() => resolveConflict(conflict.id)}>
+                    <ArchiveBoxXMarkIcon className="h-6 w-6" />
                   </button>
                 </div>
               </li>

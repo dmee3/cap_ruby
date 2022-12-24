@@ -5,7 +5,7 @@ import {
   DocumentIcon,
   FolderIcon,
   VolumeUpIcon
-} from '@heroicons/react/outline'
+} from '@heroicons/react/24/outline'
 import FilesList from './FilesList'
 
 type FilesListItemProps = {

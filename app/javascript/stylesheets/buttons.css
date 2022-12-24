@@ -49,6 +49,18 @@
   opacity: 0.2;
 }
 
+.btn-gray {
+  @apply
+    bg-gray-600
+    btn-base
+    hover:enabled:bg-gray-500
+  ;
+}
+
+.btn-gray:disabled {
+  opacity: 0.2;
+}
+
 .btn-link {
   @apply
     cursor-pointer

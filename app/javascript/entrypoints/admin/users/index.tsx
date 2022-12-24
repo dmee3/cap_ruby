@@ -1,6 +1,6 @@
 import React from 'react'
 import { render } from 'react-dom'
-import { PlusSmIcon } from '@heroicons/react/outline'
+import { PlusSmallIcon } from '@heroicons/react/24/outline'
 
 import UserTable from '../../../react/widgets/admin/UserTable'
 
@@ -11,7 +11,7 @@ const AdminUsers = () => {
         <h1>Users</h1>
         <div>
           <a href="/admin/users/new" className="btn-green btn-lg">
-            <PlusSmIcon className="mr-2 h-6 w-6" />
+            <PlusSmallIcon className="mr-2 h-6 w-6" />
             New
           </a>
         </div>

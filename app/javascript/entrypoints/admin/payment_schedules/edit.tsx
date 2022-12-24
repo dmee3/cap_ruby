@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
 import addFlash from '../../../utilities/flashes'
 import Utilities from '../../../utilities/utilities'
-import { PlusSmIcon } from '@heroicons/react/outline'
+import { PlusSmallIcon } from '@heroicons/react/24/outline'
 import PaymentScheduleEditRow from '../../../react/widgets/admin/PaymentScheduleEditRow'
 
 const AdminPaymentSchedulesEdit = () => {
@@ -173,7 +173,7 @@ const AdminPaymentSchedulesEdit = () => {
         <h1>Edit Payment Schedule for {fullName}</h1>
         <div>
           <button className="btn-green btn-lg" onClick={() => addEntry()}>
-            <PlusSmIcon className="mr-2 h-6 w-6" />
+            <PlusSmallIcon className="mr-2 h-6 w-6" />
             New Entry
           </button>
         </div>
@@ -197,7 +197,7 @@ const AdminPaymentSchedulesEdit = () => {
           <div className="mt-4 flex flex-row justify-end">
             {entries.length > 0 &&
               <button className="btn-green btn-lg mr-6" onClick={() => addEntry()}>
-                <PlusSmIcon className="mr-2 h-6 w-6" />
+                <PlusSmallIcon className="mr-2 h-6 w-6" />
                 New Entry
               </button>
             }
