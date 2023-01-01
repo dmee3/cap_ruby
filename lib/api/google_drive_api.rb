@@ -21,9 +21,7 @@ class GoogleDriveApi
   end
 
   def get_files(year, folder_id)
-    if folder_id.blank?
-      folder_id = ENV.fetch("BASE_DRIVE_FOLDER_ID_#{year}")
-    end
+    folder_id = ENV.fetch("BASE_DRIVE_FOLDER_ID_#{year}") if folder_id.blank?
     result = service.list_files(q: "'#{folder_id}' in parents", page_size: 100)
     format(result.files)
   end

@@ -13,7 +13,7 @@ const PaymentForm = ({
   stripePromise,
   returnUrl
 }: PaymentFormProps) => {
-  const [paymentAmount, setPaymentAmount] = useState(1)
+  const [paymentAmount, setPaymentAmount] = useState(1.0)
   const [paymentFee, setPaymentFee] = useState((1 / 0.97 + 0.3) - 1)
   const [paymentTotal, setPaymentTotal] = useState(1 / 0.97 + 0.3)
   const [clientSecret, setClientSecret] = useState('')
@@ -50,8 +50,19 @@ const PaymentForm = ({
   }
 
   const calculateTotal = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const amt = +e.target.value
+    const input = e.target.value.replace(/[^0-9.]/, '')
+    const lastChar = input.substring(input.length - 1)
+    let amt
+    if (lastChar === '.' || lastChar === '0') {
+      amt = input
+    } else {
+      amt = parseFloat(input)
+      if (Number.isNaN(amt)) {
+        amt = 0
+      }
+    }
     const total = amt == 0 ? 0 : (amt / 0.97) + 0.3
+
     setPaymentAmount(amt)
     setPaymentFee(total - amt)
     setPaymentTotal(total)
@@ -64,11 +75,14 @@ const PaymentForm = ({
           <label htmlFor="payment_amount" className="input-label">Amount</label>
         </div>
         <div className="col-span-5 sm:col-span-4 flex items-center">
+          <div className="text-secondary font-bold mr-3">
+            $
+          </div>
           <InputNumber
             name="payment_amount"
             autofocus={true}
-            currency={true}
             disabled={paying}
+            masked={true}
             min={1}
             onChange={calculateTotal}
             value={paymentAmount}

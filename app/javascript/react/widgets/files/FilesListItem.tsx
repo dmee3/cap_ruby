@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import {
   ChevronDownIcon,
-  ChevronRightIcon,
+  ChevronRightIcon
+} from '@heroicons/react/24/outline'
+import {
   DocumentIcon,
   FolderIcon,
-  VolumeUpIcon
-} from '@heroicons/react/24/outline'
+  SpeakerWaveIcon
+} from '@heroicons/react/20/solid'
 import FilesList from './FilesList'
 
 type FilesListItemProps = {
@@ -20,7 +22,7 @@ const FilesListItem = ({
   name
 }: FilesListItemProps) => {
   const [expanded, setExpanded] = useState(false)
-  let icon
+  let icon, color = 'text-gray-700 dark:text-gray-300'
 
   const toggleExpanded = () => {
     setExpanded(!expanded)
@@ -28,7 +30,7 @@ const FilesListItem = ({
 
   switch (fileType) {
     case 'audio':
-      icon = <VolumeUpIcon className="h-6 w-6" />
+      icon = <SpeakerWaveIcon className="h-6 w-6" />
       break
     case 'document':
     case 'pdf':
@@ -40,6 +42,7 @@ const FilesListItem = ({
         {!expanded && <ChevronRightIcon className="h-6 w-6" />}
         <FolderIcon className="ml-1 h-6 w-6" />
       </>
+      color = ''
       break
     default:
       icon = <DocumentIcon className="h-6 w-6" />
@@ -49,7 +52,7 @@ const FilesListItem = ({
   if (fileType === 'folder') {
     return (
       <>
-        <div className="px-2 py-4 flex flex-col hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer" onClick={toggleExpanded}>
+        <div className="px-2 py-4 flex flex-col hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer sticky" onClick={toggleExpanded}>
           <div className="flex justify-start">
             {icon}
             <span className="font-medium ml-2">
@@ -67,7 +70,7 @@ const FilesListItem = ({
     )
   } else {
     return (
-      <a target="_blank" href={`https://drive.google.com/file/d/${id}/view`} className="pl-9 py-4 flex flex-col hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+      <a target="_blank" href={`https://drive.google.com/file/d/${id}/view`} className={`pl-9 py-4 flex flex-col hover:bg-gray-100 dark:hover:bg-gray-800 ${color} transition`}>
         <div className="flex justify-start">
           {icon}
           <span className="font-light ml-2">

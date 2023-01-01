@@ -67,10 +67,10 @@ const FilesList = ({
       }
       {files.length === 0 && !loading &&
         <div className="px-9 py-4">
-          <span className="italic">Nothing Here</span>
+          <span className="italic text-gray-500">Nothing Here</span>
         </div>
       }
-      <ul className="divide-y divide-gray-300">
+      <ul className="divide-y divide-gray-500">
         {files.map(file => {
           return <li key={file.id}>
             <FilesListItem
