@@ -3,161 +3,35 @@
  */
 
 .input-label {
-  @apply
-    block
-    text-gray-500
-    text-sm
-    font-medium
-  ;
+  @apply block text-gray-500 text-sm font-medium;
 }
 
-@layer components {
-  .input-text {
-    @apply
-      bg-gray-100
-      dark:bg-gray-800
-      block
-      border-transparent
-      hover:enabled:border-gray-300
-      dark:hover:enabled:border-gray-600
-      hover:focus:border-ocean
-      focus:border-ocean
-      focus:bg-white
-      dark:focus:bg-gray-900
-      focus:ring-0
-      mt-1
-      rounded-md
-      disabled:text-gray-300
-      dark:disabled:text-gray-600
-      w-full
-      border-2
-      text-gray-900
-      dark:text-white
-    ;
-  }
-}
-
-.input-text-bar {
-  @apply
-    input-text
-    rounded-none
-    border-ocean
-    border-1
-    bg-white
-  ;
-  margin-left: -1px;
-  margin-right: -1px;
-}
-
-.input-text-bar:first-child {
-  @apply
-    rounded-l-md
-  ;
-}
-
-.input-text-bar:last-child {
-  @apply
-    rounded-r-md
-  ;
+.input-text {
+  @apply bg-gray-100 dark: bg-gray-800 block border-transparent hover:enabled:border-gray-300 dark:hover:enabled:border-gray-600 hover:focus:border-ocean focus:border-ocean focus:bg-white dark:focus:bg-gray-900 focus:ring-0 mt-1 rounded-md disabled:text-gray-300 dark:disabled:text-gray-600 w-full border-2 text-gray-900 dark:text-white;
 }
 
 .input-search {
-  @apply
-    bg-gray-100
-    dark:bg-gray-800
-    block
-    border-transparent
-    hover:enabled:border-gray-300
-    dark:hover:enabled:border-gray-600
-    hover:focus:border-ocean
-    focus:border-ocean
-    focus:bg-white
-    dark:focus:bg-gray-900
-    focus:ring-0
-    mt-1
-    rounded-md
-    disabled:text-gray-300
-    dark:disabled:text-gray-600
-    w-full
-    border-2
-    text-gray-900
-    dark:text-white
-  ;
+  @apply bg-gray-100 dark: bg-gray-800 block border-transparent hover:enabled:border-gray-300 dark:hover:enabled:border-gray-600 hover:focus:border-ocean focus:border-ocean focus:bg-white dark:focus:bg-gray-900 focus:ring-0 mt-1 rounded-md disabled:text-gray-300 dark:disabled:text-gray-600 w-full border-2 text-gray-900 dark:text-white;
 }
 
 .input-search-suggestions-container {
-  @apply
-    bg-gray-100
-    dark:bg-gray-800
-    text-gray-900
-    dark:text-white
-    rounded-md
-    absolute
-    border-2
-    border-ocean
-    mt-3
-    z-50
-  ;
+  @apply bg-gray-100 dark: bg-gray-800 text-gray-900 dark:text-white rounded-md absolute border-2 border-ocean mt-3 z-50;
 }
 
 .input-search-suggestion {
-  @apply
-    first:rounded-t-sm
-    last:rounded-b-sm
-    p-2
-  ;
+  @apply first: rounded-t-sm last:rounded-b-sm p-2;
 }
 
 .input-search-suggestion.active {
-  @apply
-    bg-gray-500
-  ;
+  @apply bg-gray-500;
 }
 
 .input-checkbox {
-  @apply
-    bg-gray-100
-    dark:bg-gray-800
-    border-transparent
-    border-2
-    focus:border-transparent
-    focus:ring-2
-    focus:ring-offset-2
-    focus:ring-offset-white
-    dark:focus:ring-offset-gray-900
-    focus:ring-ocean
-    hover:border-gray-300
-    dark:hover:border-gray-600
-    rounded
-    text-ocean
-  ;
+  @apply bg-gray-100 dark: bg-gray-800 border-transparent border-2 focus:border-transparent focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 focus:ring-ocean hover:border-gray-300 dark:hover:border-gray-600 rounded text-ocean;
 }
 
 .input-select {
-  @apply
-    mt-1
-    block
-    w-full
-    rounded-md
-    bg-gray-100
-    dark:bg-gray-800
-    border-transparent
-    border-2
-    disabled:hover:border-transparent
-    hover:border-gray-300
-    dark:hover:border-gray-600
-    hover:focus:border-ocean
-    focus:border-ocean
-    focus:bg-white
-    dark:focus:bg-gray-900
-    disabled:text-gray-300
-    dark:disabled:text-gray-600
-    focus:ring-0
-    px-3
-    py-2
-    text-gray-900
-    dark:text-white
-  ;
+  @apply mt-1 block w-full rounded-md bg-gray-100 dark: bg-gray-800 border-transparent border-2 disabled:hover:border-transparent hover:border-gray-300 dark:hover:border-gray-600 hover:focus:border-ocean focus:border-ocean focus:bg-white dark:focus:bg-gray-900 disabled:text-gray-300 dark:disabled:text-gray-600 focus:ring-0 px-3 py-2 text-gray-900 dark:text-white;
 }
 
 /*
@@ -166,119 +40,47 @@
 
 /* Season Dropdown */
 .dropdown {
-  @apply
-    flex
-    flex-row
-    w-full
-    pl-2
-    h-8
-    py-0
-    text-sm
-    text-gray-900
-    dark:text-white
-    rounded-md
-    bg-gray-100
-    dark:bg-gray-900
-    border-transparent
-    focus:bg-white
-    dark:focus:bg-gray-900
-    focus:ring-0
-    cursor-pointer
-  ;
+  @apply flex flex-row w-full pl-2 h-8 py-0 text-sm text-gray-900 dark: text-white rounded-md bg-gray-100 dark:bg-gray-900 border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-0 cursor-pointer;
 }
 
 .dropdown-menu {
-  @apply
-    absolute
-    z-50
-    mt-2
-    rounded-md
-    shadow-lg
-    px-2
-    py-1
-    bg-white
-    dark:bg-gray-800
-    text-gray-900
-    dark:text-white
-    ring-1
-    ring-black
-    ring-opacity-5
-    focus:outline-none
-  ;
+  @apply absolute z-50 mt-2 rounded-md shadow-lg px-2 py-1 bg-white dark: bg-gray-800 text-gray-900 dark:text-white ring-1 ring-black ring-opacity-5 focus:outline-none;
 }
 
 .dropdown-menu-form-background {
-  @apply
-    block
-    p-2
-    -mx-2
-    text-sm
-    hover:bg-gray-300
-    dark:hover:bg-gray-600
-    cursor-pointer
-  ;
+  @apply block p-2 -mx-2 text-sm hover: bg-gray-300 dark:hover:bg-gray-600 cursor-pointer;
 }
 
 .dropdown-menu-form-item {
-  @apply
-    cursor-pointer
-    bg-transparent
-  ;
+  @apply cursor-pointer bg-transparent;
 }
 
 .dropdown-menu-link-item {
-  @apply
-    block
-    p-2
-    -mx-2
-    text-sm
-    hover:bg-gray-300
-    dark:hover:bg-gray-600
-    cursor-pointer
-  ;
+  @apply block p-2 -mx-2 text-sm hover: bg-gray-300 dark:hover:bg-gray-600 cursor-pointer;
 }
 
- /* Input Toggle */
+/* Input Toggle */
 .input-toggle-wrapper {
-  @apply
-    flex
-    items-center
-    cursor-pointer
-    relative
-  ;
+  @apply flex items-center cursor-pointer relative;
 }
-.input-toggle, .inverse-input-toggle {
+
+.input-toggle,
+.inverse-input-toggle {
   @apply sr-only;
 }
+
 .input-toggle-dot {
-  @apply
-    absolute
-    left-1
-    top-1
-    bg-white
-    w-4
-    h-4
-    rounded-full
-    transition
-  ;
+  @apply absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition;
 }
-.input-toggle:checked ~ .input-toggle-dot {
+
+.input-toggle:checked~.input-toggle-dot {
   transform: translateX(100%);
 }
-.input-toggle:checked ~ .input-toggle-bg {
-  @apply
-    bg-ocean
-    dark:bg-cyan-500
-  ;
+
+.input-toggle:checked~.input-toggle-bg {
+  @apply bg-ocean dark: bg-cyan-500;
 }
+
 .input-toggle-bg {
-  @apply
-    block
-    bg-gray-300
-    dark:bg-gray-600
-    w-10
-    h-6
-    rounded-full
-    transition
-  ;
+  @apply block bg-gray-300 dark: bg-gray-600 w-10 h-6 rounded-full transition;
 }
