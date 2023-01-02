@@ -52,11 +52,11 @@ const InventoryListItem = ({
 
   return (
     <tr
-      className="hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer"
+      className="hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer group"
       onClick={() => toggleEditing()}
     >
       {editing && (
-        <td colSpan={3} className="table-cell font-medium group">
+        <td colSpan={3} className="table-cell font-medium">
           <form className="align-center items-center flex flex-row justify-between" onClick={evt => evt.stopPropagation()} onSubmit={evt => updateItem(evt)}>
             <InputText
               autofocus
@@ -89,17 +89,11 @@ const InventoryListItem = ({
       )}
       {!editing && (
         <>
-          <td className="table-cell font-medium text-gray-900 dark:text-white hover:text-gray-500">
-            <span className="btn-link btn-md justify-start">
-              <span>
-                {name}
-              </span>
-            </span>
+          <td className="table-cell font-medium text-gray-900 dark:text-white group-hover:text-gray-500">
+            {name}
           </td>
-          <td className="table-cell font-medium text-gray-900 dark:text-white hover:text-gray-500">
-            <span>
-              {quantity}
-            </span>
+          <td className="table-cell font-medium text-gray-900 dark:text-white group-hover:text-gray-500">
+            {quantity}
           </td>
           <td className="table-cell text-right font-medium">
             <a href={`/inventory/categories/${categoryId}/items/${item.id}`} className="link">History</a>
