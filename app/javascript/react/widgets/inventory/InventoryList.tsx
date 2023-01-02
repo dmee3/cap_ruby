@@ -33,47 +33,47 @@ const InventoryList = ({
     return array.sort((a, b) => a.name.localeCompare(b.name))
   }
 
-  return(
+  return (
     <>
       {categories.map((category) => {
         return <div key={category.id} className="mb-6">
-            <InventoryListHeading
-              category={category}
-            />
-            {category.items && category.items.length > 0 &&
-              <div className="overflow-x-auto align-middle inline-block min-w-full">
-                <table className="custom-table">
-                  <thead>
-                    <tr>
-                      <th scope="col" className="table-header">
-                        Name
-                      </th>
-                      <th scope="col" className="table-header">
-                        Qty
-                      </th>
-                      <th scope="col" className="relative px-6 py-3">
-                        <span className="sr-only">Edit</span>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="table-body">
-                    {sortByName(category.items).map((item) => {
-                      return <InventoryListItem
-                        item={item}
-                        categoryId={category.id}
-                        key={item.id}
-                      />
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            }
-            {category.items.length == 0 &&
-              <div className="text-center py-4">
-                <h3 className="text-secondary">Nothing Here Yet</h3>
-              </div>
-            }
-          </div>
+          <InventoryListHeading
+            category={category}
+          />
+          {category.items && category.items.length > 0 &&
+            <div className="overflow-x-auto align-middle inline-block min-w-full">
+              <table className="custom-table">
+                <thead>
+                  <tr>
+                    <th scope="col" className="table-header">
+                      Name
+                    </th>
+                    <th scope="col" className="table-header">
+                      Qty
+                    </th>
+                    <th scope="col" className="relative px-6 py-3">
+                      <span className="sr-only">Edit</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="table-body">
+                  {sortByName(category.items).map((item) => {
+                    return <InventoryListItem
+                      item={item}
+                      categoryId={category.id}
+                      key={item.id}
+                    />
+                  })}
+                </tbody>
+              </table>
+            </div>
+          }
+          {category.items.length == 0 &&
+            <div className="px-9 py-4">
+              <span className="italic text-gray-500">Nothing Here</span>
+            </div>
+          }
+        </div>
       })}
     </>
   )

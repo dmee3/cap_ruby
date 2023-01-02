@@ -11,27 +11,53 @@
   ;
 }
 
-.input-text {
+@layer components {
+  .input-text {
+    @apply
+      bg-gray-100
+      dark:bg-gray-800
+      block
+      border-transparent
+      hover:enabled:border-gray-300
+      dark:hover:enabled:border-gray-600
+      hover:focus:border-ocean
+      focus:border-ocean
+      focus:bg-white
+      dark:focus:bg-gray-900
+      focus:ring-0
+      mt-1
+      rounded-md
+      disabled:text-gray-300
+      dark:disabled:text-gray-600
+      w-full
+      border-2
+      text-gray-900
+      dark:text-white
+    ;
+  }
+}
+
+.input-text-bar {
   @apply
-    bg-gray-100
-    dark:bg-gray-800
-    block
-    border-transparent
-    hover:enabled:border-gray-300
-    dark:hover:enabled:border-gray-600
-    hover:focus:border-ocean
-    focus:border-ocean
-    focus:bg-white
-    dark:focus:bg-gray-900
-    focus:ring-0
-    mt-1
-    rounded-md
-    disabled:text-gray-300
-    dark:disabled:text-gray-600
-    w-full
-    border-2
-    text-gray-900
-    dark:text-white
+    input-text
+    rounded-none
+    border-ocean
+    border-1
+    bg-white
+  ;
+  margin-left: -1px;
+  margin-right: -1px;
+}
+
+.input-text-bar:first-child {
+  @apply
+    rounded-l-md
+  ;
+}
+
+.input-text-bar:last-child {
+  @apply
+    rounded-r-md
   ;
 }
 

@@ -1,6 +1,5 @@
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import flatpickr from 'flatpickr'
-import React, { useEffect } from 'react'
+import React from 'react'
 import InputNumber from '../../components/inputs/InputNumber'
 
 type PaymentScheduleEditRowProps = {

@@ -52,7 +52,7 @@ const FilesListItem = ({
   if (fileType === 'folder') {
     return (
       <>
-        <div className="px-2 py-4 flex flex-col hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer sticky" onClick={toggleExpanded}>
+        <div className="px-2 py-4 flex flex-col hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer" onClick={toggleExpanded}>
           <div className="flex justify-start">
             {icon}
             <span className="font-medium ml-2">
