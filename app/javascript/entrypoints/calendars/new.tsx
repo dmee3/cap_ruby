@@ -80,14 +80,14 @@ const CalendarsNew = () => {
   const classFor = (index) => {
     if (index == null) return 'empty'
 
-      const date = dates[index - 1]
-      if (date == null) return ''
+    const date = dates[index - 1]
+    if (date == null) return ''
 
-      if (!date.available) {
-        return 'unavailable'
-      } else {
-        return  (date.selected ? 'selected' : '')
-      }
+    if (!date.available) {
+      return 'unavailable'
+    } else {
+      return (date.selected ? 'selected' : '')
+    }
   }
 
   const getUnavailableDates = (memberId) => {
@@ -128,7 +128,7 @@ const CalendarsNew = () => {
         total: totalDonation(),
         member_id: selectedMember.id,
         dates: selectedDates(),
-        donor_name: inputRef.current.value
+        donor_name: donorName
       }),
     })
       .then(resp => {
@@ -176,8 +176,8 @@ const CalendarsNew = () => {
   return (
     <div className="wrapper">
       <h1>Calendar Fundraiser</h1>
-      
-      {clientSecret && 
+
+      {clientSecret &&
         <>
           <h3>Supporting {selectedMember.first_name} {selectedMember.last_name} with a donation of ${totalDonation()}</h3>
           {elementsCard()}
@@ -195,40 +195,45 @@ const CalendarsNew = () => {
               value={selectedMember ? `${selectedMember.first_name} ${selectedMember.last_name}` : ''}
             />
           </div>
-    
+
           <p>
             Then, pick one or more calendar dates to help your member support Cap City for the total day amount (e.g. March 3rd = $3, 17th = $17, for a total donation of $20).
           </p>
-    
+
           <div className="mt-6">
             <h2 className="text-center">March 2022</h2>
             <div className="grid grid-cols-7 gap-1">
-              {daysOfWeek.map(day => <div key={day} className="font-bold text-center p-1">{ day }</div>)}
+              {daysOfWeek.map(day => <div key={day} className="font-bold text-center p-1">{day}</div>)}
               {days.map((day, index) =>
                 <div
                   key={index}
                   className={"p-1 h-12 cursor-pointer flex justify-center items-center " + classFor(day)}
                   onClick={(event) => updateSelectedDates(event, day)}
                 >
-                  { day == null ? ' ' : day }
+                  {day == null ? ' ' : day}
                 </div>
               )}
             </div>
           </div>
-    
+
           <div className="text-center my-4">
             <h2>
               Total Donation: <span className="font-bold">${totalDonation()}.00</span>
             </h2>
           </div>
-    
+
           <div className="my-4">
             <label htmlFor="donor_name">
               Your name (leave blank to stay anonymous)
             </label>
-            <InputText name={'donor_name'} value={donorName} ref={inputRef} />
+            <InputText
+              name={'donor_name'}
+              onChange={evt => setDonorName(evt.target.value)}
+              ref={inputRef}
+              value={donorName}
+            />
           </div>
-    
+
           <div className="my-4 flex justify-center">
             <button
               className="btn-lg btn-primary"

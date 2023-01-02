@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
-import InventoryListItemName from './InventoryListItemName'
-import InventoryListItemQuantity from './InventoryListItemQuantity'
+import React, { useState, useRef } from 'react'
+import InputText from '../../components/inputs/InputText'
 
 type InventoryListItemProps = {
   categoryId: number,
@@ -19,6 +18,7 @@ const InventoryListItem = ({
   const [editing, setEditing] = useState(false)
   const [name, setName] = useState(item.name)
   const [quantity, setQuantity] = useState(item.quantity.toString())
+  const nameInputRef = useRef<HTMLInputElement>(null!)
 
   const updateItem = (evt) => {
     evt.preventDefault()
@@ -58,8 +58,19 @@ const InventoryListItem = ({
       {editing && (
         <td colSpan={3} className="table-cell font-medium group">
           <form className="align-center items-center flex flex-row justify-between" onClick={evt => evt.stopPropagation()} onSubmit={evt => updateItem(evt)}>
-            <input autoFocus type="text" className="input-text mx-2 my-0 group-hover:bg-white dark:group-hover:bg-gray-900" value={name} onChange={(evt) => setName(evt.target.value)} />
-            <input type="text" className="input-text mx-2 my-0 group-hover:bg-white dark:group-hover:bg-gray-900" value={quantity} onChange={(evt) => setQuantity(evt.target.value)} />
+            <InputText
+              autofocus
+              className="mx-2 my-0 group-hover:bg-white dark:group-hover:bg-gray-900"
+              name={`${name}_name`}
+              onChange={evt => setName(evt.target.value)}
+              value={name}
+            />
+            <InputText
+              className="mx-2 my-0 group-hover:bg-white dark:group-hover:bg-gray-900"
+              name={`${name}_qty`}
+              onChange={evt => setQuantity(evt.target.value)}
+              value={quantity}
+            />
             <div className="align-center flex flex-row space-x-2">
               <span className="btn-sm btn-green h-8" onClick={evt => updateItem(evt)}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

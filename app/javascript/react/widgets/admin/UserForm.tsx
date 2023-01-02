@@ -42,6 +42,7 @@ const UserForm = ({
           <InputText
             autofocus={true}
             name='user[first_name]'
+            onChange={evt => setInternalUser({ ...internalUser, first_name: evt.target.value })}
             placeholder='First'
             value={internalUser.first_name}
           />
@@ -49,6 +50,7 @@ const UserForm = ({
         <div className="col-span-5 sm:col-span-2 flex items-center">
           <InputText
             name='user[last_name]'
+            onChange={evt => setInternalUser({ ...internalUser, last_name: evt.target.value })}
             placeholder='Last'
             value={internalUser.last_name}
           />
@@ -60,6 +62,7 @@ const UserForm = ({
         <div className="col-span-5 sm:col-span-4">
           <InputText
             name='user[username]'
+            onChange={evt => setInternalUser({ ...internalUser, username: evt.target.value })}
             value={internalUser.username}
           />
         </div>
@@ -70,6 +73,7 @@ const UserForm = ({
         <div className="col-span-5 sm:col-span-4">
           <InputText
             name='user[email]'
+            onChange={evt => setInternalUser({ ...internalUser, email: evt.target.value })}
             value={internalUser.email}
           />
         </div>
