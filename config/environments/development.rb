@@ -67,4 +67,7 @@ Rails.application.configure do
   # Use an evented file watcher to asynchronously detect changes in source code,
   # routes, locales, etc. This feature depends on the listen gem.
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
+
+  # Add ngrok host for slack testing
+  config.hosts << ENV['NGROK_HOST'] if ENV['NGROK_HOST']
 end

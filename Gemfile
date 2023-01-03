@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.7.2' # make sure to update the .ruby-version file as well
+ruby '2.7.3' # make sure to update the .ruby-version file as well
 
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
@@ -23,6 +23,13 @@ gem 'rollbar', '~> 3.1.0'
 gem 'sass-rails', '>= 6'
 gem 'select2-rails'
 gem 'sidekiq'
+
+# Dr Bot
+gem 'jaro_winkler'
+gem 'slack-ruby-bot-server-events'
+gem 'grape_on_rails_routes'
+
+
 gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'
 gem 'turbolinks', '~> 5'
 gem 'vite_rails'
