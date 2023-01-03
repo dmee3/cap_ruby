@@ -7,10 +7,10 @@ SlackRubyBotServer::Events.configure do |config|
     case text
     when /^check/
       name = text.partition(' ').last
-      item = Inventory::Item.where('lower(name) = ?', name.downcase).first
+      item = ::Inventory::Item.where('lower(name) = ?', name.downcase).first
 
       if item.blank?
-        suggestions = InventoryService.fuzzy_search(name).map(&:name)
+        suggestions = ::InventoryService.fuzzy_search(name).map(&:name)
         response = <<~TEXT
           *Could not find item "#{name}" - did you check spelling?*
 
