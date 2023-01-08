@@ -75,6 +75,10 @@ GEM
       activerecord (>= 3.2, < 7.0)
       rake (>= 10.4, < 14.0)
     ast (2.4.2)
+    async (1.30.3)
+      console (~> 1.10)
+      nio4r (~> 2.3)
+      timers (~> 4.1)
     bcrypt (3.1.16)
     bindex (0.8.1)
     bootsnap (1.7.7)
@@ -91,6 +95,8 @@ GEM
     chunky_png (1.4.0)
     concurrent-ruby (1.1.9)
     connection_pool (2.2.5)
+    console (1.16.2)
+      fiber-local
     crass (1.0.6)
     declarative (0.0.20)
     devise (4.8.0)
@@ -107,6 +113,20 @@ GEM
       dotenv (= 2.7.6)
       railties (>= 3.2)
     dry-cli (0.7.0)
+    dry-container (0.11.0)
+      concurrent-ruby (~> 1.0)
+    dry-core (0.8.1)
+      concurrent-ruby (~> 1.0)
+    dry-inflector (0.3.0)
+    dry-logic (1.2.0)
+      concurrent-ruby (~> 1.0)
+      dry-core (~> 0.5, >= 0.5)
+    dry-types (1.5.1)
+      concurrent-ruby (~> 1.0)
+      dry-container (~> 0.3)
+      dry-core (~> 0.5, >= 0.5)
+      dry-inflector (~> 0.1, >= 0.1.2)
+      dry-logic (~> 1.0, >= 1.0.2)
     erubi (1.10.0)
     factory_bot (6.2.0)
       activesupport (>= 5.0.0)
@@ -134,8 +154,13 @@ GEM
     faraday-net_http_persistent (1.2.0)
     faraday-patron (1.0.0)
     faraday-rack (1.0.0)
+    faraday_middleware (1.2.0)
+      faraday (~> 1.0)
     ffi (1.15.3)
+    fiber-local (1.0.0)
+    foreman (0.87.2)
     gems (1.2.0)
+    gli (2.21.0)
     globalid (0.5.2)
       activesupport (>= 5.0)
     google-api-client (0.53.0)
@@ -165,15 +190,36 @@ GEM
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
       signet (~> 0.14)
+    grape (1.7.0)
+      activesupport
+      builder
+      dry-types (>= 1.1)
+      mustermann-grape (~> 1.0.0)
+      rack (>= 1.3.0)
+      rack-accept
+    grape-roar (0.4.1)
+      grape
+      multi_json
+      roar (~> 1.1.0)
+    grape-swagger (1.5.0)
+      grape (~> 1.3)
+    grape_on_rails_routes (0.3.2)
+      rails (>= 3.1.1)
+    hashie (5.0.0)
     http-accept (1.7.0)
     http-cookie (1.0.4)
       domain_name (~> 0.5)
     httpclient (2.8.3)
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
+    jaro_winkler (1.5.4)
     jbuilder (2.11.2)
       activesupport (>= 5.0.0)
     jwt (2.2.3)
+    kaminari-core (1.2.2)
+    kaminari-grape (1.0.1)
+      grape
+      kaminari-core (~> 1.0)
     launchy (2.5.0)
       addressable (~> 2.7)
     letter_opener (1.7.0)
@@ -200,6 +246,10 @@ GEM
     msgpack (1.4.2)
     multi_json (1.15.0)
     multipart-post (2.1.1)
+    mustermann (3.0.0)
+      ruby2_keywords (~> 0.0.1)
+    mustermann-grape (1.0.2)
+      mustermann (>= 1.0.0)
     netrc (0.11.0)
     nio4r (2.5.8)
     nokogiri (1.12.3)
@@ -216,7 +266,14 @@ GEM
       nio4r (~> 2.0)
     racc (1.5.2)
     rack (2.2.3)
+    rack-accept (0.4.5)
+      rack (>= 0.4)
+    rack-cors (1.1.1)
+      rack (>= 2.0.0)
     rack-proxy (0.7.0)
+      rack
+    rack-rewrite (1.5.1)
+    rack-server-pages (0.1.0)
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -272,6 +329,8 @@ GEM
       netrc (~> 0.8)
     retriable (3.1.2)
     rexml (3.2.5)
+    roar (1.1.1)
+      representable (~> 3.0)
     rollbar (3.1.2)
     rspec-core (3.10.1)
       rspec-support (~> 3.10.0)
@@ -332,6 +391,25 @@ GEM
       faraday (>= 0.17.3, < 2.0)
       jwt (>= 1.5, < 3.0)
       multi_json (~> 1.10)
+    slack-ruby-bot-server (1.2.1)
+      async
+      foreman
+      grape
+      grape-roar (>= 0.4.0)
+      grape-swagger
+      kaminari-grape
+      rack-cors
+      rack-rewrite
+      rack-server-pages
+      slack-ruby-client
+    slack-ruby-bot-server-events (0.3.2)
+      slack-ruby-bot-server (>= 0.12.0)
+    slack-ruby-client (1.0.0)
+      faraday (>= 1.0)
+      faraday_middleware
+      gli
+      hashie
+      websocket-driver
     spring (2.1.1)
     sprockets (4.0.2)
       concurrent-ruby (~> 1.0)
@@ -344,6 +422,7 @@ GEM
       rails (>= 6.0.0)
     thor (1.1.0)
     tilt (2.0.10)
+    timers (4.3.5)
     trailblazer-option (0.1.1)
     turbolinks (5.2.1)
       turbolinks-source (~> 5.2)
@@ -394,6 +473,8 @@ DEPENDENCIES
   faker (~> 1.9.6)
   faraday
   google-api-client
+  grape_on_rails_routes
+  jaro_winkler
   jbuilder
   jwt
   letter_opener
@@ -412,6 +493,7 @@ DEPENDENCIES
   scout_apm (~> 2.6.10)
   select2-rails
   sidekiq
+  slack-ruby-bot-server-events
   spring
   sqlite3
   stripe!
@@ -420,7 +502,7 @@ DEPENDENCIES
   web-console (>= 4.1.0)
 
 RUBY VERSION
-   ruby 2.7.2p137
+   ruby 2.7.3p183
 
 BUNDLED WITH
-   2.2.6
+   2.4.2
