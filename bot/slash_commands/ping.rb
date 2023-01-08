@@ -6,3 +6,7 @@ SlackRubyBotServer::Events.configure do |config|
     { text: 'pong' }
   end
 end
+
+module SlashCommands
+  module Ping; end
+end
