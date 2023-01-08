@@ -1,6 +1,10 @@
 source 'https://rubygems.org'
 
-ruby '2.7.3' # make sure to update the .ruby-version file as well
+# Make sure to update the following, too:
+# - .ruby-version
+# - .tool-versions
+# - .github/workflows/ruby.yml
+ruby '2.7.3'
 
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
