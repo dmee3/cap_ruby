@@ -28,7 +28,7 @@ const PaymentForm = ({
       },
       body: JSON.stringify({
         total: paymentTotal.toFixed(2),
-        amount: paymentAmount.toFixed(2)
+        amount: +paymentAmount.toFixed(2)
       }),
     })
       .then((res) => res.json())
