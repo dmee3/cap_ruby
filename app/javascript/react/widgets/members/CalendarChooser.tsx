@@ -8,11 +8,8 @@ const CalendarChooser = ({
   const [chosenImg, setChosenImg] = useState(null)
 
   const images = [
-    'cc2_1', 'cc2_2', 'cc2_3', 'cc2_4', 'cc2_5',
-    'cc2_6', 'cc2_7', 'cc2_8', 'cc2_9', 'cc2_10',
-    'cc2_11', 'cc2_12', 'cc2_13', 'cc2_14', 'world_1',
-    'world_2', 'world_3', 'world_4', 'world_5', 'world_6',
-    'world_7', 'world_8', 'world_9', 'world_10', 'world_11'
+    'calendar_1', 'calendar_2', 'calendar_3', 'calendar_4', 'calendar_5', 'calendar_6',
+    'calendar_7', 'calendar_8', 'calendar_9', 'calendar_10', 'calendar_11', 'calendar_12',
   ]
 
   const pickImg = (img) => {
