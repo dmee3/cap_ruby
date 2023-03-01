@@ -25,12 +25,13 @@
     </thead>
     <tbody class="table-body">
       <% @members.sort_by(&:full_name).each do |member| %>
-        <% completed = member.calendar_fundraisers.select(&:completed?).count %>
-        <% current = member.calendar_fundraisers.reject(&:completed?).last %>
+        <% fundraisers = member.calendar_fundraisers_for(current_season['id']) %>
+        <% completed = fundraisers.select(&:completed?).count %>
+        <% current = fundraisers.reject(&:completed?).last %>
         <tr>
           <td class="table-cell flex flex-col">
             <div class="font-medium"><%= member.full_name %></div>
-            <div class="font-light">$<%= member.calendar_fundraisers.sum(&:total_donations) %></div>
+            <div class="font-light">$<%= fundraisers.sum(&:total_donations) %></div>
           </td>
           <td class="table-cell text-center">
             <% if completed > 0 %>

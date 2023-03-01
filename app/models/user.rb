@@ -135,6 +135,10 @@ class User < ApplicationRecord
     payment_schedule_for(season_id)&.entries&.sum(:amount)
   end
 
+  def calendar_fundraisers_for(season_id)
+    calendar_fundraisers.where(season_id: season_id)
+  end
+
   def vet_in?(season_id)
     role = seasons_users.select { |su| su.season_id == season_id }&.first
     return false unless role.present?
