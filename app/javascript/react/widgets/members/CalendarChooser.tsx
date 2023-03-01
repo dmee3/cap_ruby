@@ -10,6 +10,7 @@ const CalendarChooser = ({
   const images = [
     'calendar_1', 'calendar_2', 'calendar_3', 'calendar_4', 'calendar_5', 'calendar_6',
     'calendar_7', 'calendar_8', 'calendar_9', 'calendar_10', 'calendar_11', 'calendar_12',
+    'calendar_13',
   ]
 
   const pickImg = (img) => {

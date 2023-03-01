@@ -7,7 +7,7 @@ module Members
       @current_fundraiser = Calendar::Fundraiser.find_or_create_incomplete_for_user(current_user.id)
       @total = current_user.calendar_fundraisers.sum(&:total_donations)
 
-      @images = (1..12).map { |x| ["calendar_#{x}_thumb.jpg"] }
+      @images = (1..13).map { |x| ["calendar_#{x}_thumb.jpg"] }
     end
 
     def download
