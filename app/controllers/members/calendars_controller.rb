@@ -12,6 +12,7 @@ module Members
 
     def download
       img = Calendar::ImageService.generate_image(current_user.id, params[:base_img])
+      CalendarMailer.with(user_name: current_user.full_name).download_email.deliver_later
       send_data img.to_datastream, type: 'image/png', disposition: 'inline'
     end
   end

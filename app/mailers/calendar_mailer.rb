@@ -12,4 +12,13 @@ class CalendarMailer < ApplicationMailer
       bcc: ENV['EMAIL_DAN']
     )
   end
+
+  def download_email
+    @user_name = params[:user_name]
+
+    mail(
+      to: ENV['EMAIL_DAN'],
+      subject: "Calendar downloaded - #{@user_name}",
+    )
+  end
 end
