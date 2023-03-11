@@ -17,8 +17,8 @@ class CalendarMailer < ApplicationMailer
     @user_name = params[:user_name]
 
     mail(
-      to: ENV['EMAIL_DAN'],
-      subject: "Calendar downloaded - #{@user_name}",
+      to: [ENV['EMAIL_DAN'], ENV['EMAIL_AARON']],
+      subject: "Calendar downloaded - #{@user_name}"
     )
   end
 end
