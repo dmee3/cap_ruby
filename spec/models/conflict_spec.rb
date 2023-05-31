@@ -111,8 +111,4 @@ RSpec.describe Conflict, type: :model do
       end
     end
   end
-
-  context 'class methods' do
-    pending
-  end
 end
