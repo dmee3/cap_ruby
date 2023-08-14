@@ -31,7 +31,9 @@ RSpec.describe PaymentScheduleEntry, type: :model do
   context 'instance methods' do
     context 'user' do
       let!(:entry) { create(:payment_schedule_entry) }
+
       subject { entry.user }
+
       it { is_expected.to eq entry.payment_schedule.user }
     end
   end
