@@ -2,21 +2,16 @@
 
 module Auditions
   class Registration
-    attr_reader :type, :name, :email, :city, :state, :instrument, :date, :experience, :age_in_april
+    attr_reader :type, :name, :email, :city, :state, :instrument, :date, :experience, :birthdate
 
     PRODUCT_NAMES = [
-      'CC23 Music Audition Registration',
-      'CC23 Visual Audition Registration',
-      'CC23 Music Ensemble Audition Registration',
-      'CC23 Visual Ensemble Audition Registration'
+      'CC24 Music Ensemble Audition Registration',
+      'CC24 Visual Ensemble Audition Registration'
     ].freeze
 
-    # Because I messed up naming the product on Squarespace originally
     TYPE_MAP = {
-      'CC23 Music Audition Registration' => 'Music Registration',
-      'CC23 Music Ensemble Audition Registration' => 'Music Registration',
-      'CC23 Visual Audition Registration' => 'Visual Registration',
-      'CC23 Visual Ensemble Audition Registration' => 'Visual Registration'
+      'CC24 Music Ensemble Audition Registration' => 'Music Registration',
+      'CC24 Visual Ensemble Audition Registration' => 'Visual Registration'
     }.freeze
 
     FIELD_TO_SYMBOL = {
@@ -24,14 +19,14 @@ module Auditions
       'Email' => :email,
       'City' => :city,
       'State' => :state,
-      'Primary Instrument/Section' => :instrument,
-      'Age by 4/1/2022' => :age_in_april,
+      'Primary Instrument' => :instrument,
+      'Birthdate' => :birthdate,
       'Experience' => :experience
     }.freeze
 
     class << self
       def header_row
-        ['Name', 'Email', 'City', 'State', 'Age in April', 'Downloaded', 'Experience']
+        ['Name', 'Email', 'City', 'State', 'Birthdate', 'Downloaded', 'Experience']
       end
     end
 
@@ -46,12 +41,12 @@ module Auditions
       @instrument = args[:instrument]
       @date = args[:date] - 4.hours
       @experience = args[:experience]
-      @age_in_april = args[:age_in_april]
+      @birthdate = args[:birthdate]
     end
     # rubocop:enable Metrics/AbcSize
 
     def to_row
-      [@name, @email, @city, @state, @age_in_april, @date.strftime('%-m/%-d %-l:%M %P'),
+      [@name, @email, @city, @state, @birthdate, @date.strftime('%-m/%-d %-l:%M %P'),
        @experience]
     end
   end

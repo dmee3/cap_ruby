@@ -5,10 +5,10 @@ module Auditions
     attr_reader :type, :name, :email, :city, :state, :instrument, :date
 
     PRODUCT_NAMES = [
-      'CC23 Battery Audition Packet',
-      'CC23 Cymbal Audition Packet',
-      'CC23 Front Ensemble Audition Packet',
-      'CC23 Visual Ensemble Audition Packet'
+      'CC24 Battery Audition Packet',
+      'CC24 Cymbal Audition Packet',
+      'CC24 Front Ensemble Audition Packet',
+      'CC24 Visual Ensemble Audition Packet'
     ].freeze
 
     FIELD_TO_SYMBOL = {
