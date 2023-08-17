@@ -24,8 +24,8 @@ class GoogleSheetsApi
       return data&.values
     end
 
-    def write_sheet(sheet_id, tab_name, data)
-      instance.write_sheet(sheet_id, tab_name, data)
+    def write_sheet(sheet_id, tab_name, data, formulae: false)
+      instance.write_sheet(sheet_id, tab_name, data, formulae: formulae)
     end
   end
 
@@ -73,15 +73,15 @@ class GoogleSheetsApi
   end
 
   def read_sheet(sheet_id, tab_name)
-    service.get_spreadsheet_values(sheet_id, "'#{tab_name}'!A1:Z1000")
+    service.get_spreadsheet_values(sheet_id, "'#{tab_name}'!A1:Z1000", value_render_option: 'FORMULA')
   end
 
-  def write_sheet(sheet_id, tab_name, values)
+  def write_sheet(sheet_id, tab_name, values, formulae: false)
     service.batch_update_values(
       sheet_id,
       Google::Apis::SheetsV4::BatchUpdateValuesRequest.new(
         data: [{ range: "'#{tab_name}'!A1:Z1000", values: values }],
-        value_input_option: 'RAW'
+        value_input_option: formulae ? 'USER_ENTERED' : 'RAW'
       )
     )
   end

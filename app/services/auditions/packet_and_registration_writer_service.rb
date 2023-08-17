@@ -44,7 +44,7 @@ module Auditions
         @packet_sheet_data[:registered_rows]
       )
       GoogleSheetsApi.write_sheet(
-        SPREADSHEET_ID, @packet_sheet_data[:sheet_name], @packet_sheet_data[:values]
+        SPREADSHEET_ID, @packet_sheet_data[:sheet_name], @packet_sheet_data[:values], formulae: false
       )
     end
 
@@ -60,7 +60,7 @@ module Auditions
         @registration_sheet_data[:instrument_rows]
       )
       GoogleSheetsApi.write_sheet(
-        SPREADSHEET_ID, @registration_sheet_data[:sheet_name], @registration_sheet_data[:values]
+        SPREADSHEET_ID, @registration_sheet_data[:sheet_name], @registration_sheet_data[:values], formulae: false
       )
     end
 

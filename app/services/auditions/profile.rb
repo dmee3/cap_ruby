@@ -2,7 +2,7 @@
 
 module Auditions
   class Profile
-    attr_reader :first_name, :last_name, :email, :city, :state, :packets, :registrations
+    attr_reader :first_name, :last_name, :email, :city, :state, :instrument, :packets, :registrations
 
     def initialize(args)
       @first_name = args[:first_name]
@@ -10,6 +10,7 @@ module Auditions
       @email = args[:email]
       @city = args[:city]
       @state = args[:state]
+      @instrument = args[:instrument]
       @packets = []
       @registrations = []
     end
