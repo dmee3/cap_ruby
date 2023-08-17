@@ -2,21 +2,16 @@
 
 module Auditions
   class Registration
-    attr_reader :type, :name, :email, :city, :state, :instrument, :date, :experience, :age_in_april
+    attr_reader :type, :name, :email, :city, :state, :instrument, :date, :experience, :birthdate
 
     PRODUCT_NAMES = [
-      'CC23 Music Audition Registration',
-      'CC23 Visual Audition Registration',
-      'CC23 Music Ensemble Audition Registration',
-      'CC23 Visual Ensemble Audition Registration'
+      'CC24 Music Ensemble Audition Registration',
+      'CC24 Visual Ensemble Audition Registration'
     ].freeze
 
-    # Because I messed up naming the product on Squarespace originally
     TYPE_MAP = {
-      'CC23 Music Audition Registration' => 'Music Registration',
-      'CC23 Music Ensemble Audition Registration' => 'Music Registration',
-      'CC23 Visual Audition Registration' => 'Visual Registration',
-      'CC23 Visual Ensemble Audition Registration' => 'Visual Registration'
+      'CC24 Music Ensemble Audition Registration' => 'Music Registration',
+      'CC24 Visual Ensemble Audition Registration' => 'Visual Registration'
     }.freeze
 
     FIELD_TO_SYMBOL = {
@@ -24,35 +19,54 @@ module Auditions
       'Email' => :email,
       'City' => :city,
       'State' => :state,
-      'Primary Instrument/Section' => :instrument,
-      'Age by 4/1/2022' => :age_in_april,
-      'Experience' => :experience
+      'Preferred Pronouns' => :pronouns,
+      'Shoe Size' => :shoe_size,
+      'Shirt Size' => :shirt_size,
+      'Primary Instrument' => :instrument,
+      'Birthdate' => :birthdate,
+      'Experience' => :experience,
+      'Known Conflicts' => :conflicts
     }.freeze
 
     class << self
       def header_row
-        ['Name', 'Email', 'City', 'State', 'Age in April', 'Downloaded', 'Experience']
+        ['Name', 'Email', 'City', 'State', 'Pronouns', 'Shoe', 'Shirt', 'Birthdate', 'Purchased', 'Experience', 'Conflicts']
       end
     end
 
     # rubocop:disable Metrics/AbcSize
     def initialize(args)
       @type = TYPE_MAP[args[:type]]
+      @date = args[:date] - 4.hours
+
       @name = args[:name]
       @email = args[:email]
-
       @city = args[:city]&.titleize
       @state = args[:state] ? StateConverterService.abbreviation(args[:state]) : ''
+      @pronouns = args[:pronouns]
+      @shoe_size = args[:shoe_size]
+      @shirt_size = args[:shirt_size]
       @instrument = args[:instrument]
-      @date = args[:date] - 4.hours
+      @birthdate = args[:birthdate]
       @experience = args[:experience]
-      @age_in_april = args[:age_in_april]
+      @conflicts = args[:conflicts]
     end
     # rubocop:enable Metrics/AbcSize
 
     def to_row
-      [@name, @email, @city, @state, @age_in_april, @date.strftime('%-m/%-d %-l:%M %P'),
-       @experience]
+      [
+        @name,
+        @email,
+        @city,
+        @state,
+        @pronouns,
+        @shoe_size,
+        @shirt_size,
+        @birthdate,
+        @date.strftime('%-m/%-d %-l:%M %P'),
+        @experience,
+        @conflicts
+      ]
     end
   end
 end

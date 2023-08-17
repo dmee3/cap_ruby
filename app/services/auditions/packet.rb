@@ -5,10 +5,10 @@ module Auditions
     attr_reader :type, :name, :email, :city, :state, :instrument, :date
 
     PRODUCT_NAMES = [
-      'CC23 Battery Audition Packet',
-      'CC23 Cymbal Audition Packet',
-      'CC23 Front Ensemble Audition Packet',
-      'CC23 Visual Ensemble Audition Packet'
+      'CC24 Battery Audition Packet',
+      'CC24 Cymbal Audition Packet',
+      'CC24 Front Ensemble Audition Packet',
+      'CC24 Visual Ensemble Audition Packet'
     ].freeze
 
     FIELD_TO_SYMBOL = {
@@ -16,7 +16,6 @@ module Auditions
       'Email' => :email,
       'City' => :city,
       'State' => :state,
-      'Primary Instrument/Section' => :instrument,
       'Primary Instrument' => :instrument
     }.freeze
 
@@ -27,7 +26,7 @@ module Auditions
     end
 
     def initialize(args)
-      @type = args[:type].gsub(/CC22 /, '')
+      @type = args[:type]
       @name = args[:name].titleize
       @email = args[:email]
       @city = args[:city].titleize

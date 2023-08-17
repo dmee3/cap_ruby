@@ -8,20 +8,24 @@ require 'google/apis/sheets_v4'
 class GoogleSheetsApi
   include Singleton
 
-  SPREADSHEET_ID = ENV['AUDITIONS_SPREADSHEET_ID']
-
   class << self
-    def clear_sheet(sheet_name)
-      instance.clear_sheet(sheet_name)
+    def clear_sheet(sheet_id, tab_name)
+      instance.clear_sheet(sheet_id, tab_name)
     end
 
-    def format_sheet(sheet_name, header_rows, subheader_rows, instrument_rows, registered_rows = [])
-      instance.format_sheet(sheet_name, header_rows, subheader_rows, instrument_rows,
-                            registered_rows)
+    def format_sheet(sheet_id, tab_name, header_rows, subheader_rows, instrument_rows, registered_rows = [])
+      instance.format_sheet(
+        sheet_id, tab_name, header_rows, subheader_rows, instrument_rows, registered_rows
+      )
     end
 
-    def write_sheet(sheet_name, data)
-      instance.write_sheet(sheet_name, data)
+    def read_sheet(sheet_id, tab_name)
+      data = instance.read_sheet(sheet_id, tab_name)
+      return data&.values
+    end
+
+    def write_sheet(sheet_id, tab_name, data, formulae: false)
+      instance.write_sheet(sheet_id, tab_name, data, formulae: formulae)
     end
   end
 
@@ -34,46 +38,50 @@ class GoogleSheetsApi
     service.authorization = authorization
   end
 
-  def clear_sheet(sheet_name)
+  def clear_sheet(sheet_id, tab_name)
     request_body = Google::Apis::SheetsV4::ClearValuesRequest.new
-    service.clear_values(SPREADSHEET_ID, "'#{sheet_name}'!A1:Z1000", request_body)
+    service.clear_values(sheet_id, "'#{tab_name}'!A1:Z1000", request_body)
   end
 
-  def format_sheet(sheet_name, header_rows, subheader_rows, instrument_rows, registered_rows)
-    sheet_id = sheet_name_to_id(sheet_name)
+  def format_sheet(sheet_id, tab_name, header_rows, subheader_rows, instrument_rows, registered_rows)
+    tab_id = tab_name_to_id(sheet_id, tab_name)
 
     requests = [
-      unmerge_all_cells_request_body(sheet_id),
-      clear_all_cells_format_request_body(sheet_id)
+      unmerge_all_cells_request_body(tab_id),
+      clear_all_cells_format_request_body(tab_id)
     ]
 
     header_rows.each do |row|
-      requests << merge_row_request_body(sheet_id, row)
-      requests << format_header_row_request_body(sheet_id, row)
+      requests << merge_row_request_body(tab_id, row)
+      requests << format_header_row_request_body(tab_id, row)
     end
 
     subheader_rows.each do |row|
-      requests << format_subheader_row_request_body(sheet_id, row)
+      requests << format_subheader_row_request_body(tab_id, row)
     end
 
     instrument_rows.each do |row|
-      requests << merge_row_request_body(sheet_id, row)
-      requests << format_instrument_row_request_body(sheet_id, row)
+      requests << merge_row_request_body(tab_id, row)
+      requests << format_instrument_row_request_body(tab_id, row)
     end
 
     registered_rows.each do |row|
-      requests << format_registered_row_request_body(sheet_id, row)
+      requests << format_registered_row_request_body(tab_id, row)
     end
 
-    service.batch_update_spreadsheet(SPREADSHEET_ID, { requests: requests }, {})
+    service.batch_update_spreadsheet(sheet_id, { requests: requests }, {})
   end
 
-  def write_sheet(sheet_name, values)
+  def read_sheet(sheet_id, tab_name)
+    service.get_spreadsheet_values(sheet_id, "'#{tab_name}'!A1:Z1000", value_render_option: 'FORMULA')
+  end
+
+  def write_sheet(sheet_id, tab_name, values, formulae: false)
     service.batch_update_values(
-      SPREADSHEET_ID,
+      sheet_id,
       Google::Apis::SheetsV4::BatchUpdateValuesRequest.new(
-        data: [{ range: "'#{sheet_name}'!A1:Z1000", values: values }],
-        value_input_option: 'RAW'
+        data: [{ range: "'#{tab_name}'!A1:Z1000", values: values }],
+        value_input_option: formulae ? 'USER_ENTERED' : 'RAW'
       )
     )
   end
@@ -82,14 +90,14 @@ class GoogleSheetsApi
 
   attr_reader :service
 
-  def sheets
+  def sheets(sheet_id)
     return @sheets if @sheets
 
-    @sheets = service.get_spreadsheet(SPREADSHEET_ID).sheets
+    @sheets = service.get_spreadsheet(sheet_id).sheets
   end
 
-  def sheet_name_to_id(name)
-    current_sheet = sheets.find { |s| s.properties.title == name }
+  def tab_name_to_id(sheet_id, name)
+    current_sheet = sheets(sheet_id).find { |s| s.properties.title == name }
     current_sheet.properties.sheet_id
   end
 
