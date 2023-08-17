@@ -16,7 +16,6 @@ module Auditions
       'Email' => :email,
       'City' => :city,
       'State' => :state,
-      'Primary Instrument/Section' => :instrument,
       'Primary Instrument' => :instrument
     }.freeze
 
@@ -27,7 +26,7 @@ module Auditions
     end
 
     def initialize(args)
-      @type = args[:type].gsub(/CC22 /, '')
+      @type = args[:type]
       @name = args[:name].titleize
       @email = args[:email]
       @city = args[:city].titleize

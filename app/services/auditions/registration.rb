@@ -46,8 +46,15 @@ module Auditions
     # rubocop:enable Metrics/AbcSize
 
     def to_row
-      [@name, @email, @city, @state, @birthdate, @date.strftime('%-m/%-d %-l:%M %P'),
-       @experience]
+      [
+        @name,
+        @email,
+        @city,
+        @state,
+        @birthdate,
+        @date.strftime('%-m/%-d %-l:%M %P'),
+        @experience
+      ]
     end
   end
 end
