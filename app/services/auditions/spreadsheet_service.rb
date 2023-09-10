@@ -42,9 +42,9 @@ module Auditions
         last_name = packet.name.split[1..-1].join.strip
         email = packet.email.strip
         profiles.find do |pro|
-          first_name&.casecmp(pro.first_name.strip) == 0
-              && last_name&.casecmp(pro.last_name.strip) == 0
-              && email&.casecmp(pro.email) == 0
+          first_name&.casecmp(pro.first_name.strip) == 0 &&
+              last_name&.casecmp(pro.last_name.strip) == 0 &&
+              email&.casecmp(pro.email) == 0
         end
       end
 
