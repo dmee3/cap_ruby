@@ -38,11 +38,13 @@ module Auditions
       end
 
       def find_existing_profile(packet, profiles)
-        first_name = packet.name.split[0].strip
-        last_name = packet.name.split[1..-1].join.strip
+        first_name = packet.name.split[0].strip.downcase
+        last_name = packet.name.split[1..-1].join.strip.downcase
         email = packet.email.strip
         profiles.find do |pro|
-          pro.first_name.strip == first_name && pro.last_name.strip == last_name && pro.email == email
+          first_name&.casecmp(pro.first_name.strip) == 0
+              && last_name&.casecmp(pro.last_name.strip) == 0
+              && email&.casecmp(pro.email) == 0
         end
       end
 
