@@ -22,13 +22,8 @@ class EmailService
         End: #{conflict.end_date}\n
         Reason: #{conflict.reason}
       TEXT
-      [
-        ENV['EMAIL_DAN'], ENV['EMAIL_DONNIE'], ENV['EMAIL_GARRETT'],
-        ENV['EMAIL_TIM'], ENV['EMAIL_ANDREW'], ENV['EMAIL_ROBERT'],
-        ENV['EMAIL_NIKKI'], ENV['EMAIL_KAYLEIGH']
-      ].each do |to|
-        PostOffice.send_email(to, subject, text)
-      end
+      to = User.with_role_for_season("coordinator", season_id).map(&:email)
+      PostOffice.send_email(to, subject, text)
     rescue StandardError => e
       Rollbar.error(e, user: user)
     end

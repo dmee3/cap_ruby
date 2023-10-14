@@ -2,13 +2,22 @@
 
 class PostOffice
   class << self
-    def send_email(to, subject, text)
+    def send_email(recipients, subject, text)
       subject = "[STAGING - ignore] #{subject}" if ENV['STAGING'] == true
+
+      to = ""
+      cc = []
+      if recipients.is_a?(String)
+        to = recipients
+      else
+        to, *cc = recipients
+      end
 
       client.send_message(
         domain,
         from: "donotreply@#{domain}",
-        to: to,
+        to: recipients,
+        cc: cc,
         subject: subject,
         text: text
       )
