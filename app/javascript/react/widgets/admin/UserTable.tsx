@@ -21,6 +21,7 @@ const UserTable = ({
       .then(data => {
         const staff = data
           .filter(u => u.role !== 'member')
+          .sort((a, b) => a.full_name.localeCompare(b.full_name))
           .map(staff => ({
             ...staff,
             searchStr: `${staff.role} ${staff.full_name}`
@@ -28,7 +29,8 @@ const UserTable = ({
         setStaff(staff)
         setDisplayedStaffList(staff)
 
-        const members = data.filter(u => u.role === 'member')
+        const members = data
+          .filter(u => u.role === 'member')
           .map(member => ({
             ...member,
             searchStr: `${member.ensemble} ${member.section} ${member.full_name}`
@@ -84,7 +86,7 @@ const UserTable = ({
       .map((item) => item.obj)
   )
 
-  return(
+  return (
     <>
       <input
         placeholder="Filter by name/section/ensemble"
@@ -129,7 +131,7 @@ const UserTable = ({
                       {member.ensemble}
                     </div>
                     <div className="text-secondary">
-                    {member.section}
+                      {member.section}
                     </div>
                   </td>
                   <td className="table-cell text-right font-medium">
