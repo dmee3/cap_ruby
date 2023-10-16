@@ -22,8 +22,9 @@ class EmailService
         End: #{conflict.end_date}\n
         Reason: #{conflict.reason}
       TEXT
-      to = User.with_role_for_season("coordinator", season_id).map(&:email)
-      PostOffice.send_email(to, subject, text)
+
+      users_to_notify = User.with_role_for_season("coordinator", season_id) + User.with_role_for_season("admin", season_id)
+      PostOffice.send_email(users_to_notify.map(&:email), subject, text)
     rescue StandardError => e
       Rollbar.error(e, user: user)
     end
