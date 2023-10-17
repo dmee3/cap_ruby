@@ -47,7 +47,7 @@ class SettingsController < ApplicationController
     when 'admin'
       render 'admin/settings/index'
     when 'coordinator'
-      render 'coordinator/settings/index'
+      render 'coordinators/settings/index'
     when 'staff'
       render 'staff/settings/index'
     else
