@@ -5,23 +5,7 @@
   <!-- DUES EXPECTED -->
   <div class="order-1 h-48 md:h-96 xl:h-48 flex flex-col col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
     <%= link_to admin_payments_path, class: 'card-flat flex-grow border-gray-300 group hover:shadow-md hover:border-transparent hover:bg-gradient-to-br hover:from-green-500 hover:to-green-700 flex flex-col sm:flex-row md:flex-col justify-between place-content-stretch transition' do %>
-      <div class="flex flex-col md:h-1/2 justify-center">
-        <span class="card-title font-bold group-hover:text-green-200 transition">Dues as of <%= Date.today.strftime('%-m/%-d') %></span>
-        <span class="card-title text-gray-500 group-hover:text-green-200 transition">
-          OWED
-        </span>
-        <span class="text-3xl group-hover:text-white font-extrabold font-mono transition">
-          <%= number_to_currency(@expected_dues / 100.0) %>
-        </span>
-      </div>
-      <div class="flex flex-col md:h-1/2 justify-center">
-        <span class="card-title text-gray-500 group-hover:text-green-200 transition">
-          COLLECTED
-        </span>
-        <span class="text-3xl group-hover:text-white font-extrabold font-mono transition">
-          <%= number_to_currency(@actual_dues / 100.0) %>
-        </span>
-      </div>
+      <div id="dues" data-expected-dues="<%= @expected_dues / 100.0 %>" data-actual-dues="<%= @actual_dues / 100.0 %>"></div>
     <% end %>
   </div>
 
