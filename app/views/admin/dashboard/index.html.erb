@@ -2,13 +2,13 @@
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 
-  <!-- DUES EXPECTED / NEXT EVENT -->
-  <div class="order-1 h-48 md:h-96 xl:h-48 flex flex-col">
+  <!-- DUES EXPECTED -->
+  <div class="order-1 h-48 md:h-96 xl:h-48 flex flex-col col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
     <%= link_to admin_payments_path, class: 'card-flat flex-grow border-gray-300 group hover:shadow-md hover:border-transparent hover:bg-gradient-to-br hover:from-green-500 hover:to-green-700 flex flex-col sm:flex-row md:flex-col justify-between place-content-stretch transition' do %>
       <div class="flex flex-col md:h-1/2 justify-center">
         <span class="card-title font-bold group-hover:text-green-200 transition">Dues as of <%= Date.today.strftime('%-m/%-d') %></span>
         <span class="card-title text-gray-500 group-hover:text-green-200 transition">
-          DUES OWED
+          OWED
         </span>
         <span class="text-3xl group-hover:text-white font-extrabold font-mono transition">
           <%= number_to_currency(@expected_dues / 100.0) %>
@@ -16,33 +16,21 @@
       </div>
       <div class="flex flex-col md:h-1/2 justify-center">
         <span class="card-title text-gray-500 group-hover:text-green-200 transition">
-          DUES COLLECTED
+          COLLECTED
         </span>
         <span class="text-3xl group-hover:text-white font-extrabold font-mono transition">
           <%= number_to_currency(@actual_dues / 100.0) %>
         </span>
       </div>
     <% end %>
+  </div>
 
-    <div class="card mt-4 gray-gradient group hidden md:block lg:block xl:hidden">
-      <div class="card-title text-gray-300">NEXT EVENT</div>
-      <div class="flex flex-col">
-        <% if @next_event %>
-          <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
-          <div class="text-gray-300 text-sm font-medium">
-            <% if @next_event[:start_date].day == @next_event[:end_date].day %>
-              <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%l:%M%P') %>
-            <% else %>
-              <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%a, %-m/%-d %l:%M%P') %>
-            <% end %>
-          </div>
-        <% else %>
-          <span class="text-3xl text-white font-extrabold font-mono mb-0.5">None</span>
-        <% end %>
-      </div>
+  <!-- UPCOMING PAYMENTS -->
+  <div class="max-h-48 md:max-h-96 xl:max-h-144 order-2 md:col-span-2 overflow-hidden rounded-lg">
+    <div id="upcoming-payments">
     </div>
   </div>
-  
+
 
   <!-- BEHIND MEMBERS -->
   <div class="order-2 md:order-3 lg:order-2 col-span-1 md:col-span-2 lg:col-span-1 xl:col-span-2 max-h-96 xl:max-h-48 flex flex-col">
@@ -69,36 +57,10 @@
       </ul>
     </div>
   </div>
-  
 
-  <!-- NEXT EVENT -->
-  <div class="card order-3 gray-gradient hidden xl:block">
-    <div class="card-title text-gray-300">NEXT EVENT</div>
-    <div class="flex flex-col">
-      <% if @next_event %>
-        <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
-        <div class="text-gray-300 text-sm font-medium">
-          <% if @next_event[:start_date].day == @next_event[:end_date].day %>
-            <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%l:%M%P') %>
-          <% else %>
-          <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%a, %-m/%-d %l:%M%P') %>
-          <% end %>
-        </div>
-      <% else %>
-        <span class="text-3xl text-white font-extrabold font-mono mb-0.5">None</span>
-      <% end %>
-    </div>
-  </div>
-
-  <!-- UPCOMING PAYMENTS -->
-  <div class="max-h-48 md:max-h-96 xl:max-h-144 order-3 md:order-2 lg:order-3 overflow-scroll rounded-lg">
-    <div id="upcoming-payments">
-    </div>
-  </div>
-  
 
   <!-- UPCOMING CONFLICTS -->
-  <div class="order-5 row-span-2 col-span-1 md:col-span-2 lg:col-span-3">
+  <div class="order-5 row-span-2 col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
     <div class="card-flat border-gray-300">
       <span class="card-title text-gray-500">UPCOMING CONFLICTS</span>
       <div id="upcoming-conflicts"></div>

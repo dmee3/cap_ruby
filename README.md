@@ -40,6 +40,8 @@ There are seeds included with the codebase, but sometimes it's better to have re
   pg_restore --verbose --clean --no-acl --no-owner -h localhost -U postgres -d tempdb latest.dump
   ```
 
+  *Note: you will need postgres running to do this.*
+
 3. Dump the local temp database into a file called `data.sql` that has insert statements (which can be used by SQLite3).
 
   ```
@@ -69,7 +71,7 @@ There are seeds included with the codebase, but sometimes it's better to have re
   sqlite3 db/development.sqlite3
   sqlite> .read data.sql
   ```
-  
+
   Fix any remaining errors that get thrown from here.
 
 10. Obfuscate user data.

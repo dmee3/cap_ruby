@@ -36,8 +36,8 @@
     "postcss": "^8.2",
     "postcss-import": "^14.0",
     "sass": "^1.38.2",
-    "vite": "^2.9.16",
-    "vite-plugin-ruby": "^3.2.2",
+    "vite": "^4.3.0",
+    "vite-plugin-ruby": "^3.2.0",
     "vite-plugin-windicss": "^1.9.1",
     "windicss": "^3.5.6"
   },
