@@ -75,31 +75,31 @@ const UpcomingPayment = ({
   }
 
   return (
-    <div className="p-5 shadow-md row-span-2 card-flat border-gray-300">
+    <div className="p-5 shadow-md row-span-2 green-gradient">
       <div className="flex flex-col">
-        <span className="card-title text-gray-500">UPCOMING PAYMENTS</span>
-        <span className="text-3xl font-extrabold font-mono">
+        <span className="card-title text-green-200">UPCOMING PAYMENTS</span>
+        <span className="text-3xl text-white font-extrabold font-mono">
           {Utilities.formatMoney(total)}
         </span>
-        <span className="text-sm text-secondary">
+        <span className="text-sm text-green-200">
           Next&nbsp;
           <input
             type="text"
-            className="inline bg-transparent border-0 border-b-1 border-black p-0 text-center font-medium w-8 focus:ring-0 focus:border-black"
+            className="inline bg-transparent border-0 border-b-1 border-white p-0 text-white text-center font-medium w-8 focus:ring-0 focus:border-white"
             value={days}
             onChange={(e) => handleEndChange(e.target.value)}
           />
           &nbsp;days
         </span>
       </div>
-      <ul className="divide-y divide-gray-500">
+      <ul className="divide-y divide-green-500">
         {displayedPayments.map(payment => {
           return <li key={payment.id}>
-            <a href={`/admin/users/${payment.user_id}`} className="px-5 py-4 -mx-5 flex flex-col hover:bg-gray-200 transition">
+            <a href={`/admin/users/${payment.user_id}`} className="px-5 py-4 -mx-5 flex flex-col hover:bg-green-500 transition">
               <div className="flex justify-between">
                 <div className="flex flex-col">
-                  <span className="mb-0.5 font-medium">{payment.name}</span>
-                  <span className="text-sm text-secondary hidden xl:inline">
+                  <span className="mb-0.5 text-white font-medium">{payment.name}</span>
+                  <span className="text-sm text-green-200 hidden xl:inline">
                     {Utilities.displayDate(payment.date)}
                   </span>
                 </div>
@@ -111,7 +111,7 @@ const UpcomingPayment = ({
                 </div>
               </div>
               <div>
-                <span className="text-secondary font-medium text-xs">
+                <span className="text-green-200 font-medium text-xs">
                   {
                     payment.owed > payment.current_amount &&
                     `${Utilities.formatMoney(payment.current_amount)} + ${Utilities.formatMoney(payment.owed - payment.current_amount)} past due`
@@ -123,8 +123,8 @@ const UpcomingPayment = ({
         })}
         <li className="pt-4 flex flex-col items-center">
           <div className="flex flex-row">
-            <ChevronLeftIcon className="mr-2 h-6 w-6 cursor-pointer text-gray-500 hover:text-black transition" onClick={() => handleLeftClick()} />
-            <span className="mb-0.5 text-primary">
+            <ChevronLeftIcon className="mr-2 h-6 w-6 cursor-pointer text-green-200 hover:text-black transition" onClick={() => handleLeftClick()} />
+            <span className="mb-0.5 text-white">
               {
                 displayedPayments.length > 0 ?
                   `${Math.max(cursor + 1, 0)} - ${Math.min(payments.length, cursor + 5)} of ${payments.length}`
@@ -132,7 +132,7 @@ const UpcomingPayment = ({
                   "0 of 0"
               }
             </span>
-            <ChevronRightIcon className="ml-2 h-6 w-6 cursor-pointer text-gray-500 hover:text-black transition" onClick={() => handleRightClick()} />
+            <ChevronRightIcon className="ml-2 h-6 w-6 cursor-pointer text-green-200 hover:text-white transition" onClick={() => handleRightClick()} />
           </div>
         </li>
       </ul>
