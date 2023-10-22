@@ -734,6 +734,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kurkle/color@npm:^0.3.0":
+  version: 0.3.2
+  resolution: "@kurkle/color@npm:0.3.2"
+  checksum: 79e97b31f8f6efb28c69d373f94b0c7480226fe8ec95221f518ac998e156444a496727ce47de6d728eb5c3369288e794cba82cae34253deb0d472d3bfe080e49
+  languageName: node
+  linkType: hard
+
 "@nodelib/fs.scandir@npm:2.1.5":
   version: 2.1.5
   resolution: "@nodelib/fs.scandir@npm:2.1.5"
@@ -821,10 +828,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/chart.js@npm:^2.9.39":
+  version: 2.9.39
+  resolution: "@types/chart.js@npm:2.9.39"
+  dependencies:
+    moment: ^2.10.2
+  checksum: c19cab03143db9cabc9c7277b77a974634baa9a9554dc95a7d2996091ac88ca9d98718e701446932a4cf0b8f3c2862ad0d3f232e1deb6a9bdf72d9ef5342582d
+  languageName: node
+  linkType: hard
+
 "@types/json5@npm:^0.0.29":
   version: 0.0.29
   resolution: "@types/json5@npm:0.0.29"
   checksum: e60b153664572116dfea673c5bda7778dbff150498f44f998e34b5886d8afc47f16799280e4b6e241c0472aef1bc36add771c569c68fc5125fc2ae519a3eb9ac
+  languageName: node
+  linkType: hard
+
+"@types/luxon@npm:^3.3.3":
+  version: 3.3.3
+  resolution: "@types/luxon@npm:3.3.3"
+  checksum: 072dd39eea3f63453788fab2fcfc83eb33917afcaffe178ce08ecd8b016824b8ab3bfa991f66266f2fc1927768a56b4334945f2eb1d83638e325c0c43d7d0e86
   languageName: node
   linkType: hard
 
@@ -1213,17 +1236,20 @@ __metadata:
     "@rails/ujs": ^6.0.0
     "@stripe/react-stripe-js": ^1.6.0
     "@stripe/stripe-js": ^1.20.3
+    "@types/chart.js": ^2.9.39
+    "@types/luxon": ^3.3.3
     "@types/react": ^17.0.17
     "@types/react-dom": ^17.0.9
     "@vitejs/plugin-react-refresh": ^1.3.6
     babel-plugin-transform-react-remove-prop-types: ^0.4.24
-    chart.js: ^2.9.4
+    chart.js: ^4.4.0
     eslint: ^7.12.1
     eslint-config-prettier: ^6.15.0
     eslint-plugin-import: ^2.22.1
     eslint-plugin-promise: ^4.2.1
     flatpickr: ^4.6.3
     fuzzysort: ^1.1.4
+    luxon: ^3.4.3
     moment: ^2.24.0
     postcss: ^8.2
     postcss-import: ^14.0
@@ -1263,32 +1289,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chart.js@npm:^2.9.4":
-  version: 2.9.4
-  resolution: "chart.js@npm:2.9.4"
+"chart.js@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "chart.js@npm:4.4.0"
   dependencies:
-    chartjs-color: ^2.1.0
-    moment: ^2.10.2
-  checksum: cbdc7abe2fa65e4838848e68b035ae6048ebcc512b9057d7cdb6d361e728400d39e3fde75e0b4da815ab43f7890c31787d8f80d4e6ab75a3e80fc75b47cd173c
-  languageName: node
-  linkType: hard
-
-"chartjs-color-string@npm:^0.6.0":
-  version: 0.6.0
-  resolution: "chartjs-color-string@npm:0.6.0"
-  dependencies:
-    color-name: ^1.0.0
-  checksum: 2355bc8e9514b779d0dc057c5ee6707e8166f270531c27287a399d6bfeb0d891b00a6f6c20e764453a062de0de8b298b11d3850fc94c323df66efb4720ece4c7
-  languageName: node
-  linkType: hard
-
-"chartjs-color@npm:^2.1.0":
-  version: 2.4.1
-  resolution: "chartjs-color@npm:2.4.1"
-  dependencies:
-    chartjs-color-string: ^0.6.0
-    color-convert: ^1.9.3
-  checksum: 254d7b2f103980417703331c49fba18877ac797fd9056d79f0d566dc4fd8d41f91b7f63d4b19602462b91110bee2fe0c9fd57266ce871e498ac1c25742fffb11
+    "@kurkle/color": ^0.3.0
+  checksum: 5ee2d99b78608025525b5790af17178fdaa5adc3294e082deba2718029b0496109ba124f1b08dd1e4c8a04d6e842be7f384f2cfe9a11df8d1c6fe884acece52b
   languageName: node
   linkType: hard
 
@@ -1325,7 +1331,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color-convert@npm:^1.9.0, color-convert@npm:^1.9.3":
+"color-convert@npm:^1.9.0":
   version: 1.9.3
   resolution: "color-convert@npm:1.9.3"
   dependencies:
@@ -1350,7 +1356,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color-name@npm:^1.0.0, color-name@npm:~1.1.4":
+"color-name@npm:~1.1.4":
   version: 1.1.4
   resolution: "color-name@npm:1.1.4"
   checksum: b0445859521eb4021cd0fb0cc1a75cecf67fceecae89b63f62b201cca8d345baf8b952c966862a9d9a2632987d4f6581f0ec8d957dfacece86f0a7919316f610
@@ -2707,6 +2713,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"luxon@npm:^3.4.3":
+  version: 3.4.3
+  resolution: "luxon@npm:3.4.3"
+  checksum: 3eade81506224d038ed24035a0cd0dd4887848d7eba9361dce9ad8ef81380596a68153240be3988721f9690c624fb449fcf8fd8c3fc0681a6a8496faf48e92a3
+  languageName: node
+  linkType: hard
+
 "magic-string@npm:^0.30.0":
   version: 0.30.5
   resolution: "magic-string@npm:0.30.5"
@@ -2883,7 +2896,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment@npm:^2.10.2, moment@npm:^2.24.0":
+"moment@npm:^2.10.2":
+  version: 2.29.4
+  resolution: "moment@npm:2.29.4"
+  checksum: 0ec3f9c2bcba38dc2451b1daed5daded747f17610b92427bebe1d08d48d8b7bdd8d9197500b072d14e326dd0ccf3e326b9e3d07c5895d3d49e39b6803b76e80e
+  languageName: node
+  linkType: hard
+
+"moment@npm:^2.24.0":
   version: 2.29.1
   resolution: "moment@npm:2.29.1"
   checksum: 1e14d5f422a2687996be11dd2d50c8de3bd577c4a4ca79ba5d02c397242a933e5b941655de6c8cb90ac18f01cc4127e55b4a12ae3c527a6c0a274e455979345e

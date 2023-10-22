@@ -17,6 +17,7 @@ Rails.application.routes.draw do
       resources :conflicts, only: %i[index update]
 
       resources :payments, only: %i[index]
+      get 'payments/collected', to: 'payments#collected'
       get 'payments/upcoming', to: 'payments#upcoming'
       get 'payments/latest_venmo', to: 'payments#latest_venmo'
 

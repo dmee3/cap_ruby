@@ -17,6 +17,10 @@ class PaymentService
         .members_for_season(season_id)
     end
 
+    def payments_collected_to_date(season_id)
+      Payment.for_season(season_id)
+    end
+
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Lint/UnexpectedBlockArity
     def upcoming_payments(start_date, end_date, season_id)
       entries = PaymentScheduleEntry
