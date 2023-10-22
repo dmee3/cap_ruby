@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-import Chart from "chart.js/auto/auto"
+import Chart from "chart.js/auto"
 import { DateTime } from "luxon"
 import ChartColor from "../../../utilities/chart_color"
 
