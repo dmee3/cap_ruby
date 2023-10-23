@@ -75,7 +75,7 @@ const UpcomingPayment = ({
   }
 
   return (
-    <div className="p-5 shadow-md row-span-2 green-gradient">
+    <div className="h-full p-5 shadow-md row-span-2 green-gradient rounded-lg">
       <div className="flex flex-col">
         <span className="card-title text-green-200">UPCOMING PAYMENTS</span>
         <span className="text-3xl text-white font-extrabold font-mono">
@@ -93,8 +93,8 @@ const UpcomingPayment = ({
         </span>
       </div>
       <ul className="divide-y divide-green-500">
-        {displayedPayments.map(payment => {
-          return <li key={payment.id}>
+        {displayedPayments.map(payment => (
+          <li key={payment.id}>
             <a href={`/admin/users/${payment.user_id}`} className="px-5 py-4 -mx-5 flex flex-col hover:bg-green-500 transition">
               <div className="flex justify-between">
                 <div className="flex flex-col">
@@ -120,7 +120,7 @@ const UpcomingPayment = ({
               </div>
             </a>
           </li>
-        })}
+        ))}
         <li className="pt-4 flex flex-col items-center">
           <div className="flex flex-row">
             <ChevronLeftIcon className="mr-2 h-6 w-6 cursor-pointer text-green-200 hover:text-black transition" onClick={() => handleLeftClick()} />
