@@ -85,7 +85,7 @@ const BehindMembers = ({
                 <div>
                   <span className="text-sm font-medium text-gray-500 hidden xl:inline">
                     {member.last_payment &&
-                      `Last paid $${member.last_payment.amount / 100.0} on ${member.last_payment.date_paid}`
+                      `Last paid $${member.last_payment.amount / 100.0} on ${Utilities.displayDate(Utilities.dateWithTZ(member.last_payment.date_paid))}`
                     }
                   </span>
                 </div>
