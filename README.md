@@ -63,9 +63,10 @@ There are seeds included with the codebase, but sometimes it's better to have re
   ```
 
 6. Strip out the block of `SET` statements from `data.sql` (starting around line 8).
-7. Delete the section inserting data into the `schema_migrations` table.
-8. Delete the section at the end with a bunch of `SELECT pg_catalog.setval(...)` statements.
-9. Open up a sqlite console and read in the data from `data.sql`
+7. Delete the insert into `ar_internal_metadata`
+8. Delete the section inserting data into the `schema_migrations` table.
+9. Delete the section at the end with a bunch of `SELECT pg_catalog.setval(...)` statements.
+10. Open up a sqlite console and read in the data from `data.sql`
 
   ```
   sqlite3 db/development.sqlite3
@@ -74,7 +75,7 @@ There are seeds included with the codebase, but sometimes it's better to have re
 
   Fix any remaining errors that get thrown from here.
 
-10. Obfuscate user data.
+11. Obfuscate user data.
 
   ```
   bundle exec rails c
@@ -83,6 +84,9 @@ There are seeds included with the codebase, but sometimes it's better to have re
     u.email = Faker::Internet.email
     u.first_name = Faker::Name.first_name
     u.last_name = Faker::Name.last_name
+
+    # Anything else that it makes sense to change for local development
+
     u.save
   end
   ```
