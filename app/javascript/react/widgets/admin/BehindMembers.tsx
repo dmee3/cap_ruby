@@ -70,7 +70,7 @@ const BehindMembers = ({
         <ul className="divide-y divide-gray-300 dark:divide-gray-600">
           {displayedMembers.map(member => (
             <li key={member.id}>
-              <a href={`/admin/users/${member.id}`} className="px-5 py-4 -mx-5 flex flex-col group hover:bg-gray-300 hover:bg-gray-600 transition">
+              <a href={`/admin/users/${member.id}`} className="px-5 py-4 -mx-5 flex flex-col group hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                 <div className="flex justify-between">
                   <div className="flex flex-col">
                     <span className="mb-0.5 font-medium">{member.name}</span>
