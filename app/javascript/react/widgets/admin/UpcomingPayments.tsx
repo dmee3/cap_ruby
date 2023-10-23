@@ -75,7 +75,7 @@ const UpcomingPayment = ({
   }
 
   return (
-    <div className="h-full p-5 shadow-md row-span-2 green-gradient rounded-lg">
+    <div className="h-full p-5 shadow-md row-span-2 green-gradient rounded-lg flex flex-col">
       <div className="flex flex-col">
         <span className="card-title text-green-200">UPCOMING PAYMENTS</span>
         <span className="text-3xl text-white font-extrabold font-mono">
@@ -92,38 +92,42 @@ const UpcomingPayment = ({
           &nbsp;days
         </span>
       </div>
-      <ul className="divide-y divide-green-500">
-        {displayedPayments.map(payment => (
-          <li key={payment.id}>
-            <a href={`/admin/users/${payment.user_id}`} className="px-5 py-4 -mx-5 flex flex-col hover:bg-green-500 transition">
-              <div className="flex justify-between">
-                <div className="flex flex-col">
-                  <span className="mb-0.5 text-white font-medium">{payment.name}</span>
-                  <span className="text-sm text-green-200 hidden xl:inline">
-                    {Utilities.displayDate(payment.date)}
-                  </span>
+
+      <div className="flex flex-col flex-1 justify-between">
+        <ul className="divide-y divide-green-500">
+          {displayedPayments.map(payment => (
+            <li key={payment.id}>
+              <a href={`/admin/users/${payment.user_id}`} className="px-5 py-4 -mx-5 flex flex-col hover:bg-green-500 transition">
+                <div className="flex justify-between">
+                  <div className="flex flex-col">
+                    <span className="mb-0.5 text-white font-medium">{payment.name}</span>
+                    <span className="text-sm text-green-200 hidden xl:inline">
+                      {Utilities.displayDate(payment.date)}
+                    </span>
+                  </div>
+                  <div>
+                    <Badge
+                      text={Utilities.formatMoney(payment.owed)}
+                      color='green'
+                    />
+                  </div>
                 </div>
                 <div>
-                  <Badge
-                    text={Utilities.formatMoney(payment.owed)}
-                    color='green'
-                  />
+                  <span className="text-green-200 font-medium text-xs">
+                    {
+                      payment.owed > payment.current_amount &&
+                      `${Utilities.formatMoney(payment.current_amount)} + ${Utilities.formatMoney(payment.owed - payment.current_amount)} past due`
+                    }
+                  </span>
                 </div>
-              </div>
-              <div>
-                <span className="text-green-200 font-medium text-xs">
-                  {
-                    payment.owed > payment.current_amount &&
-                    `${Utilities.formatMoney(payment.current_amount)} + ${Utilities.formatMoney(payment.owed - payment.current_amount)} past due`
-                  }
-                </span>
-              </div>
-            </a>
-          </li>
-        ))}
-        <li className="pt-4 flex flex-col items-center">
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <div className="pt-4 flex flex-col items-center">
           <div className="flex flex-row">
-            <ChevronLeftIcon className="mr-2 h-6 w-6 cursor-pointer text-green-200 hover:text-black transition" onClick={() => handleLeftClick()} />
+            <ChevronLeftIcon className="mr-2 h-6 w-6 cursor-pointer text-green-200 hover:text-white transition" onClick={() => handleLeftClick()} />
             <span className="mb-0.5 text-white">
               {
                 displayedPayments.length > 0 ?
@@ -134,8 +138,8 @@ const UpcomingPayment = ({
             </span>
             <ChevronRightIcon className="ml-2 h-6 w-6 cursor-pointer text-green-200 hover:text-white transition" onClick={() => handleRightClick()} />
           </div>
-        </li>
-      </ul>
+        </div>
+      </div>
     </div>
   )
 }
