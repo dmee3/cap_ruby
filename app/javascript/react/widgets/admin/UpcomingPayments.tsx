@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Utilities from '../../../utilities/utilities'
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 
 import Badge from '../../components/Badge'
 
@@ -13,6 +14,8 @@ const UpcomingPayment = ({
   }
 
   const [payments, setPayments] = useState([])
+  const [displayedPayments, setDisplayedPayments] = useState([])
+  const [cursor, setCursor] = useState(0)
   const [days, setDays] = useState(14)
   const [end, setEnd] = useState(new Date(Date.now() + daysToSeconds(14))) // 14 days away
   const start = new Date(Date.now())
@@ -27,15 +30,15 @@ const UpcomingPayment = ({
         throw resp
       })
       .then(data => {
-        setPayments(
-          data.map(entry => {
-            return {
-              ...entry,
-              date: Utilities.dateWithTZ(entry.date),
-              owed: entry.scheduled - entry.paid
-            }
-          })
-        )
+        const rawPayments = data.map(entry => {
+          return {
+            ...entry,
+            date: Utilities.dateWithTZ(entry.date),
+            owed: entry.scheduled - entry.paid
+          }
+        }).sort((a, b) => a.date - b.date)
+        setPayments(rawPayments)
+        setDisplayedPayments(rawPayments.slice(cursor, cursor + 5))
       })
       .catch(error => {
         console.error(error)
@@ -55,8 +58,24 @@ const UpcomingPayment = ({
 
   const total = payments.map(p => p.owed).reduce((sum, curr) => sum + curr, 0)
 
+  const handleLeftClick = (): void => {
+    if (cursor == 0) { return; }
+
+    const newCursor = Math.max(0, cursor - 5)
+    setCursor(newCursor)
+    setDisplayedPayments(payments.slice(newCursor, newCursor + 5))
+  }
+
+  const handleRightClick = (): void => {
+    if (cursor >= payments.length - 5) { return; }
+
+    const newCursor = Math.min(payments.length, cursor + 5)
+    setCursor(newCursor)
+    setDisplayedPayments(payments.slice(newCursor, newCursor + 5))
+  }
+
   return (
-    <div className="p-5 shadow-md green-gradient row-span-2">
+    <div className="h-full p-5 shadow-md row-span-2 green-gradient rounded-lg flex flex-col">
       <div className="flex flex-col">
         <span className="card-title text-green-200">UPCOMING PAYMENTS</span>
         <span className="text-3xl text-white font-extrabold font-mono">
@@ -73,36 +92,54 @@ const UpcomingPayment = ({
           &nbsp;days
         </span>
       </div>
-      <ul className="divide-y divide-green-500">
-        {payments.map(payment => {
-          return <li key={payment.id}>
-            <a href={`/admin/users/${payment.user_id}`} className="px-5 py-4 -mx-5 flex flex-col hover:bg-green-500 transition">
-              <div className="flex justify-between">
-                <div className="flex flex-col">
-                  <span className="mb-0.5 text-white">{payment.name}</span>
-                  <span className="text-sm font-medium text-green-200 hidden xl:inline">
-                    {Utilities.displayDate(payment.date)}
-                  </span>
+
+      <div className="flex flex-col flex-1 justify-between">
+        <ul className="divide-y divide-green-500">
+          {displayedPayments.map(payment => (
+            <li key={payment.id}>
+              <a href={`/admin/users/${payment.user_id}`} className="px-5 py-4 -mx-5 flex flex-col hover:bg-green-500 transition">
+                <div className="flex justify-between">
+                  <div className="flex flex-col">
+                    <span className="mb-0.5 text-white font-medium">{payment.name}</span>
+                    <span className="text-sm text-green-200 hidden xl:inline">
+                      {Utilities.displayDate(payment.date)}
+                    </span>
+                  </div>
+                  <div>
+                    <Badge
+                      text={Utilities.formatMoney(payment.owed)}
+                      color='green'
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Badge
-                    text={Utilities.formatMoney(payment.owed)}
-                    color='green'
-                  />
-                </div>
-              </div>
-              {
-                payment.owed > payment.current_amount &&
                 <div>
                   <span className="text-green-200 font-medium text-xs">
-                  {Utilities.formatMoney(payment.current_amount)} + {Utilities.formatMoney(payment.owed - payment.current_amount)} past due
+                    {
+                      payment.owed > payment.current_amount &&
+                      `${Utilities.formatMoney(payment.current_amount)} + ${Utilities.formatMoney(payment.owed - payment.current_amount)} past due`
+                    }
                   </span>
                 </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <div className="pt-4 flex flex-col items-center">
+          <div className="flex flex-row">
+            <ChevronLeftIcon className="mr-2 h-6 w-6 cursor-pointer text-green-200 hover:text-white transition" onClick={() => handleLeftClick()} />
+            <span className="mb-0.5 text-white">
+              {
+                displayedPayments.length > 0 ?
+                  `${Math.max(cursor + 1, 0)} - ${Math.min(payments.length, cursor + 5)} of ${payments.length}`
+                  :
+                  "0 of 0"
               }
-            </a>
-          </li>
-        })}
-      </ul>
+            </span>
+            <ChevronRightIcon className="ml-2 h-6 w-6 cursor-pointer text-green-200 hover:text-white transition" onClick={() => handleRightClick()} />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

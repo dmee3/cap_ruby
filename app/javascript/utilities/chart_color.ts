@@ -30,6 +30,9 @@ class ChartColor {
   static grey() {
     return new ChartColor(201, 203, 207)
   }
+  static white() {
+    return new ChartColor(255, 255, 255)
+  }
 
   rgb() {
     return this.r + ',' + this.g + ',' + this.b

@@ -8,6 +8,11 @@ module Api
         @users = PaymentService.season_payment_details(current_season['id'])
       end
 
+      def collected
+        @payments = PaymentService.payments_collected_to_date(current_season['id'])
+        render json: @payments
+      end
+
       def upcoming
         @payments = PaymentService.upcoming_payments(start_param, end_param, current_season['id'])
         render json: @payments

@@ -30,12 +30,10 @@ export default defineConfig({
           lightest: '#c4cba4'
         },
         jet: {
-          DEFAULT: '#323337',
-          light: '#4e4f56',
-          lightest: '#747781',
+          DEFAULT: '#1d1e20'
         },
-        mint: {
-          DEFAULT: '#e7f1f0'
+        flash: {
+          DEFAULT: '#e9ebec'
         }
       }
     },

@@ -2,36 +2,22 @@
 <h2 class="text-secondary mt-0"><%= current_user.ensemble_for(current_season['id']) %> <%= current_user.section_for(current_season['id']) %></h2>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
-  <div class="order-1 block md:hidden">
-    <div class="card gray-gradient">
-      <div class="flex flex-col">
-        <div class="card-title text-gray-300">NEXT EVENT</div>
-        <% if @next_event %>
-          <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
-          <div class="text-gray-300 text-sm font-medium">
-            <% if @next_event[:start_date].day == @next_event[:end_date].day %>
-              <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%l:%M%P') %>
-            <% else %>
-              <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%a, %-m/%-d %l:%M%P') %>
-            <% end %>
-          </div>
-        <% else %>
-          <span class="text-3xl text-white font-extrabold font-mono mb-0.5">None</span>
-        <% end %>
-      </div>
-    </div>
-  </div>
-
   <div class="order-2 md:order-1 grid grid-cols-1 lg:grid-cols-5 lg:col-span-2 gap-4">
     <!-- PAYMENTS -->
     <div class="card green-gradient lg:col-span-3">
       <div class="flex flex-col">
-        <span class="card-title text-green-200">DUES</span>
-        <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= number_to_currency(@paid) %>/<%= number_to_currency(@total_dues) %></span>
+        <span class="card-title text-green-200">DUES PROGRESS</span>
+        <span class="text-2xl text-white font-extrabold font-mono mb-0.5">
+          <%= number_to_currency(@paid, precision: (@paid % 1.0 == 0 ? 0 : 2)) %>
+          /
+          <%= number_to_currency(@total_dues, precision: (@total_dues % 1.0 == 0 ? 0 : 2)) %>
+        </span>
         <% if @paid >= @total_dues %>
           <span class="text-green-200 text-sm font-medium">You're all done paying. Thanks!</span>
         <% elsif @next_payment_amount > 0 %>
-          <span class="text-green-200 text-sm font-medium">Next payment: <span class="font-bold text-white"><%= number_to_currency(@next_payment_amount) %></span> on <span class="font-bold text-white"><%= @next_payment_date.pay_date.strftime('%a, %-m/%-d') %></span></span>
+          <span class="text-green-200 text-sm font-medium">Next payment: <span class="font-bold text-white">
+            <%= number_to_currency(@next_payment_amount, precision: (@next_payment_amount % 1.0 == 0 ? 0 : 2)) %>
+          </span> on <span class="font-bold text-white"><%= @next_payment_date.pay_date.strftime('%a, %-m/%-d') %></span></span>
         <% end %>
 
         <% if @payments.present? %>
@@ -45,7 +31,7 @@
                       <span class="text-green-200 mr-1">
                         <%= render 'payment_type_icon', name: payment.payment_type.name %>
                       </span>
-                      <span class="text-white">$<%= '%.2f' % (payment.amount / 100.0) %></span>
+                      <span class="text-white"><%= number_to_currency(payment.amount / 100.0, precision: (payment.amount / 100.0 % 1.0 == 0 ? 0 : 2)) %></span>
                     </div>
                     <span class="text-sm font-light text-green-200"><%= payment.date_paid.strftime('%-m/%-d/%-y') %></span>
                   </div>
@@ -69,7 +55,7 @@
       <ul class="divide-y divide-gray-300 dark:divide-gray-600">
         <% @entries.each do |entry| %>
           <li class="flex justify-between py-2">
-            <span><%= number_to_currency(entry.amount / 100.0) %></span>
+            <span><%= number_to_currency(entry.amount / 100.0, precision: (entry.amount / 100.0 % 1.0 == 0 ? 0 : 2)) %></span>
             <span class="text-secondary"><%= entry.pay_date.strftime('%a, %-m/%-d') %></span>
           </li>
         <% end %>
@@ -78,25 +64,6 @@
   </div>
 
   <div class="flex flex-col order-3 justify-items-stretch grid grid-cols-1 gap-4">
-    <!-- NEXT EVENT (md+) -->
-    <div class="hidden md:block card gray-gradient">
-      <div class="flex flex-col">
-        <div class="card-title text-gray-300">NEXT EVENT</div>
-        <% if @next_event %>
-          <span class="text-3xl text-white font-extrabold font-mono mb-0.5"><%= @next_event[:name] %></span>
-          <div class="text-gray-300 text-sm font-medium">
-            <% if @next_event[:start_date].day == @next_event[:end_date].day %>
-              <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%l:%M%P') %>
-            <% else %>
-            <%= @next_event[:start_date].strftime('%a, %-m/%-d %l:%M%P') %> - <%= @next_event[:end_date].strftime('%a, %-m/%-d %l:%M%P') %>
-            <% end %>
-          </div>
-        <% else %>
-          <span class="text-3xl text-white font-extrabold font-mono mb-0.5">None</span>
-        <% end %>
-      </div>
-    </div>
-
     <!-- CONFLICTS -->
     <div class="card-flat border-red-500">
       <div class="flex flex-col">
