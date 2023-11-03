@@ -17,6 +17,7 @@ body.bg-sound-wave {
 .form-control.flatpickr:read-only {
   background-color: transparent;
 }
+
 .form-control.flatpickr-dt:read-only {
   background-color: transparent;
 }
@@ -30,16 +31,5 @@ body.bg-sound-wave {
 }
 
 #main-content {
-  @apply
-    md:flex-grow
-    rounded-t-2xl
-    md:rounded-tr-none
-    mx-4
-    md:mx-0
-    p-6
-    bg-white
-    dark:bg-gray-900
-    text-gray-900
-    dark:text-white
-  ;
+  @apply md:flex-grow rounded-t-2xl md:rounded-tr-none mx-0 p-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white;
 }
