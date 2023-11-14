@@ -6,29 +6,14 @@ import addFlash from '../../../utilities/flashes'
 
 import { PlusSmallIcon, CheckIcon, XMarkIcon, ArchiveBoxXMarkIcon } from '@heroicons/react/24/outline'
 import Badge from '../../../react/components/Badge'
-import InputToggle from '../../../react/components/inputs/InputToggle'
 
 import ConflictCalendar from '../../../react/widgets/coordinators/ConflictCalendar'
+import ConflictList from '../../../react/widgets/conflicts/ConflictList'
 
 const AdminConflicts = () => {
   const [conflicts, setConflicts] = useState([])
-  const [displayedConflicts, setDisplayedConflicts] = useState([])
-  const [showPast, setShowPast] = useState(false)
   const [conflictStatuses, setConflictStatuses] = useState([])
   const [pendingConflicts, setPendingConflicts] = useState([])
-
-  const statusToColor = status => {
-    switch (status) {
-      case 'Approved':
-        return 'green'
-      case 'Denied':
-        return 'red'
-      case 'Pending':
-        return 'yellow'
-      default:
-        return 'gray'
-    }
-  }
 
   const approveConflict = id => {
     const newStatus = conflictStatuses.filter(c => c.name === 'Approved')[0]
@@ -82,27 +67,12 @@ const AdminConflicts = () => {
       })
       .then(data => {
         data = data.sort((a, b) => a.start - b.start)
-        setConflicts(data.filter(c => c.status.name !== 'Pending'))
-        setDisplayedConflicts(
+        setConflicts(
           data.filter(c => c.status.name !== 'Pending')
-            .filter(c => new Date(c.start) >= new Date(Date.now()))
         )
         setPendingConflicts(data.filter(c => c.status.name === 'Pending'))
       })
       .catch(error => console.error(error))
-  }
-
-  const togglePast = shouldShowPast => {
-    setShowPast(shouldShowPast)
-    if (shouldShowPast) {
-      setDisplayedConflicts(conflicts)
-    } else {
-      setDisplayedConflicts(conflicts.filter(c => new Date(c.start) >= new Date(Date.now())))
-    }
-  }
-
-  const redirectTo = conflict => {
-    window.location.href = `/admin/conflicts/${conflict.id}/edit`
   }
 
   useEffect(() => {
@@ -143,7 +113,7 @@ const AdminConflicts = () => {
                   </div>
                   <Badge
                     text={conflict.status.name}
-                    color={statusToColor(conflict.status.name)}
+                    color={Utilities.statusToColor(conflict.status.name)}
                   />
                 </div>
                 <div className="flex justify-end space-x-2">
@@ -168,33 +138,10 @@ const AdminConflicts = () => {
       <h2 className="mt-6">Calendar</h2>
       <ConflictCalendar coordinator={false} />
 
-      <div className="flex flex-row items-center justify-between mt-6 mb-2">
-        <h2 className="my-0">All</h2>
-        <div className="pr-4">
-          <InputToggle
-            checked={showPast}
-            id={'show-past-conflicts'}
-            name={'show-past-conflicts'}
-            onChange={() => togglePast(!showPast)}
-            text={'Show Past'}
-          />
-        </div>
-      </div>
-      <ul className="divide-y divide-gray-300 dark:divide-gray-600">
-        {displayedConflicts.map(conflict => {
-          return <li key={conflict.id} className="flex flex-row space-x-2 p-4 items-start table-row-hover" onClick={() => redirectTo(conflict)}>
-            <div className="flex flex-1 flex-col">
-              <span className="font-medium">{conflict.title}</span>
-              <span className="text-sm font-light">{Utilities.displayDateTimeReadable(conflict.start)} to {Utilities.displayDateTimeReadable(conflict.end)}</span>
-              <span className="text-sm text-secondary">{conflict.reason}</span>
-            </div>
-            <Badge
-              text={conflict.status.name}
-              color={statusToColor(conflict.status.name)}
-            />
-          </li>
-        })}
-      </ul>
+      <ConflictList
+        conflicts={conflicts}
+        baseRedirectUrl={"/admin/conflicts/"}
+      />
     </div>
   )
 }

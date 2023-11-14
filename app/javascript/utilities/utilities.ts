@@ -48,11 +48,11 @@ export default class {
   }
 
   static formatMmDdYyyy(d: Date) {
-    return `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`
+    return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
   }
 
   static formatIsoDate(d: Date) {
-    return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`
+    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
   }
 
   static formatMoney(num: number) {
@@ -60,6 +60,19 @@ export default class {
       style: 'currency',
       currency: 'USD',
     })
+  }
+
+  static statusToColor(status: string) {
+    switch (status) {
+      case 'Approved':
+        return 'green'
+      case 'Denied':
+        return 'red'
+      case 'Pending':
+        return 'yellow'
+      default:
+        return 'gray'
+    }
   }
 
   static getAuthToken() {

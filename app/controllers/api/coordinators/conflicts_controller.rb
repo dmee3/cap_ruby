@@ -31,7 +31,7 @@ module Api
         @conflict = Conflict.find(params[:id])
         if @conflict.update(conflict_params.reject { |_k, v| v.blank? })
           ActivityLogger.log_conflict(@conflict, current_user)
-          render(json: { message: "Conflict for #{@conflict.user.full_name} updated" })
+          render json: { message: "Conflict for #{@conflict.user.full_name} updated" }
         else
           Rollbar.info('Conflict could not be updated.', errors: @conflict.errors.full_messages)
           head(422)
