@@ -7,15 +7,15 @@
 }
 
 .input-text {
-  @apply bg-gray-100 dark: bg-gray-800 block border-transparent hover:enabled:border-gray-300 dark:hover:enabled:border-gray-600 hover:focus:border-ocean focus:border-ocean focus:bg-white dark:focus:bg-gray-900 focus:ring-0 mt-1 rounded-md disabled:text-gray-300 !dark:disabled:text-gray-600 w-full border-2 text-gray-900 dark:text-white;
+  @apply bg-gray-100 dark:bg-gray-800 block border-transparent hover:enabled:border-gray-300 dark:hover:enabled:border-gray-600 hover:focus:border-ocean focus:border-ocean focus:bg-white dark:focus:bg-gray-900 focus:ring-0 mt-1 rounded-md disabled:text-gray-300 !dark:disabled:text-gray-600 w-full border-2 text-gray-900 dark:text-white;
 }
 
 .input-search {
-  @apply bg-gray-100 dark: bg-gray-800 block border-transparent hover:enabled:border-gray-300 dark:hover:enabled:border-gray-600 hover:focus:border-ocean focus:border-ocean focus:bg-white dark:focus:bg-gray-900 focus:ring-0 mt-1 rounded-md disabled:text-gray-300 !dark:disabled:text-gray-600 w-full border-2 text-gray-900 dark:text-white;
+  @apply bg-gray-100 dark:bg-gray-800 block border-transparent hover:enabled:border-gray-300 dark:hover:enabled:border-gray-600 hover:focus:border-ocean focus:border-ocean focus:bg-white dark:focus:bg-gray-900 focus:ring-0 mt-1 rounded-md disabled:text-gray-300 !dark:disabled:text-gray-600 w-full border-2 text-gray-900 dark:text-white;
 }
 
 .input-search-suggestions-container {
-  @apply bg-gray-100 dark: bg-gray-800 text-gray-900 dark:text-white rounded-md absolute border-2 border-ocean mt-3 z-50;
+  @apply bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-md absolute border-2 border-ocean mt-3 z-50;
 }
 
 .input-search-suggestion {
@@ -27,11 +27,15 @@
 }
 
 .input-checkbox {
-  @apply bg-gray-100 dark: bg-gray-800 border-transparent border-2 focus:border-transparent focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 focus:ring-ocean hover:border-gray-300 dark:hover:border-gray-600 rounded text-ocean;
+  @apply bg-gray-100 dark:bg-gray-800 border-transparent border-2 focus:border-transparent focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 focus:ring-ocean hover:border-gray-300 dark:hover:border-gray-600 rounded text-ocean;
 }
 
 .input-select {
-  @apply mt-1 block w-full rounded-md bg-gray-100 dark: bg-gray-800 border-transparent border-2 disabled:hover:border-transparent hover:border-gray-300 dark:hover:border-gray-600 hover:focus:border-ocean focus:border-ocean focus:bg-white dark:focus:bg-gray-900 disabled:text-gray-300 !dark:disabled:text-gray-600 focus:ring-0 px-3 py-2 text-gray-900 dark:text-white;
+  @apply mt-1 block w-full rounded-md bg-gray-100 dark:bg-gray-800 border-transparent border-2 disabled:hover:border-transparent hover:border-gray-300 dark:hover:border-gray-600 hover:focus:border-ocean focus:border-ocean focus:bg-white dark:focus:bg-gray-900 disabled:text-gray-300 !dark:disabled:text-gray-600 focus:ring-0 px-3 py-2 text-gray-900 dark:text-white;
+}
+
+.input-file-upload {
+  @apply block w-full border-2 border-gray-300 dark:border-gray-600 hover:focus:border-ocean focus:border-ocean focus:ring-0 focus:ring-ocean rounded-md text-gray-900 dark:text-white disabled:pointer-events-none bg-gray-100 dark:bg-gray-800 file:bg-ocean file:border-0 file:me-4 file:py-3 file:px-4 file:mr-4 file:text-white;
 }
 
 /*
@@ -40,11 +44,11 @@
 
 /* Season Dropdown */
 .dropdown {
-  @apply flex flex-row w-full pl-2 h-8 py-0 text-sm text-gray-900 dark: text-white rounded-md bg-gray-100 dark:bg-gray-900 border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-0 cursor-pointer;
+  @apply flex flex-row w-full pl-2 h-8 py-0 text-sm text-gray-900 dark:text-white rounded-md bg-gray-100 dark:bg-gray-900 border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-0 cursor-pointer;
 }
 
 .dropdown-menu {
-  @apply absolute z-50 mt-2 rounded-md shadow-lg px-2 py-1 bg-white dark: bg-gray-800 text-gray-900 dark:text-white ring-1 ring-black ring-opacity-5 focus:outline-none;
+  @apply absolute z-50 mt-2 rounded-md shadow-lg px-2 py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white ring-1 ring-black ring-opacity-5 focus:outline-none;
 }
 
 .dropdown-menu-form-background {
@@ -78,9 +82,9 @@
 }
 
 .input-toggle:checked~.input-toggle-bg {
-  @apply bg-ocean dark: bg-cyan-500;
+  @apply bg-ocean dark:bg-cyan-500;
 }
 
 .input-toggle-bg {
-  @apply block bg-gray-300 dark: bg-gray-600 w-10 h-6 rounded-full transition;
+  @apply block bg-gray-300 dark:bg-gray-600 w-10 h-6 rounded-full transition;
 }

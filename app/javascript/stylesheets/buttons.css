@@ -1,24 +1,9 @@
 .btn-base {
-  @apply
-    cursor-pointer
-    flex
-    font-medium
-    items-center
-    justify-center
-    rounded-md
-    text-white
-    transition
-    w-full
-    sm:w-auto
-  ;
+  @apply cursor-pointer flex font-medium items-center justify-center rounded-md text-white transition w-full sm:w-auto;
 }
 
 .btn-primary {
-  @apply
-    bg-ocean
-    btn-base
-    hover:enabled:bg-ocean-light
-  ;
+  @apply bg-ocean btn-base hover:enabled:bg-ocean-light;
 }
 
 .btn-primary:disabled {
@@ -26,11 +11,7 @@
 }
 
 .btn-green {
-  @apply
-    bg-green-600
-    btn-base
-    hover:enabled:bg-green-500
-  ;
+  @apply bg-green-600 btn-base hover:enabled:bg-green-500;
 }
 
 .btn-green:disabled {
@@ -38,11 +19,7 @@
 }
 
 .btn-red {
-  @apply
-    bg-red-600
-    btn-base
-    hover:enabled:bg-red-500
-  ;
+  @apply bg-red-600 btn-base hover:enabled:bg-red-500;
 }
 
 .btn-red:disabled {
@@ -50,11 +27,7 @@
 }
 
 .btn-gray {
-  @apply
-    bg-gray-600
-    btn-base
-    hover:enabled:bg-gray-500
-  ;
+  @apply bg-gray-600 btn-base hover:enabled:bg-gray-500;
 }
 
 .btn-gray:disabled {
@@ -62,38 +35,17 @@
 }
 
 .btn-link {
-  @apply
-    cursor-pointer
-    flex
-    font-medium
-    hover:enabled:text-gray-500
-    items-center
-    justify-center
-    text-gray-900
-    transition
-  ;
+  @apply cursor-pointer flex font-medium hover:enabled:text-gray-500 items-center justify-center text-gray-900 transition;
 }
 
 .btn-lg {
-  @apply
-    px-4
-    py-2
-    text-lg
-  ;
+  @apply px-4 py-2 text-lg;
 }
 
 .btn-md {
-  @apply
-    px-2
-    py-1
-    text-md
-  ;
+  @apply px-2 py-1 text-md;
 }
 
 .btn-sm {
-  @apply
-    px-1
-    py-1
-    text-sm
-  ;
+  @apply px-1 py-1 text-sm;
 }

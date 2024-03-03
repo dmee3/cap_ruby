@@ -24,7 +24,7 @@ To push to staging, switch `heroku` to `staging`.
 ### Database CLI
 `heroku pg:psql --app <app-name>`
 
-## Copying Prod DB to Local
+### Copying Prod DB to Local
 There are seeds included with the codebase, but sometimes it's better to have real, production-like data. This will allow you to do so.
 
 1. Capture a backup of the database and download it
@@ -90,3 +90,7 @@ There are seeds included with the codebase, but sometimes it's better to have re
     u.save
   end
   ```
+
+## Stripe Quick Reference
+### Stripe CLI for Development
+Follow instructions [here](https://docs.stripe.com/stripe-cli/overview)

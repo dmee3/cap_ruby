@@ -25,12 +25,10 @@ module Calendar
         'public/images/calendars/logo.png'
       end
 
-      ROWS = [348, 438, 528, 618, 708].freeze
-      COLS = [168, 287, 406, 525, 644, 753, 853].freeze
+      ROWS = [403, 469, 535, 601, 667, 733].freeze
+      COLS = [199, 303, 407, 511, 615, 719, 823].freeze
 
       DATE_COORDINATES = [
-        [COLS[3], ROWS[0]],
-        [COLS[4], ROWS[0]],
         [COLS[5], ROWS[0]],
         [COLS[6], ROWS[0]],
         [COLS[0], ROWS[1]],
@@ -59,7 +57,9 @@ module Calendar
         [COLS[2], ROWS[4]],
         [COLS[3], ROWS[4]],
         [COLS[4], ROWS[4]],
-        [COLS[5], ROWS[4]]
+        [COLS[5], ROWS[4]],
+        [COLS[6], ROWS[4]],
+        [COLS[0], ROWS[5]],
       ].freeze
     end
   end
