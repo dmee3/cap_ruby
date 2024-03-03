@@ -9,7 +9,6 @@ type CustomCalendarBuilderProps = {
 }
 const CustomCalendarBuilder = ({ imageSrc, onClose, donations }: CustomCalendarBuilderProps) => {
   const overlaySrc = '/images/calendars/calendar_base.png'
-  const darkenSrc = '/images/calendars/darken_layer.png'
   const logoSrc = '/images/calendars/logo.png'
 
   const rows = [403, 469, 535, 601, 667, 733]
@@ -49,12 +48,11 @@ const CustomCalendarBuilder = ({ imageSrc, onClose, donations }: CustomCalendarB
     [cols[0], rows[5]],
   ]
 
-  const [darken, setDarken] = useState(true)
+  const [darken, setDarken] = useState(83)
 
-  const toggleDarken = () => {
-    resizeCanvas()
-    renderCanvas(!darken)
-    setDarken(!darken)
+  const changeDarken = async (newVal) => {
+    renderCanvas(newVal)
+    setDarken(newVal)
   }
 
   const resizeCanvas = () => {
@@ -88,20 +86,19 @@ const CustomCalendarBuilder = ({ imageSrc, onClose, donations }: CustomCalendarB
     })
   }
 
-  const draw = (canvas, shouldDarken) => {
+  const draw = (canvas, darkLevel) => {
     const ctx = canvas.getContext("2d")
     return Promise
-      .all([loadImage(imageSrc), loadImage(darkenSrc), loadImage(overlaySrc)])
-      .then(([image, darken, overlay]) => {
+      .all([loadImage(imageSrc), loadImage(overlaySrc)])
+      .then(([image, overlay]) => {
         // Roughly scale down and appropriately position the image
         const useWidth = image.width < image.height
         const imgScaleFactor = useWidth ? canvas.width / image.width : canvas.height / image.height
         ctx.drawImage(image, 0, 0, image.width * imgScaleFactor, image.height * imgScaleFactor)
 
-        // Add darken layer if necessary
-        if (shouldDarken) {
-          ctx.drawImage(darken, 0, 0, canvas.width, canvas.height)
-        }
+        // Add darken layer with appropriate opacity (max 67%)
+        ctx.fillStyle = `rgba(0, 0, 0, ${darkLevel / 150})`
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
 
         ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height)
       })
@@ -114,9 +111,12 @@ const CustomCalendarBuilder = ({ imageSrc, onClose, donations }: CustomCalendarB
       .catch((err) => console.log(err))
   }
 
-  const renderCanvas = (shouldDarken) => {
+  const renderCanvas = (darkLevel) => {
     const canvas = document.getElementById("calendar-canvas") as HTMLCanvasElement
-    draw(canvas, shouldDarken)
+    if (canvas.width == 0 || canvas.height == 0) {
+      resizeCanvas()
+    }
+    draw(canvas, darkLevel)
   }
 
   const download = () => {
@@ -132,7 +132,6 @@ const CustomCalendarBuilder = ({ imageSrc, onClose, donations }: CustomCalendarB
   useEffect(() => {
     resizeCanvas()
     renderCanvas(darken)
-    console.log('did it!')
   }, [])
 
   return (
@@ -144,14 +143,22 @@ const CustomCalendarBuilder = ({ imageSrc, onClose, donations }: CustomCalendarB
           <canvas id="download-canvas" width="1080" height="1080" className="hidden"></canvas>
         </div>
 
-        <div className="flex flex-row mt-4">
-          <InputToggle
-            checked={darken}
-            id='darken-checkbox'
-            name='darken-checkbox'
-            onChange={() => toggleDarken()}
-            text='Darken Background'
-          />
+        <div className="flex flex-col mt-4">
+          <span className="text-secondary dark:text-gray-400">Image Dimming Level</span>
+          <div className="flex flex-col">
+            <input
+              id="darken"
+              type="range"
+              value={darken}
+              className=""
+              onChange={(evt) => changeDarken(evt.target.value)}
+            />
+            <div className="flex flex-row justify-between text-xs">
+              <span>0%</span>
+              <span>33%</span>
+              <span>67%</span>
+            </div>
+          </div>
         </div>
         <div className="flex flex-row justify-between items-center mt-4">
           <div className="flex-grow">

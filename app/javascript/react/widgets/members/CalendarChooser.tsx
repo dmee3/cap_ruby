@@ -43,10 +43,26 @@ const CalendarChooser = ({
     document.getElementById(`${img}-thumb`).classList.add('ring-4')
   }
 
-  const submitForm = () => {
-    if (chosenImg === null) return
+  const download = () => {
+    if (!chosenImg) return
 
-    window.location.href = `/members/calendars/download?base_img=${chosenImg}`
+    const canvas = document.createElement('canvas')
+    canvas.width = 1080
+    canvas.height = 1080
+    new Promise((resolve, reject) => {
+      const img = new Image()
+      img.onload = () => resolve(img)
+      img.onerror = () => reject('Error loading image')
+      img.src = `/images/calendars/${chosenImg}.png`
+    })
+      .then((img: HTMLImageElement) => {
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        const link = document.createElement('a')
+        link.download = 'calendar-fundraiser.png'
+        link.href = canvas.toDataURL()
+        link.click()
+      })
   }
 
   fetchDonations()
@@ -57,11 +73,15 @@ const CalendarChooser = ({
       <div className="my-4 text-secondary dark:text-gray-400">
         <div className="flex flex-col">
           <span>Option 1: Custom Image</span>
-          <span className="text-xs">Upload your own image and get the calendar overlaid on top of it. Square image at least 1080px large is recommended, but I tried my best to make the tool scale and resize things if needed. If the image doesn't render properly at first, try hitting the "darken background" toggle once or twice to refresh it.</span>
-          <br />
-          <span className="text-xs">If all else fails and the tool isn't working, Slack me with the image you want to use and I'll get it uploaded and added to the pre-made section below.</span>
-          <br />
-          <div className="text-right"><span className="text-xs">- Dan</span></div>
+          <div className="flex flex-col text-xs">
+            <span>Upload your own image and get the calendar overlaid on top of it. A square image at least 1080px large is recommended, but the tool can do a bit of basic scaling. It will always start drawing the image from the top left corner, so for example if your image is wider than it is tall, the right side will get cut off.</span>
+            <br />
+            <span>If the image doesn't render properly at first, try moving the dimming slider a bit to refresh it.</span>
+            <br />
+            <span>If all else fails and the tool isn't working, Slack me with the image you want to use and I'll get it uploaded and added to the pre-made section below.</span>
+            <br />
+            <div className="text-right"><span>- Dan</span></div>
+          </div>
         </div>
       </div>
       <FileUpload donations={donations} />
@@ -84,7 +104,7 @@ const CalendarChooser = ({
       <button
         className="btn-primary btn-lg mt-4"
         disabled={chosenImg === null}
-        onClick={() => submitForm()}
+        onClick={() => download()}
       >
         DOWNLOAD
       </button>
