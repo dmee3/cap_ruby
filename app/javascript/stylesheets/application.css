@@ -36,5 +36,5 @@ body.bg-sound-wave {
 }
 
 #main-content {
-  @apply md:flex-grow rounded-t-2xl md:rounded-tr-none mx-0 p-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white;
+  @apply md:flex-grow md:rounded-tl-2xl mx-0 p-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white;
 }

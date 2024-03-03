@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React, { useState } from 'react'
 
 type InputPasswordProps = {
   autofocus?: boolean,
@@ -15,7 +15,7 @@ const InputPassword = ({
   placeholder,
   value = ''
 }: InputPasswordProps) => {
-  const [internalValue, setValue] = React.useState(value)
+  const [internalValue, setValue] = useState(value)
 
   return (
     <input

@@ -3,8 +3,8 @@
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 
   <!-- DUES EXPECTED -->
-  <div class="order-1 h-48 md:h-96 xl:h-48 flex flex-col col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
-    <%= link_to admin_payments_path, class: 'card-flat flex-grow border-gray-300 group hover:shadow-md hover:border-transparent hover:bg-gradient-to-br hover:from-green-500 hover:to-green-700 flex flex-col sm:flex-row md:flex-col justify-between place-content-stretch transition' do %>
+  <div class="order-1 flex flex-col col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
+    <%= link_to admin_payments_path do %>
       <div id="dues" data-expected-dues="<%= @expected_dues / 100.0 %>" data-actual-dues="<%= @actual_dues / 100.0 %>"></div>
     <% end %>
   </div>
