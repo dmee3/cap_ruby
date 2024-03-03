@@ -1,5 +1,11 @@
 #sidebar {
-  @apply text-flash w-40 flex bg-jet dark:bg-jet flex-col p-2 fixed inset-y-0 left-0 md:relative transition z-40 overflow-hidden;
+  @apply text-flash w-40 flex flex-col p-2 fixed inset-y-0 left-0 md:relative transition z-40 overflow-hidden;
+}
+
+@media (max-width: 767px) {
+  #sidebar {
+    @apply bg-jet;
+  }
 }
 
 .sidebar-logo {
@@ -7,5 +13,5 @@
 }
 
 .sidebar-link {
-  @apply block py-2.5 px-4 flex flex-row space-x-2 items-center rounded transition hover:bg-gray-700;
+  @apply block py-2.5 px-4 flex flex-row space-x-2 items-center rounded transition hover:bg-gray-700/10;
 }

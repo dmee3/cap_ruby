@@ -1,0 +1,22 @@
+➤ YN0000: ┌ Resolution step
+➤ YN0061: │ @babel/plugin-proposal-optional-chaining@npm:7.21.0 is deprecated: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-optional-chaining instead.
+➤ YN0061: │ @babel/plugin-proposal-class-properties@npm:7.18.6 is deprecated: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-class-properties instead.
+➤ YN0061: │ @babel/plugin-proposal-nullish-coalescing-operator@npm:7.18.6 is deprecated: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-nullish-coalescing-operator instead.
+➤ YN0001: │ RequestError: Socket connection timeout
+    at ClientRequest.<anonymous> (/Users/danmeehan/Stuff/Cap/cap_ruby/.yarn/releases/yarn-3.6.4.cjs:195:14340)
+    at Object.onceWrapper (node:events:626:26)
+    at ClientRequest.emit (node:events:523:35)
+    at o.emit (/Users/danmeehan/Stuff/Cap/cap_ruby/.yarn/releases/yarn-3.6.4.cjs:190:90286)
+    at TLSSocket.socketErrorListener (node:_http_client:495:9)
+    at TLSSocket.emit (node:events:511:28)
+    at emitErrorNT (node:internal/streams/destroy:151:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:116:3)
+    at processTicksAndRejections (node:internal/process/task_queues:82:21)
+    at runNextTicks (node:internal/process/task_queues:64:3)
+    at new NodeError (node:internal/errors:399:5)
+    at internalConnectMultiple (node:net:1099:20)
+    at Timeout.internalConnectMultipleTimeout (node:net:1638:3)
+    at listOnTimeout (node:internal/timers:575:11)
+    at process.processTimers (node:internal/timers:514:7)
+➤ YN0000: └ Completed in 6s 653ms
+➤ YN0000: Failed with errors in 6s 654ms

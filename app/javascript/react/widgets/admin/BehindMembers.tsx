@@ -96,7 +96,7 @@ const BehindMembers = ({
 
         <div className="pt-4 flex flex-col items-center">
           <div className="flex flex-row">
-            <ChevronLeftIcon className="mr-2 h-6 w-6 cursor-pointer text-gray-500 hover:text-white dark:hover:text-black transition" onClick={() => handleLeftClick()} />
+            <ChevronLeftIcon className="mr-2 h-6 w-6 cursor-pointer text-gray-500 hover:text-black dark:hover:text-white transition" onClick={() => handleLeftClick()} />
             <span className="mb-0.5 text-primary dark:text-white">
               {
                 displayedMembers.length > 0 ?
@@ -105,7 +105,7 @@ const BehindMembers = ({
                   "0 of 0"
               }
             </span>
-            <ChevronRightIcon className="ml-2 h-6 w-6 cursor-pointer text-gray-500 hover:text-white dark:hover:text-black transition" onClick={() => handleRightClick()} />
+            <ChevronRightIcon className="ml-2 h-6 w-6 cursor-pointer text-gray-500 hover:text-black dark:hover:text-white transition" onClick={() => handleRightClick()} />
           </div>
         </div>
       </div>
