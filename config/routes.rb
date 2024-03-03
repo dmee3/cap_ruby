@@ -43,6 +43,7 @@ Rails.application.routes.draw do
 
     namespace :members do
       resources :payment_intents, only: %i[create]
+      resources :calendars, only: %i[index]
     end
 
     namespace :calendars do

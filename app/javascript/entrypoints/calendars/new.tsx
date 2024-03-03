@@ -21,7 +21,7 @@ const CalendarsNew = () => {
   const [donorName, setDonorName] = useState('')
 
   const daysOfWeek = ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat']
-  const days = [null, null, null].concat(Array.from(Array(31).keys()).map(x => x + 1))
+  const days = [null, null, null, null, null].concat(Array.from(Array(31).keys()).map(x => x + 1))
 
   const inputRef = useRef<HTMLInputElement>(null!)
 
@@ -201,7 +201,7 @@ const CalendarsNew = () => {
           </p>
 
           <div className="mt-6">
-            <h2 className="text-center">March 2023</h2>
+            <h2 className="text-center">March 2024</h2>
             <div className="grid grid-cols-7 gap-1">
               {daysOfWeek.map(day => <div key={day} className="font-bold text-center p-1">{day}</div>)}
               {days.map((day, index) =>

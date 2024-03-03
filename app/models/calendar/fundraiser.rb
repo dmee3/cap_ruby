@@ -38,6 +38,10 @@ module Calendar
       ).select(&:completed?)
     }
 
+    scope :for_user, lambda { |uid|
+      where(user_id: uid)
+    }
+
     scope :incomplete_for_user, lambda { |uid|
       where(
         user_id: uid,

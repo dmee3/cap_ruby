@@ -1,21 +1,21 @@
 <h1>Calendar Fundraiser</h1>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
   <div class="flex flex-col">
     <div class="card green-gradient">
       <div class="flex flex-col">
         <div class="card-title text-green-200">TOTAL</div>
         <span class="text-3xl text-white font-extrabold font-mono mb-0.5">$<%= @total %></span>
-        <% if @completed_fundraisers.count > 0 %>
-          <span class="text-green-200 text-sm font-medium">Completed fundraisers: <span class="font-bold text-white"><%= @completed_fundraisers.count %></span></span>
+        <% if @completed.count > 0 %>
+          <span class="text-green-200 text-sm font-medium">Completed fundraisers: <span class="font-bold text-white"><%= @completed.count %></span></span>
         <% end %>
       </div>
     </div>
 
-    <div class="card gray-gradient mt-4 hidden md:block flex-grow">
+    <div class="card gray-gradient mt-4 hidden lg:block flex-grow">
       <span class="card-title text-gray-300">CURRENT DONATIONS</span>
       <ul class="divide-y divide-gray-300">
-        <% @current_fundraiser.donations.order(:donation_date).each do |donation| %>
+        <% @current.donations.order(:donation_date).each do |donation| %>
           <li class="flex justify-between py-2">
             <span class="text-gray-100">$<%= donation.donation_date %></span>
             <span class="text-gray-400"><%= donation.donor_name.blank? ? 'Anonymous' : donation.donor_name %></span>
@@ -28,10 +28,10 @@
   <div id="calendars" class="card-flat border-ocean">
   </div>
 
-  <div class="card gray-gradient md:hidden">
+  <div class="card gray-gradient lg:hidden">
     <span class="card-title text-gray-300">CURRENT DONATIONS</span>
     <ul class="divide-y divide-gray-300 dark:divide-gray-600">
-      <% @current_fundraiser.donations.order(:donation_date).each do |donation| %>
+      <% @current.donations.order(:donation_date).each do |donation| %>
         <li class="flex justify-between py-2">
           <span class="text-gray-100">$<%= donation.donation_date %></span>
           <span class="text-gray-400"><%= donation.donor_name.blank? ? 'Anonymous' : donation.donor_name %></span>
