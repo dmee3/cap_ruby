@@ -106,18 +106,18 @@ module Auditions
     end
 
     def mark_packet(row, packets)
-      row[7] = "Y"
-      return if row[9]&.downcase =~ /packet downloaded/
+      row[8] = "Y"
+      return if row[10]&.downcase =~ /packet downloaded/
 
       packets.each do |p|
-        name = p[:type].gsub('CC24 ', '').gsub('Audition ', '')
-        row[9] = "#{name} downloaded. #{row[9]}"
+        name = p[:type].gsub('CC25 ', '').gsub('Audition ', '')
+        row[10] = "#{name} downloaded. #{row[10]}"
       end
     end
 
     def mark_registration(row)
-      row[6] = "REGISTERED"
-      row[8] = "Y"
+      row[7] = "REGISTERED"
+      row[9] = "Y"
     end
 
     def profile_to_row(profile)
@@ -125,6 +125,7 @@ module Auditions
         "",
         profile.first_name,
         profile.last_name,
+        "",
         "",
         "#{profile.city}, #{profile.state}",
         profile.email,

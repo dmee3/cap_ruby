@@ -16,9 +16,9 @@ module Auditions
         date = DateTime.parse(order['createdOn'])
         order['lineItems'].map do |item|
           if registration?(item['productName'])
-            add_registration(item, date)
+            add_registration(item, date, order['customerEmail'])
           elsif packet?(item['productName'])
-            add_packet(item, date)
+            add_packet(item, date, order['customerEmail'])
           end
         end
       end
@@ -35,8 +35,8 @@ module Auditions
       Registration::PRODUCT_NAMES.include?(product_name)
     end
 
-    def add_packet(item, date)
-      args = { date: date, type: item['productName'] }
+    def add_packet(item, date, email)
+      args = { date: date, type: item['productName'], email: email }
       item['customizations']&.each do |field|
         question = field['label']
         args[Packet::FIELD_TO_SYMBOL[question]] = field['value']
@@ -45,8 +45,8 @@ module Auditions
       @packets << Packet.new(args)
     end
 
-    def add_registration(item, date)
-      args = { date: date, type: item['productName'] }
+    def add_registration(item, date, email)
+      args = { date: date, type: item['productName'], email: email }
       item['customizations']&.each do |field|
         question = field['label']
         args[Registration::FIELD_TO_SYMBOL[question]] = field['value']

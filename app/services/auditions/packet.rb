@@ -2,18 +2,19 @@
 
 module Auditions
   class Packet
-    attr_reader :type, :name, :email, :city, :state, :instrument, :date
+    attr_reader :type, :first_name, :last_name, :email, :city, :state, :instrument, :date
 
+    # Note for next year - make sure to share the spreadsheets with the service account!
     PRODUCT_NAMES = [
-      'CC24 Battery Audition Packet',
-      'CC24 Cymbal Audition Packet',
-      'CC24 Front Ensemble Audition Packet',
-      'CC24 Visual Ensemble Audition Packet'
+      'CC25 Battery Audition Packet',
+      'CC25 Cymbal Audition Packet',
+      'CC25 Front Ensemble Audition Packet',
+      'CC25 Visual Ensemble Audition Packet'
     ].freeze
 
     FIELD_TO_SYMBOL = {
-      'Name' => :name,
-      'Email' => :email,
+      'First Name' => :first_name,
+      'Last Name' => :last_name,
       'City' => :city,
       'State' => :state,
       'Primary Instrument' => :instrument
@@ -21,13 +22,14 @@ module Auditions
 
     class << self
       def header_row
-        %w[Name Email City State Downloaded].freeze
+        ['First Name', 'Last Name', 'Email', 'City', 'State', 'Downloaded'].freeze
       end
     end
 
     def initialize(args)
       @type = args[:type]
-      @name = args[:name].titleize
+      @first_name = args[:first_name]
+      @last_name = args[:last_name]
       @email = args[:email]
       @city = args[:city].titleize
       @state = StateConverterService.abbreviation(args[:state])
@@ -36,7 +38,7 @@ module Auditions
     end
 
     def to_row
-      [@name, @email, @city, @state, @date.strftime('%-m/%-d %-l:%M %P')]
+      [@first_name, @last_name, @email, @city, @state, @date.strftime('%-m/%-d %-l:%M %P')]
     end
   end
 end

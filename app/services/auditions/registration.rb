@@ -2,21 +2,21 @@
 
 module Auditions
   class Registration
-    attr_reader :type, :name, :email, :city, :state, :instrument, :date, :experience, :birthdate
+    attr_reader :type, :first_name, :last_name, :email, :city, :state, :instrument, :date, :experience, :birthdate
 
     PRODUCT_NAMES = [
-      'CC24 Music Ensemble Audition Registration',
-      'CC24 Visual Ensemble Audition Registration'
+      'CC25 Music Ensemble Audition Registration',
+      'CC25 Visual Ensemble Audition Registration'
     ].freeze
 
     TYPE_MAP = {
-      'CC24 Music Ensemble Audition Registration' => 'Music Registration',
-      'CC24 Visual Ensemble Audition Registration' => 'Visual Registration'
+      'CC25 Music Ensemble Audition Registration' => 'Music Registration',
+      'CC25 Visual Ensemble Audition Registration' => 'Visual Registration'
     }.freeze
 
     FIELD_TO_SYMBOL = {
-      'Name' => :name,
-      'Email' => :email,
+      'First Name' => :first_name,
+      'Last Name' => :last_name,
       'City' => :city,
       'State' => :state,
       'Preferred Pronouns' => :pronouns,
@@ -30,7 +30,7 @@ module Auditions
 
     class << self
       def header_row
-        ['Name', 'Email', 'City', 'State', 'Pronouns', 'Shoe', 'Shirt', 'Birthdate', 'Purchased', 'Experience', 'Conflicts']
+        ['First Name', 'Last Name', 'Email', 'City', 'State', 'Pronouns', 'Shoe', 'Shirt', 'Birthdate', 'Purchased', 'Experience', 'Conflicts']
       end
     end
 
@@ -39,7 +39,8 @@ module Auditions
       @type = TYPE_MAP[args[:type]]
       @date = args[:date] - 4.hours
 
-      @name = args[:name]
+      @first_name = args[:first_name]
+      @last_name = args[:last_name]
       @email = args[:email]
       @city = args[:city]&.titleize
       @state = args[:state] ? StateConverterService.abbreviation(args[:state]) : ''
@@ -55,7 +56,8 @@ module Auditions
 
     def to_row
       [
-        @name,
+        @first_name,
+        @last_name,
         @email,
         @city,
         @state,
