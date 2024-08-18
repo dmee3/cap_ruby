@@ -15,8 +15,8 @@ module Auditions
 
       def profile_from_registration(reg)
         profile = Auditions::Profile.new(
-          first_name: reg.name.split[0],
-          last_name: reg.name.split[1..-1].join,
+          first_name: reg.first_name,
+          last_name: reg.last_name,
           email: reg.email,
           city: reg.city,
           state: reg.state,
@@ -28,8 +28,8 @@ module Auditions
 
       def profile_from_packet(packet)
         Auditions::Profile.new(
-          first_name: packet.name.split[0],
-          last_name: packet.name.split[1..-1].join,
+          first_name: packet.first_name,
+          last_name: packet.last_name,
           email: packet.email,
           city: packet.city,
           state: packet.state,
@@ -38,12 +38,10 @@ module Auditions
       end
 
       def find_existing_profile(packet, profiles)
-        first_name = packet.name.split[0].strip
-        last_name = packet.name.split[1..-1].join.strip
         email = packet.email.strip
         profiles.find do |pro|
-          first_name&.casecmp(pro.first_name.strip) == 0 &&
-              last_name&.casecmp(pro.last_name.strip) == 0 &&
+          packet.first_name.strip&.casecmp(pro.first_name.strip) == 0 &&
+          packet.last_name.strip&.casecmp(pro.last_name.strip) == 0 &&
               email&.casecmp(pro.email) == 0
         end
       end
