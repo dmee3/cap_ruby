@@ -67,7 +67,7 @@ module Auditions
           end.reject { |pro| rows.any? { |row| profile_matches_row(row, pro) } }
 
           new_rows = new_profiles.map do |pro|
-            profile_to_row(pro).tap { |row| row[9] = "#{row[9]}Marked instrument as #{instrument}." }
+            profile_to_row(pro).tap { |row| row[10] = "#{row[10]}Marked instrument as #{instrument}." }
           end
           rows.concat(new_rows)
         end
