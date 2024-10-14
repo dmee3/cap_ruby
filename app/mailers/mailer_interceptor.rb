@@ -5,6 +5,6 @@ class MailerInterceptor
     return if Rails.env.production?
 
     message.subject = "[NOT PROD] #{message.subject} | TO #{message.to}"
-    message.to = ENV['EMAIL_DAN']
+    message.to = ENV.fetch('EMAIL_DAN', nil)
   end
 end
