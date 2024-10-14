@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 # - .ruby-version
 # - .tool-versions
 # - .github/workflows/ruby.yml
-ruby '2.7.3'
+ruby '3.1.2'
 
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
@@ -27,6 +27,11 @@ gem 'rollbar', '~> 3.1.0'
 gem 'sass-rails', '>= 6'
 gem 'select2-rails'
 gem 'sidekiq'
+
+# Only needed until Rails 7
+gem 'net-smtp', require: false
+gem 'pagy'
+gem 'pagy_cursor'
 
 # Dr Bot
 gem 'jaro_winkler'
@@ -54,7 +59,7 @@ group :development, :test do
   gem 'rubocop', require: false
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
-  gem 'sqlite3'
+  gem 'sqlite3', '~> 2.1.0'
 end
 
 group :development do
