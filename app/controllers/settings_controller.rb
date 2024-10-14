@@ -33,6 +33,7 @@ class SettingsController < ApplicationController
     if current_user.update(password: params[:new_password])
       sign_in(current_user, bypass: true)
       flash[:success] = 'Password updated'
+
       redirect_to(root_url)
     else
       @pw_errors = current_user.errors.full_messages.join('<br />')
