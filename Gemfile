@@ -23,7 +23,7 @@ gem 'jwt'
 gem 'mailgun-ruby', '~>1.2.5'
 gem 'puma', '~> 5.3.1'
 gem 'rails', '~> 7.0'
-gem 'rollbar', '~> 3.1.0'
+gem 'rollbar', '~> 3.6.0'
 gem 'sass-rails', '>= 6'
 gem 'select2-rails'
 gem 'sidekiq'
@@ -32,11 +32,6 @@ gem 'sidekiq'
 gem 'net-smtp', require: false
 gem 'pagy'
 gem 'pagy_cursor'
-
-# Dr Bot
-gem 'jaro_winkler'
-gem 'slack-ruby-bot-server-events'
-gem 'grape_on_rails_routes'
 
 
 gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'

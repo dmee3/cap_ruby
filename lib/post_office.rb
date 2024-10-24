@@ -17,11 +17,11 @@ class PostOffice
     private
 
     def domain
-      ENV['MAILGUN_DOMAIN']
+      ENV.fetch('MAILGUN_DOMAIN', nil)
     end
 
     def client
-      @client ||= Mailgun::Client.new(ENV['MAILGUN_API_KEY'])
+      @client ||= Mailgun::Client.new(ENV.fetch('MAILGUN_API_KEY', nil))
       if Rails.env.production?
         @client.disable_test_mode!
       else
