@@ -35,7 +35,7 @@ gem 'vite_rails'
 group :production do
   gem 'pg'
   gem 'rails_12factor'
-  gem 'scout_apm', '~> 2.6.10'
+  gem 'scout_apm'
 end
 
 group :development, :test do
