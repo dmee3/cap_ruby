@@ -234,10 +234,6 @@ GEM
       racc (~> 1.4)
     orm_adapter (0.5.0)
     os (1.1.4)
-    pagy (9.1.0)
-    pagy_cursor (0.2.0)
-      activerecord (>= 5)
-      pagy
     parallel (1.26.3)
     parser (3.3.5.0)
       ast (~> 2.4.1)
@@ -450,9 +446,6 @@ DEPENDENCIES
   letter_opener
   listen (~> 3.3)
   mailgun-ruby (~> 1.2.5)
-  net-smtp
-  pagy
-  pagy_cursor
   pg
   puma (< 7)
   rails (~> 7.2)
