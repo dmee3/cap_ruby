@@ -28,12 +28,6 @@ gem 'sass-rails', '>= 6'
 gem 'select2-rails'
 gem 'sidekiq'
 
-# Only needed until Rails 7
-gem 'net-smtp', require: false
-gem 'pagy'
-gem 'pagy_cursor'
-
-
 gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'
 gem 'turbolinks', '~> 5'
 gem 'vite_rails'
