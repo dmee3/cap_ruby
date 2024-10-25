@@ -2,9 +2,8 @@
 
 module Auditions
   class RecruitmentSheetUpdaterService
-
-    TAB_NAMES = ['FE', 'SD', 'TN', 'BD', 'CYM', 'VE'].freeze
-    SPREADSHEET_ID = ENV['RECRUITMENT_SPREADSHEET_ID']
+    TAB_NAMES = %w[FE SD TN BD CYM VE].freeze
+    SPREADSHEET_ID = ENV.fetch('RECRUITMENT_SPREADSHEET_ID', nil)
     FRONT_ENSEMBLE_INSTRUMENTS_ON_FORM = [
       'Marimba',
       'Vibraphone',
@@ -15,8 +14,7 @@ module Auditions
       'Synthesizer',
       'Bass Guitar'
     ].freeze
-    AUTOMATED_PROFILE_STRING = 'THE FOLLOWING PEOPLE HAVE DOWNLOADED PACKETS OR REGISTERED, BUT WERE NOT ON THE RECRUITMENT DOC. PLEASE SORT THEM INTO THE ROWS ABOVE AS NECESSARY.'.freeze
-
+    AUTOMATED_PROFILE_STRING = 'THE FOLLOWING PEOPLE HAVE DOWNLOADED PACKETS OR REGISTERED, BUT WERE NOT ON THE RECRUITMENT DOC. PLEASE SORT THEM INTO THE ROWS ABOVE AS NECESSARY.'
 
     def self.update(profiles)
       new.update(profiles)
@@ -27,15 +25,14 @@ module Auditions
 
     def update(profiles)
       TAB_NAMES.each do |tab_name|
-        rows = GoogleSheetsApi.read_sheet(SPREADSHEET_ID, tab_name)
+        rows = External::GoogleSheetsApi.read_sheet(SPREADSHEET_ID, tab_name)
         next if rows&.blank?
 
         update_existing_rows(rows, profiles)
 
-
         add_new_rows(tab_name, profiles, rows)
 
-        GoogleSheetsApi.write_sheet(SPREADSHEET_ID, tab_name, rows, formulae: true)
+        External::GoogleSheetsApi.write_sheet(SPREADSHEET_ID, tab_name, rows, formulae: true)
       end
     end
 
@@ -54,7 +51,7 @@ module Auditions
     end
 
     def add_new_rows(tab_name, profiles, rows)
-      if !rows.any? { |row| row[0] == AUTOMATED_PROFILE_STRING }
+      unless rows.any? { |row| row[0] == AUTOMATED_PROFILE_STRING }
         rows << []
         rows << [AUTOMATED_PROFILE_STRING]
       end
@@ -67,7 +64,9 @@ module Auditions
           end.reject { |pro| rows.any? { |row| profile_matches_row(row, pro) } }
 
           new_rows = new_profiles.map do |pro|
-            profile_to_row(pro).tap { |row| row[10] = "#{row[10]}Marked instrument as #{instrument}." }
+            profile_to_row(pro).tap do |row|
+              row[10] = "#{row[10]}Marked instrument as #{instrument}."
+            end
           end
           rows.concat(new_rows)
         end
@@ -88,13 +87,13 @@ module Auditions
         'TN' => 'Tenors',
         'BD' => 'Bass',
         'CYM' => 'Cymbals',
-        'VE' => 'Visual Ensemble',
+        'VE' => 'Visual Ensemble'
       }
       map[tab_name] || ''
     end
 
     def is_person?(row)
-      row[0] == "VET" || (row[0] == "" && row[1].present?)
+      row[0] == 'VET' || (row[0] == '' && row[1].present?)
     end
 
     def find_matching_profile(row, profiles)
@@ -106,7 +105,7 @@ module Auditions
     end
 
     def mark_packet(row, packets)
-      row[8] = "Y"
+      row[8] = 'Y'
       return if row[10]&.downcase =~ /packet downloaded/
 
       packets.each do |p|
@@ -116,23 +115,23 @@ module Auditions
     end
 
     def mark_registration(row)
-      row[7] = "REGISTERED"
-      row[9] = "Y"
+      row[7] = 'REGISTERED'
+      row[9] = 'Y'
     end
 
     def profile_to_row(profile)
       row = [
-        "",
+        '',
         profile.first_name,
         profile.last_name,
-        "",
-        "",
+        '',
+        '',
         "#{profile.city}, #{profile.state}",
         profile.email,
-        "",
-        "",
-        "",
-        ""
+        '',
+        '',
+        '',
+        ''
       ]
 
       mark_packet(row, profile.packets) if profile.packets.present?
