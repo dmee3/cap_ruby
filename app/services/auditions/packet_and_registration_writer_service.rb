@@ -2,7 +2,7 @@
 
 module Auditions
   class PacketAndRegistrationWriterService
-    SPREADSHEET_ID = ENV['AUDITIONS_SPREADSHEET_ID']
+    SPREADSHEET_ID = ENV.fetch('AUDITIONS_SPREADSHEET_ID', nil)
 
     def self.write_data(packets, registrations)
       new.write_data(packets, registrations)
@@ -34,8 +34,8 @@ module Auditions
     def write_packets(packets, registrations)
       data_hash = packet_hash(packets)
       prepare_packet_data(data_hash, registrations)
-      GoogleSheetsApi.clear_sheet(SPREADSHEET_ID, @packet_sheet_data[:sheet_name])
-      GoogleSheetsApi.format_sheet(
+      External::GoogleSheetsApi.clear_sheet(SPREADSHEET_ID, @packet_sheet_data[:sheet_name])
+      External::GoogleSheetsApi.format_sheet(
         SPREADSHEET_ID,
         @packet_sheet_data[:sheet_name],
         @packet_sheet_data[:header_rows],
@@ -43,7 +43,7 @@ module Auditions
         @packet_sheet_data[:instrument_rows],
         @packet_sheet_data[:registered_rows]
       )
-      GoogleSheetsApi.write_sheet(
+      External::GoogleSheetsApi.write_sheet(
         SPREADSHEET_ID, @packet_sheet_data[:sheet_name], @packet_sheet_data[:values], formulae: false
       )
     end
@@ -51,15 +51,15 @@ module Auditions
     def write_registrations(registrations)
       data_hash = registration_hash(registrations)
       prepare_registration_data(data_hash)
-      GoogleSheetsApi.clear_sheet(SPREADSHEET_ID, @registration_sheet_data[:sheet_name])
-      GoogleSheetsApi.format_sheet(
+      External::GoogleSheetsApi.clear_sheet(SPREADSHEET_ID, @registration_sheet_data[:sheet_name])
+      External::GoogleSheetsApi.format_sheet(
         SPREADSHEET_ID,
         @registration_sheet_data[:sheet_name],
         @registration_sheet_data[:header_rows],
         @registration_sheet_data[:subheader_rows],
         @registration_sheet_data[:instrument_rows]
       )
-      GoogleSheetsApi.write_sheet(
+      External::GoogleSheetsApi.write_sheet(
         SPREADSHEET_ID, @registration_sheet_data[:sheet_name], @registration_sheet_data[:values], formulae: false
       )
     end
@@ -138,19 +138,19 @@ module Auditions
         count = packets_by_instrument.values.reduce(0) { |sum, i| sum + i.count }
 
         @packet_sheet_data[:values] << ["#{packet_name} (#{count} Total)"]
-        @packet_sheet_data[:header_rows] << @packet_sheet_data[:values].length - 1
+        @packet_sheet_data[:header_rows] << (@packet_sheet_data[:values].length - 1)
 
         @packet_sheet_data[:values] << Packet.header_row
-        @packet_sheet_data[:subheader_rows] << @packet_sheet_data[:values].length - 1
+        @packet_sheet_data[:subheader_rows] << (@packet_sheet_data[:values].length - 1)
 
         packets_by_instrument.each do |instrument, packets|
           @packet_sheet_data[:values] << [instrument]
-          @packet_sheet_data[:instrument_rows] << @packet_sheet_data[:values].length - 1
+          @packet_sheet_data[:instrument_rows] << (@packet_sheet_data[:values].length - 1)
 
           packets.each do |p|
             @packet_sheet_data[:values] << p.to_row
             if registered_emails.include?(p.email)
-              @packet_sheet_data[:registered_rows] << @packet_sheet_data[:values].length - 1
+              @packet_sheet_data[:registered_rows] << (@packet_sheet_data[:values].length - 1)
             end
           end
 
@@ -168,12 +168,12 @@ module Auditions
       registration_hash.each do |registration_name, registrations_by_instrument|
         count = registrations_by_instrument.values.reduce(0) { |sum, i| sum + i.count }
         @registration_sheet_data[:values] << ["#{registration_name} (#{count} Total)"]
-        @registration_sheet_data[:header_rows] << @registration_sheet_data[:values].length - 1
+        @registration_sheet_data[:header_rows] << (@registration_sheet_data[:values].length - 1)
         @registration_sheet_data[:values] << Registration.header_row
-        @registration_sheet_data[:subheader_rows] << @registration_sheet_data[:values].length - 1
+        @registration_sheet_data[:subheader_rows] << (@registration_sheet_data[:values].length - 1)
         registrations_by_instrument.each do |instrument, registrations|
           @registration_sheet_data[:values] << [instrument]
-          @registration_sheet_data[:instrument_rows] << @registration_sheet_data[:values].length - 1
+          @registration_sheet_data[:instrument_rows] << (@registration_sheet_data[:values].length - 1)
           @registration_sheet_data[:values] += registrations.map(&:to_row)
           @registration_sheet_data[:values] << []
         end

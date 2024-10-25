@@ -12,7 +12,7 @@ module Auditions
     end
 
     def fetch_items
-      SquarespaceApi.orders.each do |order|
+      External::SquarespaceApi.orders.each do |order|
         date = DateTime.parse(order['createdOn'])
         order['lineItems'].map do |item|
           if registration?(item['productName'])
