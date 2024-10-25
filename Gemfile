@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 # - .ruby-version
 # - .tool-versions
 # - .github/workflows/ruby.yml
-ruby '2.7.3'
+ruby '3.1.2'
 
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
@@ -21,17 +21,17 @@ gem 'google-api-client' # Auditions Processor
 gem 'jbuilder'
 gem 'jwt'
 gem 'mailgun-ruby', '~>1.2.5'
-gem 'puma', '~> 5.3.1'
-gem 'rails', '~> 6.1.3', '>= 6.1.3.2'
-gem 'rollbar', '~> 3.1.0'
+gem 'puma', '< 7'
+gem 'rails', '~> 7.2'
+gem 'rollbar', '~> 3.6.0'
 gem 'sass-rails', '>= 6'
 gem 'select2-rails'
 gem 'sidekiq'
 
-# Dr Bot
-gem 'jaro_winkler'
-gem 'slack-ruby-bot-server-events'
-gem 'grape_on_rails_routes'
+# Only needed until Rails 7
+gem 'net-smtp', require: false
+gem 'pagy'
+gem 'pagy_cursor'
 
 
 gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'
@@ -54,7 +54,7 @@ group :development, :test do
   gem 'rubocop', require: false
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
-  gem 'sqlite3'
+  gem 'sqlite3', '~> 2.1.0'
 end
 
 group :development do

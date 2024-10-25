@@ -8,8 +8,10 @@ class ApplicationController < ActionController::Base
   def current_season
     return nil unless current_user
 
-    cookies[:cap_season] ||= current_user.seasons.last.to_json
-    JSON.parse(cookies[:cap_season])
+    # Set cookie if it doesn't exist
+    cookies[:cap_season_id] = current_user.seasons.last.id if cookies[:cap_season_id].nil?
+
+    Season.find(cookies[:cap_season_id])
   end
   helper_method :current_season
 
@@ -28,17 +30,17 @@ class ApplicationController < ActionController::Base
 
   def set_stripe_public_key
     if Rails.env.production? && !ENV['STAGING']
-      @stripe_public_key = ENV['STRIPE_PUBLIC_KEY']
+      @stripe_public_key = ENV.fetch('STRIPE_PUBLIC_KEY', nil)
     else
-      @stripe_public_key = ENV['STRIPE_PUBLIC_TEST_KEY']
+      @stripe_public_key = ENV.fetch('STRIPE_PUBLIC_TEST_KEY', nil)
     end
   end
 
   def set_stripe_secret_key
     if Rails.env.production? && !ENV['STAGING']
-      Stripe.api_key = ENV['STRIPE_SECRET_KEY']
+      Stripe.api_key = ENV.fetch('STRIPE_SECRET_KEY', nil)
     else
-      Stripe.api_key = ENV['STRIPE_SECRET_TEST_KEY']
+      Stripe.api_key = ENV.fetch('STRIPE_SECRET_TEST_KEY', nil)
     end
   end
 

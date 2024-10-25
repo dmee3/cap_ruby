@@ -1,3 +1,5 @@
 # frozen_string_literal: true
 
-ActionMailer::Base.register_interceptor(MailerInterceptor) unless Rails.env.production?
+Rails.application.configure do
+  config.action_mailer.interceptors = %w[MailerInterceptor] unless Rails.env.production?
+end

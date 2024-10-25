@@ -5,8 +5,6 @@ Rails.application.routes.draw do
 
   root to: 'home#index'
 
-  mount DrBot::Api => '/'
-
   get '/auditions-spreadsheet', to: 'auditions#index'
   get '/auditions-spreadsheet-generate', to: 'auditions#update'
 
