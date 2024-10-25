@@ -5,7 +5,7 @@ class EmailService
     def send_payment_submitted_email(payment, user)
       subject = "Payment submitted by #{user.full_name} for $#{payment.amount / 100}"
       text = "#{user.full_name} has submitted a payment for $#{payment.amount / 100}."
-      [ENV['EMAIL_AARON'], ENV['EMAIL_DAN']].each do |to|
+      [ENV.fetch('EMAIL_AARON', nil), ENV.fetch('EMAIL_DAN', nil)].each do |to|
         PostOffice.send_email(to, subject, text)
       end
     rescue StandardError => e
@@ -23,7 +23,9 @@ class EmailService
         Reason: #{conflict.reason}
       TEXT
 
-      users_to_notify = User.with_role_for_season("coordinator", season_id) + User.with_role_for_season("admin", season_id)
+      coordinators = User.with_role_for_season('coordinator', season_id)
+      admins = User.with_role_for_season('admin', season_id)
+      users_to_notify = coordinators + admins
       PostOffice.send_email(users_to_notify.map(&:email), subject, text)
     rescue StandardError => e
       Rollbar.error(e, user: user)
@@ -38,7 +40,8 @@ class EmailService
         Report:\n\n#{report}
       TEXT
 
-      [ENV['EMAIL_AARON'], ENV['EMAIL_DONNIE'], ENV['EMAIL_DAN'], ENV['EMAIL_GARRETT']].each do |to|
+      [ENV.fetch('EMAIL_AARON', nil), ENV.fetch('EMAIL_DONNIE', nil), ENV.fetch('EMAIL_DAN', nil),
+       ENV.fetch('EMAIL_GARRETT', nil)].each do |to|
         PostOffice.send_email(to, subject, text)
       end
     end

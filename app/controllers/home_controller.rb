@@ -19,10 +19,10 @@ class HomeController < ApplicationController
   end
 
   def change_season
-    if params[:season_id].present?
-      set_season_cookie(Season.find(params[:season_id]).to_json)
+    if params[:season_id].present? && /\A\d+\z/.match(params[:season_id])
+      set_season_cookie(params[:season_id])
     else
-      set_season_cookie(current_user.seasons.last.to_json)
+      set_season_cookie(current_user.seasons.last.id)
     end
 
     redirect_back fallback_location: root_path
@@ -31,7 +31,7 @@ class HomeController < ApplicationController
   private
 
   def set_season_cookie(season_id)
-    cookies[:cap_season] = season_id
+    cookies[:cap_season_id] = season_id
   end
 
   def handle_unknown_role
