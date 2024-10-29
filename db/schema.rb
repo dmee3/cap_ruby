@@ -118,9 +118,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_14_230602) do
   create_table "inventory_transactions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id"
+    t.integer "user_id"
     t.date "performed_on"
-    t.bigint "inventory_item_id"
+    t.integer "inventory_item_id"
     t.integer "previous_quantity"
     t.integer "change"
     t.index ["inventory_item_id"], name: "index_inventory_transactions_on_inventory_item_id"
@@ -188,21 +188,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_14_230602) do
     t.string "role"
     t.index ["season_id"], name: "index_seasons_users_on_season_id"
     t.index ["user_id"], name: "index_seasons_users_on_user_id"
-  end
-
-  create_table "teams", force: :cascade do |t|
-    t.string "team_id"
-    t.string "name"
-    t.string "domain"
-    t.string "token"
-    t.string "oauth_scope"
-    t.string "oauth_version", default: "v1", null: false
-    t.string "bot_user_id"
-    t.string "activated_user_id"
-    t.string "activated_user_access_token"
-    t.boolean "active", default: true
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|

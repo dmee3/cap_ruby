@@ -11,6 +11,7 @@ class WhistleblowersController < ApplicationController
       'Report submitted. If you provided contact information, expect a response within a week.'
     redirect_to(root_path)
   rescue StandardError => e
+    Rails.logger.error(e)
     Rollbar.error(e, user: nil)
     flash.now[:error] = 'Our system has encountered an error. Please try again.'
     render(:index)

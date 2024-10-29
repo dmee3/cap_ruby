@@ -28,7 +28,7 @@
   <div class="mt-4">
     <h2>Conflicts</h2>
     <ul class="divide-y divide-gray-300 -mt-2">
-      <% @user.conflicts.for_season(current_season['id']).each do |c| %>
+      <% @user.conflicts.for_season(current_season['id']).sort_by(&:start_date).each do |c| %>
         <li class="flex flex-col">
           <div class="flex justify-between mt-2">
             <span><%= c.start_date.strftime('%a, %-m/%-d %l:%M %p') %> - <%= c.end_date.strftime('%a, %-m/%-d %l:%M %p') %></span>

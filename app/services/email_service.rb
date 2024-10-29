@@ -40,10 +40,13 @@ class EmailService
         Report:\n\n#{report}
       TEXT
 
-      [ENV.fetch('EMAIL_AARON', nil), ENV.fetch('EMAIL_DONNIE', nil), ENV.fetch('EMAIL_DAN', nil),
-       ENV.fetch('EMAIL_GARRETT', nil)].each do |to|
-        PostOffice.send_email(to, subject, text)
-      end
+      emails = [
+        ENV.fetch('EMAIL_AARON', nil),
+        ENV.fetch('EMAIL_DONNIE', nil),
+        ENV.fetch('EMAIL_DAN', nil),
+        ENV.fetch('EMAIL_GARRETT', nil)
+      ].compact
+      PostOffice.send_email(emails, subject, text)
     end
   end
 end
