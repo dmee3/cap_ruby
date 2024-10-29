@@ -2,8 +2,6 @@
 
 module Inventory
   class CategoriesController < InventoryController
-    before_action :set_category, only: %i[show edit update]
-
     def index
       @categories = Inventory::Category.all
     end
