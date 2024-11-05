@@ -32,29 +32,29 @@ const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(
     }: InputNumberProps,
     ref
   ) => {
-  return (
-    <>
-      {currency &&
-        <div className="text-secondary font-bold mr-3">
-          $
-        </div>
-      }
-      <input
-        autoFocus={autofocus}
-        disabled={disabled}
-        placeholder={placeholder}
-        className="input-text"
-        name={name}
-        id={id}
-        ref={ref}
-        min={min}
-        type={masked ? 'text' : 'number'}
-        step={step}
-        value={currency ? value.toFixed(2) : value}
-        onChange={onChange}
-      />
-    </>
-  )
-})
+    return (
+      <>
+        {currency &&
+          <div className="text-secondary font-bold mr-3">
+            $
+          </div>
+        }
+        <input
+          autoFocus={autofocus}
+          disabled={disabled}
+          placeholder={placeholder}
+          className="input-text"
+          name={name}
+          id={id}
+          ref={ref}
+          min={min}
+          type={masked ? 'text' : 'number'}
+          step={step}
+          value={currency ? value.toFixed(2) : value}
+          onChange={onChange}
+        />
+      </>
+    )
+  })
 
 export default InputNumber
