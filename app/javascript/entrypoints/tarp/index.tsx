@@ -3,8 +3,6 @@ import { render } from 'react-dom'
 import InputNumber from '../../react/components/inputs/InputNumber';
 
 const Tarp = () => {
-  const ROW_COUNT = 30;
-  const ANGLE_COUNT = 120;
   const MORSE_RADIUS = 40;
 
   const CANVAS_WIDTH = 3200;
@@ -14,6 +12,11 @@ const Tarp = () => {
   const [wave1Amplitude, setWave1Amplitude] = useState(60);
   const [wave2Frequency, setWave2Frequency] = useState(2);
   const [wave2Amplitude, setWave2Amplitude] = useState(44);
+  const [waveOffset, setWaveOffset] = useState(500);
+  const [centerGapRadius, setCenterGapRadius] = useState(200);
+  const [dotDensityX, setDotDensityX] = useState(120);
+  const [dotDensityY, setDotDensityY] = useState(30);
+  const [dotBaseRadius, setDotBaseRadius] = useState(12);
 
   const hexToRgb = (hex: string): [number, number, number] => {
     // Remove the hash at the start if it's there
@@ -58,7 +61,7 @@ const Tarp = () => {
   const MORSE_COLOR = `rgb(${hexToRgb('#060614').join(',')})`;
 
   const baseWaveFunc = (x: number) => {
-    return Math.sin((2 * Math.PI / ANGLE_COUNT) * x);
+    return Math.sin((2 * Math.PI / dotDensityX) * x);
   };
 
   const higherOrderWaveFunc = (x: number) => {
@@ -210,6 +213,42 @@ const Tarp = () => {
     ctx.fill();
   };
 
+  const drawArc = (ctx, arc, sineYOffset, centerGapRadius, baseCircleRadius) => {
+    const baseCircleDiameter = baseCircleRadius * 2;
+    const circleArray = [];
+    for (let j = 0; j < dotDensityY; j++) {
+      const subArray = [];
+      const factor = j / (dotDensityY - 1);
+      const color = getColorAtPoint(arc.gradient, factor);
+
+      for (let i = 0; i < dotDensityX; i++) {
+        const angle = (i / dotDensityX) * 2 * Math.PI;
+        const radius = centerGapRadius + j * baseCircleDiameter + baseWaveFunc(i) * baseCircleDiameter + j;
+        const circleRadius = baseCircleRadius + 2 * baseWaveFunc(i) - (dotDensityY / 2 - j) * 0.001;
+        const xPos = arc.centerX + radius * Math.cos(angle);
+        const yPos = arc.centerY + radius * Math.sin(angle);
+
+        const circle = {
+          radius: circleRadius,
+          color: color,
+          r: radius,
+          theta: angle,
+          x: xPos,
+          y: yPos
+        };
+        subArray.push(circle);
+      }
+      circleArray.push(subArray);
+    }
+
+    for (let j = 0; j < dotDensityY; j++) {
+      for (let i = 0; i < dotDensityX; i++) {
+        const circle = circleArray[j][i];
+        drawCircle(ctx, sineYOffset, circle);
+      }
+    }
+  }
+
   useEffect(() => {
     console.log('redraw');
     const canvas = document.getElementById('c') as HTMLCanvasElement;
@@ -252,57 +291,14 @@ const Tarp = () => {
       { centerX: 50, centerY: CANVAS_HEIGHT - 50, gradient: gradFour }
     ]
 
-    // Calculate wave position
-    const sineYOffset = 500;
-
-    // Circle constants
-    const baseCircleRadius = 12;
-    const baseCircleDiameter = baseCircleRadius * 2;
-    const centerGapRadius = 200;
-
-    const drawArc = (ctx, arc, sineYOffset, centerGapRadius) => {
-      const circleArray = [];
-      for (let j = 0; j < ROW_COUNT; j++) {
-        const subArray = [];
-        const factor = j / (ROW_COUNT - 1);
-        const color = getColorAtPoint(arc.gradient, factor);
-
-        for (let i = 0; i < ANGLE_COUNT; i++) {
-          const angle = (i / ANGLE_COUNT) * 2 * Math.PI;
-          const radius = centerGapRadius + j * baseCircleDiameter + baseWaveFunc(i) * baseCircleDiameter + j;
-          const circleRadius = baseCircleRadius + 2 * baseWaveFunc(i) - (ROW_COUNT / 2 - j) * 0.001;
-          const xPos = arc.centerX + radius * Math.cos(angle);
-          const yPos = arc.centerY + radius * Math.sin(angle);
-
-          const circle = {
-            radius: circleRadius,
-            color: color,
-            r: radius,
-            theta: angle,
-            x: xPos,
-            y: yPos
-          };
-          subArray.push(circle);
-        }
-        circleArray.push(subArray);
-      }
-
-      for (let j = 0; j < ROW_COUNT; j++) {
-        for (let i = 0; i < ANGLE_COUNT; i++) {
-          const circle = circleArray[j][i];
-          drawCircle(ctx, sineYOffset, circle);
-        }
-      }
-    }
-
     for (let i = 0; i < arcs.length; i++) {
-      drawArc(ctx, arcs[i], sineYOffset, centerGapRadius);
+      drawArc(ctx, arcs[i], waveOffset, centerGapRadius, dotBaseRadius);
     };
-  }, [wave1Amplitude, wave1Frequency, wave2Amplitude, wave2Frequency]);
+  }, [wave1Amplitude, wave1Frequency, wave2Amplitude, wave2Frequency, waveOffset, centerGapRadius, dotDensityX, dotDensityY, dotBaseRadius]);
 
   return (
     <div>
-      <div className="grid grid-cols-2 mb-4 gap-x-4 w-100">
+      <div className="grid grid-cols-5 mb-4 gap-x-4 w-200">
         <div className="flex flex-col">
           <div className="flex flex-col">
             <label htmlFor="wave_1_frequency" className="input-label">Wave 1 Frequency</label>
@@ -323,6 +319,7 @@ const Tarp = () => {
             />
           </div>
         </div>
+
         <div className="flex flex-col">
           <div className="flex flex-col">
             <label htmlFor="wave_2_frequency" className="input-label">Wave 2 Frequency</label>
@@ -340,6 +337,65 @@ const Tarp = () => {
               name='wave_2_amplitude'
               value={wave2Amplitude}
               onChange={evt => setWave2Amplitude(parseInt(evt.target.value))}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col">
+          <div className="flex flex-col">
+            <label htmlFor="wave_offset" className="input-label">Wave Offset</label>
+            <InputNumber
+              name='wave_offset'
+              value={waveOffset}
+              min={100}
+              step={1}
+              onChange={evt => setWaveOffset(parseInt(evt.target.value))}
+            />
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor="center_gap_radius" className="input-label">Center Gap Radius</label>
+            <InputNumber
+              name='center_gap_radius'
+              value={centerGapRadius}
+              min={100}
+              step={1}
+              onChange={evt => setCenterGapRadius(parseInt(evt.target.value))}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col">
+          <div className="flex flex-col">
+            <label htmlFor="dot_density_x" className="input-label">Dot Density X</label>
+            <InputNumber
+              name='dot_density_x'
+              value={dotDensityX}
+              min={10}
+              step={1}
+              onChange={evt => setDotDensityX(parseInt(evt.target.value))}
+            />
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor="dot_density_y" className="input-label">Dot Density Y</label>
+            <InputNumber
+              name='dot_density_y'
+              value={dotDensityY}
+              min={10}
+              step={1}
+              onChange={evt => setDotDensityY(parseInt(evt.target.value))}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col">
+          <div className="flex flex-col">
+            <label htmlFor="dot_base_radius" className="input-label">Dot Base Radius</label>
+            <InputNumber
+              name='dot_base_radius'
+              value={dotBaseRadius}
+              min={10}
+              step={1}
+              onChange={evt => setDotBaseRadius(parseInt(evt.target.value))}
             />
           </div>
         </div>
