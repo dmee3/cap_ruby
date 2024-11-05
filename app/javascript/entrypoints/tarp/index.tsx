@@ -5,7 +5,7 @@ import InputNumber from '../../react/components/inputs/InputNumber';
 const Tarp = () => {
   const MORSE_RADIUS = 40;
 
-  const CANVAS_WIDTH = 3200;
+  const CANVAS_WIDTH = 3000;
   const CANVAS_HEIGHT = 1600;
 
   const [wave1Frequency, setWave1Frequency] = useState(1);
@@ -314,6 +314,7 @@ const Tarp = () => {
             <label htmlFor="wave_1_amplitude" className="input-label">Wave 1 Amplitude</label>
             <InputNumber
               name='wave_1_amplitude'
+              min={1}
               value={wave1Amplitude}
               onChange={evt => setWave1Amplitude(parseInt(evt.target.value))}
             />
@@ -335,6 +336,7 @@ const Tarp = () => {
             <label htmlFor="wave_2_amplitude" className="input-label">Wave 2 Amplitude</label>
             <InputNumber
               name='wave_2_amplitude'
+              min={1}
               value={wave2Amplitude}
               onChange={evt => setWave2Amplitude(parseInt(evt.target.value))}
             />
