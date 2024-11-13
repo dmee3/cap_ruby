@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { render } from 'react-dom'
 import InputNumber from '../../react/components/inputs/InputNumber';
+import { getColorAtPoint, hexToRgb } from '../../utilities/tarp/color_utilities';
+import { baseWaveFunc, higherOrderWaveFunc } from '../../utilities/tarp/wave_utilities';
+import { drawEqualizerHorizontal, drawEqualizerVertical, drawMorseDot, drawMorseLine, drawVerticalMorseLine, parseMorseString } from '../../utilities/tarp/morse_utilities';
 
 const Tarp = () => {
   const MORSE_RADIUS = 40;
@@ -8,186 +11,101 @@ const Tarp = () => {
   const CANVAS_WIDTH = 3000;
   const CANVAS_HEIGHT = 1600;
 
-  const [wave1Frequency, setWave1Frequency] = useState(1);
+  const [wave1Frequency, setWave1Frequency] = useState(.7);
   const [wave1Amplitude, setWave1Amplitude] = useState(60);
-  const [wave2Frequency, setWave2Frequency] = useState(2);
+  const [wave2Frequency, setWave2Frequency] = useState(.4);
   const [wave2Amplitude, setWave2Amplitude] = useState(44);
-  const [waveOffset, setWaveOffset] = useState(500);
+  const [waveOffset, setWaveOffset] = useState(350);
   const [centerGapRadius, setCenterGapRadius] = useState(200);
   const [dotDensityX, setDotDensityX] = useState(120);
   const [dotDensityY, setDotDensityY] = useState(30);
   const [dotBaseRadius, setDotBaseRadius] = useState(12);
 
-  const hexToRgb = (hex: string): [number, number, number] => {
-    // Remove the hash at the start if it's there
-    hex = hex.replace(/^#/, '');
-
-    // Parse the r, g, b values
-    let bigint = parseInt(hex, 16);
-    let r = (bigint >> 16) & 255;
-    let g = (bigint >> 8) & 255;
-    let b = bigint & 255;
-
-    return [r, g, b];
-  };
-
-  const getColorAtPoint = (gradient: CanvasGradient, point: number): string => {
-    // Create a temporary canvas to draw the gradient
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = 1;
-    tempCanvas.height = CANVAS_HEIGHT; // Height can be any value, we just need a vertical gradient
-    const tempCtx = tempCanvas.getContext('2d');
-
-    if (!tempCtx) {
-      throw new Error('Could not get 2D context');
-    }
-
-    // Draw the gradient on the temporary canvas
-    tempCtx.fillStyle = gradient;
-    tempCtx.fillRect(0, 0, 1, CANVAS_HEIGHT);
-
-    // Get the color at the specified point
-    const y = Math.floor(point * (CANVAS_HEIGHT - 1)); // Convert point to a y-coordinate
-    const imageData = tempCtx.getImageData(0, y, 1, 1).data;
-
-    // Convert the color to a CSS rgb string
-    const color = `rgb(${imageData[0]}, ${imageData[1]}, ${imageData[2]})`;
-    return color;
-  };
-
   // Colors
   const GRADIENT_START_COLOR = `rgb(${hexToRgb('#2f2234').join(',')})`;
   const GRADIENT_END_COLOR = `rgb(${hexToRgb('#0a0a14').join(',')})`;
-  const MORSE_COLOR = `rgb(${hexToRgb('#060614').join(',')})`;
+  // const MORSE_COLOR = `rgb(${hexToRgb('#060614').join(',')})`;
 
-  const baseWaveFunc = (x: number) => {
-    return Math.sin((2 * Math.PI / dotDensityX) * x);
-  };
+  // const canYouHearMe = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
+  //   // C
+  //   drawMorseLine(ctx, x, y, 200, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseDot(ctx, x + 300, y, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseLine(ctx, x + 400, y, 200, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseDot(ctx, x + 700, y, MORSE_RADIUS, MORSE_COLOR);
 
-  const higherOrderWaveFunc = (x: number) => {
-    const waves = [
-      wave1Amplitude * Math.sin(8 * wave1Frequency * x),
-      wave2Amplitude * Math.cos(14 * wave2Frequency * x + Math.PI)
-    ];
-    return waves.reduce((acc, wave) => acc + wave, 0);
-  };
+  //   // a
+  //   drawMorseDot(ctx, x + 900, y, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseLine(ctx, x + 1000, y, 200, MORSE_RADIUS, MORSE_COLOR);
 
-  const polarToCartesian = (centerX: number, centerY: number, r: number, theta: number) => {
-    const x = centerX + r * Math.cos(theta);
-    const y = centerY + r * Math.sin(theta);
-    return { x, y };
-  };
+  //   // n
+  //   drawMorseLine(ctx, x + 1400, y, 200, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseDot(ctx, x + 1700, y, MORSE_RADIUS, MORSE_COLOR);
 
-  const degreesToRadians = (degrees: number) => degrees * (Math.PI / 180);
+  //   // Y
+  //   drawMorseLine(ctx, x + 1900, y, 200, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseDot(ctx, x + 2200, y, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseLine(ctx, x + 2300, y, 200, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseLine(ctx, x + 2600, y, 200, MORSE_RADIUS, MORSE_COLOR);
 
-  const radiansToDegrees = (radians: number) => radians * (180 / Math.PI);
+  //   // o
+  //   drawMorseLine(ctx, x + 3000, y, 200, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseLine(ctx, x + 3300, y, 200, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseLine(ctx, x + 3600, y, 200, MORSE_RADIUS, MORSE_COLOR);
 
-  const interpolateColor = (startColor: number[], endColor: number[], factor: number) => {
-    const result = startColor.slice();
-    for (let i = 0; i < startColor.length; i++) {
-      result[i] = Math.round(result[i] + factor * (endColor[i] - startColor[i]));
-    }
-    return result;
-  };
+  //   // u
+  //   drawMorseDot(ctx, x + 4000, y, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseDot(ctx, x + 4100, y, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseLine(ctx, x + 4200, y, 200, MORSE_RADIUS, MORSE_COLOR);
 
-  const drawMorseDot = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
-    ctx.beginPath();
-    ctx.arc(x, y, MORSE_RADIUS, 0, 2 * Math.PI);
-    ctx.fillStyle = MORSE_COLOR;
-    ctx.fill();
-  };
+  //   // H
+  //   drawMorseDot(ctx, x + 4600, y, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseDot(ctx, x + 4700, y, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseDot(ctx, x + 4800, y, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseDot(ctx, x + 4900, y, MORSE_RADIUS, MORSE_COLOR);
 
-  const drawMorseLine = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number) => {
-    drawMorseDot(ctx, x, y);
-    drawMorseDot(ctx, x + width, y);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + width, y);
-    ctx.lineWidth = MORSE_RADIUS * 2;
-    ctx.strokeStyle = MORSE_COLOR;
-    ctx.stroke();
-  };
+  //   // e
+  //   drawMorseDot(ctx, x + 5100, y, MORSE_RADIUS, MORSE_COLOR);
 
-  const canYouHearMe = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
-    // C
-    drawMorseLine(ctx, x, y, 200);
-    drawMorseDot(ctx, x + 300, y);
-    drawMorseLine(ctx, x + 400, y, 200);
-    drawMorseDot(ctx, x + 700, y);
+  //   // a
+  //   drawMorseDot(ctx, x + 5300, y, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseLine(ctx, x + 5400, y, 200, MORSE_RADIUS, MORSE_COLOR);
 
-    // a
-    drawMorseDot(ctx, x + 900, y);
-    drawMorseLine(ctx, x + 1000, y, 200);
+  //   // r
+  //   drawMorseDot(ctx, x + 5800, y, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseLine(ctx, x + 5900, y, 200, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseDot(ctx, x + 6200, y, MORSE_RADIUS, MORSE_COLOR);
 
-    // n
-    drawMorseLine(ctx, x + 1400, y, 200);
-    drawMorseDot(ctx, x + 1700, y);
+  //   // M
+  //   drawMorseLine(ctx, x + 6400, y, 200, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseLine(ctx, x + 6700, y, 200, MORSE_RADIUS, MORSE_COLOR);
 
-    // Y
-    drawMorseLine(ctx, x + 1900, y, 200);
-    drawMorseDot(ctx, x + 2200, y);
-    drawMorseLine(ctx, x + 2300, y, 200);
-    drawMorseLine(ctx, x + 2600, y, 200);
+  //   // e
+  //   drawMorseDot(ctx, x + 7100, y, MORSE_RADIUS, MORSE_COLOR);
 
-    // o
-    drawMorseLine(ctx, x + 3000, y, 200);
-    drawMorseLine(ctx, x + 3300, y, 200);
-    drawMorseLine(ctx, x + 3600, y, 200);
+  //   // ?
+  //   drawMorseDot(ctx, x + 7300, y, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseDot(ctx, x + 7400, y, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseLine(ctx, x + 7500, y, 200, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseLine(ctx, x + 7800, y, 200, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseDot(ctx, x + 8100, y, MORSE_RADIUS, MORSE_COLOR);
+  //   drawMorseDot(ctx, x + 8200, y, MORSE_RADIUS, MORSE_COLOR);
+  // }
 
-    // u
-    drawMorseDot(ctx, x + 4000, y);
-    drawMorseDot(ctx, x + 4100, y);
-    drawMorseLine(ctx, x + 4200, y, 200);
-
-    // H
-    drawMorseDot(ctx, x + 4600, y);
-    drawMorseDot(ctx, x + 4700, y);
-    drawMorseDot(ctx, x + 4800, y);
-    drawMorseDot(ctx, x + 4900, y);
-
-    // e
-    drawMorseDot(ctx, x + 5100, y);
-
-    // a
-    drawMorseDot(ctx, x + 5300, y);
-    drawMorseLine(ctx, x + 5400, y, 200);
-
-    // r
-    drawMorseDot(ctx, x + 5800, y);
-    drawMorseLine(ctx, x + 5900, y, 200);
-    drawMorseDot(ctx, x + 6200, y);
-
-    // M
-    drawMorseLine(ctx, x + 6400, y, 200);
-    drawMorseLine(ctx, x + 6700, y, 200);
-
-    // e
-    drawMorseDot(ctx, x + 7100, y);
-
-    // ?
-    drawMorseDot(ctx, x + 7300, y);
-    drawMorseDot(ctx, x + 7400, y);
-    drawMorseLine(ctx, x + 7500, y, 200);
-    drawMorseLine(ctx, x + 7800, y, 200);
-    drawMorseDot(ctx, x + 8100, y);
-    drawMorseDot(ctx, x + 8200, y);
-  }
-
-  const drawMorseCodeBackground = (ctx: CanvasRenderingContext2D) => {
-    let i = 100;
-    while (i < CANVAS_HEIGHT + 500) {
-      canYouHearMe(ctx, 100, i);
-      canYouHearMe(ctx, -1000, i + 150);
-      canYouHearMe(ctx, -1300, i + 300);
-      canYouHearMe(ctx, -400, i + 450);
-      canYouHearMe(ctx, -700, i + 600);
-      canYouHearMe(ctx, -1900, i + 750);
-      canYouHearMe(ctx, -2200, i + 900);
-      canYouHearMe(ctx, -1600, i + 1050);
-      canYouHearMe(ctx, -2500, i + 1200);
-      i += 1350;
-    }
-  }
+  // const drawMorseCodeBackground = (ctx: CanvasRenderingContext2D) => {
+  //   let i = 50;
+  //   while (i < CANVAS_HEIGHT + 500) {
+  //     canYouHearMe(ctx, 100, i);
+  //     canYouHearMe(ctx, -1000, i + 150);
+  //     canYouHearMe(ctx, -1300, i + 300);
+  //     canYouHearMe(ctx, -400, i + 450);
+  //     canYouHearMe(ctx, -700, i + 600);
+  //     canYouHearMe(ctx, -1900, i + 750);
+  //     canYouHearMe(ctx, -2200, i + 900);
+  //     canYouHearMe(ctx, -1600, i + 1050);
+  //     canYouHearMe(ctx, -2500, i + 1200);
+  //     i += 1350;
+  //   }
+  // }
 
   const drawGradientBackground = (ctx: CanvasRenderingContext2D) => {
     const grad = ctx.createLinearGradient(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -198,7 +116,7 @@ const Tarp = () => {
   }
 
   const drawCircle = (ctx, sineYOffset, circle) => {
-    const waveY = sineYOffset + higherOrderWaveFunc(circle.theta);
+    const waveY = sineYOffset + higherOrderWaveFunc(circle.theta, wave1Amplitude, wave1Frequency, wave2Amplitude, wave2Frequency);
     let adjustedRadius = circle.radius;
     ctx.beginPath();
     if (circle.r > waveY) {
@@ -219,12 +137,12 @@ const Tarp = () => {
     for (let j = 0; j < dotDensityY; j++) {
       const subArray = [];
       const factor = j / (dotDensityY - 1);
-      const color = getColorAtPoint(arc.gradient, factor);
+      const color = getColorAtPoint(arc.gradient, factor, CANVAS_HEIGHT);
 
       for (let i = 0; i < dotDensityX; i++) {
         const angle = (i / dotDensityX) * 2 * Math.PI;
-        const radius = centerGapRadius + j * baseCircleDiameter + baseWaveFunc(i) * baseCircleDiameter + j;
-        const circleRadius = baseCircleRadius + 2 * baseWaveFunc(i) - (dotDensityY / 2 - j) * 0.001;
+        const radius = centerGapRadius + j * baseCircleDiameter + baseWaveFunc(i, dotDensityX) * baseCircleDiameter + 20 * j;
+        const circleRadius = baseCircleRadius + 2 * baseWaveFunc(i, dotDensityX) - (dotDensityY / 2 - j) * 0.001;
         const xPos = arc.centerX + radius * Math.cos(angle);
         const yPos = arc.centerY + radius * Math.sin(angle);
 
@@ -261,8 +179,9 @@ const Tarp = () => {
     canvas.width = CANVAS_WIDTH;
     canvas.height = CANVAS_HEIGHT;
 
+    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     drawGradientBackground(ctx);
-    drawMorseCodeBackground(ctx);
+    // drawMorseCodeBackground(ctx);
 
     const gradOne = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
     gradOne.addColorStop(0, '#d75e4d');
@@ -270,9 +189,9 @@ const Tarp = () => {
     gradOne.addColorStop(1, '#0c3642');
 
     const gradTwo = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    gradTwo.addColorStop(0, '#e96f60');
-    gradTwo.addColorStop(0.5, '#f06b96');
-    gradTwo.addColorStop(1, '#2d3f6f');
+    gradTwo.addColorStop(0, '#ed6f9b');
+    gradTwo.addColorStop(0.5, '#d94848');
+    gradTwo.addColorStop(1, '#4f2d6f');
 
     const gradThree = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
     gradThree.addColorStop(0, '#ffd87f');
@@ -284,121 +203,182 @@ const Tarp = () => {
     gradFour.addColorStop(0.5, '#127cb8');
     gradFour.addColorStop(1, '#0b4f66');
 
+    const gradFive = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    gradFive.addColorStop(0, '#ffffff');
+    gradFive.addColorStop(0.5, '#a1a1a1');
+    gradFive.addColorStop(1, '#232323');
+
     const arcs = [
-      { centerX: 50, centerY: 50, gradient: gradOne },
-      { centerX: CANVAS_WIDTH - 50, centerY: 50, gradient: gradTwo },
-      { centerX: CANVAS_WIDTH - 50, centerY: CANVAS_HEIGHT - 50, gradient: gradThree },
-      { centerX: 50, centerY: CANVAS_HEIGHT - 50, gradient: gradFour }
+      { centerX: 0, centerY: 0, gradient: gradOne },
+      { centerX: CANVAS_WIDTH, centerY: 0, gradient: gradTwo },
+      { centerX: CANVAS_WIDTH, centerY: CANVAS_HEIGHT, gradient: gradThree },
+      { centerX: 0, centerY: CANVAS_HEIGHT, gradient: gradFour }
     ]
 
     for (let i = 0; i < arcs.length; i++) {
-      drawArc(ctx, arcs[i], waveOffset, centerGapRadius, dotBaseRadius);
+      drawArc(ctx, arcs[i], waveOffset + 200, 0, dotBaseRadius);
     };
+
+    const morseStartX = CANVAS_WIDTH / 5;
+    const morseBaseY = CANVAS_HEIGHT / 2;
+    const morseDotRadius = 24;
+    const morseBaseColor = '#340054';
+    const morseHighlightColor = '#660066';
+    const sp = 70;
+
+    // const morseArray = [
+    //   '.', '-', '...',
+    //   'ldld', 'dl', 'ld.-',
+    //   '-.-', '..',
+    //   'ldll', 'lll.', '.ddl',
+    //   '--..', '..-',
+    //   'dddd', '-d-', '--dl', 'dld',
+    //   '-..', '-.',
+    //   'll', 'd', 'ddlldd',
+    //   '--..', '-.', '-', '.'
+    // ];
+
+    const morseArray = [
+      '.',
+      'l.d',
+      ' .d',
+      '. .d.l',
+      '.d.d. ',
+      '.l.l... .',
+      '. . .d.l.',
+      ' . ... ',
+      '..d.d.d. ..',
+      '.l...l...',
+      ' .l. .d',
+      '... . . .....',
+      '....d. ...d....',
+      '.l.d.d',
+      '..d. .l.l..',
+      '.l. . . .',
+      ' .l. . ',
+      '. . .d.l.',
+      '. ...',
+      '..l..... ..',
+      ' .d...d',
+      '.d...d',
+      'd.l....',
+      '. ...',
+      ' ..',
+      '.',
+    ];
+
+    drawEqualizerHorizontal(ctx, morseArray, morseStartX, morseBaseY, sp, morseDotRadius, morseBaseColor, morseHighlightColor);
+
+    // drawEqualizerVertical(ctx, morseArray, morseStartX, morseBaseY, sp, morseDotRadius, MORSE_COLOR, morseHighlightColor);
+
+
   }, [wave1Amplitude, wave1Frequency, wave2Amplitude, wave2Frequency, waveOffset, centerGapRadius, dotDensityX, dotDensityY, dotBaseRadius]);
 
   return (
     <div>
-      <div className="grid grid-cols-5 mb-4 gap-x-4 w-200">
-        <div className="flex flex-col">
+      <div className="flex flex-row mb-10">
+        <div className="grid grid-cols-5 mb-4 gap-x-4 w-200">
           <div className="flex flex-col">
-            <label htmlFor="wave_1_frequency" className="input-label">Wave 1 Frequency</label>
-            <InputNumber
-              name='wave_1_frequency'
-              value={wave1Frequency}
-              min={0.1}
-              step={0.1}
-              onChange={evt => setWave1Frequency(parseFloat(evt.target.value))}
-            />
+            <div className="flex flex-col">
+              <label htmlFor="wave_1_frequency" className="input-label">Wave 1 Frequency</label>
+              <InputNumber
+                name='wave_1_frequency'
+                value={wave1Frequency}
+                min={0.1}
+                step={0.1}
+                onChange={evt => setWave1Frequency(parseFloat(evt.target.value))}
+              />
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="wave_1_amplitude" className="input-label">Wave 1 Amplitude</label>
+              <InputNumber
+                name='wave_1_amplitude'
+                min={1}
+                value={wave1Amplitude}
+                onChange={evt => setWave1Amplitude(parseInt(evt.target.value))}
+              />
+            </div>
           </div>
-          <div className="flex flex-col">
-            <label htmlFor="wave_1_amplitude" className="input-label">Wave 1 Amplitude</label>
-            <InputNumber
-              name='wave_1_amplitude'
-              min={1}
-              value={wave1Amplitude}
-              onChange={evt => setWave1Amplitude(parseInt(evt.target.value))}
-            />
-          </div>
-        </div>
 
-        <div className="flex flex-col">
           <div className="flex flex-col">
-            <label htmlFor="wave_2_frequency" className="input-label">Wave 2 Frequency</label>
-            <InputNumber
-              name='wave_2_frequency'
-              value={wave2Frequency}
-              min={0.1}
-              step={0.1}
-              onChange={evt => setWave2Frequency(parseFloat(evt.target.value))}
-            />
+            <div className="flex flex-col">
+              <label htmlFor="wave_2_frequency" className="input-label">Wave 2 Frequency</label>
+              <InputNumber
+                name='wave_2_frequency'
+                value={wave2Frequency}
+                min={0.1}
+                step={0.1}
+                onChange={evt => setWave2Frequency(parseFloat(evt.target.value))}
+              />
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="wave_2_amplitude" className="input-label">Wave 2 Amplitude</label>
+              <InputNumber
+                name='wave_2_amplitude'
+                min={1}
+                value={wave2Amplitude}
+                onChange={evt => setWave2Amplitude(parseInt(evt.target.value))}
+              />
+            </div>
           </div>
-          <div className="flex flex-col">
-            <label htmlFor="wave_2_amplitude" className="input-label">Wave 2 Amplitude</label>
-            <InputNumber
-              name='wave_2_amplitude'
-              min={1}
-              value={wave2Amplitude}
-              onChange={evt => setWave2Amplitude(parseInt(evt.target.value))}
-            />
-          </div>
-        </div>
 
-        <div className="flex flex-col">
           <div className="flex flex-col">
-            <label htmlFor="wave_offset" className="input-label">Wave Offset</label>
-            <InputNumber
-              name='wave_offset'
-              value={waveOffset}
-              min={100}
-              step={1}
-              onChange={evt => setWaveOffset(parseInt(evt.target.value))}
-            />
+            <div className="flex flex-col">
+              <label htmlFor="wave_offset" className="input-label">Wave Offset</label>
+              <InputNumber
+                name='wave_offset'
+                value={waveOffset}
+                min={100}
+                step={1}
+                onChange={evt => setWaveOffset(parseInt(evt.target.value))}
+              />
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="center_gap_radius" className="input-label">Center Gap Radius</label>
+              <InputNumber
+                name='center_gap_radius'
+                value={centerGapRadius}
+                min={100}
+                step={1}
+                onChange={evt => setCenterGapRadius(parseInt(evt.target.value))}
+              />
+            </div>
           </div>
-          <div className="flex flex-col">
-            <label htmlFor="center_gap_radius" className="input-label">Center Gap Radius</label>
-            <InputNumber
-              name='center_gap_radius'
-              value={centerGapRadius}
-              min={100}
-              step={1}
-              onChange={evt => setCenterGapRadius(parseInt(evt.target.value))}
-            />
-          </div>
-        </div>
 
-        <div className="flex flex-col">
           <div className="flex flex-col">
-            <label htmlFor="dot_density_x" className="input-label">Dot Density X</label>
-            <InputNumber
-              name='dot_density_x'
-              value={dotDensityX}
-              min={10}
-              step={1}
-              onChange={evt => setDotDensityX(parseInt(evt.target.value))}
-            />
+            <div className="flex flex-col">
+              <label htmlFor="dot_density_x" className="input-label">Dot Density X</label>
+              <InputNumber
+                name='dot_density_x'
+                value={dotDensityX}
+                min={10}
+                step={1}
+                onChange={evt => setDotDensityX(parseInt(evt.target.value))}
+              />
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="dot_density_y" className="input-label">Dot Density Y</label>
+              <InputNumber
+                name='dot_density_y'
+                value={dotDensityY}
+                min={10}
+                step={1}
+                onChange={evt => setDotDensityY(parseInt(evt.target.value))}
+              />
+            </div>
           </div>
-          <div className="flex flex-col">
-            <label htmlFor="dot_density_y" className="input-label">Dot Density Y</label>
-            <InputNumber
-              name='dot_density_y'
-              value={dotDensityY}
-              min={10}
-              step={1}
-              onChange={evt => setDotDensityY(parseInt(evt.target.value))}
-            />
-          </div>
-        </div>
 
-        <div className="flex flex-col">
           <div className="flex flex-col">
-            <label htmlFor="dot_base_radius" className="input-label">Dot Base Radius</label>
-            <InputNumber
-              name='dot_base_radius'
-              value={dotBaseRadius}
-              min={10}
-              step={1}
-              onChange={evt => setDotBaseRadius(parseInt(evt.target.value))}
-            />
+            <div className="flex flex-col">
+              <label htmlFor="dot_base_radius" className="input-label">Dot Base Radius</label>
+              <InputNumber
+                name='dot_base_radius'
+                value={dotBaseRadius}
+                min={10}
+                step={1}
+                onChange={evt => setDotBaseRadius(parseInt(evt.target.value))}
+              />
+            </div>
           </div>
         </div>
       </div>
