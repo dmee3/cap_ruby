@@ -98,7 +98,7 @@ export const drawEqualizerHorizontal = (ctx: CanvasRenderingContext2D, morseArra
     let lengthAccum = 0;
     morseInfo.forEach((morse) => {
       const xPos = morseStartX + i * sp;
-      const yPos = morseBaseY - Math.ceil(morseInfo.length / 2) * sp + lengthAccum * sp;
+      const yPos = morseBaseY + sp - Math.ceil(morseInfo.length / 2) * sp + lengthAccum * sp;
       if (morse.type === 'dot') {
         drawMorseDot(ctx, xPos, yPos, morseDotRadius, morse.color === 'highlight' ? morseHighlightColor : morseBaseColor);
       } else if (morse.type === 'dash') {

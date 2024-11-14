@@ -22,8 +22,8 @@ const Tarp = () => {
   const [dotBaseRadius, setDotBaseRadius] = useState(12);
 
   // Colors
-  const GRADIENT_START_COLOR = `rgb(${hexToRgb('#2f2234').join(',')})`;
-  const GRADIENT_END_COLOR = `rgb(${hexToRgb('#0a0a14').join(',')})`;
+  const GRADIENT_START_COLOR = `rgb(${hexToRgb('#19071c').join(',')})`;
+  const GRADIENT_END_COLOR = `rgb(${hexToRgb('#19071c').join(',')})`;
   // const MORSE_COLOR = `rgb(${hexToRgb('#060614').join(',')})`;
 
   // const canYouHearMe = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
@@ -184,35 +184,20 @@ const Tarp = () => {
     // drawMorseCodeBackground(ctx);
 
     const gradOne = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    gradOne.addColorStop(0, '#d75e4d');
-    gradOne.addColorStop(0.5, '#734248');
-    gradOne.addColorStop(1, '#0c3642');
+    gradOne.addColorStop(0, '#09efd4');
+    gradOne.addColorStop(0.5, '#006661');
+    gradOne.addColorStop(1, '#2e0f38');
 
     const gradTwo = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    gradTwo.addColorStop(0, '#ed6f9b');
-    gradTwo.addColorStop(0.5, '#d94848');
-    gradTwo.addColorStop(1, '#4f2d6f');
-
-    const gradThree = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    gradThree.addColorStop(0, '#ffd87f');
-    gradThree.addColorStop(0.5, '#f58d56');
-    gradThree.addColorStop(1, '#3f5548');
-
-    const gradFour = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    gradFour.addColorStop(0, '#00edd3');
-    gradFour.addColorStop(0.5, '#127cb8');
-    gradFour.addColorStop(1, '#0b4f66');
-
-    const gradFive = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    gradFive.addColorStop(0, '#ffffff');
-    gradFive.addColorStop(0.5, '#a1a1a1');
-    gradFive.addColorStop(1, '#232323');
+    gradTwo.addColorStop(0, '#b45dbb');
+    gradTwo.addColorStop(0.5, '#8351a8');
+    gradTwo.addColorStop(1, '#2e0f38');
 
     const arcs = [
-      { centerX: 0, centerY: 0, gradient: gradOne },
+      { centerX: 0, centerY: 0, gradient: gradTwo },
       { centerX: CANVAS_WIDTH, centerY: 0, gradient: gradTwo },
-      { centerX: CANVAS_WIDTH, centerY: CANVAS_HEIGHT, gradient: gradThree },
-      { centerX: 0, centerY: CANVAS_HEIGHT, gradient: gradFour }
+      { centerX: CANVAS_WIDTH, centerY: CANVAS_HEIGHT, gradient: gradTwo },
+      { centerX: 0, centerY: CANVAS_HEIGHT, gradient: gradTwo }
     ]
 
     for (let i = 0; i < arcs.length; i++) {
@@ -222,8 +207,8 @@ const Tarp = () => {
     const morseStartX = CANVAS_WIDTH / 5;
     const morseBaseY = CANVAS_HEIGHT / 2;
     const morseDotRadius = 24;
-    const morseBaseColor = '#340054';
-    const morseHighlightColor = '#660066';
+    const morseBaseColor = '#2e0f38';
+    const morseHighlightColor = '#8351a8';
     const sp = 70;
 
     // const morseArray = [
