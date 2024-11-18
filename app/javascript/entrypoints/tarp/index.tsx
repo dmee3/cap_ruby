@@ -16,7 +16,7 @@ const Tarp = () => {
   const [wave2Frequency, setWave2Frequency] = useState(.4);
   const [wave2Amplitude, setWave2Amplitude] = useState(44);
   const [waveOffset, setWaveOffset] = useState(350);
-  const [centerGapRadius, setCenterGapRadius] = useState(200);
+  const [centerGapRadius, setCenterGapRadius] = useState(75);
   const [dotDensityX, setDotDensityX] = useState(120);
   const [dotDensityY, setDotDensityY] = useState(30);
   const [dotBaseRadius, setDotBaseRadius] = useState(12);
@@ -168,7 +168,6 @@ const Tarp = () => {
   }
 
   useEffect(() => {
-    console.log('redraw');
     const canvas = document.getElementById('c') as HTMLCanvasElement;
     const ctx = canvas.getContext('2d');
     if (!ctx) {
@@ -183,33 +182,56 @@ const Tarp = () => {
     drawGradientBackground(ctx);
     // drawMorseCodeBackground(ctx);
 
-    const gradOne = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    gradOne.addColorStop(0, '#09efd4');
-    gradOne.addColorStop(0.5, '#006661');
-    gradOne.addColorStop(1, '#2e0f38');
+    const orangeGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    orangeGrad.addColorStop(0, '#d75e4d');
+    orangeGrad.addColorStop(0.5, '#734248');
+    orangeGrad.addColorStop(1, '#0c3642');
 
-    const gradTwo = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    gradTwo.addColorStop(0, '#b45dbb');
-    gradTwo.addColorStop(0.5, '#8351a8');
-    gradTwo.addColorStop(1, '#2e0f38');
+    const redGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    redGrad.addColorStop(0, '#ed6f9b');
+    redGrad.addColorStop(0.5, '#d94848');
+    redGrad.addColorStop(1, '#4f2d6f');
+
+    const yellowGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    yellowGrad.addColorStop(0, '#ffd87f');
+    yellowGrad.addColorStop(0.5, '#f58d56');
+    yellowGrad.addColorStop(1, '#3f5548');
+
+    const tealGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    tealGrad.addColorStop(0, '#00edd3');
+    tealGrad.addColorStop(0.5, '#127cb8');
+    tealGrad.addColorStop(1, '#0b4f66');
+
+    const tealGradNew = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    tealGradNew.addColorStop(0, '#09efd4');
+    tealGradNew.addColorStop(0.5, '#006661');
+    tealGradNew.addColorStop(1, '#2e0f38');
+
+    const purpleGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    purpleGrad.addColorStop(0, '#b45dbb');
+    purpleGrad.addColorStop(0.5, '#8351a8');
+    purpleGrad.addColorStop(1, '#2e0f38');
+
+    const orangeGradNew = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    orangeGradNew.addColorStop(0, '#f8b10f');
+    orangeGradNew.addColorStop(0.5, '#b44e1b');
+    orangeGradNew.addColorStop(1, '#7a3018');
+
+    const pinkGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    pinkGrad.addColorStop(0, '#ec1dbd');
+    pinkGrad.addColorStop(0.5, '#a12585');
+    pinkGrad.addColorStop(1, '#5b273d');
 
     const arcs = [
-      { centerX: 0, centerY: 0, gradient: gradTwo },
-      { centerX: CANVAS_WIDTH, centerY: 0, gradient: gradTwo },
-      { centerX: CANVAS_WIDTH, centerY: CANVAS_HEIGHT, gradient: gradTwo },
-      { centerX: 0, centerY: CANVAS_HEIGHT, gradient: gradTwo }
+      { centerX: 0, centerY: 0, gradient: orangeGradNew },
+      { centerX: CANVAS_WIDTH, centerY: 0, gradient: tealGradNew },
+      { centerX: CANVAS_WIDTH, centerY: CANVAS_HEIGHT, gradient: yellowGrad },
+      { centerX: 0, centerY: CANVAS_HEIGHT, gradient: pinkGrad }
     ]
 
     for (let i = 0; i < arcs.length; i++) {
       drawArc(ctx, arcs[i], waveOffset + 200, 0, dotBaseRadius);
     };
-
-    const morseStartX = CANVAS_WIDTH / 5;
-    const morseBaseY = CANVAS_HEIGHT / 2;
-    const morseDotRadius = 24;
-    const morseBaseColor = '#2e0f38';
-    const morseHighlightColor = '#8351a8';
-    const sp = 70;
 
     // const morseArray = [
     //   '.', '-', '...',
@@ -232,30 +254,48 @@ const Tarp = () => {
       '.l.l... .',
       '. . .d.l.',
       ' . ... ',
-      '..d.d.d. ..',
-      '.l...l...',
-      ' .l. .d',
-      '... . . .....',
-      '....d. ...d....',
-      '.l.d.d',
+      '..d.l.d. ..',
+      '.l. .l...',
+      ' . . .d',
+      '... ... .....',
+      '....d.l...d....',
+      '....... .d.d.....',
       '..d. .l.l..',
-      '.l. . . .',
-      ' .l. . ',
+      '...l.l. . ...',
+      '. . . . .',
       '. . .d.l.',
-      '. ...',
-      '..l..... ..',
-      ' .d...d',
-      '.d...d',
-      'd.l....',
-      '. ...',
-      ' ..',
+      '.l...',
+      '..l. ... ..',
+      '.. . ...d..',
+      '.....d',
+      'd.d....',
+      '.d...',
+      'l..',
+      '..',
       '.',
+      '.'
     ];
 
-    drawEqualizerHorizontal(ctx, morseArray, morseStartX, morseBaseY, sp, morseDotRadius, morseBaseColor, morseHighlightColor);
+    const morseSpacing = 70;
+    const morseStartX = CANVAS_WIDTH / 2 - .5 * morseSpacing * morseArray.length;
+    const morseBaseY = CANVAS_HEIGHT / 2;
+    const morseDotRadius = 24;
+    const morseBaseColor = '#2e0f38';
+    const morseHighlightColor = '#8351a8';
+
+    drawEqualizerHorizontal(ctx, morseArray, morseStartX, morseBaseY, morseSpacing, morseDotRadius, morseBaseColor, morseHighlightColor);
 
     // drawEqualizerVertical(ctx, morseArray, morseStartX, morseBaseY, sp, morseDotRadius, MORSE_COLOR, morseHighlightColor);
 
+
+    // const canvasTwo = document.getElementById('d') as HTMLCanvasElement;
+    // const ctxTwo = canvasTwo.getContext('2d');
+    // canvasTwo.width = CANVAS_WIDTH;
+    // canvasTwo.height = CANVAS_HEIGHT;
+
+    // ctxTwo.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    // drawArc(ctxTwo, { centerX: CANVAS_WIDTH / 2, centerY: CANVAS_HEIGHT / 2, gradient: purpleGrad }, waveOffset + 200, centerGapRadius, dotBaseRadius);
 
   }, [wave1Amplitude, wave1Frequency, wave2Amplitude, wave2Frequency, waveOffset, centerGapRadius, dotDensityX, dotDensityY, dotBaseRadius]);
 
@@ -368,6 +408,7 @@ const Tarp = () => {
         </div>
       </div>
       <canvas id="c" className="bg-white"></canvas>
+      <canvas id="d"></canvas>
     </div>
   );
 };
