@@ -18,7 +18,8 @@ const InventoryListItem = ({
   const [editing, setEditing] = useState(false)
   const [name, setName] = useState(item.name)
   const [quantity, setQuantity] = useState(item.quantity.toString())
-  const nameInputRef = useRef<HTMLInputElement>(null!)
+  const [previousName, setPreviousName] = useState(item.name)
+  const [previousQuantity, setPreviousQuantity] = useState(item.quantity.toString())
 
   const updateItem = (evt) => {
     evt.preventDefault()
@@ -40,34 +41,48 @@ const InventoryListItem = ({
     }).then(data => {
       setName(data.name)
       setQuantity(data.quantity)
-      toggleEditing()
+      setEditing(false)
     }).catch(error => {
       console.error(error)
     })
   }
 
-  const toggleEditing = () => {
-    setEditing(!editing)
+  const startEditing = () => {
+    if (editing) {
+      return
+    }
+
+    setPreviousName(name)
+    setPreviousQuantity(quantity)
+    setEditing(true)
   }
+
+  const cancelEditing = () => {
+    setName(previousName)
+    setQuantity(previousQuantity)
+    setEditing(false)
+  }
+
+  const htmlSafeName = str => str.replace(/[^a-zA-Z0-9]/g, '_');
 
   return (
     <tr
       className="hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer group"
-      onClick={() => toggleEditing()}
+      onClick={() => startEditing()}
     >
       {editing && (
         <td colSpan={3} className="table-cell font-medium">
           <form className="align-center items-center flex flex-row justify-between" onClick={evt => evt.stopPropagation()} onSubmit={evt => updateItem(evt)}>
             <InputText
-              autofocus
               className="mx-2 my-0 group-hover:bg-white dark:group-hover:bg-gray-900"
-              name={`${name}_name`}
+              name={`${htmlSafeName(name)}_name`}
               onChange={evt => setName(evt.target.value)}
               value={name}
             />
             <InputText
+              autofocus
               className="mx-2 my-0 group-hover:bg-white dark:group-hover:bg-gray-900"
-              name={`${name}_qty`}
+              name={`${htmlSafeName(name)}_qty`}
               onChange={evt => setQuantity(evt.target.value)}
               value={quantity}
             />
@@ -77,7 +92,7 @@ const InventoryListItem = ({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                 </svg>
               </span>
-              <span className="btn-sm btn-red h-8" onClick={() => toggleEditing()}>
+              <span className="btn-sm btn-red h-8" onClick={() => cancelEditing()}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>

@@ -1,16 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react'
 import InputText from '../../components/inputs/InputText'
-import { PencilIcon, PlusSmallIcon } from '@heroicons/react/24/outline'
+import { ChevronDownIcon, ChevronRightIcon, PencilIcon, PlusSmallIcon } from '@heroicons/react/24/outline'
 
 type InventoryListHeadingProps = {
   category: {
     id: number,
     name: string
-  }
+  },
+  collapsed: boolean,
+  toggleCollapsed: () => void
 }
 
 const InventoryListHeading = ({
-  category
+  category, collapsed, toggleCollapsed
 }: InventoryListHeadingProps) => {
   const csrfToken = (document.getElementsByName('csrf-token')[0] as HTMLMetaElement).content
   const [editing, setEditing] = useState(false)
@@ -25,6 +27,9 @@ const InventoryListHeading = ({
 
   const toggleForm = () => {
     setEditing(!editing)
+  }
+
+  const toggleHide = () => {
   }
 
   const submitCategory = (e) => {
@@ -58,7 +63,22 @@ const InventoryListHeading = ({
   return (
     <div className="flex flex-row items-center justify-between my-2 col-span-5">
       {!editing &&
-        <h2 className="m-0">{name}</h2>
+        <div className="flex flex-row items-center">
+          {!collapsed &&
+            <ChevronDownIcon
+              className="mr-4 h-6 w-6 btn-link text-gray-900 dark:text-white hover:text-gray-500 transition"
+              onClick={() => toggleCollapsed()}
+            />
+          }
+
+          {collapsed &&
+            <ChevronRightIcon
+              className="mr-4 h-6 w-6 btn-link text-gray-900 dark:text-white hover:text-gray-500 transition"
+              onClick={() => toggleCollapsed()}
+            />
+          }
+          <h2 className="m-0">{name}</h2>
+        </div>
       }
       {editing &&
         <form
@@ -87,7 +107,8 @@ const InventoryListHeading = ({
           <PencilIcon className="h-6 w-6" />
         </div>
         <a href={`/inventory/categories/${category.id}/items/new`} className="btn-green btn-lg">
-          <PlusSmallIcon className="h-6 w-6" />
+          <PlusSmallIcon className="mr-2 h-6 w-6" />
+          Item
         </a>
       </div>
     </div>

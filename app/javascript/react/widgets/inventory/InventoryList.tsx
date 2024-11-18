@@ -20,7 +20,8 @@ const InventoryList = ({
         setCategories(
           sortByName(data).map(d => ({
             ...d,
-            editing: false
+            editing: false,
+            collapsed: false
           }))
         )
       })
@@ -28,6 +29,15 @@ const InventoryList = ({
         console.error(error)
       })
   }, [])
+
+  const updateCollapsed = (categoryId) => {
+    setCategories(categories.map(category => {
+      if (category.id === categoryId) {
+        category.collapsed = !category.collapsed
+      }
+      return category
+    }))
+  }
 
   const sortByName = (array) => {
     return array.sort((a, b) => a.name.localeCompare(b.name))
@@ -39,8 +49,10 @@ const InventoryList = ({
         return <div key={category.id} className="mb-6">
           <InventoryListHeading
             category={category}
+            collapsed={category.collapsed}
+            toggleCollapsed={() => updateCollapsed(category.id)}
           />
-          {category.items && category.items.length > 0 &&
+          {category.items && category.items.length > 0 && !category.collapsed &&
             <div className="overflow-x-auto align-middle inline-block min-w-full">
               <table className="custom-table">
                 <thead>
@@ -68,7 +80,7 @@ const InventoryList = ({
               </table>
             </div>
           }
-          {category.items.length == 0 &&
+          {category.items.length == 0 && !category.collapsed &&
             <div className="px-9 py-4">
               <span className="italic text-gray-500">Nothing Here</span>
             </div>
