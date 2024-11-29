@@ -137,11 +137,12 @@ const Tarp = () => {
     for (let j = 0; j < dotDensityY; j++) {
       const subArray = [];
       const factor = j / (dotDensityY - 1);
+      const arcSpacing = 2;
       const color = getColorAtPoint(arc.gradient, factor, CANVAS_HEIGHT);
 
       for (let i = 0; i < dotDensityX; i++) {
         const angle = (i / dotDensityX) * 2 * Math.PI;
-        const radius = centerGapRadius + j * baseCircleDiameter + baseWaveFunc(i, dotDensityX) * baseCircleDiameter + 20 * j;
+        const radius = centerGapRadius + arcSpacing * j * baseCircleDiameter + baseWaveFunc(i, dotDensityX) * baseCircleDiameter + 20 * j;
         const circleRadius = baseCircleRadius + 2 * baseWaveFunc(i, dotDensityX) - (dotDensityY / 2 - j) * 0.001;
         const xPos = arc.centerX + radius * Math.cos(angle);
         const yPos = arc.centerY + radius * Math.sin(angle);
