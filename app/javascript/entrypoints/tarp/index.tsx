@@ -3,109 +3,29 @@ import { render } from 'react-dom'
 import InputNumber from '../../react/components/inputs/InputNumber';
 import { getColorAtPoint, hexToRgb } from '../../utilities/tarp/color_utilities';
 import { baseWaveFunc, higherOrderWaveFunc } from '../../utilities/tarp/wave_utilities';
-import { drawEqualizerHorizontal, drawEqualizerVertical, drawMorseDot, drawMorseLine, drawVerticalMorseLine, parseMorseString } from '../../utilities/tarp/morse_utilities';
+import { drawEqualizerHorizontal } from '../../utilities/tarp/morse_utilities';
+
+const SCALE_FACTOR = 9;
 
 const Tarp = () => {
-  const MORSE_RADIUS = 40;
 
-  const CANVAS_WIDTH = 3000;
-  const CANVAS_HEIGHT = 1600;
+  const CANVAS_WIDTH = 3000 * SCALE_FACTOR;
+  const CANVAS_HEIGHT = 1600 * SCALE_FACTOR;
+
 
   const [wave1Frequency, setWave1Frequency] = useState(.7);
-  const [wave1Amplitude, setWave1Amplitude] = useState(60);
+  const [wave1Amplitude, setWave1Amplitude] = useState(60 * SCALE_FACTOR);
   const [wave2Frequency, setWave2Frequency] = useState(.4);
-  const [wave2Amplitude, setWave2Amplitude] = useState(44);
-  const [waveOffset, setWaveOffset] = useState(350);
-  const [centerGapRadius, setCenterGapRadius] = useState(75);
+  const [wave2Amplitude, setWave2Amplitude] = useState(44 * SCALE_FACTOR);
+  const [waveOffset, setWaveOffset] = useState(350 * SCALE_FACTOR);
+  const [centerGapRadius, setCenterGapRadius] = useState(75 * SCALE_FACTOR);
   const [dotDensityX, setDotDensityX] = useState(120);
   const [dotDensityY, setDotDensityY] = useState(30);
-  const [dotBaseRadius, setDotBaseRadius] = useState(12);
+  const [dotBaseRadius, setDotBaseRadius] = useState(12 * SCALE_FACTOR);
 
   // Colors
   const GRADIENT_START_COLOR = `rgb(${hexToRgb('#19071c').join(',')})`;
   const GRADIENT_END_COLOR = `rgb(${hexToRgb('#19071c').join(',')})`;
-  // const MORSE_COLOR = `rgb(${hexToRgb('#060614').join(',')})`;
-
-  // const canYouHearMe = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
-  //   // C
-  //   drawMorseLine(ctx, x, y, 200, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseDot(ctx, x + 300, y, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseLine(ctx, x + 400, y, 200, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseDot(ctx, x + 700, y, MORSE_RADIUS, MORSE_COLOR);
-
-  //   // a
-  //   drawMorseDot(ctx, x + 900, y, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseLine(ctx, x + 1000, y, 200, MORSE_RADIUS, MORSE_COLOR);
-
-  //   // n
-  //   drawMorseLine(ctx, x + 1400, y, 200, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseDot(ctx, x + 1700, y, MORSE_RADIUS, MORSE_COLOR);
-
-  //   // Y
-  //   drawMorseLine(ctx, x + 1900, y, 200, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseDot(ctx, x + 2200, y, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseLine(ctx, x + 2300, y, 200, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseLine(ctx, x + 2600, y, 200, MORSE_RADIUS, MORSE_COLOR);
-
-  //   // o
-  //   drawMorseLine(ctx, x + 3000, y, 200, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseLine(ctx, x + 3300, y, 200, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseLine(ctx, x + 3600, y, 200, MORSE_RADIUS, MORSE_COLOR);
-
-  //   // u
-  //   drawMorseDot(ctx, x + 4000, y, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseDot(ctx, x + 4100, y, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseLine(ctx, x + 4200, y, 200, MORSE_RADIUS, MORSE_COLOR);
-
-  //   // H
-  //   drawMorseDot(ctx, x + 4600, y, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseDot(ctx, x + 4700, y, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseDot(ctx, x + 4800, y, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseDot(ctx, x + 4900, y, MORSE_RADIUS, MORSE_COLOR);
-
-  //   // e
-  //   drawMorseDot(ctx, x + 5100, y, MORSE_RADIUS, MORSE_COLOR);
-
-  //   // a
-  //   drawMorseDot(ctx, x + 5300, y, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseLine(ctx, x + 5400, y, 200, MORSE_RADIUS, MORSE_COLOR);
-
-  //   // r
-  //   drawMorseDot(ctx, x + 5800, y, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseLine(ctx, x + 5900, y, 200, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseDot(ctx, x + 6200, y, MORSE_RADIUS, MORSE_COLOR);
-
-  //   // M
-  //   drawMorseLine(ctx, x + 6400, y, 200, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseLine(ctx, x + 6700, y, 200, MORSE_RADIUS, MORSE_COLOR);
-
-  //   // e
-  //   drawMorseDot(ctx, x + 7100, y, MORSE_RADIUS, MORSE_COLOR);
-
-  //   // ?
-  //   drawMorseDot(ctx, x + 7300, y, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseDot(ctx, x + 7400, y, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseLine(ctx, x + 7500, y, 200, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseLine(ctx, x + 7800, y, 200, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseDot(ctx, x + 8100, y, MORSE_RADIUS, MORSE_COLOR);
-  //   drawMorseDot(ctx, x + 8200, y, MORSE_RADIUS, MORSE_COLOR);
-  // }
-
-  // const drawMorseCodeBackground = (ctx: CanvasRenderingContext2D) => {
-  //   let i = 50;
-  //   while (i < CANVAS_HEIGHT + 500) {
-  //     canYouHearMe(ctx, 100, i);
-  //     canYouHearMe(ctx, -1000, i + 150);
-  //     canYouHearMe(ctx, -1300, i + 300);
-  //     canYouHearMe(ctx, -400, i + 450);
-  //     canYouHearMe(ctx, -700, i + 600);
-  //     canYouHearMe(ctx, -1900, i + 750);
-  //     canYouHearMe(ctx, -2200, i + 900);
-  //     canYouHearMe(ctx, -1600, i + 1050);
-  //     canYouHearMe(ctx, -2500, i + 1200);
-  //     i += 1350;
-  //   }
-  // }
 
   const drawGradientBackground = (ctx: CanvasRenderingContext2D) => {
     const grad = ctx.createLinearGradient(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -121,8 +41,8 @@ const Tarp = () => {
     ctx.beginPath();
     if (circle.r > waveY) {
       const distanceFromWave = Math.abs(circle.r - waveY);
-      adjustedRadius = adjustedRadius * Math.exp(-distanceFromWave / 150);
-      if (adjustedRadius < 0.5) {
+      adjustedRadius = adjustedRadius * Math.exp(-distanceFromWave / (150 * SCALE_FACTOR));
+      if (adjustedRadius < 0.5 * SCALE_FACTOR) {
         return;
       }
     }
@@ -181,94 +101,101 @@ const Tarp = () => {
 
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     drawGradientBackground(ctx);
-    // drawMorseCodeBackground(ctx);
 
-    const orangeGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    orangeGrad.addColorStop(0, '#d75e4d');
-    orangeGrad.addColorStop(0.5, '#734248');
-    orangeGrad.addColorStop(1, '#0c3642');
+    // const orangeGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    // orangeGrad.addColorStop(0, '#d75e4d');
+    // orangeGrad.addColorStop(0.5, '#734248');
+    // orangeGrad.addColorStop(1, '#0c3642');
 
-    const redGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    redGrad.addColorStop(0, '#ed6f9b');
-    redGrad.addColorStop(0.5, '#d94848');
-    redGrad.addColorStop(1, '#4f2d6f');
+    // const redGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    // redGrad.addColorStop(0, '#ed6f9b');
+    // redGrad.addColorStop(0.5, '#d94848');
+    // redGrad.addColorStop(1, '#4f2d6f');
 
-    const yellowGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    yellowGrad.addColorStop(0, '#ffd87f');
-    yellowGrad.addColorStop(0.5, '#f58d56');
-    yellowGrad.addColorStop(1, '#3f5548');
+    // const yellowGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    // yellowGrad.addColorStop(0, '#ffd87f');
+    // yellowGrad.addColorStop(0.5, '#f58d56');
+    // yellowGrad.addColorStop(1, '#3f5548');
 
-    const tealGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    tealGrad.addColorStop(0, '#00edd3');
-    tealGrad.addColorStop(0.5, '#127cb8');
-    tealGrad.addColorStop(1, '#0b4f66');
+    // const tealGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    // tealGrad.addColorStop(0, '#00edd3');
+    // tealGrad.addColorStop(0.5, '#127cb8');
+    // tealGrad.addColorStop(1, '#0b4f66');
 
-    const tealGradNew = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    tealGradNew.addColorStop(0, '#09efd4');
-    tealGradNew.addColorStop(0.5, '#006661');
-    tealGradNew.addColorStop(1, '#2e0f38');
+    // const tealGradNew = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    // tealGradNew.addColorStop(0, '#09efd4');
+    // tealGradNew.addColorStop(0.5, '#006661');
+    // tealGradNew.addColorStop(1, '#2e0f38');
 
-    const purpleGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    purpleGrad.addColorStop(0, '#b45dbb');
-    purpleGrad.addColorStop(0.5, '#8351a8');
-    purpleGrad.addColorStop(1, '#2e0f38');
+    // const purpleGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    // purpleGrad.addColorStop(0, '#b45dbb');
+    // purpleGrad.addColorStop(0.5, '#8351a8');
+    // purpleGrad.addColorStop(1, '#2e0f38');
 
-    const orangeGradNew = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    orangeGradNew.addColorStop(0, '#f8b10f');
-    orangeGradNew.addColorStop(0.5, '#b44e1b');
-    orangeGradNew.addColorStop(1, '#7a3018');
+    // const orangeGradNew = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    // orangeGradNew.addColorStop(0, '#f8b10f');
+    // orangeGradNew.addColorStop(0.5, '#b44e1b');
+    // orangeGradNew.addColorStop(1, '#7a3018');
 
-    const pinkGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    pinkGrad.addColorStop(0, '#ec1dbd');
-    pinkGrad.addColorStop(0.5, '#a12585');
-    pinkGrad.addColorStop(1, '#5b273d');
+    // const pinkGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    // pinkGrad.addColorStop(0, '#ec1dbd');
+    // pinkGrad.addColorStop(0.5, '#a12585');
+    // pinkGrad.addColorStop(1, '#5b273d');
+
+    const pinkFoilGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    pinkFoilGrad.addColorStop(0, '#e42c7e');
+    pinkFoilGrad.addColorStop(0.5, '#a12585');
+    pinkFoilGrad.addColorStop(1, '#5b273d');
+
+    const blueFoilGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    blueFoilGrad.addColorStop(0, '#27b5d1');
+    blueFoilGrad.addColorStop(0.5, '#006661');
+    blueFoilGrad.addColorStop(1, '#2e0f38');
+
+    const orangeFoilGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    orangeFoilGrad.addColorStop(0, '#e37f4d');
+    orangeFoilGrad.addColorStop(0.5, '#b44e1b');
+    orangeFoilGrad.addColorStop(1, '#7a3018');
+
+    const yellowFoilGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    yellowFoilGrad.addColorStop(0, '#f7c93c');
+    yellowFoilGrad.addColorStop(0.5, '#f58d56');
+    yellowFoilGrad.addColorStop(1, '#3f5548');
 
     const arcs = [
-      { centerX: 0, centerY: 0, gradient: orangeGradNew },
-      { centerX: CANVAS_WIDTH, centerY: 0, gradient: tealGradNew },
-      { centerX: CANVAS_WIDTH, centerY: CANVAS_HEIGHT, gradient: yellowGrad },
-      { centerX: 0, centerY: CANVAS_HEIGHT, gradient: pinkGrad }
+      { centerX: 0, centerY: 0, gradient: orangeFoilGrad },
+      { centerX: CANVAS_WIDTH, centerY: 0, gradient: blueFoilGrad },
+      { centerX: CANVAS_WIDTH, centerY: CANVAS_HEIGHT, gradient: yellowFoilGrad },
+      { centerX: 0, centerY: CANVAS_HEIGHT, gradient: pinkFoilGrad }
     ]
 
     for (let i = 0; i < arcs.length; i++) {
       drawArc(ctx, arcs[i], waveOffset + 200, 0, dotBaseRadius);
     };
 
-    // const morseArray = [
-    //   '.', '-', '...',
-    //   'ldld', 'dl', 'ld.-',
-    //   '-.-', '..',
-    //   'ldll', 'lll.', '.ddl',
-    //   '--..', '..-',
-    //   'dddd', '-d-', '--dl', 'dld',
-    //   '-..', '-.',
-    //   'll', 'd', 'ddlldd',
-    //   '--..', '-.', '-', '.'
-    // ];
-
     const morseArray = [
       '.',
-      'l.d',
-      ' .d',
-      '. .d.l',
-      '.d.d. ',
-      '.l.l... .',
+      'l..',
+      ' ..',
+      '. ...l',
+      '.d... ',
+      '.l.l.d. .',
       '. . .d.l.',
-      ' . ... ',
+      ' . .d. ',
       '..d.l.d. ..',
-      '.l. .l...',
-      ' . . .d',
-      '... ... .....',
-      '....d.l...d....',
-      '....... .d.d.....',
-      '..d. .l.l..',
+      '.l. .....',
+      ' . .d.d',
+      '... .........',
+      '....d.l.d.d....',
+      '...... .l.d....',
+      '.....d. . .l.....',
       '...l.l. . ...',
-      '. . . . .',
+      '. . ... .',
       '. . .d.l.',
-      '.l...',
-      '..l. ... ..',
-      '.. . ...d..',
-      '.....d',
+      '.l.l.',
+      '..l. . . ..',
+      '.. . . .d..',
+      '...d.d',
       'd.d....',
       '.d...',
       'l..',
@@ -277,26 +204,14 @@ const Tarp = () => {
       '.'
     ];
 
-    const morseSpacing = 70;
+    const morseSpacing = 70 * SCALE_FACTOR;
     const morseStartX = CANVAS_WIDTH / 2 - .5 * morseSpacing * morseArray.length;
     const morseBaseY = CANVAS_HEIGHT / 2;
-    const morseDotRadius = 24;
+    const morseDotRadius = 24 * SCALE_FACTOR;
     const morseBaseColor = '#2e0f38';
     const morseHighlightColor = '#8351a8';
 
     drawEqualizerHorizontal(ctx, morseArray, morseStartX, morseBaseY, morseSpacing, morseDotRadius, morseBaseColor, morseHighlightColor);
-
-    // drawEqualizerVertical(ctx, morseArray, morseStartX, morseBaseY, sp, morseDotRadius, MORSE_COLOR, morseHighlightColor);
-
-
-    // const canvasTwo = document.getElementById('d') as HTMLCanvasElement;
-    // const ctxTwo = canvasTwo.getContext('2d');
-    // canvasTwo.width = CANVAS_WIDTH;
-    // canvasTwo.height = CANVAS_HEIGHT;
-
-    // ctxTwo.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-    // drawArc(ctxTwo, { centerX: CANVAS_WIDTH / 2, centerY: CANVAS_HEIGHT / 2, gradient: purpleGrad }, waveOffset + 200, centerGapRadius, dotBaseRadius);
 
   }, [wave1Amplitude, wave1Frequency, wave2Amplitude, wave2Frequency, waveOffset, centerGapRadius, dotDensityX, dotDensityY, dotBaseRadius]);
 

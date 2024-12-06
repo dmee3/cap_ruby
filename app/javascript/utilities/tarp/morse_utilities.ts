@@ -102,7 +102,7 @@ export const drawEqualizerHorizontal = (ctx: CanvasRenderingContext2D, morseArra
       if (morse.type === 'dot') {
         drawMorseDot(ctx, xPos, yPos, morseDotRadius, morse.color === 'highlight' ? morseHighlightColor : morseBaseColor);
       } else if (morse.type === 'dash') {
-        drawMorseLine(ctx, xPos, yPos, 130, morseDotRadius, morse.color === 'highlight' ? morseHighlightColor : morseBaseColor);
+        drawMorseLine(ctx, xPos, yPos, sp * 2, morseDotRadius, morse.color === 'highlight' ? morseHighlightColor : morseBaseColor);
       }
       lengthAccum += 1;
     });
