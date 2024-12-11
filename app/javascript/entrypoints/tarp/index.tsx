@@ -5,7 +5,7 @@ import { getColorAtPoint, hexToRgb } from '../../utilities/tarp/color_utilities'
 import { baseWaveFunc, higherOrderWaveFunc } from '../../utilities/tarp/wave_utilities';
 import { drawEqualizerHorizontal } from '../../utilities/tarp/morse_utilities';
 
-const SCALE_FACTOR = 9;
+const SCALE_FACTOR = 1;
 
 const Tarp = () => {
 
