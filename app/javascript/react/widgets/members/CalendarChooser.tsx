@@ -5,15 +5,50 @@ type CalendarChooserProps = {}
 
 const CalendarChooser = ({
 }: CalendarChooserProps) => {
-
+  const logoSrc = '/images/calendars/logo.png'
   const [chosenImg, setChosenImg] = useState(null)
   const [donations, setDonations] = useState([])
 
+  const rows = [403, 469, 535, 601, 667, 733]
+  const cols = [199, 303, 407, 511, 615, 719, 823]
+
+  const dateCoordinates = [
+    [cols[6], rows[0]],
+    [cols[0], rows[1]],
+    [cols[1], rows[1]],
+    [cols[2], rows[1]],
+    [cols[3], rows[1]],
+    [cols[4], rows[1]],
+    [cols[5], rows[1]],
+    [cols[6], rows[1]],
+    [cols[0], rows[2]],
+    [cols[1], rows[2]],
+    [cols[2], rows[2]],
+    [cols[3], rows[2]],
+    [cols[4], rows[2]],
+    [cols[5], rows[2]],
+    [cols[6], rows[2]],
+    [cols[0], rows[3]],
+    [cols[1], rows[3]],
+    [cols[2], rows[3]],
+    [cols[3], rows[3]],
+    [cols[4], rows[3]],
+    [cols[5], rows[3]],
+    [cols[6], rows[3]],
+    [cols[0], rows[4]],
+    [cols[1], rows[4]],
+    [cols[2], rows[4]],
+    [cols[3], rows[4]],
+    [cols[4], rows[4]],
+    [cols[5], rows[4]],
+    [cols[6], rows[4]],
+    [cols[0], rows[5]],
+    [cols[1], rows[5]],
+  ]
+
   const images = [
     'calendar_1', 'calendar_2', 'calendar_3', 'calendar_4', 'calendar_5', 'calendar_6',
-    'calendar_7', 'calendar_8', 'calendar_9', 'calendar_10', 'calendar_11', 'calendar_12',
-    'calendar_13', 'calendar_14', 'calendar_15', 'calendar_16', 'calendar_17', 'calendar_18',
-    'calendar_19', 'calendar_20'
+    'calendar_7', 'calendar_8', 'calendar_9', 'calendar_10'
   ]
 
   const fetchDonations = () => {
@@ -34,6 +69,15 @@ const CalendarChooser = ({
     }, [])
   }
 
+  const loadImage = (path): Promise<HTMLImageElement> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      img.onload = () => resolve(img)
+      img.onerror = () => reject('Error loading image')
+      img.src = path
+    })
+  }
+
   const pickImg = (img) => {
     setChosenImg(img)
     const allImages = document.getElementsByClassName("thumbnail")
@@ -49,20 +93,32 @@ const CalendarChooser = ({
     const canvas = document.createElement('canvas')
     canvas.width = 1080
     canvas.height = 1080
-    new Promise((resolve, reject) => {
-      const img = new Image()
-      img.onload = () => resolve(img)
-      img.onerror = () => reject('Error loading image')
-      img.src = `/images/calendars/${chosenImg}.png`
-    })
-      .then((img: HTMLImageElement) => {
+    Promise
+      .all([loadImage(`/images/calendars/${chosenImg}.png`), loadImage(logoSrc)])
+      .then(([img, logo]) => {
         const ctx = canvas.getContext('2d')
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        applyLogos(logo, canvas, ctx)
         const link = document.createElement('a')
         link.download = 'calendar-fundraiser.png'
         link.href = canvas.toDataURL()
         link.click()
       })
+  }
+
+  const applyLogos = (logo, canvas, ctx) => {
+    donations.forEach(donation => {
+      const [x, y] = dateCoordinates[donation.date - 1]
+      const scaledX = x * (canvas.width / 1080)
+      const scaledY = y * (canvas.height / 1080)
+      ctx.drawImage(
+        logo,
+        scaledX,
+        scaledY,
+        logo.width * (canvas.width / 1080),
+        logo.height * (canvas.height / 1080)
+      )
+    })
   }
 
   fetchDonations()

@@ -109,9 +109,9 @@ Rails.application.routes.draw do
   get 'rhythm-converter', to: 'tools#rhythm_converter'
   get 'tarp-canvas', to: 'tools#tarp_canvas'
 
-  # resources :calendars, only: %i[index new create]
-  # get '/calendars/members', to: 'calendars#members'
-  # get '/calendars/payment-confirmed', to: 'calendars#confirm_payment'
+  resources :calendars, only: %i[index new create]
+  get '/calendars/members', to: 'calendars#members'
+  get '/calendars/payment-confirmed', to: 'calendars#confirm_payment'
 
   resources :whistleblowers, only: %i[index create]
 

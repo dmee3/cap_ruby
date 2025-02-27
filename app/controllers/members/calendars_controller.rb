@@ -9,7 +9,7 @@ module Members
           Calendar::Fundraiser.create(user_id: current_user.id, season_id: current_season['id'])
       @total = @all_calendars.sum(&:total_donations)
 
-      @images = (1..35).map { |x| ["calendar_#{x}_thumb.jpg"] }
+      @images = (1..100).map { |x| ["calendar_#{x}_thumb.jpg"] }
     end
 
     def download

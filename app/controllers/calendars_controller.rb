@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class CalendarsController < ApplicationController
-  before_action :authenticate_user!, only: :download
+  # before_action :authenticate_user!, only: :download
   layout 'calendar'
 
   def index

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import InputToggle from '../../components/inputs/InputToggle'
 import { XMarkIcon } from '@heroicons/react/24/outline'
+import InputToggle from '../../components/inputs/InputToggle'
 
 type CustomCalendarBuilderProps = {
   imageSrc: string,
@@ -8,14 +8,13 @@ type CustomCalendarBuilderProps = {
   donations: Array<any>
 }
 const CustomCalendarBuilder = ({ imageSrc, onClose, donations }: CustomCalendarBuilderProps) => {
-  const overlaySrc = '/images/calendars/calendar_base.png'
+  const overlaySrcBase = '/images/calendars/calendar_base_'
   const logoSrc = '/images/calendars/logo.png'
 
   const rows = [403, 469, 535, 601, 667, 733]
   const cols = [199, 303, 407, 511, 615, 719, 823]
 
   const dateCoordinates = [
-    [cols[5], rows[0]],
     [cols[6], rows[0]],
     [cols[0], rows[1]],
     [cols[1], rows[1]],
@@ -46,9 +45,13 @@ const CustomCalendarBuilder = ({ imageSrc, onClose, donations }: CustomCalendarB
     [cols[5], rows[4]],
     [cols[6], rows[4]],
     [cols[0], rows[5]],
+    [cols[1], rows[5]],
   ]
 
+  const [lightOverlayChosen, setLightOverlayChosen] = useState(true)
   const [darken, setDarken] = useState(83)
+
+  const overlaySrc = `${overlaySrcBase}${lightOverlayChosen ? 'light' : 'dark'}.png`
 
   const changeDarken = async (newVal) => {
     renderCanvas(newVal)
@@ -57,9 +60,8 @@ const CustomCalendarBuilder = ({ imageSrc, onClose, donations }: CustomCalendarB
 
   const resizeCanvas = () => {
     const canvas = document.getElementById("calendar-canvas") as HTMLCanvasElement
-    const ref = document.getElementById("img-reference")
-    canvas.width = ref.clientWidth
-    canvas.height = ref.clientWidth // Ensure square canvas
+    canvas.width = 500
+    canvas.height = 500 // Ensure square canvas
   }
 
   const loadImage = (path): Promise<HTMLImageElement> => {
@@ -97,7 +99,8 @@ const CustomCalendarBuilder = ({ imageSrc, onClose, donations }: CustomCalendarB
         ctx.drawImage(image, 0, 0, image.width * imgScaleFactor, image.height * imgScaleFactor)
 
         // Add darken layer with appropriate opacity (max 67%)
-        ctx.fillStyle = `rgba(0, 0, 0, ${darkLevel / 150})`
+        const color = lightOverlayChosen ? '0' : '255'
+        ctx.fillStyle = `rgba(${color}, ${color}, ${color}, ${darkLevel / 150})`
         ctx.fillRect(0, 0, canvas.width, canvas.height)
 
         ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height)
@@ -132,18 +135,29 @@ const CustomCalendarBuilder = ({ imageSrc, onClose, donations }: CustomCalendarB
   useEffect(() => {
     resizeCanvas()
     renderCanvas(darken)
-  }, [])
+  }, [lightOverlayChosen])
 
   return (
     <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-75 z-50 flex justify-center items-center" onClick={onClose}>
       <div className="bg-white p-4 rounded-md relative" onClick={e => e.stopPropagation()}>
         <div id="canvas-container" className="relative">
-          <img src={overlaySrc} id="img-reference" alt="Calendar" style={{ zIndex: -1 }} />
-          <canvas id="calendar-canvas" width="10" height="10" className="absolute top-0 left-0"></canvas>
+          <img src={overlaySrc} id="img-reference" width="500" height="500" alt="Calendar" style={{ zIndex: -1 }} />
+          <canvas id="calendar-canvas" width="500" height="500" className="absolute top-0 left-0"></canvas>
           <canvas id="download-canvas" width="1080" height="1080" className="hidden"></canvas>
         </div>
 
         <div className="flex flex-col mt-4">
+          <div className='flex flex-row gap-2 mb-4'>
+            <span className="text-secondary dark:text-gray-400">Dark</span>
+            <InputToggle
+              checked={lightOverlayChosen}
+              id="light-dark-toggle"
+              name="light-dark-toggle"
+              onChange={() => setLightOverlayChosen(!lightOverlayChosen)}
+              text={''}
+            />
+            <span className="text-secondary dark:text-gray-400">Light</span>
+          </div>
           <span className="text-secondary dark:text-gray-400">Image Dimming Level</span>
           <div className="flex flex-col">
             <input

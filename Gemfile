@@ -43,7 +43,7 @@ group :development, :test do
   gem 'capybara', '~> 2.15', '< 4.0'
   gem 'dotenv-rails'
   gem 'factory_bot_rails'
-  gem 'faker', '~> 1.9.6'
+  gem 'faker', '~> 3.5.1'
   gem 'rspec-rails'
   gem 'rubocop', require: false
   gem 'rubocop-rails'

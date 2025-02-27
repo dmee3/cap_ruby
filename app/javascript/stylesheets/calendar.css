@@ -1,7 +1,8 @@
 /* @import 'bootstrap'; */
 
-html, body {
-  background-color: #323337;
+html,
+body {
+  background-color: rgb(233, 235, 236);
   height: 100%;
   margin: 0;
 }
@@ -34,7 +35,7 @@ button:disabled {
 }
 
 .content {
-  color: #ffffff;
+  color: rgb(29, 30, 32);
   margin: 3rem auto;
   max-width: 42rem;
 }
@@ -45,11 +46,11 @@ button:disabled {
 
 .unavailable {
   cursor: auto;
-  color: #dbdbdb;
-  background-color: #000000;
+  color: rgb(128, 128, 128);
+  background-color: rgba(128, 128, 128, 0.15);
 }
 
 .selected {
-  background-color: #e7f1f0;
-  color: #323337;
+  color: #e7f1f0;
+  background-color: rgb(56, 99, 116);
 }
