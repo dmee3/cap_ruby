@@ -6,7 +6,7 @@ class StripeController < ApplicationController
 
   def webhook
     payload = request.body.read
-    endpoint_secret = ENV['STRIPE_WEBHOOK_SECRET']
+    endpoint_secret = ENV.fetch('STRIPE_WEBHOOK_SECRET', nil)
     sig_header = request.env['HTTP_STRIPE_SIGNATURE']
 
     event = nil
@@ -64,11 +64,11 @@ class StripeController < ApplicationController
       )
     end
 
-    CalendarMailer.with(
-      user_id: metadata.member_id,
-      donation_dates: metadata.dates.split(',').map(&:to_i),
-      donor_name: metadata.donor_name
-    ).calendar_email.deliver_later
+    # CalendarMailer.with(
+    #   user_id: metadata.member_id,
+    #   donation_dates: metadata.dates.split(',').map(&:to_i),
+    #   donor_name: metadata.donor_name
+    # ).calendar_email.deliver_later
   end
 
   def process_dues_payment(payment_intent)
