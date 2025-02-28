@@ -64,11 +64,15 @@ class StripeController < ApplicationController
       )
     end
 
-    # CalendarMailer.with(
-    #   user_id: metadata.member_id,
-    #   donation_dates: metadata.dates.split(',').map(&:to_i),
-    #   donor_name: metadata.donor_name
-    # ).calendar_email.deliver_later
+    begin
+      CalendarMailer.with(
+        user_id: metadata.member_id,
+        donation_dates: metadata.dates.split(',').map(&:to_i),
+        donor_name: metadata.donor_name
+      ).calendar_email.deliver_later
+    rescue StandardError => e
+      Rollbar.error(e)
+    end
   end
 
   def process_dues_payment(payment_intent)
