@@ -100,78 +100,58 @@ const Tarp = () => {
     canvas.height = CANVAS_HEIGHT;
 
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    // drawGradientBackground(ctx);
+    drawGradientBackground(ctx);
 
-    // const orangeGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    // orangeGrad.addColorStop(0, '#d75e4d');
-    // orangeGrad.addColorStop(0.5, '#734248');
-    // orangeGrad.addColorStop(1, '#0c3642');
+    const pinkFoilGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    pinkFoilGrad.addColorStop(0, '#e42c7e');
+    pinkFoilGrad.addColorStop(0.5, '#a12585');
+    pinkFoilGrad.addColorStop(1, '#5b273d');
 
-    // const redGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    // redGrad.addColorStop(0, '#ed6f9b');
-    // redGrad.addColorStop(0.5, '#d94848');
-    // redGrad.addColorStop(1, '#4f2d6f');
+    const pinkFinalGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    pinkFinalGrad.addColorStop(0, '#ff4191');
+    pinkFinalGrad.addColorStop(0.5, '#cf33ab');
+    pinkFinalGrad.addColorStop(1, '#8a224e');
 
-    // const yellowGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    // yellowGrad.addColorStop(0, '#ffd87f');
-    // yellowGrad.addColorStop(0.5, '#f58d56');
-    // yellowGrad.addColorStop(1, '#3f5548');
+    const blueFoilGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    blueFoilGrad.addColorStop(0, '#27b5d1');
+    blueFoilGrad.addColorStop(0.5, '#006661');
+    blueFoilGrad.addColorStop(1, '#2e0f38');
 
-    // const tealGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    // tealGrad.addColorStop(0, '#00edd3');
-    // tealGrad.addColorStop(0.5, '#127cb8');
-    // tealGrad.addColorStop(1, '#0b4f66');
+    const blueFinalGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    blueFinalGrad.addColorStop(0, '#0fd2f8');
+    blueFinalGrad.addColorStop(0.5, '#0d948e');
+    blueFinalGrad.addColorStop(1, '#082b4c');
 
-    // const tealGradNew = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    // tealGradNew.addColorStop(0, '#09efd4');
-    // tealGradNew.addColorStop(0.5, '#006661');
-    // tealGradNew.addColorStop(1, '#2e0f38');
+    const orangeFoilGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    orangeFoilGrad.addColorStop(0, '#e37f4d');
+    orangeFoilGrad.addColorStop(0.5, '#b44e1b');
+    orangeFoilGrad.addColorStop(1, '#7a3018');
 
-    // const purpleGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    // purpleGrad.addColorStop(0, '#b45dbb');
-    // purpleGrad.addColorStop(0.5, '#8351a8');
-    // purpleGrad.addColorStop(1, '#2e0f38');
+    const orangeFinalGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    orangeFinalGrad.addColorStop(0, '#ff874b');
+    orangeFinalGrad.addColorStop(0.5, '#d96a33');
+    orangeFinalGrad.addColorStop(1, '#b15121');
 
-    // const orangeGradNew = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    // orangeGradNew.addColorStop(0, '#f8b10f');
-    // orangeGradNew.addColorStop(0.5, '#b44e1b');
-    // orangeGradNew.addColorStop(1, '#7a3018');
+    const yellowFoilGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    yellowFoilGrad.addColorStop(0, '#f7c93c');
+    yellowFoilGrad.addColorStop(0.5, '#f58d56');
+    yellowFoilGrad.addColorStop(1, '#3f5548');
 
-    // const pinkGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    // pinkGrad.addColorStop(0, '#ec1dbd');
-    // pinkGrad.addColorStop(0.5, '#a12585');
-    // pinkGrad.addColorStop(1, '#5b273d');
+    const yellowFinalGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
+    yellowFinalGrad.addColorStop(0, '#ffc209');
+    yellowFinalGrad.addColorStop(0.5, '#ffa64b');
+    yellowFinalGrad.addColorStop(1, '#4d6433');
 
-    // const pinkFoilGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    // pinkFoilGrad.addColorStop(0, '#e42c7e');
-    // pinkFoilGrad.addColorStop(0.5, '#a12585');
-    // pinkFoilGrad.addColorStop(1, '#5b273d');
+    const arcs = [
+      { centerX: 0, centerY: 0, gradient: orangeFinalGrad },
+      { centerX: CANVAS_WIDTH, centerY: 0, gradient: blueFinalGrad },
+      { centerX: CANVAS_WIDTH, centerY: CANVAS_HEIGHT, gradient: yellowFinalGrad },
+      { centerX: 0, centerY: CANVAS_HEIGHT, gradient: pinkFinalGrad }
+    ]
 
-    // const blueFoilGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    // blueFoilGrad.addColorStop(0, '#27b5d1');
-    // blueFoilGrad.addColorStop(0.5, '#006661');
-    // blueFoilGrad.addColorStop(1, '#2e0f38');
-
-    // const orangeFoilGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    // orangeFoilGrad.addColorStop(0, '#e37f4d');
-    // orangeFoilGrad.addColorStop(0.5, '#b44e1b');
-    // orangeFoilGrad.addColorStop(1, '#7a3018');
-
-    // const yellowFoilGrad = ctx.createLinearGradient(0, 0, 1, CANVAS_HEIGHT);
-    // yellowFoilGrad.addColorStop(0, '#f7c93c');
-    // yellowFoilGrad.addColorStop(0.5, '#f58d56');
-    // yellowFoilGrad.addColorStop(1, '#3f5548');
-
-    // const arcs = [
-    //   { centerX: 0, centerY: 0, gradient: orangeFoilGrad },
-    //   { centerX: CANVAS_WIDTH, centerY: 0, gradient: blueFoilGrad },
-    //   { centerX: CANVAS_WIDTH, centerY: CANVAS_HEIGHT, gradient: yellowFoilGrad },
-    //   { centerX: 0, centerY: CANVAS_HEIGHT, gradient: pinkFoilGrad }
-    // ]
-
-    // for (let i = 0; i < arcs.length; i++) {
-    //   drawArc(ctx, arcs[i], waveOffset + 200, 0, dotBaseRadius);
-    // };
+    for (let i = 0; i < arcs.length; i++) {
+      drawArc(ctx, arcs[i], waveOffset + 200, 0, dotBaseRadius);
+    };
 
     const morseArray = [
       '.',
@@ -204,25 +184,11 @@ const Tarp = () => {
       '.'
     ];
 
-    // const morseArray = [
-    //   '.', 'l', ' ', ' ', '.', '.', // l
-    //   ' ',
-    //   '.', '.', // i
-    //   ' ',
-    //   '.', '.', '.', // s
-    //   ' ',
-    //   'l', ' ', ' ', // t
-    //   ' ',
-    //   '.', // e
-    //   ' ',
-    //   'l', ' ', ' ', '.' // n
-    // ]
-
     const morseSpacing = 70 * SCALE_FACTOR;
     const morseStartX = CANVAS_WIDTH / 2 - .5 * morseSpacing * morseArray.length;
     const morseBaseY = CANVAS_HEIGHT / 2;
     const morseDotRadius = 24 * SCALE_FACTOR;
-    const morseBaseColor = '#2e0f38';
+    const morseBaseColor = '#3b1747';
     const morseHighlightColor = '#8351a8';
 
     drawEqualizerHorizontal(ctx, morseArray, morseStartX, morseBaseY, morseSpacing, morseDotRadius, morseBaseColor, morseHighlightColor);
