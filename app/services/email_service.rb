@@ -43,8 +43,7 @@ class EmailService
       emails = [
         ENV.fetch('EMAIL_AARON', nil),
         ENV.fetch('EMAIL_DONNIE', nil),
-        ENV.fetch('EMAIL_DAN', nil),
-        ENV.fetch('EMAIL_GARRETT', nil)
+        ENV.fetch('EMAIL_DAN', nil)
       ].compact
       PostOffice.send_email(emails, subject, text)
     end
