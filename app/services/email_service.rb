@@ -23,7 +23,9 @@ class EmailService
         Reason: #{conflict.reason}
       TEXT
 
-      users_to_notify = User.with_role_for_season("coordinator", season_id) + User.with_role_for_season("admin", season_id)
+      users_to_notify = User.with_role_for_season('coordinator',
+                                                  season_id) + User.with_role_for_season('admin',
+                                                                                         season_id)
       PostOffice.send_email(users_to_notify.map(&:email), subject, text)
     rescue StandardError => e
       Rollbar.error(e, user: user)
@@ -38,7 +40,7 @@ class EmailService
         Report:\n\n#{report}
       TEXT
 
-      [ENV['EMAIL_AARON'], ENV['EMAIL_DONNIE'], ENV['EMAIL_DAN'], ENV['EMAIL_GARRETT']].each do |to|
+      [ENV['EMAIL_AARON'], ENV['EMAIL_DONNIE'], ENV['EMAIL_DAN']].each do |to|
         PostOffice.send_email(to, subject, text)
       end
     end
