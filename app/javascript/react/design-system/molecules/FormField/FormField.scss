@@ -1,0 +1,21 @@
+@reference "../../../../stylesheets/application.tailwind.css";
+
+.form-field {
+  @apply space-y-1;
+}
+
+.form-field__label {
+  @apply block;
+}
+
+.form-field__required {
+  @apply text-red-500 ml-1;
+}
+
+.form-field__error {
+  @apply block;
+}
+
+.form-field__help {
+  @apply block;
+}

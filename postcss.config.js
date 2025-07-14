@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 module.exports = {
-  plugins: [
-    require('postcss-import'),
-  ],
+  plugins: {
+    "@tailwindcss/postcss": {},
+    autoprefixer: {},
+  },
 }

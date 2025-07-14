@@ -1,3 +1,5 @@
+/* @reference "./application.tailwind.css";
+
 .btn-base {
   @apply cursor-pointer flex font-medium items-center justify-center rounded-md text-white transition w-full sm:w-auto;
 }
@@ -48,4 +50,4 @@
 
 .btn-sm {
   @apply px-1 py-1 text-sm;
-}
+} */

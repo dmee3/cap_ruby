@@ -1,0 +1,42 @@
+@reference "../../../../stylesheets/application.tailwind.css";
+
+.icon-base {
+  @apply inline-flex items-center justify-center;
+  @apply flex-shrink-0;
+}
+
+.icon-size {
+  &--sm {
+    @apply h-4 w-4;
+  }
+
+  &--md {
+    @apply h-5 w-5;
+  }
+
+  &--lg {
+    @apply h-6 w-6;
+  }
+
+  &--xl {
+    @apply h-8 w-8;
+  }
+}
+
+.icon-color {
+  &--current {
+    @apply text-current;
+  }
+
+  &--gray {
+    @apply text-gray-500;
+  }
+
+  &--white {
+    @apply text-white;
+  }
+
+  &--black {
+    @apply text-black;
+  }
+}
