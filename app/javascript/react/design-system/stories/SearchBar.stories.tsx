@@ -8,7 +8,6 @@ const meta: Meta<typeof SearchBar> = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
   argTypes: {
     size: {
       control: { type: 'select' },

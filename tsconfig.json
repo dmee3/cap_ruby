@@ -14,10 +14,29 @@
     "target": "es5",
     "jsx": "react",
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "paths": {
       "@/*": [
         "app/javascript/*"
+      ],
+      "@atoms/*": [
+        "app/javascript/react/design-system/atoms/*"
+      ],
+      "@molecules/*": [
+        "app/javascript/react/design-system/molecules/*"
+      ],
+      "@organisms/*": [
+        "app/javascript/react/design-system/organisms/*"
+      ],
+      "@templates/*": [
+        "app/javascript/react/design-system/templates/*"
+      ],
+      "@components/*": [
+        "app/javascript/react/components/*"
+      ],
+      "@widgets/*": [
+        "app/javascript/react/widgets/*"
       ]
     }
   },

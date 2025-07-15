@@ -1,2 +1,2 @@
-export { default } from './Badge'
-export type { BadgeProps, BadgeVariant, BadgeSize } from './Badge'
+export { default } from './Badge.tsx'
+export type { BadgeProps, BadgeVariant, BadgeSize } from './Badge.tsx'

@@ -1,2 +1,2 @@
-export { default } from './SearchBar'
-export type { SearchBarProps } from './SearchBar'
+export { default } from './SearchBar.tsx'
+export type { SearchBarProps } from './SearchBar.tsx'

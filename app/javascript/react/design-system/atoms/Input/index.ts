@@ -1,2 +1,2 @@
-export { default } from './Input'
-export type { InputProps, InputType, InputSize, InputVariant } from './Input'
+export { default } from './Input.tsx'
+export type { InputProps, InputType, InputSize, InputVariant } from './Input.tsx'

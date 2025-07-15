@@ -1,6 +1,7 @@
-import React from 'react'
-import { textStyles, colors } from '../../tokens'
-import './Text.scss'
+import React from 'react';
+import cx from 'classnames';
+import { textStyles } from '../../tokens';
+import styles from './Text.module.scss';
 
 export type TextVariant =
   | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
@@ -78,13 +79,15 @@ const Text: React.FC<TextProps> = ({
     }
   }
 
-  // Build CSS classes
-  const textClasses = [
-    `text-color--${color}`,
-    `text-align--${align}`,
-    truncate ? 'text-truncate' : '',
+  const colorClass = `color${color.charAt(0).toUpperCase() + color.slice(1)}`;
+  const alignClass = `align${align.charAt(0).toUpperCase() + align.slice(1)}`;
+
+  const textClasses = cx(
+    styles[colorClass],
+    styles[alignClass],
+    { [styles.truncate]: truncate },
     className
-  ].filter(Boolean).join(' ')
+  );
 
   // Determine the HTML element to render
   const getElement = (variant: TextVariant, as?: keyof JSX.IntrinsicElements) => {

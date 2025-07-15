@@ -1,0 +1,7 @@
+@use 'app/javascript/stylesheets/variables' as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+}

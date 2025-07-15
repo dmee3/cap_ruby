@@ -1,14 +1,15 @@
-import React from 'react'
-import './Icon.scss'
+import React from 'react';
+import cx from 'classnames';
+import styles from './Icon.module.scss';
 
-export type IconSize = 'sm' | 'md' | 'lg' | 'xl'
-export type IconColor = 'current' | 'gray' | 'white' | 'black'
+export type IconSize = 'sm' | 'md' | 'lg' | 'xl';
+export type IconColor = 'current' | 'gray' | 'white' | 'black';
 
 export interface IconProps {
-  children: React.ReactNode
-  size?: IconSize
-  color?: IconColor
-  className?: string
+  children: React.ReactNode;
+  size?: IconSize;
+  color?: IconColor;
+  className?: string;
 }
 
 const Icon: React.FC<IconProps> = ({
@@ -17,19 +18,21 @@ const Icon: React.FC<IconProps> = ({
   color = 'current',
   className = '',
 }) => {
-  // Build CSS classes
-  const iconClasses = [
-    'icon-base',
-    `icon-size--${size}`,
-    `icon-color--${color}`,
+  const sizeClass = `size${size.charAt(0).toUpperCase() + size.slice(1)}`;
+  const colorClass = `color${color.charAt(0).toUpperCase() + color.slice(1)}`;
+
+  const iconClasses = cx(
+    styles.iconBase,
+    styles[sizeClass],
+    styles[colorClass],
     className
-  ].filter(Boolean).join(' ')
+  );
 
   return (
     <span className={iconClasses}>
       {children}
     </span>
-  )
-}
+  );
+};
 
-export default Icon
+export default Icon;

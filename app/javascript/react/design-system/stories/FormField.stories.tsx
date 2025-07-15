@@ -8,15 +8,14 @@ const meta: Meta<typeof FormField> = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
   argTypes: {
+    as: {
+      control: { type: 'select' },
+      options: ['input', 'textarea', 'select', 'checkbox', 'radio'],
+    },
     type: {
       control: { type: 'select' },
       options: ['text', 'email', 'password', 'number', 'tel', 'url', 'search', 'date', 'time', 'datetime-local'],
-    },
-    variant: {
-      control: { type: 'select' },
-      options: ['default', 'error', 'success'],
     },
     size: {
       control: { type: 'select' },
@@ -44,6 +43,49 @@ export const Default: Story = {
     placeholder: 'Enter your email',
   },
 };
+
+export const Textarea: Story = {
+  args: {
+    as: 'textarea',
+    label: 'Your Message',
+    placeholder: 'Enter your message here...',
+    rows: 5,
+  },
+};
+
+export const Select: Story = {
+  args: {
+    as: 'select',
+    label: 'Choose an option',
+    options: [
+      { label: 'Option 1', value: '1' },
+      { label: 'Option 2', value: '2' },
+      { label: 'Option 3', value: '3' },
+    ],
+  },
+};
+
+export const Checkbox: Story = {
+  args: {
+    as: 'checkbox',
+    label: 'I agree to the terms and conditions',
+    name: 'terms',
+  },
+};
+
+export const RadioGroup: Story = {
+  render: () => (
+    <div className="space-y-2">
+      <FormField as="radio" label="Option 1" name="radio-group" value="1" />
+      <FormField as="radio" label="Option 2" name="radio-group" value="2" />
+      <FormField as="radio" label="Option 3" name="radio-group" value="3" />
+    </div>
+  ),
+  parameters: {
+    layout: 'padded',
+  },
+};
+
 
 export const WithValidation: Story = {
   render: () => (

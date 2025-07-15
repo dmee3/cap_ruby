@@ -1,2 +1,2 @@
-export { default } from './Icon'
-export type { IconProps, IconSize, IconColor } from './Icon'
+export { default } from './Icon.tsx'
+export type { IconProps, IconSize, IconColor } from './Icon.tsx'

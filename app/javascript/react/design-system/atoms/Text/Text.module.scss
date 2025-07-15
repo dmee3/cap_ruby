@@ -1,0 +1,56 @@
+@use 'app/javascript/stylesheets/variables' as *;
+
+.colorPrimary {
+  color: $gray-900;
+}
+
+.colorSecondary {
+  color: $gray-500;
+}
+
+.colorDisabled {
+  color: $gray-400;
+}
+
+.colorInverse {
+  color: white;
+}
+
+.colorSuccess {
+  color: $green-600;
+}
+
+.colorWarning {
+  color: $yellow-600;
+}
+
+.colorError {
+  color: $red-600;
+}
+
+.alignLeft {
+  text-align: left;
+}
+
+.alignCenter {
+  text-align: center;
+}
+
+.alignRight {
+  text-align: right;
+}
+
+.alignJustify {
+  text-align: justify;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.required {
+  color: $red-500;
+  margin-left: $space-1;
+}

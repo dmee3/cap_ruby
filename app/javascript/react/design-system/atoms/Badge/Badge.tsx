@@ -1,8 +1,9 @@
-import React from 'react'
-import './Badge.scss'
+import React from 'react';
+import cx from 'classnames';
+import styles from './Badge.module.scss';
 
-export type BadgeVariant = 'primary' | 'success' | 'warning' | 'error' | 'info' | 'neutral'
-export type BadgeSize = 'sm' | 'md' | 'lg'
+export type BadgeVariant = 'primary' | 'success' | 'warning' | 'error' | 'info' | 'neutral';
+export type BadgeSize = 'sm' | 'md' | 'lg';
 
 export interface BadgeProps {
   children: React.ReactNode
@@ -21,13 +22,15 @@ const Badge: React.FC<BadgeProps> = ({
   removable = false,
   onRemove,
 }) => {
-  // Build CSS classes
-  const badgeClasses = [
-    'badge-base',
-    `badge-variant--${variant}`,
-    `badge-size--${size}`,
+  const variantClass = `variant${variant.charAt(0).toUpperCase() + variant.slice(1)}`;
+  const sizeClass = `size${size.charAt(0).toUpperCase() + size.slice(1)}`;
+
+  const badgeClasses = cx(
+    styles.badgeBase,
+    styles[variantClass],
+    styles[sizeClass],
     className
-  ].filter(Boolean).join(' ')
+  );
 
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -41,11 +44,11 @@ const Badge: React.FC<BadgeProps> = ({
         <button
           type="button"
           onClick={handleRemove}
-          className="badge-remove"
+          className={styles.remove}
           aria-label="Remove badge"
         >
           <svg
-            className="badge-remove__icon"
+            className={styles.removeIcon}
             fill="currentColor"
             viewBox="0 0 20 20"
             aria-hidden="true"
@@ -59,7 +62,7 @@ const Badge: React.FC<BadgeProps> = ({
         </button>
       )}
     </span>
-  )
-}
+  );
+};
 
-export default Badge
+export default Badge;

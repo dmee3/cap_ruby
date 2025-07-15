@@ -1,2 +1,2 @@
-export { default } from './FormField'
-export type { FormFieldProps } from './FormField'
+export { default } from './FormField.tsx'
+export type { FormFieldProps } from './FormField.tsx'

@@ -28,6 +28,12 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'app/javascript'),
+      '@atoms': path.resolve(__dirname, 'app/javascript/react/design-system/atoms'),
+      '@molecules': path.resolve(__dirname, 'app/javascript/react/design-system/molecules'),
+      '@organisms': path.resolve(__dirname, 'app/javascript/react/design-system/organisms'),
+      '@templates': path.resolve(__dirname, 'app/javascript/react/design-system/templates'),
+      '@components': path.resolve(__dirname, 'app/javascript/react/components'),
+      '@widgets': path.resolve(__dirname, 'app/javascript/react/widgets'),
     },
   },
 });

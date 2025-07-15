@@ -1,8 +1,9 @@
-import React from 'react'
-import './Button.scss'
+import React from 'react';
+import cx from 'classnames';
+import styles from './Button.module.scss';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'ghost' | 'link'
-export type ButtonSize = 'sm' | 'md' | 'lg'
+export type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'ghost' | 'link';
+export type ButtonSize = 'sm' | 'md' | 'lg';
 export type ButtonType = 'button' | 'submit' | 'reset'
 
 export interface ButtonProps {
@@ -13,6 +14,7 @@ export interface ButtonProps {
   disabled?: boolean
   loading?: boolean
   fullWidth?: boolean
+  outline?: boolean
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
   className?: string
   'aria-label'?: string
@@ -26,18 +28,21 @@ const Button: React.FC<ButtonProps> = ({
   disabled = false,
   loading = false,
   fullWidth = false,
+  outline = false,
   onClick,
   className = '',
   'aria-label': ariaLabel,
 }) => {
-  // Build CSS classes
-  const buttonClasses = [
-    'button-base',
-    fullWidth ? 'full-width' : '',
-    `button-variant--${variant}`,
-    `button-size--${size}`,
+  const variantClass = `variant${variant.charAt(0).toUpperCase() + variant.slice(1)}`;
+  const sizeClass = `size${size.charAt(0).toUpperCase() + size.slice(1)}`;
+
+  const buttonClasses = cx(
+    styles.buttonBase,
+    styles[variantClass],
+    { [styles.fullWidth]: fullWidth, [styles.outline]: outline },
+    styles[sizeClass],
     className
-  ].filter(Boolean).join(' ')
+  );
 
   return (
     <button
@@ -50,7 +55,7 @@ const Button: React.FC<ButtonProps> = ({
     >
       {loading && (
         <svg
-          className="button-loading"
+          className={styles.loading}
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -72,7 +77,7 @@ const Button: React.FC<ButtonProps> = ({
       )}
       {children}
     </button>
-  )
-}
+  );
+};
 
-export default Button
+export default Button;

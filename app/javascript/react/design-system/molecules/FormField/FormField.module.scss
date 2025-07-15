@@ -1,0 +1,24 @@
+@use 'app/javascript/stylesheets/variables' as *;
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+}
+
+.label {
+  display: block;
+}
+
+.required {
+  color: $red-500;
+  margin-left: $space-1;
+}
+
+.error {
+  display: block;
+}
+
+.help {
+  display: block;
+}

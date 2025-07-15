@@ -1,0 +1,31 @@
+@reference "../../../../stylesheets/application.tailwind.css";
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.header {
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.headerCell {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-gray-600);
+  cursor: pointer;
+}
+
+.row {
+  border-bottom: 1px solid var(--color-gray-200);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--color-gray-100);
+  }
+}
+
+.cell {
+  padding: var(--space-3) var(--space-4);
+}

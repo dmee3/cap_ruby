@@ -8,7 +8,6 @@ const meta: Meta<typeof Button> = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
   argTypes: {
     variant: {
       control: { type: 'select' },
@@ -25,6 +24,9 @@ const meta: Meta<typeof Button> = {
       control: { type: 'boolean' },
     },
     fullWidth: {
+      control: { type: 'boolean' },
+    },
+    outline: {
       control: { type: 'boolean' },
     },
   },
@@ -53,6 +55,18 @@ export const Secondary: Story = {
     children: 'Secondary Button',
     variant: 'secondary',
   },
+};
+
+export const Outline: Story = {
+  render: () => (
+    <div className="flex gap-2">
+      <Button variant="primary" outline>Primary</Button>
+      <Button variant="secondary" outline>Secondary</Button>
+      <Button variant="success" outline>Success</Button>
+      <Button variant="danger" outline>Danger</Button>
+      <Button variant="warning" outline>Warning</Button>
+    </div>
+  ),
 };
 
 export const Success: Story = {

@@ -1,18 +1,18 @@
-import React, { useState, forwardRef } from 'react'
-import { Input } from '../../atoms'
-import { Icon } from '../../atoms'
-import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import './SearchBar.scss'
+import React, { useState, forwardRef } from 'react';
+import cx from 'classnames';
+import { Input, Icon } from '../../atoms';
+import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import styles from './SearchBar.module.scss';
 
 export interface SearchBarProps {
-  placeholder?: string
-  value?: string
-  onChange?: (value: string) => void
-  onSearch?: (value: string) => void
-  onClear?: () => void
-  disabled?: boolean
-  className?: string
-  size?: 'sm' | 'md' | 'lg'
+  placeholder?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  onSearch?: (value: string) => void;
+  onClear?: () => void;
+  disabled?: boolean;
+  className?: string;
+  size?: 'sm' | 'md' | 'lg';
 }
 
 const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(({
@@ -50,11 +50,11 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(({
     }
   }
 
-  const showClearButton = value.length > 0
+  const showClearButton = value.length > 0;
 
   return (
-    <div className={`search-bar ${className}`}>
-      <div className="search-bar__icon-container">
+    <div className={cx(styles.searchBar, className)}>
+      <div className={styles.iconContainer}>
         <Icon size={size === 'lg' ? 'lg' : size === 'sm' ? 'sm' : 'md'}>
           <MagnifyingGlassIcon />
         </Icon>
@@ -69,14 +69,14 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(({
         onKeyDown={handleKeyDown}
         disabled={disabled}
         size={size}
-        className="search-bar__input"
+        className={styles.input}
       />
 
       {showClearButton && (
         <button
           type="button"
           onClick={handleClear}
-          className="search-bar__clear-button"
+          className={styles.clearButton}
           aria-label="Clear search"
         >
           <Icon size={size === 'lg' ? 'lg' : size === 'sm' ? 'sm' : 'md'} color="gray">
@@ -85,9 +85,9 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(({
         </button>
       )}
     </div>
-  )
-})
+  );
+});
 
-SearchBar.displayName = 'SearchBar'
+SearchBar.displayName = 'SearchBar';
 
-export default SearchBar
+export default SearchBar;

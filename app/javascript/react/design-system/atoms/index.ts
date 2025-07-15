@@ -4,6 +4,10 @@ export { default as Button } from './Button'
 export { default as Icon } from './Icon'
 export { default as Input } from './Input'
 export { default as Text } from './Text'
+export { default as Textarea } from './Textarea'
+export { default as Select } from './Select'
+export { default as Checkbox } from './Checkbox'
+export { default as Radio } from './Radio'
 
 // Export types
 export type {
@@ -37,3 +41,24 @@ export type {
   TextVariant,
   TextColor,
 } from './Text'
+
+export type {
+  TextareaProps,
+  TextareaVariant,
+  TextareaSize,
+} from './Textarea'
+
+export type {
+  SelectProps,
+  SelectOption,
+  SelectVariant,
+  SelectSize,
+} from './Select'
+
+export type {
+  CheckboxProps,
+} from './Checkbox'
+
+export type {
+  RadioProps,
+} from './Radio'
