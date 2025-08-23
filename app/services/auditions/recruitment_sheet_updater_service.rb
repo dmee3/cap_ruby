@@ -24,16 +24,17 @@ module Auditions
     end
 
     def update(profiles)
-      TAB_NAMES.each do |tab_name|
-        rows = External::GoogleSheetsApi.read_sheet(SPREADSHEET_ID, tab_name)
-        next if rows&.blank?
+      true
+      # TAB_NAMES.each do |tab_name|
+      #   rows = External::GoogleSheetsApi.read_sheet(SPREADSHEET_ID, tab_name)
+      #   next if rows&.blank?
 
-        update_existing_rows(rows, profiles)
+      #   update_existing_rows(rows, profiles)
 
-        add_new_rows(tab_name, profiles, rows)
+      #   add_new_rows(tab_name, profiles, rows)
 
-        External::GoogleSheetsApi.write_sheet(SPREADSHEET_ID, tab_name, rows, formulae: true)
-      end
+      #   External::GoogleSheetsApi.write_sheet(SPREADSHEET_ID, tab_name, rows, formulae: true)
+      # end
     end
 
     private
