@@ -145,6 +145,7 @@ export const FullWidth: Story = {
 export const AllVariants: Story = {
   render: () => (
     <div className="space-y-4">
+      {/* All button variants */}
       <div className="flex gap-2">
         <Button variant="primary">Primary</Button>
         <Button variant="secondary">Secondary</Button>
@@ -154,14 +155,32 @@ export const AllVariants: Story = {
         <Button variant="ghost">Ghost</Button>
         <Button variant="link">Link</Button>
       </div>
+      
+      {/* Outline variants */}
+      <div className="flex gap-2">
+        <Button variant="primary" outline>Primary</Button>
+        <Button variant="secondary" outline>Secondary</Button>
+        <Button variant="success" outline>Success</Button>
+        <Button variant="danger" outline>Danger</Button>
+        <Button variant="warning" outline>Warning</Button>
+      </div>
+      
+      {/* All sizes */}
       <div className="flex gap-2">
         <Button variant="primary" size="sm">Small</Button>
         <Button variant="primary" size="md">Medium</Button>
         <Button variant="primary" size="lg">Large</Button>
       </div>
+      
+      {/* States */}
       <div className="flex gap-2">
         <Button variant="primary" disabled>Disabled</Button>
         <Button variant="primary" loading>Loading</Button>
+      </div>
+      
+      {/* Full width */}
+      <div className="w-full">
+        <Button variant="primary" fullWidth>Full Width</Button>
       </div>
     </div>
   ),
