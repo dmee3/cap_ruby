@@ -36,22 +36,11 @@ module Auditions
     end
 
     def add_packet(item, date, email)
-      args = { date: date, type: item['productName'], email: email }
-      item['customizations']&.each do |field|
-        question = field['label']
-        args[Packet::FIELD_TO_SYMBOL[question]] = field['value']
-      end
-
-      @packets << Packet.new(args)
+      @packets << Packet.new(date: date, item: item, email: email)
     end
 
     def add_registration(item, date, email)
-      args = { date: date, type: item['productName'], email: email }
-      item['customizations']&.each do |field|
-        question = field['label']
-        args[Registration::FIELD_TO_SYMBOL[question]] = field['value']
-      end
-      @registrations << Registration.new(args)
+      @registrations << Registration.new(date: date, item: item, email: email)
     end
   end
 end

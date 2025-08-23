@@ -37,24 +37,13 @@ module Auditions
     end
 
     # rubocop:disable Metrics/AbcSize
-    def initialize(args)
-      @type = TYPE_MAP[args[:type]]
-      @date = args[:date] - 4.hours
+    def initialize(date:, item:, email:)
+      @type = TYPE_MAP[item['productName']]
+      @date = date - 4.hours
+      @email = email
 
-      @first_name = args[:first_name]
-      @last_name = args[:last_name]
-      @email = args[:email]
-      @city = args[:city]&.titleize
-      @state = args[:state] ? StateConverterService.abbreviation(args[:state]) : ''
-      @pronouns = args[:pronouns]
-      @shoe_size = args[:shoe_size]
-      @shirt_size = args[:shirt_size]
-      @instrument = args[:instrument]
-      @birthdate = args[:birthdate]
-      @experience = args[:experience]
-      @conflicts = args[:conflicts]
+      parse_custom_fields(item['customizations'])
     end
-    # rubocop:enable Metrics/AbcSize
 
     def to_row
       [
@@ -72,5 +61,29 @@ module Auditions
         @conflicts
       ]
     end
+
+    private
+
+    def parse_custom_fields(custom_fields)
+      @first_name = custom_fields.find { |field| field['label'] == 'First Name' }['value']
+      @last_name = custom_fields.find { |field| field['label'] == 'Last Name' }['value']
+
+      @city = custom_fields.find { |field| field['label'] == 'City' }['value'].titleize
+      state = custom_fields.find { |field| field['label'] == 'State' }
+      if state.length == 2
+        @state = state['value']
+      else
+        @state = StateConverterService.abbreviation(state['value'])
+      end
+
+      @pronouns = custom_fields.find { |field| field['label'] == 'Preferred Pronouns' }['value']
+      @shoe_size = custom_fields.find { |field| field['label'] == 'Shoe Size' }['value']
+      @shirt_size = custom_fields.find { |field| field['label'] == 'Shirt Size' }['value']
+      @instrument = custom_fields.find { |field| field['label'] == 'Primary Instrument' }['value']
+      @birthdate = custom_fields.find { |field| field['label'] == 'Birthdate' }['value']
+      @experience = custom_fields.find { |field| field['label'] == 'Experience' }['value']
+      @conflicts = custom_fields.find { |field| field['label'] == 'Known Conflicts' }['value']
+    end
+    # rubocop:enable Metrics/AbcSize
   end
 end
