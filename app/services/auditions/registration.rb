@@ -2,16 +2,17 @@
 
 module Auditions
   class Registration
-    attr_reader :type, :first_name, :last_name, :email, :city, :state, :instrument, :date, :experience, :birthdate
+    attr_reader :type, :first_name, :last_name, :email, :city, :state, :instrument, :date,
+                :experience, :birthdate
 
     PRODUCT_NAMES = [
-      'CC25 Music Ensemble Audition Registration',
-      'CC25 Visual Ensemble Audition Registration'
+      'CC26 Music Ensemble Audition Registration',
+      'CC26 Visual Ensemble Audition Registration'
     ].freeze
 
     TYPE_MAP = {
-      'CC25 Music Ensemble Audition Registration' => 'Music Registration',
-      'CC25 Visual Ensemble Audition Registration' => 'Visual Registration'
+      'CC26 Music Ensemble Audition Registration' => 'Music Registration',
+      'CC26 Visual Ensemble Audition Registration' => 'Visual Registration'
     }.freeze
 
     FIELD_TO_SYMBOL = {
@@ -30,7 +31,8 @@ module Auditions
 
     class << self
       def header_row
-        ['First Name', 'Last Name', 'Email', 'City', 'State', 'Pronouns', 'Shoe', 'Shirt', 'Birthdate', 'Purchased', 'Experience', 'Conflicts']
+        ['First Name', 'Last Name', 'Email', 'City', 'State', 'Pronouns', 'Shoe', 'Shirt',
+         'Birthdate', 'Purchased', 'Experience', 'Conflicts']
       end
     end
 

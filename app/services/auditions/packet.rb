@@ -6,10 +6,10 @@ module Auditions
 
     # Note for next year - make sure to share the spreadsheets with the service account!
     PRODUCT_NAMES = [
-      'CC25 Battery Audition Packet',
-      'CC25 Cymbal Audition Packet',
-      'CC25 Front Ensemble Audition Packet',
-      'CC25 Visual Ensemble Audition Packet'
+      'Cap City 2026 Battery Audition Packet',
+      'Cap City 2026 Cymbal Audition Packet',
+      'Cap City 2026 Front Ensemble Audition Packet',
+      'Cap City 2026 Visual Ensemble Audition Packet'
     ].freeze
 
     FIELD_TO_SYMBOL = {
