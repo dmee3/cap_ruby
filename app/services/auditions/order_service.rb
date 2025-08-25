@@ -66,11 +66,22 @@ module Auditions
                    { order_number: order_number, email: order['customerEmail'] })
 
       begin
+        if order['createdOn'].blank?
+          Logger.warn('Missing created date in order', { order_number: order_number })
+          return # Skip this order
+        end
+
         date = DateTime.parse(order['createdOn'])
+
+        if order['lineItems'].blank? || !order['lineItems'].is_a?(Array)
+          Logger.warn('Missing or invalid line items in order', { order_number: order_number })
+          return # Skip this order
+        end
+
         order['lineItems'].each.with_index do |item, item_index|
           process_line_item(item, date, order['customerEmail'], order_number, item_index + 1)
         end
-      rescue ArgumentError => e
+      rescue ArgumentError, TypeError => e
         Logger.warn('Invalid date format in order', {
                       order_number: order_number,
                       date: order['createdOn'],

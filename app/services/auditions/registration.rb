@@ -130,7 +130,9 @@ module Auditions
     end
 
     def find_field_value(custom_fields, field_name)
-      field = custom_fields.find { |f| f['label'] == field_name }
+      return '' unless custom_fields.is_a?(Array)
+
+      field = custom_fields.find { |f| f.is_a?(Hash) && f['label'] == field_name }
       field&.dig('value') || ''
     end
 
@@ -144,9 +146,10 @@ module Auditions
         @state = StateConverterService.abbreviation(state_str)
       end
     rescue StandardError => e
-      Logger.warn('Failed to parse state field', e, {
+      Logger.warn('Failed to parse state field', {
                     state_value: state_value,
-                    email: @email
+                    email: @email,
+                    error: e.message
                   })
       @state = state_str
     end

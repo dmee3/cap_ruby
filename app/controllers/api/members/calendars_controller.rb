@@ -3,9 +3,7 @@
 module Api
   module Members
     class CalendarsController < Api::MembersController
-
       def index
-
         total_donations = current_calendar.total_donations
         dates = current_calendar.donations.map do |d|
           { date: d.donation_date, donor: d.donor_name }
@@ -21,7 +19,8 @@ module Api
 
         all_calendars = Calendar::Fundraiser.for_user(current_user.id).for_season(current_season['id'])
         @current_calendar = all_calendars.reject(&:completed?).last ||
-          Calendar::Fundraiser.create(user_id: current_user.id, season_id: current_season['id'])
+                            Calendar::Fundraiser.create(user_id: current_user.id,
+                                                        season_id: current_season['id'])
       end
     end
   end

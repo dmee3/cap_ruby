@@ -3,6 +3,17 @@
 module Auditions
   class DataValidator
     class << self
+      def validate_orders_structure(orders)
+        return Result.failure(['Orders data is nil']) if orders.nil?
+        return Result.failure(['Orders must be an array']) unless orders.is_a?(Array)
+
+        if orders.empty?
+          Logger.warn('No orders found - this may be expected if no orders exist in date range')
+        end
+
+        Result.success(orders)
+      end
+
       def validate_orders(orders)
         errors = []
 
@@ -47,7 +58,7 @@ module Auditions
         else
           begin
             DateTime.parse(order['createdOn'])
-          rescue ArgumentError
+          rescue ArgumentError, TypeError
             errors << "#{order_prefix}: invalid created date format"
           end
         end
@@ -70,8 +81,8 @@ module Auditions
 
         errors << "#{prefix}: missing product name" if item['productName'].blank?
 
-        # Skip validation if this is not a configured packet or registration item
-        return [] unless configured_product?(item['productName'])
+        # Skip further validation if this is not a configured packet or registration item
+        return errors unless configured_product?(item['productName'])
 
         if item['customizations'].blank?
           Logger.error(item)

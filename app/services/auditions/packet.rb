@@ -99,9 +99,10 @@ module Auditions
         @state = StateConverterService.abbreviation(state_str)
       end
     rescue StandardError => e
-      Logger.warn('Failed to parse state field', e, {
+      Logger.warn('Failed to parse state field', {
                     state_value: state_value,
-                    email: @email
+                    email: @email,
+                    error: e.message
                   })
       @state = state_str
     end
@@ -109,7 +110,20 @@ module Auditions
     def parse_custom_fields_fallback(custom_fields)
       Logger.info('Using fallback parsing for packet custom fields', { email: @email })
 
-      name = custom_fields.find { |field| field['label'] == 'Name' }
+      unless custom_fields.is_a?(Array)
+        Logger.warn('Custom fields is not an array, using empty defaults', {
+                      email: @email,
+                      custom_fields_type: custom_fields.class.name
+                    })
+        @first_name = ''
+        @last_name = ''
+        @city = ''
+        @state = ''
+        @instrument = ''
+        return
+      end
+
+      name = custom_fields.find { |field| field.is_a?(Hash) && field['label'] == 'Name' }
       if name&.dig('value').present?
         parse_name_field(name['value'])
       else
@@ -118,17 +132,19 @@ module Auditions
         @last_name = ''
       end
 
-      city = custom_fields.find { |field| field['label'] == 'City' }
+      city = custom_fields.find { |field| field.is_a?(Hash) && field['label'] == 'City' }
       @city = city&.dig('value')&.to_s&.titleize || ''
 
-      state = custom_fields.find { |field| field['label'] == 'State' }
+      state = custom_fields.find { |field| field.is_a?(Hash) && field['label'] == 'State' }
       if state&.dig('value').present?
         parse_state_field(state['value'])
       else
         @state = ''
       end
 
-      instrument = custom_fields.find { |field| field['label'] == 'Instrument' }
+      instrument = custom_fields.find do |field|
+        field.is_a?(Hash) && field['label'] == 'Instrument'
+      end
       @instrument = instrument&.dig('value')&.to_s&.strip || ''
     end
   end

@@ -9,7 +9,7 @@ AllCops:
   TargetRubyVersion:
     '2.7.2'
   NewCops: enable
-    
+
 Bundler/OrderedGems:
   Enabled: false
 
@@ -23,10 +23,10 @@ Metrics/AbcSize:
   Exclude:
     - app/controllers/**/*
 Metrics/BlockLength:
-  IgnoredMethods: [describe, context, shared_examples, shared_context, scenario]
   Exclude:
     - config/**/*
     - db/**/*
+    - spec/**/*
 Metrics/ClassLength:
   Exclude:
     - app/controllers/**/*
