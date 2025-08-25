@@ -5,7 +5,7 @@ module Auditions
     def initialize(
       data_fetcher: DataFetcher.new,
       profile_builder: ProfileBuilder.new,
-      sheet_writer: SheetWriter.new,
+      sheet_writer: PacketsAndRegistrationsWriter.new,
       recruitment_updater: RecruitmentUpdater.new
     )
       @data_fetcher = data_fetcher

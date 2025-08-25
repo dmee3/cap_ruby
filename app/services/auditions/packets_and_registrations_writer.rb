@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Auditions
-  class SheetWriter
+  class PacketsAndRegistrationsWriter
     def initialize(sheets_api: External::GoogleSheetsApi)
       @sheets_api = sheets_api
     end

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Auditions::SheetWriter do
+RSpec.describe Auditions::PacketsAndRegistrationsWriter do
   include AuditionsHelpers
 
   let(:service) { described_class.new }

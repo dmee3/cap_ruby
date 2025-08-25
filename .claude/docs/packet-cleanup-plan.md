@@ -173,7 +173,7 @@ After analyzing the `app/services/auditions/` code, several maintenance and reli
    end
    
    # app/services/auditions/sheet_writer.rb
-   class Auditions::SheetWriter
+   class Auditions::PacketsAndRegistrationsWriter
      def initialize(sheet_formatter: SheetFormatter.new)
        @sheet_formatter = sheet_formatter
      end
@@ -199,7 +199,7 @@ After analyzing the `app/services/auditions/` code, several maintenance and reli
      def call
        step :fetch_data, DataFetcher.new
        step :build_profiles, ProfileBuilder.new
-       step :write_sheets, SheetWriter.new
+       step :write_sheets, PacketsAndRegistrationsWriter.new
        step :update_recruitment, RecruitmentUpdater.new
      end
      

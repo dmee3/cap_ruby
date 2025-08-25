@@ -64,7 +64,7 @@ RSpec.describe Auditions::Orchestrator do
     it 'uses dependency injection for services' do
       data_fetcher = double('DataFetcher')
       profile_builder = double('ProfileBuilder')
-      sheet_writer = double('SheetWriter')
+      sheet_writer = double('PacketsAndRegistrationsWriter')
       recruitment_updater = double('RecruitmentUpdater')
 
       allow(data_fetcher).to receive(:call).and_return(Auditions::Result.success([]))

@@ -57,12 +57,7 @@ module Auditions
       end
 
       # Then, update the UNSORTED tab with all new profiles organized by section
-      if all_new_profiles.any?
-        result = update_unsorted_tab(all_new_profiles)
-      else
-        # Still update UNSORTED tab to clear it if no new profiles
-        result = clear_unsorted_tab
-      end
+      result = update_unsorted_tab(all_new_profiles)
       return result if result.is_a?(Result) && result.failure?
 
       Logger.info('Recruitment sheets updated successfully', { tabs_updated: TAB_NAMES.size })
@@ -77,7 +72,7 @@ module Auditions
 
       return Result.success({}) if rows.empty?
 
-      update_existing_rows_for_tab(tab_name, rows, profiles)
+      RecruitmentRowBuilder.update_existing_rows_for_tab(tab_name, rows, profiles)
 
       write_result = write_sheet_rows(tab_name, rows)
       return write_result if write_result.is_a?(Result) && write_result.failure?
@@ -116,11 +111,23 @@ module Auditions
     def update_unsorted_tab(new_profiles_by_tab)
       Logger.debug('Updating UNSORTED tab', { profiles_count: new_profiles_by_tab.size })
 
-      # First clear the existing UNSORTED tab content
+      # Step 1: Clear the sheet completely
       clear_result = clear_sheet('UNSORTED')
       return clear_result if clear_result.is_a?(Result) && clear_result.failure?
 
-      # Then write the new organized content
+      # Step 2: Always add headers + any profile data
+      populate_result = populate_unsorted_tab(new_profiles_by_tab)
+      return populate_result if populate_result.is_a?(Result) && populate_result.failure?
+
+      Logger.debug('UNSORTED tab updated successfully')
+      nil # Success
+    rescue StandardError => e
+      Logger.error('Failed to update UNSORTED tab', e)
+      Result.failure(["Failed to update UNSORTED tab: #{e.message}"])
+    end
+
+    def populate_unsorted_tab(new_profiles_by_tab)
+      # Always build headers, then add profile sections if any exist
       unsorted_data = build_unsorted_tab_data(new_profiles_by_tab)
       write_result = write_sheet_rows('UNSORTED', unsorted_data[:rows])
       return write_result if write_result.is_a?(Result) && write_result.failure?
@@ -129,30 +136,11 @@ module Auditions
       format_result = format_unsorted_tab(unsorted_data[:formatting])
       return format_result if format_result.is_a?(Result) && format_result.failure?
 
-      Logger.debug('UNSORTED tab updated successfully', { total_rows: unsorted_data[:rows].size })
+      Logger.debug('UNSORTED tab populated successfully', { total_rows: unsorted_data[:rows].size })
       nil # Success
     rescue StandardError => e
-      Logger.error('Failed to update UNSORTED tab', e)
-      Result.failure(["Failed to update UNSORTED tab: #{e.message}"])
-    end
-
-    def clear_unsorted_tab
-      Logger.debug('Clearing UNSORTED tab')
-
-      # Create empty unsorted tab with just the header
-      unsorted_data = build_unsorted_tab_data([])
-      write_result = write_sheet_rows('UNSORTED', unsorted_data[:rows])
-      return write_result if write_result.is_a?(Result) && write_result.failure?
-
-      # Apply formatting to the cleared tab
-      format_result = format_unsorted_tab(unsorted_data[:formatting])
-      return format_result if format_result.is_a?(Result) && format_result.failure?
-
-      Logger.debug('UNSORTED tab cleared successfully')
-      nil # Success
-    rescue StandardError => e
-      Logger.error('Failed to clear UNSORTED tab', e)
-      Result.failure(["Failed to clear UNSORTED tab: #{e.message}"])
+      Logger.error('Failed to populate UNSORTED tab', e)
+      Result.failure(["Failed to populate UNSORTED tab: #{e.message}"])
     end
 
     def clear_sheet(tab_name)
@@ -192,7 +180,7 @@ module Auditions
 
         # Add profiles for this tab
         profiles_for_tab.each do |item|
-          row = profile_to_row_for_unsorted(item[:profile], item[:tab])
+          row = RecruitmentRowBuilder.build_row_for_unsorted(item[:profile], item[:tab])
           rows << row
         end
 
@@ -245,30 +233,6 @@ module Auditions
       Result.failure(["Failed to write recruitment sheet #{tab_name}: #{e.message}"])
     end
 
-    def update_existing_rows(rows, profiles)
-      rows.each do |row|
-        next unless person_row?(row)
-
-        profile = find_matching_profile(row, profiles)
-        next unless profile
-
-        mark_packet_downloaded(row, profile) if profile.packet
-        mark_registered(row) if profile.registration
-      end
-    end
-
-    def update_existing_rows_for_tab(tab_name, rows, profiles)
-      rows.each do |row|
-        next unless person_row?(row)
-
-        profile = find_matching_profile(row, profiles)
-        next unless profile
-
-        mark_packet_downloaded(row, profile, tab_name) if profile.packet
-        mark_registered(row) if profile.registration
-      end
-    end
-
     def find_new_profiles_for_instrument(profiles, existing_rows, instrument)
       profiles.select do |profile|
         profile_has_instrument?(profile, instrument) &&
@@ -284,133 +248,7 @@ module Auditions
     end
 
     def profile_exists_in_rows?(profile, rows)
-      rows.any? { |row| profile_matches_row?(profile, row) }
-    end
-
-    def person_row?(row)
-      row[0] == 'VET' || (row[0].to_s.strip.empty? && row[1].present?)
-    end
-
-    def find_matching_profile(row, profiles)
-      profiles.find { |profile| profile_matches_row?(profile, row) }
-    end
-
-    def profile_matches_row?(profile, row)
-      return false unless row[1] && row[2]
-
-      profile.first_name.to_s.strip.downcase == row[1].to_s.strip.downcase &&
-        profile.last_name.to_s.strip.downcase == row[2].to_s.strip.downcase
-    end
-
-    def mark_packet_downloaded(row, profile, tab_name = nil)
-      row[7] = 'Y'
-
-      notes = row[9] || ''
-
-      # Add instrument info if not already present (only for multi-instrument tabs)
-      unless notes.downcase =~ /marked instrument as/
-        instrument_note = build_instrument_note(profile, tab_name)
-        notes = "#{instrument_note} #{notes}".strip if instrument_note.present?
-      end
-
-      # Add packet info if not already present
-      unless notes.downcase =~ /packet/
-        packet_name = extract_packet_name(profile.packet)
-        notes = "#{packet_name} downloaded. #{notes}".strip
-      end
-
-      row[9] = notes
-    end
-
-    def mark_registered(row)
-      row[6] = 'REGISTERED'
-      row[8] = 'Y'
-    end
-
-    def profile_to_row(profile)
-      row = [
-        '',
-        profile.first_name,
-        profile.last_name,
-        '',
-        build_location_string(profile),
-        profile.email,
-        '',
-        '',
-        '',
-        ''
-      ]
-
-      mark_packet_downloaded(row, profile) if profile.packet
-      mark_registered(row) if profile.registration
-
-      row
-    end
-
-    def profile_to_row_for_unsorted(profile, tab_name)
-      row = [
-        '',
-        profile.first_name,
-        profile.last_name,
-        '',
-        build_location_string(profile),
-        profile.email,
-        '',
-        '',
-        '',
-        ''
-      ]
-
-      # For UNSORTED tab, always include instrument information for multi-instrument tabs
-      mark_packet_downloaded(row, profile, tab_name) if profile.packet
-      mark_registered(row) if profile.registration
-
-      row
-    end
-
-    def extract_packet_name(packet)
-      return 'Packet' unless packet&.type
-
-      packet.type
-            .gsub(/#{Configuration.current_year}\s*/, '')
-            .gsub(/Cap City\s*/i, '')
-            .gsub(/audition\s*/i, '')
-            .strip
-    end
-
-    def build_instrument_note(profile, tab_name)
-      return '' unless tab_name
-
-      # Only add instrument note for multi-instrument tabs
-      instruments = TAB_INSTRUMENT_MAPPING[tab_name] || []
-      return '' unless instruments.size > 1
-
-      # Determine the instrument to use:
-      # 1. If there's a registration, use the instrument from the first registration
-      # 2. Otherwise, use the instrument from the packet (if available)
-      instrument = nil
-
-      if profile.registration&.instrument.present?
-        instrument = profile.registration.instrument
-      elsif profile.packet&.instrument.present?
-        instrument = profile.packet.instrument
-      end
-
-      return '' unless instrument.present?
-
-      " Marked instrument as #{instrument}."
-    end
-
-    def build_location_string(profile)
-      return '' unless profile.packet
-
-      city = profile.packet.city || ''
-      state = profile.packet.state || ''
-
-      return city if state.blank?
-      return state if city.blank?
-
-      "#{city}, #{state}"
+      rows.any? { |row| RecruitmentRowBuilder.profile_matches_row?(profile, row) }
     end
 
     def recruitment_spreadsheet_id

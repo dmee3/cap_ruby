@@ -307,7 +307,7 @@ RSpec.describe Auditions::RecruitmentUpdater do
     end
 
     it 'builds row with correct structure' do
-      row = service.send(:profile_to_row, profile_with_packet)
+      row = Auditions::RecruitmentRowBuilder.build_row_for_unsorted(profile_with_packet, 'SD')
 
       expect(row[0]).to eq('') # Status column
       expect(row[1]).to eq('Test') # First name
@@ -317,7 +317,7 @@ RSpec.describe Auditions::RecruitmentUpdater do
     end
 
     it 'includes location information from packet' do
-      row = service.send(:profile_to_row, profile_with_packet)
+      row = Auditions::RecruitmentRowBuilder.build_row_for_unsorted(profile_with_packet, 'SD')
       expect(row[4]).to include('Columbus') # Location column (city from sample packet data)
     end
   end
@@ -362,7 +362,7 @@ RSpec.describe Auditions::RecruitmentUpdater do
           )
         )
 
-        row = service.send(:profile_to_row_for_unsorted, marimba_profile, 'MALLETS')
+        row = Auditions::RecruitmentRowBuilder.build_row_for_unsorted(marimba_profile, 'MALLETS')
 
         # Should include instrument information in notes for multi-instrument tab
         expect(row[9]).to include('Marked instrument as Marimba')
@@ -383,7 +383,7 @@ RSpec.describe Auditions::RecruitmentUpdater do
           )
         )
 
-        row = service.send(:profile_to_row_for_unsorted, snare_profile, 'SD')
+        row = Auditions::RecruitmentRowBuilder.build_row_for_unsorted(snare_profile, 'SD')
 
         # Should NOT include instrument information for single-instrument tab
         expect(row[9]).not_to include('Marked instrument as')
