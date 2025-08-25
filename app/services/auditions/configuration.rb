@@ -64,6 +64,10 @@ module Auditions
         'Registrations'
       end
 
+      def recruitment_spreadsheet_id
+        @recruitment_spreadsheet_id ||= ENV.fetch('RECRUITMENT_SPREADSHEET_ID', nil)
+      end
+
       # Reset cached data (useful for tests)
       def reset!
         @current_year = nil
@@ -75,6 +79,7 @@ module Auditions
         @registration_type_mapping = nil
         @field_mappings = nil
         @spreadsheet_id = nil
+        @recruitment_spreadsheet_id = nil
       end
 
       private

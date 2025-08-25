@@ -5,11 +5,13 @@ module Auditions
     def initialize(
       data_fetcher: DataFetcher.new,
       profile_builder: ProfileBuilder.new,
-      sheet_writer: SheetWriter.new
+      sheet_writer: SheetWriter.new,
+      recruitment_updater: RecruitmentUpdater.new
     )
       @data_fetcher = data_fetcher
       @profile_builder = profile_builder
       @sheet_writer = sheet_writer
+      @recruitment_updater = recruitment_updater
     end
 
     def call
@@ -20,7 +22,7 @@ module Auditions
 
     private
 
-    attr_reader :data_fetcher, :profile_builder, :sheet_writer
+    attr_reader :data_fetcher, :profile_builder, :sheet_writer, :recruitment_updater
 
     def execute_workflow
       # Step 1: Fetch and validate orders from API
@@ -35,6 +37,15 @@ module Auditions
       sheet_result = sheet_writer.call(profile_result.data[:profiles])
       return sheet_result if sheet_result.failure?
 
+      # Step 4: Update recruitment spreadsheets (optional - only if configured)
+      recruitment_result = nil
+      if Configuration.recruitment_spreadsheet_id
+        recruitment_result = recruitment_updater.call(profile_result.data[:profiles])
+        return recruitment_result if recruitment_result&.failure?
+      else
+        Logger.debug('Skipping recruitment sheet update - no recruitment spreadsheet ID configured')
+      end
+
       # Success! Return comprehensive results
       Logger.info('Auditions workflow completed successfully', {
                     orders_processed: orders_result.data.size,
@@ -48,7 +59,8 @@ module Auditions
                        profiles_count: profile_result.data[:profiles].size,
                        registrations_count: profile_result.data[:registrations].size,
                        packets_count: profile_result.data[:packets].size,
-                       sheets_updated: sheet_result.data
+                       sheets_updated: sheet_result.data,
+                       recruitment_updated: recruitment_result&.success? || false
                      })
     end
   end

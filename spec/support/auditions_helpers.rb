@@ -72,6 +72,8 @@ module AuditionsHelpers
 
     # Mock the spreadsheet ID configuration
     allow(Auditions::Configuration).to receive(:spreadsheet_id).and_return('test-spreadsheet-id')
+    # Mock recruitment spreadsheet as not configured by default (prevents recruitment updater from running)
+    allow(Auditions::Configuration).to receive(:recruitment_spreadsheet_id).and_return(nil)
   end
 
   def with_test_auditions_year(year = '2026')
