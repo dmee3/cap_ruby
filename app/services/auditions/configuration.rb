@@ -52,6 +52,18 @@ module Auditions
         field_mappings['registration']
       end
 
+      def spreadsheet_id
+        @spreadsheet_id ||= ENV.fetch('AUDITIONS_SPREADSHEET_ID', nil)
+      end
+
+      def packets_sheet_name
+        'Packets'
+      end
+
+      def registrations_sheet_name
+        'Registrations'
+      end
+
       # Reset cached data (useful for tests)
       def reset!
         @current_year = nil
@@ -62,6 +74,7 @@ module Auditions
         @packet_type_mapping = nil
         @registration_type_mapping = nil
         @field_mappings = nil
+        @spreadsheet_id = nil
       end
 
       private

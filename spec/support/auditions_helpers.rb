@@ -69,6 +69,9 @@ module AuditionsHelpers
     allow(External::GoogleSheetsApi).to receive(:format_sheet)
     allow(External::GoogleSheetsApi).to receive(:write_sheet)
     allow(External::GoogleSheetsApi).to receive(:read_sheet).and_return([])
+
+    # Mock the spreadsheet ID configuration
+    allow(Auditions::Configuration).to receive(:spreadsheet_id).and_return('test-spreadsheet-id')
   end
 
   def with_test_auditions_year(year = '2026')

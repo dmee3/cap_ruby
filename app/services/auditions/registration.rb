@@ -3,7 +3,7 @@
 module Auditions
   class Registration
     attr_reader :type, :first_name, :last_name, :email, :city, :state, :instrument, :date,
-                :experience, :birthdate
+                :experience, :birthdate, :pronouns, :shoe_size, :shirt_size, :conflicts
 
     # Product names and mappings are now configured in config/auditions/{year}.yml
     # Keep these constants as fallbacks for backwards compatibility

@@ -20,8 +20,6 @@ module Auditions
       new.update(profiles)
     end
 
-    def initialize; end
-
     def update(_profiles)
       true
       # TAB_NAMES.each do |tab_name|

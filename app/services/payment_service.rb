@@ -8,7 +8,7 @@ class PaymentService
     { start: '2022-01-22', end: '2023-02-18' },
     { start: '2022-02-19', end: '2023-03-18' },
     { start: '2022-03-19', end: '2023-10-01' }
-  ]
+  ].freeze
 
   class << self
     def season_payment_details(season_id)
