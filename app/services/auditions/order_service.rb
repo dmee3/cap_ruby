@@ -28,11 +28,11 @@ module Auditions
     private
 
     def packet?(product_name)
-      Packet::PRODUCT_NAMES.include?(product_name)
+      Packet.product_names.include?(product_name)
     end
 
     def registration?(product_name)
-      Registration::PRODUCT_NAMES.include?(product_name)
+      Registration.product_names.include?(product_name)
     end
 
     def add_packet(item, date, email)

@@ -1,0 +1,37 @@
+# Auditions Configuration for 2026
+# This file contains all year-specific configuration for the auditions processing system
+
+date_range:
+  start: "2025-08-14T12:00:00Z"
+  end: "2025-11-01T12:30:00Z"
+
+products:
+  packets:
+    "Cap City 2026 Battery Audition Packet": "Battery Packet"
+    "Cap City 2026 Cymbal Audition Packet": "Cymbal Packet"
+    "Cap City 2026 Front Ensemble Audition Packet": "Front Ensemble Packet"
+    "Cap City 2026 Visual Ensemble Audition Packet": "Visual Ensemble Packet"
+
+  registrations:
+    "CC26 Music Ensemble Audition Registration": "Music Registration"
+    "CC26 Visual Ensemble Audition Registration": "Visual Registration"
+
+field_mappings:
+  packet:
+    name_field: "Name"
+    city_field: "City"
+    state_field: "State"
+    instrument_field: "Instrument"
+
+  registration:
+    first_name_field: "First Name"
+    last_name_field: "Last Name"
+    city_field: "City"
+    state_field: "State"
+    pronouns_field: "Preferred Pronouns"
+    shoe_size_field: "Shoe Size"
+    shirt_size_field: "Shirt Size"
+    instrument_field: "Primary Instrument"
+    birthdate_field: "Birthdate"
+    experience_field: "Experience"
+    conflicts_field: "Known Conflicts"
