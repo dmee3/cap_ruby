@@ -9,7 +9,7 @@ class CalendarMailer < ApplicationMailer
     mail(
       to: @user.email,
       subject: 'Calendar donation received!',
-      bcc: ENV['EMAIL_DAN']
+      bcc: ENV.fetch('EMAIL_DAN', nil)
     )
   end
 
@@ -17,7 +17,7 @@ class CalendarMailer < ApplicationMailer
     @user_name = params[:user_name]
 
     mail(
-      to: [ENV['EMAIL_DAN'], ENV['EMAIL_AARON']],
+      to: [ENV.fetch('EMAIL_DAN', nil), ENV.fetch('EMAIL_AARON', nil)],
       subject: "Calendar downloaded - #{@user_name}"
     )
   end

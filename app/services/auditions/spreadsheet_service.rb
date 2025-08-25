@@ -2,64 +2,38 @@
 
 module Auditions
   class SpreadsheetService
+    def initialize(orchestrator: Orchestrator.new)
+      @orchestrator = orchestrator
+    end
+
     class << self
       def update
-        registrations, packets = OrderService.fetch_items
-        PacketAndRegistrationWriterService.write_data(packets, registrations)
-
-        profiles = create_profiles_from_registrations_and_packets(registrations, packets)
-        RecruitmentSheetUpdaterService.update(profiles)
+        new.update
       end
+    end
 
-      private
+    def update
+      Logger.step('Auditions spreadsheet update') do
+        # Delegate to the new orchestrated architecture
+        result = @orchestrator.call
+        return result if result.failure?
 
-      def profile_from_registration(reg)
-        profile = Auditions::Profile.new(
-          first_name: reg.first_name,
-          last_name: reg.last_name,
-          email: reg.email,
-          city: reg.city,
-          state: reg.state,
-          instrument: reg.instrument
-        )
-        profile.add_registration(reg.type, reg.date)
-        profile
+        # Transform result to maintain backward compatibility
+        Logger.info('Spreadsheet update completed successfully', {
+                      profiles_count: result.data[:profiles_count],
+                      registrations_count: result.data[:registrations_count],
+                      packets_count: result.data[:packets_count]
+                    })
+
+        Result.success({
+                         registrations_processed: result.data[:registrations_count],
+                         packets_processed: result.data[:packets_count],
+                         profiles_created: result.data[:profiles_count]
+                       })
       end
-
-      def profile_from_packet(packet)
-        Auditions::Profile.new(
-          first_name: packet.first_name,
-          last_name: packet.last_name,
-          email: packet.email,
-          city: packet.city,
-          state: packet.state,
-          instrument: packet.instrument
-        )
-      end
-
-      def find_existing_profile(packet, profiles)
-        email = packet.email.strip
-        profiles.find do |pro|
-          packet.first_name.strip&.casecmp(pro.first_name.strip) == 0 &&
-          packet.last_name.strip&.casecmp(pro.last_name.strip) == 0 &&
-              email&.casecmp(pro.email) == 0
-        end
-      end
-
-      def create_profiles_from_registrations_and_packets(registrations, packets)
-        registrations.map { |reg| profile_from_registration(reg) }.tap do |profiles|
-          packets.each do |packet|
-            existing_profile = find_existing_profile(packet, profiles)
-
-            if existing_profile.blank?
-              existing_profile = profile_from_packet(packet)
-              profiles << existing_profile
-            end
-
-            existing_profile.add_packet(packet.type, packet.date)
-          end
-        end
-      end
+    rescue StandardError => e
+      Logger.error('Unexpected error in spreadsheet update', e)
+      Result.failure(["Unexpected error during spreadsheet update: #{e.message}"])
     end
   end
 end

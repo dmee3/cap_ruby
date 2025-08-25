@@ -3,8 +3,10 @@
 module Auditions
   class Registration
     attr_reader :type, :first_name, :last_name, :email, :city, :state, :instrument, :date,
-                :experience, :birthdate
+                :experience, :birthdate, :pronouns, :shoe_size, :shirt_size, :conflicts
 
+    # Product names and mappings are now configured in config/auditions/{year}.yml
+    # Keep these constants as fallbacks for backwards compatibility
     PRODUCT_NAMES = [
       'CC26 Music Ensemble Audition Registration',
       'CC26 Visual Ensemble Audition Registration'
@@ -29,6 +31,20 @@ module Auditions
       'Known Conflicts' => :conflicts
     }.freeze
 
+    def self.product_names
+      Configuration.registration_product_names
+    rescue StandardError => e
+      Rails.logger.warn("[AUDITIONS] Failed to load registration product names from config, using fallback: #{e.message}")
+      PRODUCT_NAMES
+    end
+
+    def self.type_mapping
+      Configuration.registration_type_mapping
+    rescue StandardError => e
+      Rails.logger.warn("[AUDITIONS] Failed to load registration type mapping from config, using fallback: #{e.message}")
+      TYPE_MAP
+    end
+
     class << self
       def header_row
         ['First Name', 'Last Name', 'Email', 'City', 'State', 'Pronouns', 'Shoe', 'Shirt',
@@ -38,7 +54,7 @@ module Auditions
 
     # rubocop:disable Metrics/AbcSize
     def initialize(date:, item:, email:)
-      @type = TYPE_MAP[item['productName']]
+      @type = self.class.type_mapping[item['productName']]
       @date = date - 4.hours
       @email = email
 
@@ -65,24 +81,96 @@ module Auditions
     private
 
     def parse_custom_fields(custom_fields)
-      @first_name = custom_fields.find { |field| field['label'] == 'First Name' }['value']
-      @last_name = custom_fields.find { |field| field['label'] == 'Last Name' }['value']
+      field_mappings = Configuration.registration_field_mappings
 
-      @city = custom_fields.find { |field| field['label'] == 'City' }['value'].titleize
-      state = custom_fields.find { |field| field['label'] == 'State' }
-      if state.length == 2
-        @state = state['value']
-      else
-        @state = StateConverterService.abbreviation(state['value'])
+      # Validate that we have the required fields
+      required_fields = [
+        field_mappings['first_name_field'], field_mappings['last_name_field'],
+        field_mappings['city_field'], field_mappings['state_field'],
+        field_mappings['instrument_field']
+      ]
+
+      validation_result = DataValidator.validate_custom_fields(
+        custom_fields, required_fields, 'Registration custom fields'
+      )
+
+      unless validation_result.success?
+        Logger.warn('Registration validation failed, attempting fallback', {
+                      errors: validation_result.errors,
+                      email: @email
+                    })
+        parse_custom_fields_fallback(custom_fields)
+        return
       end
 
-      @pronouns = custom_fields.find { |field| field['label'] == 'Preferred Pronouns' }['value']
-      @shoe_size = custom_fields.find { |field| field['label'] == 'Shoe Size' }['value']
-      @shirt_size = custom_fields.find { |field| field['label'] == 'Shirt Size' }['value']
-      @instrument = custom_fields.find { |field| field['label'] == 'Primary Instrument' }['value']
-      @birthdate = custom_fields.find { |field| field['label'] == 'Birthdate' }['value']
-      @experience = custom_fields.find { |field| field['label'] == 'Experience' }['value']
-      @conflicts = custom_fields.find { |field| field['label'] == 'Known Conflicts' }['value']
+      # Parse required fields
+      @first_name = find_field_value(custom_fields, field_mappings['first_name_field']).to_s.strip
+      @last_name = find_field_value(custom_fields, field_mappings['last_name_field']).to_s.strip
+      @city = find_field_value(custom_fields, field_mappings['city_field']).to_s.titleize
+
+      state_value = find_field_value(custom_fields, field_mappings['state_field'])
+      parse_state_field(state_value)
+
+      @instrument = find_field_value(custom_fields, field_mappings['instrument_field']).to_s.strip
+
+      # Parse optional fields (these may be missing without causing failure)
+      @pronouns = find_field_value(custom_fields, field_mappings['pronouns_field']).to_s.strip
+      @shoe_size = find_field_value(custom_fields, field_mappings['shoe_size_field']).to_s.strip
+      @shirt_size = find_field_value(custom_fields, field_mappings['shirt_size_field']).to_s.strip
+      @birthdate = find_field_value(custom_fields, field_mappings['birthdate_field']).to_s.strip
+      @experience = find_field_value(custom_fields, field_mappings['experience_field']).to_s.strip
+      @conflicts = find_field_value(custom_fields, field_mappings['conflicts_field']).to_s.strip
+    rescue StandardError => e
+      Logger.error('Failed to parse registration custom fields', e, {
+                     product_name: @type,
+                     email: @email
+                   })
+      # Fall back to hard-coded field names
+      parse_custom_fields_fallback(custom_fields)
+    end
+
+    def find_field_value(custom_fields, field_name)
+      return '' unless custom_fields.is_a?(Array)
+
+      field = custom_fields.find { |f| f.is_a?(Hash) && f['label'] == field_name }
+      field&.dig('value') || ''
+    end
+
+    def parse_state_field(state_value)
+      return @state = '' unless state_value.present?
+
+      state_str = state_value.to_s.strip
+      if state_str.length == 2
+        @state = state_str.upcase
+      else
+        @state = StateConverterService.abbreviation(state_str)
+      end
+    rescue StandardError => e
+      Logger.warn('Failed to parse state field', {
+                    state_value: state_value,
+                    email: @email,
+                    error: e.message
+                  })
+      @state = state_str
+    end
+
+    def parse_custom_fields_fallback(custom_fields)
+      Logger.info('Using fallback parsing for registration custom fields', { email: @email })
+
+      @first_name = find_field_value(custom_fields, 'First Name')
+      @last_name = find_field_value(custom_fields, 'Last Name')
+      @city = find_field_value(custom_fields, 'City').titleize
+
+      state_value = find_field_value(custom_fields, 'State')
+      parse_state_field(state_value)
+
+      @pronouns = find_field_value(custom_fields, 'Preferred Pronouns')
+      @shoe_size = find_field_value(custom_fields, 'Shoe Size')
+      @shirt_size = find_field_value(custom_fields, 'Shirt Size')
+      @instrument = find_field_value(custom_fields, 'Primary Instrument')
+      @birthdate = find_field_value(custom_fields, 'Birthdate')
+      @experience = find_field_value(custom_fields, 'Experience')
+      @conflicts = find_field_value(custom_fields, 'Known Conflicts')
     end
     # rubocop:enable Metrics/AbcSize
   end

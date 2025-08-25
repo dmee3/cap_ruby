@@ -39,7 +39,8 @@ module Api
 
       def create_default
         @schedule = PaymentSchedule.find params[:payment_schedule_id]
-        default_schedule = PaymentScheduleService.default_schedule_for(@schedule.user, current_season)
+        default_schedule = PaymentScheduleService.default_schedule_for(@schedule.user,
+                                                                       current_season)
         @schedule.entries.destroy_all
         default_schedule.each do |day, amount|
           @schedule.entries.create(pay_date: Date.strptime(day, '%m/%d/%y'), amount: amount * 100)

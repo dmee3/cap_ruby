@@ -35,7 +35,9 @@ module Api
 
       def behind_members
         s_id = current_season['id']
-        behind_members = User.members_for_season(current_season['id']).with_payments.to_a.reject { |m| m.dues_status_okay?(s_id) }
+        behind_members = User.members_for_season(current_season['id']).with_payments.to_a.reject do |m|
+          m.dues_status_okay?(s_id)
+        end
         behind_members.map do |m|
           {
             id: m.id,

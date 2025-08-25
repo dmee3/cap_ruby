@@ -68,7 +68,7 @@ class PaymentScheduleService
               '12/17/22' => 200,
               '1/14/23' => 200,
               '2/18/23' => 200,
-              '3/18/23' => 100,
+              '3/18/23' => 100
             },
             'Rookie' => {
               '10/23/22' => 300,
@@ -76,7 +76,7 @@ class PaymentScheduleService
               '12/17/22' => 200,
               '1/14/23' => 200,
               '2/18/23' => 200,
-              '3/18/23' => 200,
+              '3/18/23' => 200
             }
           }
         }
@@ -252,7 +252,13 @@ class PaymentScheduleService
       role = all_roles.select { |su| su.season_id == season['id'] }.first
       return nil unless role.present?
 
-      vet_status = all_roles.any? { |su| su.season.year.to_i < role.season.year.to_i } ? 'Vet' : 'Rookie'
+      vet_status = if all_roles.any? do |su|
+        su.season.year.to_i < role.season.year.to_i
+      end
+                     'Vet'
+                   else
+                     'Rookie'
+                   end
       section = role.section == 'Visual' ? 'Visual' : 'Music'
 
       DEFAULT_PAYMENT_SCHEDULES.dig(role.season.year, role.ensemble, section, vet_status)

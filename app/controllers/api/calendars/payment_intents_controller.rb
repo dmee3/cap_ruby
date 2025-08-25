@@ -13,7 +13,7 @@ module Api
           payment_method_types: ['card'],
           metadata: {
             charge_type: 'calendar',
-            dates: params[:dates].map(&:to_s).join(","),
+            dates: params[:dates].map(&:to_s).join(','),
             donor_name: params[:donor_name],
             member_id: params[:member_id]
           }
