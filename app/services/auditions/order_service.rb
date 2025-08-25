@@ -12,20 +12,89 @@ module Auditions
     end
 
     def fetch_items
-      External::SquarespaceApi.orders.each do |order|
-        date = DateTime.parse(order['createdOn'])
-        order['lineItems'].map do |item|
-          if registration?(item['productName'])
-            add_registration(item, date, order['customerEmail'])
-          elsif packet?(item['productName'])
-            add_packet(item, date, order['customerEmail'])
-          end
-        end
+      Logger.info('Starting order fetch')
+
+      # Fetch orders from API
+      orders = fetch_orders_with_error_handling
+      return orders if orders.failure?
+
+      # Validate the orders data
+      validation_result = DataValidator.validate_orders(orders.data)
+      return validation_result if validation_result.failure?
+
+      # Process each order
+      orders.data.each.with_index do |order, index|
+        process_order(order, index + 1)
       end
-      [@registrations, @packets]
+
+      Logger.info('Order processing completed', {
+                    registrations: @registrations.size,
+                    packets: @packets.size
+                  })
+
+      Result.success({ registrations: @registrations, packets: @packets })
+    rescue StandardError => e
+      Logger.error('Unexpected error during order fetch', e)
+      Result.failure(["Unexpected error: #{e.message}"])
     end
 
     private
+
+    def fetch_orders_with_error_handling
+      Logger.debug('Fetching orders from Squarespace API')
+      orders = External::SquarespaceApi.orders
+      Result.success(orders)
+    rescue External::ApiErrors::TooManyRequests => e
+      Logger.error('Rate limited by Squarespace API', e)
+      Result.failure(['Rate limited by Squarespace API. Please try again later.'])
+    rescue Faraday::TimeoutError => e
+      Logger.error('Timeout connecting to Squarespace API', e)
+      Result.failure(['Connection timeout to Squarespace API'])
+    rescue Faraday::ConnectionFailed => e
+      Logger.error('Failed to connect to Squarespace API', e)
+      Result.failure(['Failed to connect to Squarespace API.'])
+    rescue JSON::ParserError => e
+      Logger.error('Invalid JSON response from Squarespace API', e)
+      Result.failure(['Received invalid response from Squarespace API. The service may be experiencing issues.'])
+    rescue StandardError => e
+      Logger.error('Unexpected error fetching orders', e)
+      Result.failure(["Unexpected error connecting to Squarespace API: #{e.message}"])
+    end
+
+    def process_order(order, order_number)
+      Logger.debug('Processing order',
+                   { order_number: order_number, email: order['customerEmail'] })
+
+      begin
+        date = DateTime.parse(order['createdOn'])
+        order['lineItems'].each.with_index do |item, item_index|
+          process_line_item(item, date, order['customerEmail'], order_number, item_index + 1)
+        end
+      rescue ArgumentError => e
+        Logger.warn('Invalid date format in order', {
+                      order_number: order_number,
+                      date: order['createdOn'],
+                      error: e.message
+                    })
+        # Skip this order but continue processing others
+      end
+    end
+
+    def process_line_item(item, date, email, order_number, item_number)
+      product_name = item['productName']
+
+      if registration?(product_name)
+        add_registration(item, date, email, order_number, item_number)
+      elsif packet?(product_name)
+        add_packet(item, date, email, order_number, item_number)
+      else
+        Logger.debug('Skipping unknown product', {
+                       order_number: order_number,
+                       item_number: item_number,
+                       product_name: product_name
+                     })
+      end
+    end
 
     def packet?(product_name)
       Packet.product_names.include?(product_name)
@@ -35,12 +104,40 @@ module Auditions
       Registration.product_names.include?(product_name)
     end
 
-    def add_packet(item, date, email)
+    def add_packet(item, date, email, order_number = nil, item_number = nil)
       @packets << Packet.new(date: date, item: item, email: email)
+      Logger.debug('Added packet', {
+                     order_number: order_number,
+                     item_number: item_number,
+                     product_name: item['productName'],
+                     email: email
+                   })
+    rescue StandardError => e
+      Logger.error('Failed to create packet', e, {
+                     order_number: order_number,
+                     item_number: item_number,
+                     product_name: item['productName'],
+                     email: email
+                   })
+      # Continue processing other items
     end
 
-    def add_registration(item, date, email)
+    def add_registration(item, date, email, order_number = nil, item_number = nil)
       @registrations << Registration.new(date: date, item: item, email: email)
+      Logger.debug('Added registration', {
+                     order_number: order_number,
+                     item_number: item_number,
+                     product_name: item['productName'],
+                     email: email
+                   })
+    rescue StandardError => e
+      Logger.error('Failed to create registration', e, {
+                     order_number: order_number,
+                     item_number: item_number,
+                     product_name: item['productName'],
+                     email: email
+                   })
+      # Continue processing other items
     end
   end
 end

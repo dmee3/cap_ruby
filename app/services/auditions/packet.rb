@@ -16,7 +16,7 @@ module Auditions
 
     def self.product_names
       Configuration.packet_product_names
-    rescue => e
+    rescue StandardError => e
       Rails.logger.warn("[AUDITIONS] Failed to load packet product names from config, using fallback: #{e.message}")
       PRODUCT_NAMES
     end
@@ -43,39 +43,93 @@ module Auditions
 
     def parse_custom_fields(custom_fields)
       field_mappings = Configuration.packet_field_mappings
-      
-      name = custom_fields.find { |field| field['label'] == field_mappings['name_field'] }
-      @first_name = name['value'].split[0]
-      @last_name = name['value'].split[1..].join(' ')
-      
-      @city = custom_fields.find { |field| field['label'] == field_mappings['city_field'] }['value'].titleize
-      
-      state = custom_fields.find { |field| field['label'] == field_mappings['state_field'] }
-      if state.length == 2
-        @state = state['value']
-      else
-        @state = StateConverterService.abbreviation(state['value'])
+
+      # Validate that we have the required fields
+      validation_result = DataValidator.validate_custom_fields(
+        custom_fields,
+        [field_mappings['name_field'], field_mappings['city_field'],
+         field_mappings['state_field'], field_mappings['instrument_field']],
+        'Packet custom fields'
+      )
+
+      unless validation_result.success?
+        Logger.warn('Packet validation failed, attempting fallback',
+                    { errors: validation_result.errors })
+        parse_custom_fields_fallback(custom_fields)
+        return
       end
-      
-      @instrument = custom_fields.find { |field| field['label'] == field_mappings['instrument_field'] }['value']
-    rescue => e
-      Rails.logger.error("[AUDITIONS] Failed to parse packet custom fields: #{e.message}")
+
+      name_field = custom_fields.find { |field| field['label'] == field_mappings['name_field'] }
+      parse_name_field(name_field['value'])
+
+      city_field = custom_fields.find { |field| field['label'] == field_mappings['city_field'] }
+      @city = city_field['value'].to_s.titleize
+
+      state_field = custom_fields.find { |field| field['label'] == field_mappings['state_field'] }
+      parse_state_field(state_field['value'])
+
+      instrument_field = custom_fields.find do |field|
+        field['label'] == field_mappings['instrument_field']
+      end
+      @instrument = instrument_field['value'].to_s.strip
+    rescue StandardError => e
+      Logger.error('Failed to parse packet custom fields', e, {
+                     product_name: @type,
+                     email: @email
+                   })
       # Fall back to hard-coded field names
       parse_custom_fields_fallback(custom_fields)
     end
 
-    def parse_custom_fields_fallback(custom_fields)
-      name = custom_fields.find { |field| field['label'] == 'Name' }
-      @first_name = name['value'].split[0]
-      @last_name = name['value'].split[1..].join(' ')
-      @city = custom_fields.find { |field| field['label'] == 'City' }['value'].titleize
-      state = custom_fields.find { |field| field['label'] == 'State' }
-      if state.length == 2
-        @state = state['value']
+    def parse_name_field(name_value)
+      return unless name_value.present?
+
+      name_parts = name_value.to_s.strip.split
+      @first_name = name_parts[0] || ''
+      @last_name = name_parts[1..].join(' ')
+    end
+
+    def parse_state_field(state_value)
+      return unless state_value.present?
+
+      state_str = state_value.to_s.strip
+      if state_str.length == 2
+        @state = state_str.upcase
       else
-        @state = StateConverterService.abbreviation(state['value'])
+        @state = StateConverterService.abbreviation(state_str)
       end
-      @instrument = custom_fields.find { |field| field['label'] == 'Instrument' }['value']
+    rescue StandardError => e
+      Logger.warn('Failed to parse state field', e, {
+                    state_value: state_value,
+                    email: @email
+                  })
+      @state = state_str
+    end
+
+    def parse_custom_fields_fallback(custom_fields)
+      Logger.info('Using fallback parsing for packet custom fields', { email: @email })
+
+      name = custom_fields.find { |field| field['label'] == 'Name' }
+      if name&.dig('value').present?
+        parse_name_field(name['value'])
+      else
+        Logger.warn('Missing name field in packet', { email: @email })
+        @first_name = ''
+        @last_name = ''
+      end
+
+      city = custom_fields.find { |field| field['label'] == 'City' }
+      @city = city&.dig('value')&.to_s&.titleize || ''
+
+      state = custom_fields.find { |field| field['label'] == 'State' }
+      if state&.dig('value').present?
+        parse_state_field(state['value'])
+      else
+        @state = ''
+      end
+
+      instrument = custom_fields.find { |field| field['label'] == 'Instrument' }
+      @instrument = instrument&.dig('value')&.to_s&.strip || ''
     end
   end
 end
