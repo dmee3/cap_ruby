@@ -105,9 +105,10 @@ module External
     attr_reader :service
 
     def sheets(sheet_id)
-      return @sheets if @sheets
+      @sheets_cache ||= {}
+      return @sheets_cache[sheet_id] if @sheets_cache[sheet_id]
 
-      @sheets = service.get_spreadsheet(sheet_id).sheets
+      @sheets_cache[sheet_id] = service.get_spreadsheet(sheet_id).sheets
     end
 
     def tab_name_to_id(sheet_id, name)

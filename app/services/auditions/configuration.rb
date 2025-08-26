@@ -40,6 +40,10 @@ module Auditions
         @registration_type_mapping ||= config_data['products']['registrations']
       end
 
+      def packet_type_display_names
+        @packet_type_display_names ||= packet_type_mapping
+      end
+
       def field_mappings
         @field_mappings ||= config_data['field_mappings']
       end
@@ -77,6 +81,7 @@ module Auditions
         @registration_product_names = nil
         @packet_type_mapping = nil
         @registration_type_mapping = nil
+        @packet_type_display_names = nil
         @field_mappings = nil
         @spreadsheet_id = nil
         @recruitment_spreadsheet_id = nil

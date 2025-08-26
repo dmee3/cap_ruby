@@ -48,8 +48,8 @@ RSpec.describe Auditions::PacketsAndRegistrationsWriter do
       result = service.call(profiles)
 
       expect(result).to be_success
-      expect(result.data[:packets_count]).to eq(2) # Header + 1 packet
-      expect(result.data[:registrations_count]).to eq(2) # Header + 1 registration
+      expect(result.data[:packets_count]).to eq(3) # Section header + Column header + 1 packet
+      expect(result.data[:registrations_count]).to eq(3) # Section header + Column header + 1 registration
     end
 
     it 'handles write errors gracefully' do
@@ -63,7 +63,7 @@ RSpec.describe Auditions::PacketsAndRegistrationsWriter do
     it 'calls clear and write for both sheets' do
       expect(External::GoogleSheetsApi).to receive(:clear_sheet).twice
       expect(External::GoogleSheetsApi).to receive(:write_sheet).twice
-      # NOTE: format_sheet is skipped in the simplified architecture
+      expect(External::GoogleSheetsApi).to receive(:format_sheet).twice
 
       service.call(profiles)
     end
