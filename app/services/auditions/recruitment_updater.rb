@@ -12,7 +12,7 @@ module Auditions
       'ELECTRO' => ['Synthesizer', 'Bass Guitar'],
       'SD' => ['Snare'],
       'TN' => ['Tenors'],
-      'BD' => ['Bass'],
+      'BD' => ['Bass Drum'],
       'CYM' => ['Cymbals'],
       'VE' => ['Visual Ensemble']
     }.freeze
