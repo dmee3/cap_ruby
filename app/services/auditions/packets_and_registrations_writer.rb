@@ -152,8 +152,8 @@ module Auditions
           instrument_rows << current_row
           current_row += 1
 
-          # Add packet data rows
-          packets_for_instrument.each do |packet|
+          # Add packet data rows (sorted by date)
+          packets_for_instrument.sort_by(&:date).each do |packet|
             data_rows << packet.to_row
             current_row += 1
           end
@@ -209,8 +209,8 @@ module Auditions
           instrument_rows << current_row
           current_row += 1
 
-          # Add registration data rows
-          registrations_for_instrument.each do |registration|
+          # Add registration data rows (sorted by date)
+          registrations_for_instrument.sort_by(&:date).each do |registration|
             data_rows << registration.to_row
             current_row += 1
           end
