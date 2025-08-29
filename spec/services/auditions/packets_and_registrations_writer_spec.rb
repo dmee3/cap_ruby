@@ -48,8 +48,10 @@ RSpec.describe Auditions::PacketsAndRegistrationsWriter do
       result = service.call(profiles)
 
       expect(result).to be_success
-      expect(result.data[:packets_count]).to eq(3) # Section header + Column header + 1 packet
-      expect(result.data[:registrations_count]).to eq(3) # Section header + Column header + 1 registration
+      # Section header + Column header + Instrument header + 1 packet
+      expect(result.data[:packets_count]).to eq(4)
+      # Section header + Column header + Instrument header + 1 registration
+      expect(result.data[:registrations_count]).to eq(4)
     end
 
     it 'handles write errors gracefully' do
