@@ -43,7 +43,7 @@ class HomeController < ApplicationController
     )
 
     if current_user.seasons_users.any?
-      set_season_cookie(current_user.seasons.last.to_json)
+      set_season_cookie(current_user.seasons.last.id)
     else
       sign_out current_user
     end
