@@ -30,7 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const seasonTrigger = document.getElementById('season-dropdown-trigger')
   if (seasonTrigger) {
     const seasonDropdown = document.getElementById('season-dropdown-menu')
-    seasonTrigger.addEventListener('click', () => { seasonDropdown.classList.remove('hidden') })
+    seasonTrigger.addEventListener('click', () => {
+      seasonDropdown.classList.toggle('hidden')
+    })
     document.addEventListener('click', (e) => {
       if (!seasonTrigger.contains(e.target)) {
         seasonDropdown.classList.add('hidden')

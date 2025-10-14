@@ -17,15 +17,44 @@
         <!-- logo -->
         <span class="flex items-center space-x-2 p-4">
           <img src="<%= vite_asset_path 'images/cc_white_brand.png' %>" />
-          <span class="text-xl">Cap City</span>
         </span>
 
-        <!-- mobile menu button -->
-        <button id="mobile-menu-btn" class="p-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+      <div class="flex flex-row items-center space-x-4">
+        <!-- mobile season change -->
+          <div id="mobile-season-dropdown-trigger" class="relative">
+            <div class="dropdown">
+              <span class="flex items-center">
+                <%= current_season ? current_season['year'] : '???' %>
+              </span>
+              <span class="ml-6 flex items-center">
+                <!-- Heroicon name: solid/selector -->
+                <svg class="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </span>
+            </div>
+            <div id="mobile-season-dropdown-menu" class="hidden dropdown-menu w-full" aria-labelledby="season-dropdown-trigger">
+              <% current_user.seasons.order(:year).reverse.each.with_index do |s, i| %>
+                <% if i == 0 %>
+                  <span class="text-gray-500 text-sm font-medium">CURRENT</span>
+                <% elsif i == 1 %>
+                  <span class="text-gray-500 text-sm font-medium">PAST</span>
+                <% end %>
+                <%= form_with url: change_season_path, id: 'season-form', class: 'dropdown-menu-form-background' do |f| %>
+                  <%= hidden_field_tag :season_id, s.id, { id: "season_id_#{s.id}" } %>
+                  <%= submit_tag "#{s.year}", class: 'dropdown-menu-form-item' %>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- mobile menu button -->
+          <button id="mobile-menu-btn" class="p-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <!-- sidebar -->
