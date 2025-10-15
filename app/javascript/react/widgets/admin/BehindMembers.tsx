@@ -57,7 +57,7 @@ const BehindMembers = ({
           {members.length === 0 &&
             <span className="text-green-500">{members.length}</span>
           }
-          {members.length < 5 &&
+          {members.length < 5 && members.length > 0 &&
             <span className="text-yellow-500">{members.length}</span>
           }
           {members.length >= 5 &&
