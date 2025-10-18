@@ -108,6 +108,7 @@ Rails.application.routes.draw do
 
   get 'rhythm-converter', to: 'tools#rhythm_converter'
   get 'tarp-canvas', to: 'tools#tarp_canvas'
+  get 'tarp-canvas-2026', to: 'tools#tarp_canvas_2026'
 
   resources :calendars, only: %i[index new create]
   get '/calendars/members', to: 'calendars#members'
