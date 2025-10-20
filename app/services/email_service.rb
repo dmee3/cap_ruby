@@ -31,7 +31,7 @@ class EmailService
       Rollbar.error(e, user: user)
     end
 
-    def send_whistleblower_email(email, report)
+    def send_whistleblower_email(email, report, recipients)
       email = '(Anonymous)' unless email.present?
       subject = 'Whistleblower Report'
       text = <<~TEXT
@@ -40,11 +40,7 @@ class EmailService
         Report:\n\n#{report}
       TEXT
 
-      emails = [
-        ENV.fetch('EMAIL_AARON', nil),
-        ENV.fetch('EMAIL_DONNIE', nil),
-        ENV.fetch('EMAIL_DAN', nil)
-      ].compact
+      emails = recipients.map { |name| ENV.fetch("EMAIL_#{name.upcase}", nil) }.compact
       PostOffice.send_email(emails, subject, text)
     end
   end
