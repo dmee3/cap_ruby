@@ -20,7 +20,7 @@ jobs:
       with:
         ruby-version: 3.1.2
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-        rubygems-version: latest
+        rubygems: latest
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -47,7 +47,7 @@ jobs:
       with:
         ruby-version: 3.1.2
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-        rubygems-version: latest
+        rubygems: latest
 
     - name: Run RuboCop
       run: bundle exec rubocop
@@ -65,7 +65,7 @@ jobs:
       with:
         ruby-version: 3.1.2
         bundler-cache: true
-        rubygems-version: latest
+        rubygems: latest
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
