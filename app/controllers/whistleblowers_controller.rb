@@ -6,7 +6,14 @@ class WhistleblowersController < ApplicationController
   def index; end
 
   def create
-    EmailService.send_whistleblower_email(params[:email], params[:report])
+    # Validate that at least 3 recipients are selected
+    if params[:recipients].nil? || params[:recipients].length < 3
+      flash.now[:error] = 'Please select at least 3 administrators to notify.'
+      render(:index)
+      return
+    end
+
+    EmailService.send_whistleblower_email(params[:email], params[:report], params[:recipients])
     flash[:success] =
       'Report submitted. If you provided contact information, expect a response within a week.'
     redirect_to(root_path)
