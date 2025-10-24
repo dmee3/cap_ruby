@@ -109,10 +109,16 @@ RSpec.describe Auditions::SpreadsheetService do
           end
 
           expect(logs).to have_received(:info).with(match(/Starting Auditions spreadsheet update/))
-          expect(logs).to have_received(:info).with(match(/Starting Execute auditions data processing workflow/))
-          expect(logs).to have_received(:info).with(match(/Orders fetched and validated successfully/))
+          expect(logs).to have_received(:info).with(
+            match(/Starting Execute auditions data processing workflow/)
+          )
+          expect(logs).to have_received(:info).with(
+            match(/Orders fetched and validated successfully/)
+          )
           expect(logs).to have_received(:info).with(match(/Profiles built successfully/))
-          expect(logs).to have_received(:info).with(match(/Spreadsheet update completed successfully/)).at_least(:once)
+          expect(logs).to have_received(:info).with(
+            match(/Spreadsheet update completed successfully/)
+          ).at_least(:once)
         end
       end
 

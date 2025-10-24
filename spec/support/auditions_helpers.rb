@@ -19,6 +19,7 @@ module AuditionsHelpers
     }
   end
 
+  # rubocop:disable Metrics/MethodLength
   def sample_registration_order
     {
       'customerEmail' => 'registration.user@example.com',
@@ -43,6 +44,7 @@ module AuditionsHelpers
       ]
     }
   end
+  # rubocop:enable Metrics/MethodLength
 
   def sample_invalid_order
     {
@@ -64,6 +66,7 @@ module AuditionsHelpers
     allow(External::SquarespaceApi).to receive(:orders).and_raise(error_class.new('Test error'))
   end
 
+  # rubocop:disable Metrics/AbcSize
   def mock_google_sheets_api
     allow(External::GoogleSheetsApi).to receive(:clear_sheet)
     allow(External::GoogleSheetsApi).to receive(:format_sheet)
@@ -72,9 +75,11 @@ module AuditionsHelpers
 
     # Mock the spreadsheet ID configuration
     allow(Auditions::Configuration).to receive(:spreadsheet_id).and_return('test-spreadsheet-id')
-    # Mock recruitment spreadsheet as not configured by default (prevents recruitment updater from running)
+    # Mock recruitment spreadsheet as not configured by default.
+    # This prevents the recruitment updater from running
     allow(Auditions::Configuration).to receive(:recruitment_spreadsheet_id).and_return(nil)
   end
+  # rubocop:enable Metrics/AbcSize
 
   def with_test_auditions_year(year = '2026')
     old_year = ENV.fetch('AUDITIONS_YEAR', nil)
@@ -93,6 +98,7 @@ module AuditionsHelpers
     Auditions::Configuration.reset!
   end
 
+  # rubocop:disable Metrics/AbcSize
   def capture_logs
     logs = []
     original_logger = Rails.logger
@@ -110,6 +116,7 @@ module AuditionsHelpers
   ensure
     allow(Rails).to receive(:logger).and_return(original_logger)
   end
+  # rubocop:enable Metrics/AbcSize
 
   # Matcher for testing Result objects
   RSpec::Matchers.define :be_success do
@@ -141,9 +148,8 @@ module AuditionsHelpers
     end
 
     failure_message do |result|
-      "expected result to have error containing '#{text}', but got errors: #{if result.respond_to?(:errors)
-                                                                               result.errors
-                                                                             end}"
+      errors = (result.respond_to?(:errors) ? result.errors : [])
+      "expected result to have error containing '#{text}', but got errors: #{errors}"
     end
   end
 end

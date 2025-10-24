@@ -36,6 +36,8 @@ Metrics/MethodLength:
     - app/controllers/**/*
     - config/**/*
     - db/**/*
+Metrics/ModuleLength:
+  Enabled: false
 
 Style/ConditionalAssignment:
   Enabled: false
