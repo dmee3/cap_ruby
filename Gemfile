@@ -27,6 +27,7 @@ gem 'rollbar', '~> 3.6.0'
 gem 'sass-rails', '>= 6'
 gem 'select2-rails'
 gem 'sidekiq'
+gem 'sorbet-runtime', '~> 0.5'
 
 gem 'stripe', git: 'https://github.com/stripe/stripe-ruby'
 gem 'turbolinks', '~> 5'
@@ -48,7 +49,9 @@ group :development, :test do
   gem 'rubocop', require: false
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
+  gem 'sorbet', '~> 0.5', require: false
   gem 'sqlite3', '~> 2.1.0'
+  gem 'tapioca', '~> 0.15', require: false
 end
 
 group :development do

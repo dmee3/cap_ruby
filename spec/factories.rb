@@ -3,8 +3,10 @@
 # rubocop:disable Metrics/BlockLength
 FactoryBot.define do
   factory :payment_intent do
-    references { '' }
-    amount { '' }
+    amount { rand(10000..50000) }
+    stripe_pi_id { "pi_test_#{SecureRandom.hex(8)}" }
+    user
+    season_id { nil }
   end
 
   factory :inventory_category, class: 'Inventory::Category' do
