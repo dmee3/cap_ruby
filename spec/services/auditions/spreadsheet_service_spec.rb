@@ -29,9 +29,8 @@ RSpec.describe Auditions::SpreadsheetService do
       it 'calls all required external services' do
         with_test_auditions_year('2026') do
           # Mock the external APIs that the new architecture calls
-          expect(External::SquarespaceApi).to receive(:orders).once.and_return([
-                                                                                 sample_packet_order, sample_registration_order
-                                                                               ])
+          orders = [sample_packet_order, sample_registration_order]
+          expect(External::SquarespaceApi).to receive(:orders).once.and_return(orders)
           expect(External::GoogleSheetsApi).to receive(:clear_sheet).twice
           # NOTE: format_sheet is skipped in the new simplified architecture
           expect(External::GoogleSheetsApi).to receive(:write_sheet).twice

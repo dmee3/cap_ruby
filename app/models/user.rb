@@ -26,7 +26,6 @@
 #  index_users_on_reset_password_token  (reset_password_token) UNIQUE
 #  index_users_on_username              (username) UNIQUE
 #
-# rubocop:disable Metrics/ClassLength
 class User < ApplicationRecord
   # Include devise modules. Others available are:
   #   :lockable, :registerable, :timeoutable, :trackable and :omniauthable
@@ -171,4 +170,3 @@ class User < ApplicationRecord
     UserMailer.with(user: self).welcome_email.deliver_later
   end
 end
-# rubocop:enable Metrics/ClassLength

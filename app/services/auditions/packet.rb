@@ -107,6 +107,7 @@ module Auditions
       @state = state_str
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def parse_custom_fields_fallback(custom_fields)
       Logger.info('Using fallback parsing for packet custom fields', { email: @email })
 
@@ -148,4 +149,5 @@ module Auditions
       @instrument = instrument&.dig('value')&.to_s&.strip || ''
     end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 end

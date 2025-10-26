@@ -77,6 +77,7 @@ module Auditions
       end
     end
 
+    # rubocop:disable Metrics/ParameterLists
     def process_line_item(item, date, email, order_number, item_number, packets, registrations)
       product_name = item['productName']
 
@@ -92,6 +93,7 @@ module Auditions
                      })
       end
     end
+    # rubocop:enable Metrics/ParameterLists
 
     def packet?(product_name)
       packet_class.product_names.include?(product_name)
@@ -137,6 +139,7 @@ module Auditions
       # Continue processing other items
     end
 
+    # rubocop:disable Metrics/MethodLength
     def create_profiles_from_data(registrations, packets)
       profiles = []
 
@@ -195,5 +198,6 @@ module Auditions
 
       profiles
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end

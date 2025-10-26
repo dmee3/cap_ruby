@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity
+# rubocop:disable Metrics/AbcSize
 class DashboardUtilities
   class << self
     def upcoming_payments(start_date, end_date, season_id)
@@ -90,4 +90,4 @@ class DashboardUtilities
     end
   end
 end
-# rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity
+# rubocop:enable Metrics/AbcSize

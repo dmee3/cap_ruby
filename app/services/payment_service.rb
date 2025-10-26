@@ -21,7 +21,7 @@ class PaymentService
       Payment.for_season(season_id)
     end
 
-    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Lint/UnexpectedBlockArity
+    # rubocop:disable Metrics/AbcSize, Lint/UnexpectedBlockArity
     def upcoming_payments(start_date, end_date, season_id)
       entries = PaymentScheduleEntry
                 .for_season(season_id)
@@ -41,7 +41,7 @@ class PaymentService
       end
       entry_data.select { |e| (e[:scheduled] - e[:paid]).positive? }.sort { |e| e[:date] }
     end
-    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Lint/UnexpectedBlockArity
+    # rubocop:enable Metrics/AbcSize, Lint/UnexpectedBlockArity
 
     def amount_owed_on_date(user, date, season_id)
       schedule = user.payment_schedule_for(season_id)

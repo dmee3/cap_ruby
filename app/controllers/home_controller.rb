@@ -20,9 +20,9 @@ class HomeController < ApplicationController
 
   def change_season
     if params[:season_id].present? && /\A\d+\z/.match(params[:season_id])
-      set_season_cookie(params[:season_id])
+      store_season_cookie(params[:season_id])
     else
-      set_season_cookie(current_user.seasons.last.id)
+      store_season_cookie(current_user.seasons.last.id)
     end
 
     redirect_back fallback_location: root_path
@@ -30,7 +30,7 @@ class HomeController < ApplicationController
 
   private
 
-  def set_season_cookie(season_id)
+  def store_season_cookie(season_id)
     cookies[:cap_season_id] = season_id
   end
 
@@ -43,7 +43,7 @@ class HomeController < ApplicationController
     )
 
     if current_user.seasons_users.any?
-      set_season_cookie(current_user.seasons.last.id)
+      store_season_cookie(current_user.seasons.last.id)
     else
       sign_out current_user
     end
