@@ -76,7 +76,7 @@ RSpec.describe Conflict, type: :model do
       create(
         :conflict,
         end_date: DateTime.yesterday - 1.year,
-        status: denied_status,
+        conflict_status: denied_status,
         season: last_season
       )
     end
