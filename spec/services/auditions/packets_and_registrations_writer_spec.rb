@@ -45,29 +45,35 @@ RSpec.describe Auditions::PacketsAndRegistrationsWriter do
 
   describe '#call' do
     it 'successfully writes profiles to spreadsheets' do
-      result = service.call(profiles)
+      with_test_auditions_year('2026') do
+        result = service.call(profiles)
 
-      expect(result).to be_success
-      # Section header + Column header + Instrument header + 1 packet
-      expect(result.data[:packets_count]).to eq(4)
-      # Section header + Column header + Instrument header + 1 registration
-      expect(result.data[:registrations_count]).to eq(4)
+        expect(result).to be_success
+        # Section header + Column header + Instrument header + 1 packet
+        expect(result.data[:packets_count]).to eq(4)
+        # Section header + Column header + Instrument header + 1 registration
+        expect(result.data[:registrations_count]).to eq(4)
+      end
     end
 
     it 'handles write errors gracefully' do
-      allow(External::GoogleSheetsApi).to receive(:write_sheet)
-        .and_raise(StandardError, 'Write failed')
+      with_test_auditions_year('2026') do
+        allow(External::GoogleSheetsApi).to receive(:write_sheet)
+          .and_raise(StandardError, 'Write failed')
 
-      result = service.call(profiles)
-      expect(result).to be_failure
+        result = service.call(profiles)
+        expect(result).to be_failure
+      end
     end
 
     it 'calls clear and write for both sheets' do
-      expect(External::GoogleSheetsApi).to receive(:clear_sheet).twice
-      expect(External::GoogleSheetsApi).to receive(:write_sheet).twice
-      expect(External::GoogleSheetsApi).to receive(:format_sheet).twice
+      with_test_auditions_year('2026') do
+        expect(External::GoogleSheetsApi).to receive(:clear_sheet).twice
+        expect(External::GoogleSheetsApi).to receive(:write_sheet).twice
+        expect(External::GoogleSheetsApi).to receive(:format_sheet).twice
 
-      service.call(profiles)
+        service.call(profiles)
+      end
     end
   end
 end

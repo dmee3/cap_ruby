@@ -138,6 +138,7 @@ RSpec.describe Auditions::SpreadsheetService do
     it 'uses the orchestrator for workflow coordination' do
       with_test_auditions_year('2026') do
         mock_squarespace_api_with_success
+        mock_google_sheets_api
         # Re-mock recruitment spreadsheet configuration after reset
         allow(Auditions::Configuration).to receive(:recruitment_spreadsheet_id).and_return(nil)
 
@@ -152,6 +153,7 @@ RSpec.describe Auditions::SpreadsheetService do
     it 'transforms orchestrator results for backward compatibility' do
       with_test_auditions_year('2026') do
         mock_squarespace_api_with_success
+        mock_google_sheets_api
         # Re-mock recruitment spreadsheet configuration after reset
         allow(Auditions::Configuration).to receive(:recruitment_spreadsheet_id).and_return(nil)
 

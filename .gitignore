@@ -41,3 +41,5 @@ node_modules
 *.local
 .DS_Store
 
+# Claude local settings
+.claude/settings.local.json

@@ -12,5 +12,25 @@
 require 'rails_helper'
 
 RSpec.describe Inventory::Category, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  context 'validations' do
+    subject { create(:inventory_category) }
+
+    it { is_expected.to be_valid }
+
+    it 'requires a name' do
+      subject.name = nil
+      expect(subject).to_not be_valid
+    end
+
+    it 'requires a non-empty name' do
+      subject.name = ''
+      expect(subject).to_not be_valid
+    end
+  end
+
+  context 'associations' do
+    it 'has many items' do
+      expect(subject).to respond_to(:items)
+    end
+  end
 end
