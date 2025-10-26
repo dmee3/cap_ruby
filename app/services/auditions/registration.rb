@@ -34,14 +34,16 @@ module Auditions
     def self.product_names
       Configuration.registration_product_names
     rescue StandardError => e
-      Rails.logger.warn("[AUDITIONS] Failed to load registration product names from config, using fallback: #{e.message}")
+      message = 'Failed to load registration product names from config, using fallback'
+      Rails.logger.warn("[AUDITIONS] #{message}: #{e.message}")
       PRODUCT_NAMES
     end
 
     def self.type_mapping
       Configuration.registration_type_mapping
     rescue StandardError => e
-      Rails.logger.warn("[AUDITIONS] Failed to load registration type mapping from config, using fallback: #{e.message}")
+      message = 'Failed to load registration type mapping from config, using fallback'
+      Rails.logger.warn("[AUDITIONS] #{message}: #{e.message}")
       TYPE_MAP
     end
 

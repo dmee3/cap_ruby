@@ -1,7 +1,13 @@
 # frozen_string_literal: true
+# typed: true
 
 class EmailService
+  extend T::Sig
+
   class << self
+    extend T::Sig
+
+    sig { params(payment: Payment, user: User).void }
     def send_payment_submitted_email(payment, user)
       subject = "Payment submitted by #{user.full_name} for $#{payment.amount / 100}"
       text = "#{user.full_name} has submitted a payment for $#{payment.amount / 100}."
@@ -12,6 +18,7 @@ class EmailService
       Rollbar.error(e, user: user)
     end
 
+    sig { params(conflict: Conflict, user: User, season_id: Integer).void }
     def send_conflict_submitted_email(conflict, user, season_id)
       role = user.seasons_users.select { |su| su.season_id == season_id }&.first
       subject = "Conflict submitted by #{user.full_name}"
@@ -31,7 +38,8 @@ class EmailService
       Rollbar.error(e, user: user)
     end
 
-    def send_whistleblower_email(email, report)
+    sig { params(email: String, report: String, recipients: T::Array[String]).void }
+    def send_whistleblower_email(email, report, recipients)
       email = '(Anonymous)' unless email.present?
       subject = 'Whistleblower Report'
       text = <<~TEXT
@@ -40,11 +48,7 @@ class EmailService
         Report:\n\n#{report}
       TEXT
 
-      emails = [
-        ENV.fetch('EMAIL_AARON', nil),
-        ENV.fetch('EMAIL_DONNIE', nil),
-        ENV.fetch('EMAIL_DAN', nil)
-      ].compact
+      emails = recipients.map { |name| ENV.fetch("EMAIL_#{name.upcase}", nil) }.compact
       PostOffice.send_email(emails, subject, text)
     end
   end

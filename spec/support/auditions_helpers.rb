@@ -72,7 +72,8 @@ module AuditionsHelpers
 
     # Mock the spreadsheet ID configuration
     allow(Auditions::Configuration).to receive(:spreadsheet_id).and_return('test-spreadsheet-id')
-    # Mock recruitment spreadsheet as not configured by default (prevents recruitment updater from running)
+    # Mock recruitment spreadsheet as not configured by default.
+    # This prevents the recruitment updater from running
     allow(Auditions::Configuration).to receive(:recruitment_spreadsheet_id).and_return(nil)
   end
 
@@ -93,6 +94,7 @@ module AuditionsHelpers
     Auditions::Configuration.reset!
   end
 
+  # rubocop:disable Metrics/AbcSize
   def capture_logs
     logs = []
     original_logger = Rails.logger
@@ -110,6 +112,7 @@ module AuditionsHelpers
   ensure
     allow(Rails).to receive(:logger).and_return(original_logger)
   end
+  # rubocop:enable Metrics/AbcSize
 
   # Matcher for testing Result objects
   RSpec::Matchers.define :be_success do
@@ -118,9 +121,7 @@ module AuditionsHelpers
     end
 
     failure_message do |result|
-      "expected #{result} to be a success, but got errors: #{if result.respond_to?(:errors)
-                                                               result.errors
-                                                             end}"
+      "expected #{result} to be a success, but got errors: #{result.errors if result.respond_to?(:errors)}"
     end
   end
 
@@ -141,9 +142,8 @@ module AuditionsHelpers
     end
 
     failure_message do |result|
-      "expected result to have error containing '#{text}', but got errors: #{if result.respond_to?(:errors)
-                                                                               result.errors
-                                                                             end}"
+      errors = (result.respond_to?(:errors) ? result.errors : [])
+      "expected result to have error containing '#{text}', but got errors: #{errors}"
     end
   end
 end

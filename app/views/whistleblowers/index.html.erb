@@ -1,15 +1,18 @@
 <div class="flex flex-col">
   <h1>Whistleblower Report</h1>
   <div class="space-y-4">
-    <p>
+    <div>
       Cap City encourages anyone involved with our organization to report any concerns regarding the group without fear of retaliation.  We will respond to your report promptly and to the best of our ability with the information given.  You may choose to remain anonymous by leaving the email section blank and avoiding any personally-identifying information.  Please note that if you wish for the organization to respond to you directly, you will need to provide a name or some sort of contact method for us to get in touch.</p>
-      <p>We wish to provide a safe and educational environment for everyone involved with our organization, and consider anything that threatens the well-being of our members or staff to be a very serious matter.  Please try to supply us with enough information to conduct an independent investigation.  Details like times, locations, and anybody else who may have been involved or have knowledge of the situation all help us to look into your claim.  Remember that if you choose to remain anonymous, we will not be able to ask you any further questions, and can only investigate based on the information you provide.
-    </p>
+      <br />
+      <p>We wish to provide a safe and educational environment for everyone involved with our organization, and consider anything that threatens the well-being of our members or staff to be a very serious matter.  Please try to supply us with enough information to conduct an independent investigation.  Details like times, locations, and anybody else who may have been involved or have knowledge of the situation all help us to look into your claim.</p>
+      <br />
+      <p>Remember that if you choose to remain anonymous, we will not be able to ask you any further questions, and can only investigate based on the information you provide.</p>
+    </div>
     <%= form_tag whistleblowers_path do %>
       <h2>Report</h2>
       <div class="grid grid-cols-5 gap-x-6 gap-y-4">
         <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
-          <%= label_tag :email, 'Email', class: 'input-label' %>
+          <%= label_tag :email, 'Your Email', class: 'input-label' %>
         </div>
         <div class="col-span-5 sm:col-span-4 flex flex-col">
           <%= text_field_tag :email, '', class: 'input-text' %>
@@ -22,6 +25,21 @@
         <div class="col-span-5 sm:col-span-4 flex items-center">
           <%= text_area_tag :report, '', class: 'input-text' %>
         </div>
+
+        <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
+          <%= label_tag :recipients, 'Select administrators to notify (minimum 3 required)', class: 'input-label' %>
+        </div>
+        <div class="col-span-5 sm:col-span-4 flex flex-col">
+          <div class="flex flex-col space-y-2">
+            <% %w[aaron dan donnie juli kyle nikki tim].each do |admin| %>
+              <label class="flex items-center">
+                <%= check_box_tag 'recipients[]', admin, false, class: 'mr-2', id: "recipient_#{admin}" %>
+                <%= admin.capitalize %>
+              </label>
+            <% end %>
+          </div>
+          <span class="text-sm text-red-600 hidden mt-2" id="recipients-error">Please select at least 3 administrators</span>
+        </div>
       </div>
 
       <div class="mt-4 flex flex-row justify-end">
@@ -30,3 +48,33 @@
     <% end %>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('form');
+  const recipientsError = document.getElementById('recipients-error');
+
+  form.addEventListener('submit', function(e) {
+    const checkedRecipients = document.querySelectorAll('input[name="recipients[]"]:checked');
+
+    if (checkedRecipients.length < 3) {
+      e.preventDefault();
+      recipientsError.classList.remove('hidden');
+      recipientsError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return false;
+    } else {
+      recipientsError.classList.add('hidden');
+    }
+  });
+
+  // Hide error when user starts selecting recipients
+  document.querySelectorAll('input[name="recipients[]"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      const checkedRecipients = document.querySelectorAll('input[name="recipients[]"]:checked');
+      if (checkedRecipients.length >= 3) {
+        recipientsError.classList.add('hidden');
+      }
+    });
+  });
+});
+</script>

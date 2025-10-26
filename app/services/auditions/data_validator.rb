@@ -7,9 +7,7 @@ module Auditions
         return Result.failure(['Orders data is nil']) if orders.nil?
         return Result.failure(['Orders must be an array']) unless orders.is_a?(Array)
 
-        if orders.empty?
-          Logger.warn('No orders found - this may be expected if no orders exist in date range')
-        end
+        Logger.warn('No orders found - this may be expected if no orders exist in date range') if orders.empty?
 
         Result.success(orders)
       end
@@ -114,9 +112,7 @@ module Auditions
         field_labels = custom_fields.map { |field| field['label'] }.compact
 
         required_fields.each do |field_name|
-          unless field_labels.include?(field_name)
-            errors << "#{context}: missing required field '#{field_name}'"
-          end
+          errors << "#{context}: missing required field '#{field_name}'" unless field_labels.include?(field_name)
         end
 
         custom_fields.each.with_index do |field, index|
@@ -127,9 +123,7 @@ module Auditions
 
           errors << "#{context} field ##{index + 1}: missing label" if field['label'].blank?
 
-          if field['value'].blank?
-            errors << "#{context} field ##{index + 1} (#{field['label']}): missing value"
-          end
+          errors << "#{context} field ##{index + 1} (#{field['label']}): missing value" if field['value'].blank?
         end
 
         if errors.any?

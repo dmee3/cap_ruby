@@ -29,9 +29,8 @@ RSpec.describe Auditions::SpreadsheetService do
       it 'calls all required external services' do
         with_test_auditions_year('2026') do
           # Mock the external APIs that the new architecture calls
-          expect(External::SquarespaceApi).to receive(:orders).once.and_return([
-                                                                                 sample_packet_order, sample_registration_order
-                                                                               ])
+          orders = [sample_packet_order, sample_registration_order]
+          expect(External::SquarespaceApi).to receive(:orders).once.and_return(orders)
           expect(External::GoogleSheetsApi).to receive(:clear_sheet).twice
           # NOTE: format_sheet is skipped in the new simplified architecture
           expect(External::GoogleSheetsApi).to receive(:write_sheet).twice
@@ -109,10 +108,16 @@ RSpec.describe Auditions::SpreadsheetService do
           end
 
           expect(logs).to have_received(:info).with(match(/Starting Auditions spreadsheet update/))
-          expect(logs).to have_received(:info).with(match(/Starting Execute auditions data processing workflow/))
-          expect(logs).to have_received(:info).with(match(/Orders fetched and validated successfully/))
+          expect(logs).to have_received(:info).with(
+            match(/Starting Execute auditions data processing workflow/)
+          )
+          expect(logs).to have_received(:info).with(
+            match(/Orders fetched and validated successfully/)
+          )
           expect(logs).to have_received(:info).with(match(/Profiles built successfully/))
-          expect(logs).to have_received(:info).with(match(/Spreadsheet update completed successfully/)).at_least(:once)
+          expect(logs).to have_received(:info).with(
+            match(/Spreadsheet update completed successfully/)
+          ).at_least(:once)
         end
       end
 
@@ -133,6 +138,7 @@ RSpec.describe Auditions::SpreadsheetService do
     it 'uses the orchestrator for workflow coordination' do
       with_test_auditions_year('2026') do
         mock_squarespace_api_with_success
+        mock_google_sheets_api
         # Re-mock recruitment spreadsheet configuration after reset
         allow(Auditions::Configuration).to receive(:recruitment_spreadsheet_id).and_return(nil)
 
@@ -147,6 +153,7 @@ RSpec.describe Auditions::SpreadsheetService do
     it 'transforms orchestrator results for backward compatibility' do
       with_test_auditions_year('2026') do
         mock_squarespace_api_with_success
+        mock_google_sheets_api
         # Re-mock recruitment spreadsheet configuration after reset
         allow(Auditions::Configuration).to receive(:recruitment_spreadsheet_id).and_return(nil)
 

@@ -13,7 +13,7 @@ module External
 
     class << self
       def orders
-        date_range = get_date_range
+        date_range = fetch_date_range
         url_params = { modifiedAfter: date_range[:start_date],
                        modifiedBefore: date_range[:end_date] }
         orders = []
@@ -34,7 +34,7 @@ module External
 
       private
 
-      def get_date_range
+      def fetch_date_range
         # Try to load from configuration, fall back to constants
 
         require_relative '../../app/services/auditions/configuration'

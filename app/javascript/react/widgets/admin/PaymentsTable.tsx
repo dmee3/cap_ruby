@@ -29,7 +29,7 @@ const PaymentsTable = ({
           const users = data.users.map(member => ({
             ...member,
             remaining_payments: member.remaining_payments.sort((a, b) => Utilities.dateSorter(a, b)),
-            paid:  member.payments.reduce((sum, payment) => sum + payment.amount, 0),
+            paid: member.payments.reduce((sum, payment) => sum + payment.amount, 0),
             total: member.total,
             status: checkStatus(member),
             nextPayment: nextPayment(member),
@@ -101,7 +101,7 @@ const PaymentsTable = ({
 
   fetchPayment()
 
-  return(
+  return (
     <>
       <div className="mb-4">
         <input
@@ -118,6 +118,9 @@ const PaymentsTable = ({
             <th scope="col" className="table-header">
               Name
             </th>
+            <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Status
+            </th>
             <th scope="col" className="table-header">
               Paid
             </th>
@@ -129,9 +132,6 @@ const PaymentsTable = ({
             </th>
             <th scope="col" className="table-header">
               Next Payment
-            </th>
-            <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Status
             </th>
             <th scope="col" className="sr-only">
               New
@@ -155,6 +155,19 @@ const PaymentsTable = ({
                   </span>
                 </div>
               </td>
+              <td className="px-6 py-4 text-center whitespace-nowrap">
+                {member.status ?
+                  <Badge
+                    text='Current'
+                    color='green'
+                  />
+                  :
+                  <Badge
+                    text='Behind'
+                    color='red'
+                  />
+                }
+              </td>
               <td className="px-6 py-4 text-left whitespace-nowrap">
                 {moneyFormatter.format(member.paid / 100.0)}
               </td>
@@ -174,19 +187,6 @@ const PaymentsTable = ({
                   </div>
                   :
                   <span>None</span>
-                }
-              </td>
-              <td className="px-6 py-4 text-center whitespace-nowrap">
-                {member.status ?
-                  <Badge
-                    text='Current'
-                    color='green'
-                  />
-                    :
-                  <Badge
-                    text='Behind'
-                    color='red'
-                  />
                 }
               </td>
               <td className="px-6 py-4 text-right whitespace-nowrap">

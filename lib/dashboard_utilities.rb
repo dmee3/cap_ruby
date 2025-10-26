@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity
+# rubocop:disable Metrics/AbcSize
 class DashboardUtilities
   class << self
     def upcoming_payments(start_date, end_date, season_id)
@@ -8,7 +8,7 @@ class DashboardUtilities
                                  .includes(:payment_schedule_entries, user: :payments)
 
       schedules = schedules.select do |s|
-        s.entries.any? { |e| e.pay_date >= start_date && e.pay_date <= end_date }
+        s.entries.any? { |e| e.pay_date.between?(start_date, end_date) }
       end
 
       [].tap do |array|
@@ -90,4 +90,4 @@ class DashboardUtilities
     end
   end
 end
-# rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity
+# rubocop:enable Metrics/AbcSize

@@ -38,9 +38,7 @@ module Auditions
     attr_reader :sheets_api
 
     def update_recruitment_sheets(profiles)
-      unless recruitment_spreadsheet_id
-        return Result.failure(['Recruitment spreadsheet ID not configured'])
-      end
+      return Result.failure(['Recruitment spreadsheet ID not configured']) unless recruitment_spreadsheet_id
 
       Logger.debug('Starting recruitment sheet updates',
                    { tabs: TAB_NAMES.size, profiles: profiles.size })

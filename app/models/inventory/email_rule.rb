@@ -24,7 +24,6 @@ module Inventory
     belongs_to :user, foreign_key: :mail_to_user_id
     belongs_to :inventory_item, class_name: 'Inventory::Item', foreign_key: :inventory_item_id
 
-    # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity
     def notify_if_applicable(qty)
       case operator.to_sym
       when :eq
@@ -39,7 +38,6 @@ module Inventory
         notify if qty >= threshold
       end
     end
-    # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity
 
     def notify
       InventoryMailer.with(

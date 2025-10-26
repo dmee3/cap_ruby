@@ -31,6 +31,13 @@ module External
       service.authorization = authorization
     end
 
+    FILE_TYPES = {
+      'application/vnd.google-apps.document' => :document,
+      'application/vnd.google-apps.folder' => :folder,
+      'audio/mpeg' => :audio,
+      'application/pdf' => :pdf
+    }.freeze
+
     def get_files(year, folder_id)
       folder_id = ENV.fetch("BASE_DRIVE_FOLDER_ID_#{year}") if folder_id.blank?
       result = service.list_files(q: "'#{folder_id}' in parents", page_size: 100)
@@ -47,13 +54,6 @@ module External
       temp_file.rewind
       temp_file
     end
-
-    FILE_TYPES = {
-      'application/vnd.google-apps.document' => :document,
-      'application/vnd.google-apps.folder' => :folder,
-      'audio/mpeg' => :audio,
-      'application/pdf' => :pdf
-    }.freeze
 
     def format(files)
       files.map do |f|

@@ -20,5 +20,23 @@
 require 'rails_helper'
 
 RSpec.describe PaymentIntent, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  context 'validations' do
+    subject { create(:payment_intent) }
+
+    it { is_expected.to be_valid }
+
+    it 'has an amount' do
+      expect(subject.amount).to be_present
+    end
+
+    it 'has a stripe_pi_id' do
+      expect(subject.stripe_pi_id).to be_present
+    end
+  end
+
+  context 'associations' do
+    it 'belongs to user' do
+      expect(subject).to respond_to(:user)
+    end
+  end
 end

@@ -1,7 +1,12 @@
 # frozen_string_literal: true
+# typed: true
 
 class PaymentScheduleService
+  extend T::Sig
+
   class << self
+    extend T::Sig
+
     DEFAULT_PAYMENT_SCHEDULES = {
       '2023' => {
         'World' => {
@@ -317,6 +322,7 @@ class PaymentScheduleService
       }
     }.freeze
 
+    sig { params(user: User).void }
     def ensure_payment_schedules_for_user(user)
       user.seasons_users.each do |su|
         next if su.role != 'member' || user.payment_schedule_for(su.season_id).present?
@@ -325,6 +331,12 @@ class PaymentScheduleService
       end
     end
 
+    sig do
+      params(
+        user: User,
+        season: T.any(Season, T::Hash[String, T.untyped])
+      ).returns(T.nilable(T::Hash[String, Integer]))
+    end
     def default_schedule_for(user, season)
       all_roles = user.seasons_users
       role = all_roles.select { |su| su.season_id == season['id'] }.first
