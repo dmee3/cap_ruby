@@ -51,6 +51,10 @@ Metrics/ParameterLists:
 Metrics/PerceivedComplexity:
   Max: 12
 
+Naming/VariableNumber:
+  Exclude:
+    - spec/**/*
+
 Style/ConditionalAssignment:
   Enabled: false
 Style/Documentation:

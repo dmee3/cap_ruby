@@ -3,28 +3,6 @@
 module Calendar
   class ImageService
     class << self
-      def generate_image(user_id, base_img)
-        dates = Calendar::Fundraiser.find_or_create_incomplete_for_user(user_id).donations.map(&:donation_date)
-        ChunkyPNG::Image.from_file(base_image_path(base_img)).tap do |base_image|
-          logo_image = ChunkyPNG::Image.from_file(logo_image_path)
-          dates.each { |date| base_image.compose!(logo_image, *DATE_COORDINATES[date - 1]) }
-        end
-      end
-
-      private
-
-      def tmp_filename
-        "tmp/#{SecureRandom.hex(4)}.png"
-      end
-
-      def base_image_path(base_img)
-        "public/images/calendars/#{base_img}.png"
-      end
-
-      def logo_image_path
-        'public/images/calendars/logo.png'
-      end
-
       ROWS = [403, 469, 535, 601, 667, 733].freeze
       COLS = [199, 303, 407, 511, 615, 719, 823].freeze
 
@@ -61,6 +39,28 @@ module Calendar
         [COLS[0], ROWS[5]],
         [COLS[1], ROWS[5]]
       ].freeze
+
+      def generate_image(user_id, base_img)
+        dates = Calendar::Fundraiser.find_or_create_incomplete_for_user(user_id).donations.map(&:donation_date)
+        ChunkyPNG::Image.from_file(base_image_path(base_img)).tap do |base_image|
+          logo_image = ChunkyPNG::Image.from_file(logo_image_path)
+          dates.each { |date| base_image.compose!(logo_image, *DATE_COORDINATES[date - 1]) }
+        end
+      end
+
+      private
+
+      def tmp_filename
+        "tmp/#{SecureRandom.hex(4)}.png"
+      end
+
+      def base_image_path(base_img)
+        "public/images/calendars/#{base_img}.png"
+      end
+
+      def logo_image_path
+        'public/images/calendars/logo.png'
+      end
     end
   end
 end

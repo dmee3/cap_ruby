@@ -6,6 +6,7 @@ class PaymentScheduleService
 
   class << self
     extend T::Sig
+
     DEFAULT_PAYMENT_SCHEDULES = {
       '2023' => {
         'World' => {

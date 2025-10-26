@@ -134,7 +134,8 @@ module Auditions
       end
 
       city = custom_fields.find { |field| field.is_a?(Hash) && field['label'] == 'City' }
-      @city = city&.dig('value')&.to_s&.titleize || ''
+      city_value = city&.dig('value')
+      @city = city_value.to_s.titleize
 
       state = custom_fields.find { |field| field.is_a?(Hash) && field['label'] == 'State' }
       if state&.dig('value').present?
@@ -146,7 +147,8 @@ module Auditions
       instrument = custom_fields.find do |field|
         field.is_a?(Hash) && field['label'] == 'Instrument'
       end
-      @instrument = instrument&.dig('value')&.to_s&.strip || ''
+      instrument_value = instrument&.dig('value')
+      @instrument = instrument_value.to_s.strip
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity

@@ -8,7 +8,7 @@ class DashboardUtilities
                                  .includes(:payment_schedule_entries, user: :payments)
 
       schedules = schedules.select do |s|
-        s.entries.any? { |e| e.pay_date >= start_date && e.pay_date <= end_date }
+        s.entries.any? { |e| e.pay_date.between?(start_date, end_date) }
       end
 
       [].tap do |array|
