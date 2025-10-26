@@ -133,7 +133,8 @@ RSpec.describe PaymentService do
       create(:seasons_user, user: user, season: other_season, role: 'member')
 
       create(:payment, user: user, season: season, amount: 50000, payment_type: payment_type, date_paid: Date.today)
-      create(:payment, user: user, season: other_season, amount: 30000, payment_type: payment_type, date_paid: Date.today)
+      create(:payment, user: user, season: other_season, amount: 30000, payment_type: payment_type,
+                       date_paid: Date.today)
 
       total = PaymentService.total_dues_paid_to_date(season.id)
 

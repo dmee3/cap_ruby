@@ -100,7 +100,7 @@ RSpec.describe EmailService do
     it 'sends email with conflict details' do
       EmailService.send_conflict_submitted_email(conflict, user, season.id)
 
-      expect(PostOffice).to have_received(:send_email) do |recipients, subject, text|
+      expect(PostOffice).to have_received(:send_email) do |_recipients, subject, text|
         expect(subject).to eq('Conflict submitted by Jane Smith')
         expect(text).to include('Jane Smith has submitted a conflict')
         expect(text).to include('World Snare')
@@ -140,7 +140,7 @@ RSpec.describe EmailService do
     it 'sends email with report content' do
       EmailService.send_whistleblower_email('reporter@example.com', report, recipients)
 
-      expect(PostOffice).to have_received(:send_email) do |emails, subject, text|
+      expect(PostOffice).to have_received(:send_email) do |_emails, subject, text|
         expect(subject).to eq('Whistleblower Report')
         expect(text).to include('reporter@example.com')
         expect(text).to include(report)

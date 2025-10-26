@@ -116,7 +116,8 @@ RSpec.describe Auditions::Logger do
         end.to raise_error(StandardError, 'Something went wrong')
 
         expect(logs).to have_received(:info).with('[AUDITIONS] Starting test operation')
-        expect(logs).to have_received(:error).with(match(/\[AUDITIONS\] Failed test operation with exception.*duration_ms/))
+        expected_error_pattern = /\[AUDITIONS\] Failed test operation with exception.*duration_ms/
+        expect(logs).to have_received(:error).with(match(expected_error_pattern))
       end
     end
 

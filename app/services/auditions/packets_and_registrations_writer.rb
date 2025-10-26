@@ -25,9 +25,7 @@ module Auditions
 
       registrations_result = write_registrations_sheet(registration_result[:data],
                                                        registration_result[:formatting])
-      if registrations_result.is_a?(Result) && registrations_result.failure?
-        return registrations_result
-      end
+      return registrations_result if registrations_result.is_a?(Result) && registrations_result.failure?
 
       Logger.info('Spreadsheet update completed successfully', {
                     packets_written: packet_result[:data].size,

@@ -3,6 +3,7 @@
 
 class PaymentService
   extend T::Sig
+
   DUES_PERIODS = [
     { start: '2025-10-17', end: '2025-11-13' },
     { start: '2025-11-14', end: '2025-12-11' },
@@ -27,7 +28,7 @@ class PaymentService
       Payment.for_season(season_id)
     end
 
-    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Lint/UnexpectedBlockArity
+    # rubocop:disable Lint/UnexpectedBlockArity
     sig do
       params(
         start_date: T.any(Date, ActiveSupport::TimeWithZone),
@@ -54,7 +55,7 @@ class PaymentService
       end
       entry_data.select { |e| (e[:scheduled] - e[:paid]).positive? }.sort { |e| e[:date] }
     end
-    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Lint/UnexpectedBlockArity
+    # rubocop:enable Lint/UnexpectedBlockArity
 
     sig { params(user: User, date: T.any(Date, ActiveSupport::TimeWithZone), season_id: Integer).returns(Float) }
     def amount_owed_on_date(user, date, season_id)

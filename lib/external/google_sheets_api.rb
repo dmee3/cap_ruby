@@ -4,9 +4,6 @@ require 'google/apis/sheets_v4'
 require 'json'
 require 'tempfile'
 
-# rubocop:disable Metrics/ClassLength
-# rubocop:disable Metrics/AbcSize
-# rubocop:disable Metrics/MethodLength
 module External
   class GoogleSheetsApi
     include Singleton
@@ -321,7 +318,4 @@ module External
       @temp_credentials_file&.unlink
     end
   end
-  # rubocop:enable Metrics/MethodLength
-  # rubocop:enable Metrics/AbcSize
-  # rubocop:enable Metrics/ClassLength
 end

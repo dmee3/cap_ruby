@@ -19,7 +19,6 @@ module AuditionsHelpers
     }
   end
 
-  # rubocop:disable Metrics/MethodLength
   def sample_registration_order
     {
       'customerEmail' => 'registration.user@example.com',
@@ -44,7 +43,6 @@ module AuditionsHelpers
       ]
     }
   end
-  # rubocop:enable Metrics/MethodLength
 
   def sample_invalid_order
     {
@@ -66,7 +64,6 @@ module AuditionsHelpers
     allow(External::SquarespaceApi).to receive(:orders).and_raise(error_class.new('Test error'))
   end
 
-  # rubocop:disable Metrics/AbcSize
   def mock_google_sheets_api
     allow(External::GoogleSheetsApi).to receive(:clear_sheet)
     allow(External::GoogleSheetsApi).to receive(:format_sheet)
@@ -79,7 +76,6 @@ module AuditionsHelpers
     # This prevents the recruitment updater from running
     allow(Auditions::Configuration).to receive(:recruitment_spreadsheet_id).and_return(nil)
   end
-  # rubocop:enable Metrics/AbcSize
 
   def with_test_auditions_year(year = '2026')
     old_year = ENV.fetch('AUDITIONS_YEAR', nil)
@@ -125,9 +121,7 @@ module AuditionsHelpers
     end
 
     failure_message do |result|
-      "expected #{result} to be a success, but got errors: #{if result.respond_to?(:errors)
-                                                               result.errors
-                                                             end}"
+      "expected #{result} to be a success, but got errors: #{result.errors if result.respond_to?(:errors)}"
     end
   end
 

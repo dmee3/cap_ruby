@@ -20,24 +20,40 @@ Layout/LineLength:
     - db/**/*
 
 Metrics/AbcSize:
+  Max: 25
   Exclude:
     - app/controllers/**/*
+    - app/services/**/*
+    - spec/**/*
+    - lib/**/*
 Metrics/BlockLength:
   Exclude:
     - config/**/*
     - db/**/*
     - spec/**/*
 Metrics/ClassLength:
+  Max: 350
   Exclude:
     - app/controllers/**/*
+Metrics/CyclomaticComplexity:
+  Max: 12
 Metrics/MethodLength:
-  Max: 15
+  Max: 40
   Exclude:
     - app/controllers/**/*
     - config/**/*
     - db/**/*
 Metrics/ModuleLength:
   Enabled: false
+Metrics/ParameterLists:
+  Max: 6
+  CountKeywordArgs: false
+Metrics/PerceivedComplexity:
+  Max: 12
+
+Naming/VariableNumber:
+  Exclude:
+    - spec/**/*
 
 Style/ConditionalAssignment:
   Enabled: false
