@@ -63,15 +63,15 @@ const TarpCanvas2026: React.FC = () => {
 
       // Define ripple diameters in feet based on distance from center
       const rippleDiameters: { [key: number]: number } = {
-        0: 6,   // center ripples: 6 feet diameter
-        1: 10,  // next out: 10 feet diameter
-        2: 14,  // next out: 14 feet diameter
+        0: 9,   // center ripples: 6 feet diameter
+        1: 12,  // next out: 10 feet diameter
+        2: 15,  // next out: 14 feet diameter
         3: 18   // outermost: 18 feet diameter
       };
 
       // Define number of concentric rings based on distance from center
       const numRingsMap: { [key: number]: number } = {
-        0: 3,   // center ripples: 3 rings
+        0: 4,   // center ripples: 3 rings
         1: 5,   // next out: 5 rings
         2: 6,   // next out: 6 rings
         3: 7    // outermost: 7 rings
@@ -90,7 +90,7 @@ const TarpCanvas2026: React.FC = () => {
         : 0.3 + (0.2 * opacityProgress); // 0.5 at edges, 0.3 at center
 
       // Check if this is the 4th ripple (index 3) in the center wave
-      const isFourthRipple = isCenterWave && i === 3; // 4th ripple (0-indexed)
+      const isCenterRipple = isCenterWave && i === 3; // 4th ripple (0-indexed)
 
       drawConcentricRingsWithColor(ctx, {
         centerX: x,
@@ -100,7 +100,7 @@ const TarpCanvas2026: React.FC = () => {
         baseOpacity,
         color,
         numRings
-      }, isFourthRipple);
+      }, isCenterRipple);
     }
   };
 
@@ -114,8 +114,7 @@ const TarpCanvas2026: React.FC = () => {
     };
 
     // Convert text to morse code - each letter becomes its morse code
-    const text = "CANYOUHEARME?";
-    const morseText = text.split('').map(char => morseMap[char.toUpperCase()] || char).join(' ');
+    const morseText = morseCode.split('').map(char => morseMap[char.toUpperCase()] || char).join(' ');
 
     console.log('Morse text:', morseText); // Debug log
 
@@ -239,22 +238,177 @@ const TarpCanvas2026: React.FC = () => {
       const minOpacity = 0.1;
       const opacity = maxOpacity - (maxOpacity - minOpacity) * progress;
 
-      // Special handling for innermost ring of center wave
-      if (isCenterWave && i === 0) {
-        console.log('Drawing morse code ring at:', config.centerX, config.centerY, radius); // Debug log
-        // Draw morse code ring for innermost ring of center wave
-        drawMorseCodeRing(ctx, config.centerX, config.centerY, radius, "CAN YOU HEAR ME?");
-      } else {
-        // Draw normal ring
-        ctx.strokeStyle = config.color.replace('1)', `${opacity})`);
-        ctx.lineWidth = lineWidth;
+      // Draw normal ring
+      ctx.strokeStyle = config.color.replace('1)', `${opacity})`);
+      ctx.lineWidth = lineWidth;
 
-        // Draw the ring
-        ctx.beginPath();
-        ctx.arc(config.centerX, config.centerY, radius, 0, 2 * Math.PI);
-        ctx.stroke();
+      // Draw the ring
+      ctx.beginPath();
+      ctx.arc(config.centerX, config.centerY, radius, 0, 2 * Math.PI);
+      ctx.stroke();
+    }
+  };
+
+  // Function to draw second layer content (rendered on top of base layer, below masks)
+  const drawSecondLayer = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
+    // Draw multiple waves of ripples from top to bottom
+    drawMultipleRippleWaves(ctx, canvasWidth, canvasHeight);
+  };
+
+  // Function to draw morse code along an arc path
+  const drawMorseCodeAlongArc = (
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    centerX: number,
+    centerY: number,
+    radius: number,
+    startAngle: number,
+    endAngle: number,
+    color: string
+  ) => {
+    const morseMap: { [key: string]: string } = {
+      'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.',
+      'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.',
+      'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-', 'U': '..-',
+      'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..', '?': '..--..'
+    };
+
+    // Convert text to morse code
+    const morseText = text.split('').map(char => morseMap[char.toUpperCase()] || char).join(' ');
+
+    // Morse code symbol dimensions (in inches at SCALE=1)
+    const baseDotSize = 6; // Radius for dots
+    const baseDashWidth = 15; // Width for dashes
+    const baseDashHeight = 12; // Height for dashes
+    const baseSymbolSpacing = 15; // Space between symbols
+    const baseLetterSpacing = 15; // Space between letters
+
+    // Apply scale
+    const dotSize = baseDotSize * SCALE;
+    const dashWidth = baseDashWidth * SCALE;
+    const dashHeight = baseDashHeight * SCALE;
+    const symbolSpacing = baseSymbolSpacing * SCALE;
+    const letterSpacing = baseLetterSpacing * SCALE;
+
+    // Calculate total angular span needed
+    let totalWidth = 0;
+    for (let i = 0; i < morseText.length; i++) {
+      const char = morseText[i];
+      if (char === ' ') {
+        totalWidth += baseLetterSpacing;
+      } else if (char === '.') {
+        totalWidth += (baseDotSize * 2) + baseSymbolSpacing;
+      } else if (char === '-') {
+        totalWidth += baseDashWidth + baseSymbolSpacing;
       }
     }
+
+    // Calculate available arc length and center the text
+    const totalAngle = endAngle - startAngle;
+    const arcLength = radius * totalAngle;
+    const totalWidthScaled = totalWidth * SCALE;
+
+    // Start angle centered on the arc
+    let currentAngle = startAngle + (totalAngle - (totalWidthScaled / radius)) / 2;
+
+    ctx.save();
+    ctx.fillStyle = color;
+
+    for (let i = 0; i < morseText.length; i++) {
+      const char = morseText[i];
+      const x = centerX + Math.cos(currentAngle) * radius;
+      const y = centerY + Math.sin(currentAngle) * radius;
+
+      // Calculate rotation angle perpendicular to the arc
+      const rotationAngle = currentAngle + Math.PI / 2;
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rotationAngle);
+
+      if (char === '.') {
+        // Draw a dot (circle)
+        ctx.beginPath();
+        ctx.arc(0, 0, dotSize, 0, 2 * Math.PI);
+        ctx.fill();
+      } else if (char === '-') {
+        // Draw a dash (pill shape with rounded ends)
+        const halfWidth = dashWidth / 2;
+        const halfHeight = dashHeight / 2;
+        const capRadius = halfHeight;
+
+        ctx.beginPath();
+        ctx.arc(-halfWidth, 0, capRadius, Math.PI / 2, -Math.PI / 2, false);
+        ctx.lineTo(halfWidth, -halfHeight);
+        ctx.arc(halfWidth, 0, capRadius, -Math.PI / 2, Math.PI / 2, false);
+        ctx.lineTo(-halfWidth, halfHeight);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      ctx.restore();
+
+      // Move to next position
+      if (i < morseText.length - 1) {
+        let spacing = 0;
+        if (char === ' ') {
+          spacing = letterSpacing;
+        } else if (char === '.') {
+          spacing = (dotSize * 2) + symbolSpacing;
+        } else if (char === '-') {
+          spacing = dashWidth + symbolSpacing;
+        }
+        currentAngle += spacing / radius;
+      }
+    }
+
+    ctx.restore();
+  };
+
+  // Function to draw third layer content (morse code along top and bottom arcs)
+  const drawThirdLayer = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
+    const arcDepthInches = 6 * 12; // 6 feet = 72 inches
+    const insetInches = 18; // How far to inset the morse code from the edge
+
+    // Calculate arc parameters (same as mask)
+    const width = TARP_WIDTH_INCHES;
+    const depth = arcDepthInches;
+    const radius = (width * width + 4 * depth * depth) / (8 * depth);
+
+    const tealColor = 'rgba(0, 255, 200, 0.9)';
+    const text = 'CAN YOU HEAR ME?';
+
+    // Bottom arc morse code
+    // Circle center is BELOW the canvas, so to move inward we INCREASE radius
+    const bottomCenterX = canvasWidth / 2;
+    const bottomCenterY = (TARP_HEIGHT_INCHES + radius - depth) * SCALE;
+    const bottomRadius = (radius + insetInches) * SCALE; // Inset radius (larger moves arc UP toward center)
+
+    // Calculate angle range for bottom arc
+    const bottomY = TARP_HEIGHT_INCHES * SCALE;
+    const fullBottomStartAngle = Math.atan2(bottomY - bottomCenterY, 0 - bottomCenterX);
+    const fullBottomEndAngle = Math.atan2(bottomY - bottomCenterY, canvasWidth - bottomCenterX);
+    const bottomAngleSpan = fullBottomEndAngle - fullBottomStartAngle;
+    const bottomStartAngle = fullBottomStartAngle + bottomAngleSpan * 0.1;
+    const bottomEndAngle = fullBottomEndAngle - bottomAngleSpan * 0.1;
+
+    drawMorseCodeAlongArc(ctx, text, bottomCenterX, bottomCenterY, bottomRadius, bottomStartAngle, bottomEndAngle, tealColor);
+
+    // Top arc morse code
+    // Circle center is ABOVE the canvas, so to move inward we DECREASE radius
+    const topCenterX = canvasWidth / 2;
+    const topCenterY = radius * SCALE;
+    const topRadius = (radius - insetInches) * SCALE; // Inset radius (smaller moves arc DOWN toward center)
+
+    // Calculate angle range for top arc
+    const cornerY = arcDepthInches * SCALE;
+    const fullTopStartAngle = Math.atan2(cornerY - topCenterY, 0 - topCenterX);
+    const fullTopEndAngle = Math.atan2(cornerY - topCenterY, canvasWidth - topCenterX);
+    const topAngleSpan = fullTopEndAngle - fullTopStartAngle;
+    const topStartAngle = fullTopStartAngle + topAngleSpan * 0.1;
+    const topEndAngle = fullTopEndAngle - topAngleSpan * 0.1;
+
+    drawMorseCodeAlongArc(ctx, text, topCenterX, topCenterY, topRadius, topStartAngle, topEndAngle, tealColor);
   };
 
   // Function to draw edge masks that simulate the curved tarp edges
@@ -365,8 +519,11 @@ const TarpCanvas2026: React.FC = () => {
     ctx.fillStyle = '#0a1f4e';
     ctx.fillRect(0, 0, width, height);
 
-    // Draw multiple waves of ripples from top to bottom
-    drawMultipleRippleWaves(ctx, width, height);
+    // Draw second layer (overlays on top of base layer)
+    drawSecondLayer(ctx, width, height);
+
+    // Draw third layer (morse code along edges)
+    drawThirdLayer(ctx, width, height);
 
     // Draw edge masks to simulate the curved tarp edges
     drawEdgeMasks(ctx, width, height);
