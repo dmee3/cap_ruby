@@ -8,40 +8,86 @@ interface RingConfig {
   maxRadius: number;
   minRadius: number;
   baseOpacity: number;
+  numRings: number;
 }
 
 const TarpCanvas2026: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Global scaling factor for all dimensions
-  const SCALE = 8;
+  // Tarp dimensions in feet
+  const TARP_WIDTH_FEET = 90;
+  const TARP_HEIGHT_FEET = 60;
+
+  // Convert to inches (base unit: 1 pixel = 1 inch at SCALE = 1)
+  const TARP_WIDTH_INCHES = TARP_WIDTH_FEET * 12;  // 1,080 inches
+  const TARP_HEIGHT_INCHES = TARP_HEIGHT_FEET * 12; // 720 inches
+
+  // Scale factor: pixels per inch
+  // SCALE = 1: 1,080 × 720 px (1 pixel per inch, print-ready)
+  // SCALE = 10: 10,800 × 7,200 px (10 pixels per inch, high-res)
+  const SCALE = 1;
 
   // Function to draw a single wave of ripples with a specific color
   const drawRippleWaveWithColor = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number, color: string, opacityRange?: { min: number; max: number }, isCenterWave?: boolean) => {
     const numRipples = 7;
-    const edgeMargin = 150 * SCALE; // Distance from edge for outer ripples
+    const edgeMargin = 120 * SCALE; // Horizontal distance from edge for outer ripples
 
     for (let i = 0; i < numRipples; i++) {
       const progress = i / (numRipples - 1); // 0 to 1
 
-      // X position: spread from left edge to right edge
-      const x = edgeMargin + (canvasWidth - 2 * edgeMargin) * progress;
+      // Apply gentle easing to horizontal position: slightly tighter at center, slightly wider at edges
+      // Uses power of 1.3 for subtle effect
+      let horizontalProgress;
+      if (progress < 0.5) {
+        // First half: ease-out (starts fast, slows down toward center)
+        const t = progress * 2; // Map [0, 0.5] to [0, 1]
+        horizontalProgress = (1 - Math.pow(1 - t, 1.3)) * 0.5;
+      } else {
+        // Second half: ease-in (starts slow from center, speeds up toward edge)
+        const t = (progress - 0.5) * 2; // Map [0.5, 1] to [0, 1]
+        horizontalProgress = 0.5 + Math.pow(t, 1.3) * 0.5;
+      }
+
+      // X position: spread from left edge to right edge with eased spacing
+      const x = edgeMargin + (canvasWidth - 2 * edgeMargin) * horizontalProgress;
 
       // Y position: wave pattern with peak on left, trough on right
-      const waveAmplitude = 100 * SCALE; // Height of the wave
+      const waveAmplitude = 50 * SCALE; // Height of the wave
       const wavePhase = progress * 2 * Math.PI; // Creates wave from 0 to 2π (full cycle)
       const baseY = canvasHeight / 2;
       const y = baseY + Math.sin(wavePhase) * waveAmplitude;
 
-      // Size and opacity: largest and most opaque at edges, smallest and least opaque at center
-      const sizeProgress = Math.abs(progress - 0.5) * 2; // 1 at edges, 0 at center
-      const maxRadius = (200 + (200 * sizeProgress)) * SCALE; // 400 at edges, 200 at center
-      const minRadius = (25 + (25 * sizeProgress)) * SCALE; // 50 at edges, 25 at center
+      // Calculate distance from center ripple (index 3 is center)
+      const centerIndex = Math.floor(numRipples / 2); // 3
+      const distanceFromCenter = Math.abs(i - centerIndex); // 0, 1, 2, or 3
 
-      // Use custom opacity range if provided, otherwise use default
+      // Define ripple diameters in feet based on distance from center
+      const rippleDiameters: { [key: number]: number } = {
+        0: 6,   // center ripples: 6 feet diameter
+        1: 10,  // next out: 10 feet diameter
+        2: 14,  // next out: 14 feet diameter
+        3: 18   // outermost: 18 feet diameter
+      };
+
+      // Define number of concentric rings based on distance from center
+      const numRingsMap: { [key: number]: number } = {
+        0: 3,   // center ripples: 3 rings
+        1: 5,   // next out: 5 rings
+        2: 6,   // next out: 6 rings
+        3: 7    // outermost: 7 rings
+      };
+
+      const diameterFeet = rippleDiameters[distanceFromCenter];
+      const diameterInches = diameterFeet * 12;
+      const maxRadius = (diameterInches / 2) * SCALE; // Convert diameter to radius in pixels
+      const minRadius = maxRadius / 8; // Inner radius is 1/8 of outer radius
+      const numRings = numRingsMap[distanceFromCenter];
+
+      // Opacity: more opaque at edges, less opaque at center
+      const opacityProgress = distanceFromCenter / 3; // 0 at center, 1 at edges
       const baseOpacity = opacityRange
-        ? opacityRange.min + (opacityRange.max - opacityRange.min) * sizeProgress
-        : 0.3 + (0.2 * sizeProgress); // 0.5 at edges, 0.3 at center
+        ? opacityRange.min + (opacityRange.max - opacityRange.min) * opacityProgress
+        : 0.3 + (0.2 * opacityProgress); // 0.5 at edges, 0.3 at center
 
       // Check if this is the 4th ripple (index 3) in the center wave
       const isFourthRipple = isCenterWave && i === 3; // 4th ripple (0-indexed)
@@ -52,7 +98,8 @@ const TarpCanvas2026: React.FC = () => {
         maxRadius,
         minRadius,
         baseOpacity,
-        color
+        color,
+        numRings
       }, isFourthRipple);
     }
   };
@@ -171,11 +218,9 @@ const TarpCanvas2026: React.FC = () => {
 
   // Function to draw concentric rings with a specific color
   const drawConcentricRingsWithColor = (ctx: CanvasRenderingContext2D, config: RingConfig & { color: string }, isCenterWave?: boolean) => {
-    const numRings = 7;
-
-    for (let i = 0; i < numRings; i++) {
+    for (let i = 0; i < config.numRings; i++) {
       // Calculate radius - inner rings closer together, outer rings more spaced
-      const progress = i / (numRings - 1);
+      const progress = i / (config.numRings - 1);
 
       // More gradual growth options:
       // const radius = config.minRadius + (config.maxRadius - config.minRadius) * progress * progress; // Quadratic (current)
@@ -185,7 +230,7 @@ const TarpCanvas2026: React.FC = () => {
       const radius = config.minRadius + (config.maxRadius - config.minRadius) * Math.pow(progress, 1.1); // Power 1.1 (more gradual than quadratic)
 
       // Calculate line width - thicker inner rings, thinner outer rings
-      const maxLineWidth = 16 * SCALE;
+      const maxLineWidth = 10 * SCALE; // Reduced for thinner innermost circles
       const minLineWidth = 1 * SCALE;
       const lineWidth = maxLineWidth - (maxLineWidth - minLineWidth) * progress;
 
@@ -212,16 +257,74 @@ const TarpCanvas2026: React.FC = () => {
     }
   };
 
+  // Function to draw edge masks that simulate the curved tarp edges
+  const drawEdgeMasks = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
+    const arcDepthInches = 6 * 12; // 6 feet = 72 inches
+
+    // Calculate circular arc parameters
+    // For an arc spanning width W with depth D:
+    // radius = (W^2 + 4*D^2) / (8*D)
+    const width = TARP_WIDTH_INCHES;
+    const depth = arcDepthInches;
+    const radius = (width * width + 4 * depth * depth) / (8 * depth);
+
+    ctx.fillStyle = 'black';
+
+    // Bottom arc mask
+    // Arc goes from (0, 720) curving up to (540, 648) and back to (1080, 720)
+    // Center of circle is at (width/2, 720 + radius - depth)
+    const bottomCenterX = (canvasWidth / 2);
+    const bottomCenterY = (TARP_HEIGHT_INCHES + radius - depth) * SCALE;
+    const bottomY = TARP_HEIGHT_INCHES * SCALE;
+
+    // Calculate angles for the arc
+    const bottomStartAngle = Math.atan2(bottomY - bottomCenterY, 0 - bottomCenterX);
+    const bottomEndAngle = Math.atan2(bottomY - bottomCenterY, canvasWidth - bottomCenterX);
+
+    ctx.beginPath();
+    ctx.moveTo(0, bottomY);
+    ctx.lineTo(canvasWidth, bottomY);
+    // Arc back counterclockwise from right to left (going through the area outside canvas)
+    ctx.arc(bottomCenterX, bottomCenterY, radius * SCALE, bottomEndAngle, bottomStartAngle, true);
+    ctx.closePath();
+    ctx.fill();
+
+    // Top arc mask
+    // Arc goes from (0, 72) curving up to (540, 0) and back to (1080, 72)
+    // For this upward-curving arc, the circle center is BELOW the arc points
+    // Calculate: if distance from (540, y_c) to (540, 0) = radius, then y_c = radius
+    const topCenterX = (canvasWidth / 2);
+    const topCenterY = radius * SCALE; // Center is below the canvas
+    const topY = 0;
+    const cornerY = arcDepthInches * SCALE;
+
+    // Calculate angles for the arc (measuring from center to points)
+    const topStartAngle = Math.atan2(cornerY - topCenterY, 0 - topCenterX);
+    const topEndAngle = Math.atan2(cornerY - topCenterY, canvasWidth - topCenterX);
+
+    ctx.beginPath();
+    ctx.moveTo(0, cornerY); // Start at left corner (0, 72")
+    ctx.arc(topCenterX, topCenterY, radius * SCALE, topStartAngle, topEndAngle, false);
+    ctx.lineTo(canvasWidth, topY); // Go to top-right corner
+    ctx.lineTo(0, topY); // Go to top-left corner
+    ctx.closePath();
+    ctx.fill();
+  };
+
   // Function to draw multiple waves of ripples from top to bottom
   const drawMultipleRippleWaves = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
     const numWaves = 5;
-    const edgeMargin = 100 * SCALE; // Distance from top and bottom edges
+
+    // Margins to keep all ripples within unmasked area (in inches)
+    // Adjust these values independently to balance visual spacing
+    const topMargin = 160;
+    const bottomMargin = 190;
 
     for (let waveIndex = 0; waveIndex < numWaves; waveIndex++) {
       const waveProgress = waveIndex / (numWaves - 1); // 0 to 1
 
-      // Y position: spread from top edge to bottom edge
-      const y = edgeMargin + (canvasHeight - 2 * edgeMargin) * waveProgress;
+      // Y position: spread from top margin to bottom margin
+      const y = topMargin + (canvasHeight - topMargin - bottomMargin) * waveProgress;
 
       // Save the current context state
       ctx.save();
@@ -252,9 +355,9 @@ const TarpCanvas2026: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size
-    const width = 1920 * SCALE;
-    const height = 1080 * SCALE;
+    // Set canvas size based on tarp dimensions
+    const width = TARP_WIDTH_INCHES * SCALE;   // 1,080 * SCALE pixels
+    const height = TARP_HEIGHT_INCHES * SCALE; // 720 * SCALE pixels
     canvas.width = width;
     canvas.height = height;
 
@@ -264,6 +367,9 @@ const TarpCanvas2026: React.FC = () => {
 
     // Draw multiple waves of ripples from top to bottom
     drawMultipleRippleWaves(ctx, width, height);
+
+    // Draw edge masks to simulate the curved tarp edges
+    drawEdgeMasks(ctx, width, height);
   }, []);
 
   return (
