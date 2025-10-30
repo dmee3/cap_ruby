@@ -38,7 +38,7 @@ const CONFIG = {
   ripple: {
     numRipplesPerWave: 7,
     edgeMargin: 120, // Horizontal distance from edge for outer ripples (in inches at SCALE=1)
-    waveAmplitude: 50, // Height of the sine wave (in inches at SCALE=1)
+    waveAmplitude: 75, // Height of the sine wave (in inches at SCALE=1)
   },
   // Ring styling
   ring: {
@@ -480,7 +480,8 @@ const TarpCanvas2026: React.FC = () => {
     const gradientRadius = Math.sqrt(centerX * centerX + centerY * centerY); // Diagonal distance to corner
 
     const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, gradientRadius);
-    gradient.addColorStop(0, CONFIG.colors.backgroundCenter); // Bright at center
+    // gradient.addColorStop(0, CONFIG.colors.backgroundCenter); // Bright at center
+    gradient.addColorStop(0, CONFIG.colors.background); // Bright at center
     gradient.addColorStop(1, CONFIG.colors.background); // Dark at edges
 
     ctx.fillStyle = gradient;
