@@ -9,6 +9,9 @@ interface RingConfig {
   minRadius: number;
   baseOpacity: number;
   numRings: number;
+  isCenterWave?: boolean;
+  rippleIndex?: number;
+  totalRipples?: number;
 }
 
 // Tarp dimensions in feet
@@ -59,7 +62,8 @@ const CONFIG = {
   },
   // Morse code configuration
   morse: {
-    text: 'CAN YOU HEAR ME?',
+    topText: 'MOVE MOVE MOVE MOVE MOVE',
+    bottomText: 'VE MOVE MOVE MOVE MOVE MO',
     dotSize: 6, // Radius for dots (in inches at SCALE=1)
     dashWidth: 15, // Width for dashes (in inches at SCALE=1)
     dashHeight: 12, // Height for dashes (in inches at SCALE=1)
@@ -69,10 +73,13 @@ const CONFIG = {
   // Colors
   colors: {
     background: '#061f37', // Dark blue-gray for edges
+    // backgroundCenter: '#153b46', // Dark blue-gray for edges
     backgroundCenter: '#14476e', // Brighter blue-gray for center
     teal: '#02aaa2', // Bright teal for center wave
     blue: '#005a50', // Dark teal for other waves
-    centerRipple: '#ec67f0', // Pink/magenta for the very center ripple
+    outsideRippleCenterRing: '#85e600', // Chartreuse green for the outside ripple center ring
+    centerRippleInnerRing: '#ec67f0', // Pink/magenta for the very center ripple
+
   },
 } as const;
 
@@ -148,25 +155,24 @@ const TarpCanvas2026: React.FC = () => {
         ? opacityRange.min + (opacityRange.max - opacityRange.min) * opacityProgress
         : 0.3 + (0.2 * opacityProgress); // 0.3 at center, 0.5 at edges
 
-      // Check if this is the very center ripple of the center wave
-      const isCenterRipple = isCenterWave && i === centerIndex;
-      const rippleColor = isCenterRipple ? CONFIG.colors.centerRipple : color;
-
       drawConcentricRingsWithColor(ctx, {
         centerX: x,
         centerY: y,
         maxRadius,
         minRadius,
         baseOpacity,
-        color: rippleColor,
-        numRings
+        color,
+        numRings,
+        isCenterWave,
+        rippleIndex: i,
+        totalRipples: numRipples
       });
     }
   };
 
   // Function to draw concentric rings with a specific color
   const drawConcentricRingsWithColor = (ctx: CanvasRenderingContext2D, config: RingConfig & { color: string }) => {
-    // Parse color once upfront for performance
+    // Parse main color once upfront for performance
     let baseR: number, baseG: number, baseB: number;
     const rgbaMatch = config.color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
     if (rgbaMatch) {
@@ -188,6 +194,30 @@ const TarpCanvas2026: React.FC = () => {
       return;
     }
 
+    // Parse inner ring colors for center wave
+    let innerR: number | undefined, innerG: number | undefined, innerB: number | undefined;
+    let outsideInnerR: number | undefined, outsideInnerG: number | undefined, outsideInnerB: number | undefined;
+
+    if (config.isCenterWave) {
+      // Parse center ripple inner ring color (for middle ripple)
+      const innerColor = CONFIG.colors.centerRippleInnerRing;
+      const innerResult = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(innerColor);
+      if (innerResult) {
+        innerR = parseInt(innerResult[1], 16);
+        innerG = parseInt(innerResult[2], 16);
+        innerB = parseInt(innerResult[3], 16);
+      }
+
+      // Parse outside ripple center ring color (for first/last ripples)
+      const outsideColor = CONFIG.colors.outsideRippleCenterRing;
+      const outsideResult = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(outsideColor);
+      if (outsideResult) {
+        outsideInnerR = parseInt(outsideResult[1], 16);
+        outsideInnerG = parseInt(outsideResult[2], 16);
+        outsideInnerB = parseInt(outsideResult[3], 16);
+      }
+    }
+
     for (let i = 0; i < config.numRings; i++) {
       // Calculate radius - inner rings closer together, outer rings more spaced
       const progress = i / (config.numRings - 1);
@@ -206,7 +236,23 @@ const TarpCanvas2026: React.FC = () => {
       const opacity = maxOpacity - (maxOpacity - minOpacity) * progress;
 
       // Apply color with calculated opacity
-      ctx.strokeStyle = `rgba(${baseR}, ${baseG}, ${baseB}, ${opacity})`;
+      // For center wave, use special colors for innermost ring based on ripple position
+      if (config.isCenterWave && i === 0) {
+        const isFirstOrLastRipple = config.rippleIndex === 0 || config.rippleIndex === (config.totalRipples ?? 0) - 1;
+        const isCenterRipple = config.rippleIndex === 3;
+
+        if ((isFirstOrLastRipple) && outsideInnerR !== undefined && outsideInnerG !== undefined && outsideInnerB !== undefined) {
+          // First or last ripple: use outsideRippleCenterRing color
+          ctx.strokeStyle = `rgba(${outsideInnerR}, ${outsideInnerG}, ${outsideInnerB}, ${opacity})`;
+        } else if (innerR !== undefined && innerG !== undefined && innerB !== undefined) {
+          // Middle ripples: use centerRippleInnerRing color
+          ctx.strokeStyle = `rgba(${innerR}, ${innerG}, ${innerB}, ${opacity})`;
+        } else {
+          ctx.strokeStyle = `rgba(${baseR}, ${baseG}, ${baseB}, ${opacity})`;
+        }
+      } else {
+        ctx.strokeStyle = `rgba(${baseR}, ${baseG}, ${baseB}, ${opacity})`;
+      }
       ctx.lineWidth = lineWidth;
 
       // Draw the ring
@@ -335,7 +381,6 @@ const TarpCanvas2026: React.FC = () => {
     const radius = (width * width + 4 * depth * depth) / (8 * depth);
 
     const morseColor = CONFIG.colors.backgroundCenter;
-    const text = CONFIG.morse.text;
 
     // Bottom arc morse code
     // Circle center is BELOW the canvas, so to move inward we INCREASE radius
@@ -351,7 +396,7 @@ const TarpCanvas2026: React.FC = () => {
     const bottomStartAngle = fullBottomStartAngle + bottomAngleSpan * 0.1;
     const bottomEndAngle = fullBottomEndAngle - bottomAngleSpan * 0.1;
 
-    drawMorseCodeAlongArc(ctx, text, bottomCenterX, bottomCenterY, bottomRadius, bottomStartAngle, bottomEndAngle, morseColor);
+    // drawMorseCodeAlongArc(ctx, CONFIG.morse.bottomText, bottomCenterX, bottomCenterY, bottomRadius, bottomStartAngle, bottomEndAngle, morseColor);
 
     // Top arc morse code
     // Circle center is ABOVE the canvas, so to move inward we DECREASE radius
@@ -367,7 +412,7 @@ const TarpCanvas2026: React.FC = () => {
     const topStartAngle = fullTopStartAngle + topAngleSpan * 0.1;
     const topEndAngle = fullTopEndAngle - topAngleSpan * 0.1;
 
-    drawMorseCodeAlongArc(ctx, text, topCenterX, topCenterY, topRadius, topStartAngle, topEndAngle, morseColor);
+    // drawMorseCodeAlongArc(ctx, CONFIG.morse.topText, topCenterX, topCenterY, topRadius, topStartAngle, topEndAngle, morseColor);
   };
 
   // Function to draw edge masks that simulate the curved tarp edges
@@ -444,16 +489,27 @@ const TarpCanvas2026: React.FC = () => {
       // Translate to the Y position where we want to draw the wave
       ctx.translate(0, y - canvasHeight / 2);
 
-      // Determine color based on wave index (middle wave uses teal)
+      // Determine color and opacity based on wave index
       const middleWaveIndex = Math.floor(numWaves / 2);
       const isMiddleWave = waveIndex === middleWaveIndex;
+      const distanceFromMiddle = Math.abs(waveIndex - middleWaveIndex);
 
       if (isMiddleWave) {
         // Middle wave: bright teal with higher opacity
         drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.teal, { min: 0.5, max: 0.8 }, true);
       } else {
-        // Other waves: lighter blue than base
-        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, undefined, false);
+        // Other waves: dark teal with opacity based on distance from center
+        // Distance 1 (waves adjacent to center): slightly more transparent
+        // Distance 2 (outermost waves): even more transparent
+        let opacityRange;
+        if (distanceFromMiddle === 1) {
+          // Adjacent waves: moderate transparency
+          opacityRange = { min: 0.35, max: 0.55 };
+        } else {
+          // Outermost waves: high transparency
+          opacityRange = { min: 0.15, max: 0.25 };
+        }
+        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, opacityRange, false);
       }
 
       // Restore the context state
@@ -480,8 +536,8 @@ const TarpCanvas2026: React.FC = () => {
     const gradientRadius = Math.sqrt(centerX * centerX + centerY * centerY); // Diagonal distance to corner
 
     const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, gradientRadius);
-    // gradient.addColorStop(0, CONFIG.colors.backgroundCenter); // Bright at center
-    gradient.addColorStop(0, CONFIG.colors.background); // Bright at center
+    gradient.addColorStop(0, CONFIG.colors.backgroundCenter); // Bright at center
+    gradient.addColorStop(0.6, CONFIG.colors.background); // Transition to dark quickly
     gradient.addColorStop(1, CONFIG.colors.background); // Dark at edges
 
     ctx.fillStyle = gradient;
