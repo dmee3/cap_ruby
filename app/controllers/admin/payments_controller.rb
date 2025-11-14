@@ -29,7 +29,6 @@ module Admin
     end
 
     def create
-      sleep 5 # TODO: Remove this - temporary delay for testing duplicate submission prevention
       @payment = Payment.new(payment_params)
       @payment.amount *= 100 if @payment.amount
       @payment.season_id = current_season['id']
