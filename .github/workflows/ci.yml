@@ -7,8 +7,8 @@ on:
     branches: [ main, master ]
 
 jobs:
-  test:
-    name: Tests
+  backend-test:
+    name: Backend Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -22,6 +22,17 @@ jobs:
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
         rubygems: latest
 
+    - name: Run backend tests
+      run: bundle exec rspec
+
+  frontend-test:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -30,9 +41,6 @@ jobs:
 
     - name: Install JavaScript dependencies
       run: yarn install --immutable
-
-    - name: Run backend tests
-      run: bundle exec rspec
 
     - name: Run frontend tests
       run: yarn test:run
