@@ -34,8 +34,25 @@
 
     <div class="row mt-3">
       <div class="col-sm-12 form-group text-center">
-        <%= p.submit 'Submit', class: 'btn btn-success' %>
+        <%= p.submit 'Submit', class: 'btn btn-success', id: 'payment-submit-btn' %>
       </div>
     </div>
   <% end %>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form');
+    const submitBtn = document.getElementById('payment-submit-btn');
+
+    form.addEventListener('submit', (e) => {
+      if (submitBtn.disabled) {
+        e.preventDefault();
+        return false;
+      }
+      submitBtn.value = 'Submitting...';
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-50', 'cursor-default');
+    });
+  });
+</script>

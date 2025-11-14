@@ -29,6 +29,7 @@ module Admin
     end
 
     def create
+      sleep 5 # TODO: Remove this - temporary delay for testing duplicate submission prevention
       @payment = Payment.new(payment_params)
       @payment.amount *= 100 if @payment.amount
       @payment.season_id = current_season['id']
@@ -51,6 +52,7 @@ module Admin
     end
 
     def update
+      sleep 5 # TODO: Remove this - temporary delay for testing duplicate submission prevention
       @payment = Payment.find(params[:id])
       if @payment.update(update_params.reject { |_k, v| v.blank? }) # only update non-empty fields
         flash[:success] = 'Payment updated'

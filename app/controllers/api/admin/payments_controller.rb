@@ -8,6 +8,21 @@ module Api
         @users = PaymentService.season_payment_details(current_season['id'])
       end
 
+      def create
+        payment_data = payment_params.to_h
+        # Convert amount to cents before assigning to avoid integer truncation
+        payment_data[:amount] = (payment_data[:amount].to_f * 100).to_i if payment_data[:amount]
+
+        @payment = Payment.new(payment_data)
+        @payment.season_id = current_season['id']
+
+        if @payment.save
+          render json: { success: true, payment: @payment }, status: :created
+        else
+          render json: { success: false, errors: @payment.errors.full_messages }, status: :unprocessable_entity
+        end
+      end
+
       def collected
         @payments = PaymentService.payments_collected_to_date(current_season['id'])
         render json: @payments
@@ -28,6 +43,10 @@ module Api
       end
 
       private
+
+      def payment_params
+        params.require(:payment).permit(:user_id, :payment_type_id, :amount, :date_paid, :notes)
+      end
 
       def start_param
         return DateTime.parse(params[:start]) if params[:start]
