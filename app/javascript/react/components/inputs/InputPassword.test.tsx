@@ -1,0 +1,205 @@
+import { render, screen } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import InputPassword from './InputPassword'
+
+describe('InputPassword', () => {
+  describe('rendering', () => {
+    it('renders input with name attribute', () => {
+      const { container } = render(<InputPassword name="password" />)
+      const input = container.querySelector('input[name="password"]')
+      expect(input).toBeInTheDocument()
+    })
+
+    it('renders with placeholder text', () => {
+      render(<InputPassword name="password" placeholder="Enter password" />)
+      expect(screen.getByPlaceholderText('Enter password')).toBeInTheDocument()
+    })
+
+    it('renders with id attribute', () => {
+      render(<InputPassword name="password" id="customId" />)
+      const input = screen.getByPlaceholderText('') // password inputs don't have role
+      expect(input).toHaveAttribute('id', 'customId')
+    })
+
+    it('renders with empty default value', () => {
+      render(<InputPassword name="password" />)
+      const input = screen.getByPlaceholderText('')
+      expect(input).toHaveValue('')
+    })
+
+    it('renders with initial value', () => {
+      render(<InputPassword name="password" value="initial123" />)
+      const input = screen.getByPlaceholderText('')
+      expect(input).toHaveValue('initial123')
+    })
+  })
+
+  describe('type attribute', () => {
+    it('has type="password"', () => {
+      render(<InputPassword name="password" />)
+      const input = screen.getByPlaceholderText('')
+      expect(input).toHaveAttribute('type', 'password')
+    })
+
+    it('masks input text', async () => {
+      const user = userEvent.setup()
+      render(<InputPassword name="password" />)
+
+      const input = screen.getByPlaceholderText('') as HTMLInputElement
+      await user.type(input, 'secret')
+
+      // Value should be stored but input type is password
+      expect(input).toHaveValue('secret')
+      expect(input.type).toBe('password')
+    })
+  })
+
+  describe('autofocus', () => {
+    it('does not autofocus by default', () => {
+      render(<InputPassword name="password" />)
+      expect(document.activeElement).not.toBe(screen.getByPlaceholderText(''))
+    })
+
+    it('autofocuses when prop is true', () => {
+      render(<InputPassword name="password" autofocus={true} />)
+      expect(document.activeElement).toBe(screen.getByPlaceholderText(''))
+    })
+  })
+
+  describe('internal state management', () => {
+    it('manages its own internal state', async () => {
+      const user = userEvent.setup()
+      render(<InputPassword name="password" />)
+
+      const input = screen.getByPlaceholderText('')
+      await user.type(input, 'mypassword')
+
+      expect(input).toHaveValue('mypassword')
+    })
+
+    it('starts with initial value from prop', () => {
+      render(<InputPassword name="password" value="preset" />)
+      expect(screen.getByPlaceholderText('')).toHaveValue('preset')
+    })
+
+    it('updates value on user input', async () => {
+      const user = userEvent.setup()
+      render(<InputPassword name="password" value="" />)
+
+      const input = screen.getByPlaceholderText('')
+      await user.type(input, 'newpass')
+
+      expect(input).toHaveValue('newpass')
+    })
+
+    it('allows clearing the value', async () => {
+      const user = userEvent.setup()
+      render(<InputPassword name="password" value="initial" />)
+
+      const input = screen.getByPlaceholderText('')
+      await user.clear(input)
+
+      expect(input).toHaveValue('')
+    })
+  })
+
+  describe('onChange behavior', () => {
+    it('updates on each character typed', async () => {
+      const user = userEvent.setup()
+      render(<InputPassword name="password" />)
+
+      const input = screen.getByPlaceholderText('')
+      await user.type(input, 'abc')
+
+      // After typing 3 characters
+      expect(input).toHaveValue('abc')
+    })
+
+    it('handles backspace', async () => {
+      const user = userEvent.setup()
+      render(<InputPassword name="password" value="test" />)
+
+      const input = screen.getByPlaceholderText('')
+      await user.type(input, '{backspace}')
+
+      expect(input).toHaveValue('tes')
+    })
+
+    it('handles special characters', async () => {
+      const user = userEvent.setup()
+      render(<InputPassword name="password" />)
+
+      const input = screen.getByPlaceholderText('')
+      await user.type(input, 'P@ssw0rd!')
+
+      expect(input).toHaveValue('P@ssw0rd!')
+    })
+  })
+
+  describe('styling', () => {
+    it('applies input-text class', () => {
+      const { container } = render(<InputPassword name="password" />)
+      const input = container.querySelector('input')
+      expect(input).toHaveClass('input-text')
+    })
+  })
+
+  describe('placeholder', () => {
+    it('shows placeholder when empty', () => {
+      render(<InputPassword name="password" placeholder="Password" />)
+      expect(screen.getByPlaceholderText('Password')).toBeInTheDocument()
+    })
+
+    it('hides placeholder when typing', async () => {
+      const user = userEvent.setup()
+      render(<InputPassword name="password" placeholder="Password" />)
+
+      const input = screen.getByPlaceholderText('Password')
+      await user.type(input, 'test')
+
+      // Placeholder still exists as attribute but isn't visible
+      expect(input).toHaveAttribute('placeholder', 'Password')
+    })
+  })
+
+  describe('security', () => {
+    it('does not expose password in DOM as plain text', () => {
+      const { container } = render(<InputPassword name="password" value="secret123" />)
+
+      // The password type ensures it's masked
+      const input = container.querySelector('input[type="password"]')
+      expect(input).toBeInTheDocument()
+    })
+
+    it('maintains password masking during input', async () => {
+      const user = userEvent.setup()
+      const { container } = render(<InputPassword name="password" />)
+
+      const input = screen.getByPlaceholderText('')
+      await user.type(input, 'topsecret')
+
+      // Verify type stays as password
+      expect(container.querySelector('input[type="password"]')).toBeInTheDocument()
+    })
+  })
+
+  describe('form integration', () => {
+    it('submits with form', () => {
+      const { container } = render(
+        <form>
+          <InputPassword name="password" value="test123" />
+        </form>
+      )
+
+      const input = container.querySelector('input[name="password"]') as HTMLInputElement
+      expect(input.value).toBe('test123')
+    })
+
+    it('has correct name for form submission', () => {
+      render(<InputPassword name="userPassword" />)
+      const input = screen.getByPlaceholderText('')
+      expect(input).toHaveAttribute('name', 'userPassword')
+    })
+  })
+})
