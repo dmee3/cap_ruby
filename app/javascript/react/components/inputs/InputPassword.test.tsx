@@ -4,6 +4,10 @@ import userEvent from '@testing-library/user-event'
 import InputPassword from './InputPassword'
 
 describe('InputPassword', () => {
+  const getPasswordInput = (container: HTMLElement) => {
+    return container.querySelector('input[type="password"]') as HTMLInputElement
+  }
+
   describe('rendering', () => {
     it('renders input with name attribute', () => {
       const { container } = render(<InputPassword name="password" />)
@@ -17,36 +21,36 @@ describe('InputPassword', () => {
     })
 
     it('renders with id attribute', () => {
-      render(<InputPassword name="password" id="customId" />)
-      const input = screen.getByPlaceholderText('') // password inputs don't have role
+      const { container } = render(<InputPassword name="password" id="customId" />)
+      const input = getPasswordInput(container)
       expect(input).toHaveAttribute('id', 'customId')
     })
 
     it('renders with empty default value', () => {
-      render(<InputPassword name="password" />)
-      const input = screen.getByPlaceholderText('')
+      const { container } = render(<InputPassword name="password" />)
+      const input = getPasswordInput(container)
       expect(input).toHaveValue('')
     })
 
     it('renders with initial value', () => {
-      render(<InputPassword name="password" value="initial123" />)
-      const input = screen.getByPlaceholderText('')
+      const { container } = render(<InputPassword name="password" value="initial123" />)
+      const input = getPasswordInput(container)
       expect(input).toHaveValue('initial123')
     })
   })
 
   describe('type attribute', () => {
     it('has type="password"', () => {
-      render(<InputPassword name="password" />)
-      const input = screen.getByPlaceholderText('')
+      const { container } = render(<InputPassword name="password" />)
+      const input = getPasswordInput(container)
       expect(input).toHaveAttribute('type', 'password')
     })
 
     it('masks input text', async () => {
       const user = userEvent.setup()
-      render(<InputPassword name="password" />)
+      const { container } = render(<InputPassword name="password" />)
 
-      const input = screen.getByPlaceholderText('') as HTMLInputElement
+      const input = getPasswordInput(container)
       await user.type(input, 'secret')
 
       // Value should be stored but input type is password
@@ -57,37 +61,40 @@ describe('InputPassword', () => {
 
   describe('autofocus', () => {
     it('does not autofocus by default', () => {
-      render(<InputPassword name="password" />)
-      expect(document.activeElement).not.toBe(screen.getByPlaceholderText(''))
+      const { container } = render(<InputPassword name="password" />)
+      const input = getPasswordInput(container)
+      expect(document.activeElement).not.toBe(input)
     })
 
     it('autofocuses when prop is true', () => {
-      render(<InputPassword name="password" autofocus={true} />)
-      expect(document.activeElement).toBe(screen.getByPlaceholderText(''))
+      const { container } = render(<InputPassword name="password" autofocus={true} />)
+      const input = getPasswordInput(container)
+      expect(document.activeElement).toBe(input)
     })
   })
 
   describe('internal state management', () => {
     it('manages its own internal state', async () => {
       const user = userEvent.setup()
-      render(<InputPassword name="password" />)
+      const { container } = render(<InputPassword name="password" />)
 
-      const input = screen.getByPlaceholderText('')
+      const input = getPasswordInput(container)
       await user.type(input, 'mypassword')
 
       expect(input).toHaveValue('mypassword')
     })
 
     it('starts with initial value from prop', () => {
-      render(<InputPassword name="password" value="preset" />)
-      expect(screen.getByPlaceholderText('')).toHaveValue('preset')
+      const { container } = render(<InputPassword name="password" value="preset" />)
+      const input = getPasswordInput(container)
+      expect(input).toHaveValue('preset')
     })
 
     it('updates value on user input', async () => {
       const user = userEvent.setup()
-      render(<InputPassword name="password" value="" />)
+      const { container } = render(<InputPassword name="password" value="" />)
 
-      const input = screen.getByPlaceholderText('')
+      const input = getPasswordInput(container)
       await user.type(input, 'newpass')
 
       expect(input).toHaveValue('newpass')
@@ -95,9 +102,9 @@ describe('InputPassword', () => {
 
     it('allows clearing the value', async () => {
       const user = userEvent.setup()
-      render(<InputPassword name="password" value="initial" />)
+      const { container } = render(<InputPassword name="password" value="initial" />)
 
-      const input = screen.getByPlaceholderText('')
+      const input = getPasswordInput(container)
       await user.clear(input)
 
       expect(input).toHaveValue('')
@@ -107,9 +114,9 @@ describe('InputPassword', () => {
   describe('onChange behavior', () => {
     it('updates on each character typed', async () => {
       const user = userEvent.setup()
-      render(<InputPassword name="password" />)
+      const { container } = render(<InputPassword name="password" />)
 
-      const input = screen.getByPlaceholderText('')
+      const input = getPasswordInput(container)
       await user.type(input, 'abc')
 
       // After typing 3 characters
@@ -118,9 +125,9 @@ describe('InputPassword', () => {
 
     it('handles backspace', async () => {
       const user = userEvent.setup()
-      render(<InputPassword name="password" value="test" />)
+      const { container } = render(<InputPassword name="password" value="test" />)
 
-      const input = screen.getByPlaceholderText('')
+      const input = getPasswordInput(container)
       await user.type(input, '{backspace}')
 
       expect(input).toHaveValue('tes')
@@ -128,9 +135,9 @@ describe('InputPassword', () => {
 
     it('handles special characters', async () => {
       const user = userEvent.setup()
-      render(<InputPassword name="password" />)
+      const { container } = render(<InputPassword name="password" />)
 
-      const input = screen.getByPlaceholderText('')
+      const input = getPasswordInput(container)
       await user.type(input, 'P@ssw0rd!')
 
       expect(input).toHaveValue('P@ssw0rd!')
@@ -176,7 +183,7 @@ describe('InputPassword', () => {
       const user = userEvent.setup()
       const { container } = render(<InputPassword name="password" />)
 
-      const input = screen.getByPlaceholderText('')
+      const input = getPasswordInput(container)
       await user.type(input, 'topsecret')
 
       // Verify type stays as password
@@ -197,8 +204,8 @@ describe('InputPassword', () => {
     })
 
     it('has correct name for form submission', () => {
-      render(<InputPassword name="userPassword" />)
-      const input = screen.getByPlaceholderText('')
+      const { container } = render(<InputPassword name="userPassword" />)
+      const input = getPasswordInput(container)
       expect(input).toHaveAttribute('name', 'userPassword')
     })
   })
