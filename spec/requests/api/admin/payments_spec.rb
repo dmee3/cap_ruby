@@ -83,4 +83,141 @@ RSpec.describe 'Api::Admin::Payments', type: :request do
       expect(response).to have_http_status(:success)
     end
   end
+
+  describe 'POST /api/admin/payments' do
+    let(:payment_type) { create(:payment_type, name: 'Venmo') }
+
+    before do
+      sign_in admin
+      cookies[:cap_season_id] = season.id
+    end
+
+    context 'with valid parameters' do
+      let(:valid_params) do
+        {
+          payment: {
+            user_id: member.id,
+            payment_type_id: payment_type.id,
+            amount: 32.30,
+            date_paid: '2026-01-15',
+            notes: 'Test payment'
+          }
+        }
+      end
+
+      it 'creates a new payment' do
+        expect do
+          post '/api/admin/payments',
+               params: valid_params,
+               headers: { 'Content-Type' => 'application/json' },
+               as: :json
+        end.to change(Payment, :count).by(1)
+
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'converts amount to cents correctly' do
+        post '/api/admin/payments',
+             params: valid_params,
+             headers: { 'Content-Type' => 'application/json' },
+             as: :json
+
+        payment = Payment.last
+        expect(payment.amount).to eq(3230) # $32.30 = 3230 cents
+      end
+
+      it 'assigns the payment to the current season' do
+        post '/api/admin/payments',
+             params: valid_params,
+             headers: { 'Content-Type' => 'application/json' },
+             as: :json
+
+        payment = Payment.last
+        expect(payment.season_id).to eq(season.id)
+      end
+
+      it 'returns success response with payment data' do
+        post '/api/admin/payments',
+             params: valid_params,
+             headers: { 'Content-Type' => 'application/json' },
+             as: :json
+
+        json_response = JSON.parse(response.body)
+        expect(json_response['success']).to be true
+        expect(json_response['payment']).to be_present
+      end
+    end
+
+    context 'with decimal edge cases' do
+      it 'correctly converts $100.99 to cents' do
+        post '/api/admin/payments',
+             params: {
+               payment: {
+                 user_id: member.id,
+                 payment_type_id: payment_type.id,
+                 amount: 100.99,
+                 date_paid: '2026-01-15'
+               }
+             },
+             headers: { 'Content-Type' => 'application/json' },
+             as: :json
+
+        expect(Payment.last.amount).to eq(10099)
+      end
+
+      it 'correctly converts $0.50 to cents' do
+        post '/api/admin/payments',
+             params: {
+               payment: {
+                 user_id: member.id,
+                 payment_type_id: payment_type.id,
+                 amount: 0.50,
+                 date_paid: '2026-01-15'
+               }
+             },
+             headers: { 'Content-Type' => 'application/json' },
+             as: :json
+
+        expect(Payment.last.amount).to eq(50)
+      end
+    end
+
+    context 'with invalid parameters' do
+      it 'returns error when user_id is missing' do
+        post '/api/admin/payments',
+             params: {
+               payment: {
+                 payment_type_id: payment_type.id,
+                 amount: 50.00,
+                 date_paid: '2026-01-15'
+               }
+             },
+             headers: { 'Content-Type' => 'application/json' },
+             as: :json
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        json_response = JSON.parse(response.body)
+        expect(json_response['success']).to be false
+        expect(json_response['errors']).to be_present
+      end
+
+      it 'denies access to non-admins' do
+        sign_in member
+
+        post '/api/admin/payments',
+             params: {
+               payment: {
+                 user_id: member.id,
+                 payment_type_id: payment_type.id,
+                 amount: 50.00,
+                 date_paid: '2026-01-15'
+               }
+             },
+             headers: { 'Content-Type' => 'application/json' },
+             as: :json
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+  end
 end
