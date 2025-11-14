@@ -31,8 +31,11 @@ jobs:
     - name: Install JavaScript dependencies
       run: yarn install --immutable
 
-    - name: Run tests
+    - name: Run backend tests
       run: bundle exec rspec
+
+    - name: Run frontend tests
+      run: yarn test:run
 
   lint:
     name: Linter
