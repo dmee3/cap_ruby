@@ -11,7 +11,8 @@ module Api
       def create
         payment_data = payment_params.to_h
         # Convert amount to cents before assigning to avoid integer truncation
-        payment_data[:amount] = (payment_data[:amount].to_f * 100).to_i if payment_data[:amount]
+        # Use round to handle floating point precision issues
+        payment_data[:amount] = (payment_data[:amount].to_f * 100).round if payment_data[:amount]
 
         @payment = Payment.new(payment_data)
         @payment.season_id = current_season['id']

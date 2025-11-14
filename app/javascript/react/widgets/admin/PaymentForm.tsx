@@ -171,7 +171,6 @@ const PaymentForm = ({ members, paymentTypes, preselectedUserId }: PaymentFormPr
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               disabled={submitting}
-              placeholder="0.00"
             />
           </div>
 

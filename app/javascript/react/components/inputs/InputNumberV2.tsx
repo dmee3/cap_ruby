@@ -42,7 +42,7 @@ const InputNumberV2 = forwardRef<HTMLInputElement, InputNumberV2Props>(
 
     const numberMask = createNumberMask({
       allowDecimal: true,
-      prefix: '',
+      prefix: currency ? '$' : '',
       decimalLimit: 2,
       integerLimit: 10,
     })
@@ -55,10 +55,11 @@ const InputNumberV2 = forwardRef<HTMLInputElement, InputNumberV2Props>(
 
     const inputRef = useCallback(
       (instance: MaskedInput | null) => {
+        const element = instance?.inputElement as HTMLInputElement | null
         if (typeof ref === 'function') {
-          ref(instance ? instance.inputElement : null)
+          ref(element)
         } else if (ref) {
-          ref.current = instance ? instance.inputElement : null
+          ref.current = element
         }
       },
       [ref]
@@ -87,26 +88,21 @@ const InputNumberV2 = forwardRef<HTMLInputElement, InputNumberV2Props>(
     }
 
     return (
-      <>
-        {currency && (
-          <div className="text-secondary font-bold mr-3">
-            $
-          </div>
-        )}
-        <MaskedInput
-          ref={inputRef}
-          mask={numberMask}
-          value={currentValue}
-          onChange={handleChange}
-          disabled={disabled}
-          autoFocus={autofocus}
-          placeholder={placeholder}
-          className={`input-text ${className}`}
-          name={name}
-          id={id}
-          guide={false}
-        />
-      </>
+      // @ts-ignore - react-text-mask types are incompatible with React 18
+      <MaskedInput
+        ref={inputRef}
+        mask={numberMask}
+        value={currentValue}
+        onChange={handleChange}
+        disabled={disabled}
+        autoFocus={autofocus}
+        placeholder={currency && !placeholder ? '$0.00' : placeholder}
+        className={`input-text ${className}`}
+        name={name}
+        id={id}
+        guide={false}
+        showMask={currency}
+      />
     )
   }
 )
