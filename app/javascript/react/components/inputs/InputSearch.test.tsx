@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { createRef } from 'react'
@@ -201,14 +201,25 @@ describe('InputSearch', () => {
   describe('keyboard navigation', () => {
     it('navigates down with arrow key', async () => {
       const user = userEvent.setup()
-      render(<InputSearch name="search" onChange={vi.fn()} options={defaultOptions} />)
+      const options = ['Apple', 'Apricot', 'Avocado']
+      render(<InputSearch name="search" onChange={vi.fn()} options={options} />)
 
       const input = screen.getByRole('textbox')
-      await user.type(input, 'err') // Type 3 characters to trigger suggestions
+      await user.type(input, 'ap') // Type to match Apple, Apricot
 
-      await user.keyboard('{ArrowDown}')
+      await waitFor(() => {
+        expect(screen.getByRole('list')).toBeInTheDocument()
+      })
 
-      // Should highlight next option (visual change, tested via class)
+      // Initial state: first item is active
+      const initialList = screen.getByRole('list')
+      const initialItems = within(initialList).getAllByRole('listitem')
+      expect(initialItems[0]).toHaveClass('active')
+
+      // Navigate down using fireEvent with explicit keyCode
+      fireEvent.keyDown(input, { keyCode: 40 })
+
+      // Check second item is now active
       const list = screen.getByRole('list')
       const items = within(list).getAllByRole('listitem')
       expect(items[1]).toHaveClass('active')
@@ -216,16 +227,23 @@ describe('InputSearch', () => {
 
     it('navigates up with arrow key', async () => {
       const user = userEvent.setup()
-      render(<InputSearch name="search" onChange={vi.fn()} options={defaultOptions} />)
+      const options = ['Banana', 'Bandana', 'Banjo']
+      render(<InputSearch name="search" onChange={vi.fn()} options={options} />)
 
       const input = screen.getByRole('textbox')
-      await user.type(input, 'err') // Type 3 characters to trigger suggestions
+      await user.type(input, 'ban') // Type to match all three
 
-      // Go down then up
-      await user.keyboard('{ArrowDown}')
-      await user.keyboard('{ArrowDown}')
-      await user.keyboard('{ArrowUp}')
+      await waitFor(() => {
+        expect(screen.getByRole('list')).toBeInTheDocument()
+      })
 
+      // Go down twice then up once using fireEvent
+      // Start at 0, down to 1, down to 2, up to 1
+      fireEvent.keyDown(input, { keyCode: 40 })
+      fireEvent.keyDown(input, { keyCode: 40 })
+      fireEvent.keyDown(input, { keyCode: 38 })
+
+      // Check we're at index 1
       const list = screen.getByRole('list')
       const items = within(list).getAllByRole('listitem')
       expect(items[1]).toHaveClass('active')
@@ -236,9 +254,14 @@ describe('InputSearch', () => {
       render(<InputSearch name="search" onChange={vi.fn()} options={defaultOptions} />)
 
       const input = screen.getByRole('textbox')
-      await user.type(input, 'err') // Type 3 characters to trigger suggestions
+      await user.type(input, 'app') // Type to match Apple
+
+      await waitFor(() => {
+        expect(screen.getByRole('list')).toBeInTheDocument()
+      })
 
       // Try to go up from first position
+      input.focus()
       await user.keyboard('{ArrowUp}')
 
       const list = screen.getByRole('list')
@@ -252,9 +275,13 @@ describe('InputSearch', () => {
       render(<InputSearch name="search" onChange={onChange} options={defaultOptions} />)
 
       const input = screen.getByRole('textbox')
-      await user.type(input, 'ap')
+      await user.type(input, 'app') // Match Apple
 
-      await user.keyboard('{Enter}')
+      await waitFor(() => {
+        expect(screen.getByRole('list')).toBeInTheDocument()
+      })
+
+      fireEvent.keyDown(input, { keyCode: 13 })
 
       expect(onChange).toHaveBeenCalled()
     })
@@ -264,9 +291,13 @@ describe('InputSearch', () => {
       render(<InputSearch name="search" onChange={vi.fn()} options={defaultOptions} />)
 
       const input = screen.getByRole('textbox')
-      await user.type(input, 'ap')
+      await user.type(input, 'ban') // Match Banana
 
-      await user.keyboard('{Enter}')
+      await waitFor(() => {
+        expect(screen.getByRole('list')).toBeInTheDocument()
+      })
+
+      fireEvent.keyDown(input, { keyCode: 13 })
 
       expect(screen.queryByRole('list')).not.toBeInTheDocument()
     })
@@ -355,7 +386,7 @@ describe('InputSearch', () => {
       render(<InputSearch name="search" onChange={vi.fn()} options={defaultOptions} />)
 
       const input = screen.getByRole('textbox')
-      await user.type(input, 'err') // Type 3 characters to trigger suggestions
+      await user.type(input, 'ra') // Type to match Raspberry
 
       const list = screen.getByRole('list')
       const items = within(list).getAllByRole('listitem')
