@@ -98,9 +98,13 @@ describe('Utilities', () => {
 
   describe('compareToToday', () => {
     beforeEach(() => {
-      // Mock current date to 2024-11-14
+      // Mock current date to 2024-11-14 at 5am UTC (midnight EST)
       vi.useFakeTimers()
-      vi.setSystemTime(new Date('2024-11-14T12:00:00Z'))
+      vi.setSystemTime(new Date('2024-11-14T05:00:00Z'))
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
     })
 
     it('returns negative for past dates', () => {
