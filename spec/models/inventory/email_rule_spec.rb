@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: inventory_email_rules
+#
+#  id                :integer          not null, primary key
+#  operator          :string
+#  threshold         :integer
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  inventory_item_id :integer
+#  mail_to_user_id   :integer
+#
+# Indexes
+#
+#  index_inventory_email_rules_on_inventory_item_id  (inventory_item_id)
+#  index_inventory_email_rules_on_mail_to_user_id    (mail_to_user_id)
+#
 require 'rails_helper'
 
 RSpec.describe Inventory::EmailRule, type: :model do

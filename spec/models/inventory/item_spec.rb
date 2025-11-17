@@ -1,5 +1,24 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: inventory_items
+#
+#  id                    :integer          not null, primary key
+#  name                  :string
+#  quantity              :integer
+#  created_at            :datetime         not null
+#  updated_at            :datetime         not null
+#  inventory_category_id :integer
+#
+# Indexes
+#
+#  index_inventory_items_on_inventory_category_id  (inventory_category_id)
+#
+# Foreign Keys
+#
+#  inventory_category_id  (inventory_category_id => inventory_categories.id)
+#
 require 'rails_helper'
 
 RSpec.describe Inventory::Item, type: :model do
