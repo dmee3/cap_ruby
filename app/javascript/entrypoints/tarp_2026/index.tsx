@@ -25,7 +25,7 @@ const TARP_HEIGHT_INCHES = TARP_HEIGHT_FEET * 12; // 720 inches
 // Scale factor: pixels per inch
 // SCALE = 1: 1,080 × 720 px (1 pixel per inch, print-ready)
 // SCALE = 10: 10,800 × 7,200 px (10 pixels per inch, high-res)
-const SCALE = 1;
+const SCALE = 25;
 
 // Morse code mapping for text conversion
 const MORSE_MAP: Record<string, string> = {
@@ -474,8 +474,8 @@ const TarpCanvas2026: React.FC = () => {
     const numWaves = CONFIG.wave.count;
 
     // Margins to keep all ripples within unmasked area (from CONFIG)
-    const topMargin = CONFIG.wave.topMargin;
-    const bottomMargin = CONFIG.wave.bottomMargin;
+    const topMargin = CONFIG.wave.topMargin * SCALE;
+    const bottomMargin = CONFIG.wave.bottomMargin * SCALE;
 
     for (let waveIndex = 0; waveIndex < numWaves; waveIndex++) {
       const waveProgress = waveIndex / (numWaves - 1); // 0 to 1
