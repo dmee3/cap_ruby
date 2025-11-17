@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { forwardRef } from 'react'
 
-type InputTextProps = {
+type InputTextareaProps = {
   autofocus?: boolean,
   className?: string,
   disabled?: boolean,
   id?: string,
   name: string,
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void,
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void,
   placeholder?: string,
+  rows?: number,
   value?: string,
 }
 
-const InputText = forwardRef<HTMLInputElement, InputTextProps>(
+const InputTextarea = forwardRef<HTMLTextAreaElement, InputTextareaProps>(
   (
     {
       autofocus = false,
@@ -22,8 +23,9 @@ const InputText = forwardRef<HTMLInputElement, InputTextProps>(
       name,
       onChange,
       placeholder,
+      rows = 3,
       value = '',
-    }: InputTextProps,
+    }: InputTextareaProps,
     ref
   ) => {
     const valueProps = onChange
@@ -31,7 +33,7 @@ const InputText = forwardRef<HTMLInputElement, InputTextProps>(
       : { defaultValue: value }
 
     return (
-      <input
+      <textarea
         autoFocus={autofocus}
         className={`input-text ${className}`}
         disabled={disabled}
@@ -40,10 +42,10 @@ const InputText = forwardRef<HTMLInputElement, InputTextProps>(
         onChange={onChange}
         placeholder={placeholder}
         ref={ref}
-        type="text"
+        rows={rows}
         {...valueProps}
       />
     )
   })
 
-export default InputText
+export default InputTextarea
