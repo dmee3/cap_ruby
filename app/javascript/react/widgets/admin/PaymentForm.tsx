@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import InputNumberV2 from '../../components/inputs/InputNumberV2'
 import InputTextarea from '../../components/inputs/InputTextarea'
 
@@ -22,13 +22,19 @@ type PaymentFormProps = {
 
 const PaymentForm = ({ members, paymentTypes, preselectedUserId }: PaymentFormProps) => {
   const csrfToken = (document.getElementsByName('csrf-token')[0] as HTMLMetaElement).content
+  const userSelectRef = useRef<HTMLSelectElement>(null)
+  const today = new Date().toISOString().split('T')[0]
   const [userId, setUserId] = useState(preselectedUserId || '')
   const [paymentTypeId, setPaymentTypeId] = useState(paymentTypes.find(pt => pt.name === 'Venmo')?.id || '')
   const [amount, setAmount] = useState<string>('')
-  const [datePaid, setDatePaid] = useState('')
+  const [datePaid, setDatePaid] = useState(today)
   const [notes, setNotes] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
+
+  useEffect(() => {
+    userSelectRef.current?.focus()
+  }, [])
 
   const validate = () => {
     const newErrors: string[] = []
@@ -125,6 +131,7 @@ const PaymentForm = ({ members, paymentTypes, preselectedUserId }: PaymentFormPr
           </div>
           <div className="col-span-5 sm:col-span-4 flex items-center">
             <select
+              ref={userSelectRef}
               id="payment_user_id"
               className="input-select"
               value={userId}
