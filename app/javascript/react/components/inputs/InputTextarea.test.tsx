@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { createRef } from 'react'
 import InputTextarea from './InputTextarea'
+import React from 'react'
 
 describe('InputTextarea', () => {
   describe('rendering', () => {
@@ -238,7 +239,8 @@ describe('InputTextarea', () => {
 
     it('handles tabs and spaces', () => {
       render(<InputTextarea name="description" value="  text  " onChange={vi.fn()} />)
-      expect(screen.getByRole('textbox').value).toContain('text')
+      const input = screen.getByRole('textbox') as HTMLTextAreaElement
+      expect(input.value).toContain('text')
     })
   })
 

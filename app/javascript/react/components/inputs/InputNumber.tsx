@@ -32,6 +32,11 @@ const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(
     }: InputNumberProps,
     ref
   ) => {
+    const formattedValue = currency ? value.toFixed(2) : value
+    const valueProps = onChange
+      ? { value: formattedValue }
+      : { defaultValue: formattedValue }
+
     return (
       <>
         {currency &&
@@ -50,7 +55,7 @@ const InputNumber = forwardRef<HTMLInputElement, InputNumberProps>(
           min={min}
           type={masked ? 'text' : 'number'}
           step={step}
-          value={currency ? value.toFixed(2) : value}
+          {...valueProps}
           onChange={onChange}
         />
       </>

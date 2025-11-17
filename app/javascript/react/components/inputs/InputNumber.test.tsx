@@ -3,33 +3,29 @@ import { describe, it, expect, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { createRef } from 'react'
 import InputNumber from './InputNumber'
+import React from 'react'
 
 describe('InputNumber', () => {
   describe('rendering', () => {
     it('renders input with name attribute', () => {
-      const { container } = render(<InputNumber name="amount" />)
+      const { container } = render(
+        <InputNumber
+          name="amount"
+          placeholder="Enter amount"
+          id="customId"
+          value={42}
+        />
+      )
       const input = container.querySelector('input[name="amount"]')
       expect(input).toBeInTheDocument()
-    })
-
-    it('renders with placeholder', () => {
-      render(<InputNumber name="amount" placeholder="Enter amount" />)
       expect(screen.getByPlaceholderText('Enter amount')).toBeInTheDocument()
-    })
-
-    it('renders with id attribute', () => {
-      render(<InputNumber name="amount" id="customId" />)
       expect(screen.getByRole('spinbutton')).toHaveAttribute('id', 'customId')
+      expect(screen.getByRole('spinbutton')).toHaveValue(42)
     })
 
     it('renders with default value of 0', () => {
       render(<InputNumber name="amount" />)
       expect(screen.getByRole('spinbutton')).toHaveValue(0)
-    })
-
-    it('renders with provided value', () => {
-      render(<InputNumber name="amount" value={42} />)
-      expect(screen.getByRole('spinbutton')).toHaveValue(42)
     })
   })
 
@@ -187,7 +183,7 @@ describe('InputNumber', () => {
     it('handles currency with masked type', () => {
       const { container } = render(<InputNumber name="amount" currency={true} masked={true} value={25.5} />)
       expect(container.textContent).toContain('$')
-      const input = screen.getByRole('textbox')
+      const input = screen.getByRole('textbox') as HTMLInputElement
       expect(input).toHaveAttribute('type', 'text')
       expect(input.value).toBe('25.50')
     })

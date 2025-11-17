@@ -3,27 +3,23 @@ import { describe, it, expect, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { createRef } from 'react'
 import InputText from './InputText'
+import React from 'react'
 
 describe('InputText', () => {
   describe('rendering', () => {
-    it('renders input with name attribute', () => {
-      const { container } = render(<InputText name="testName" />)
+    it('renders input with name passed attribute', () => {
+      const { container } = render(
+        <InputText
+          name="testName"
+          placeholder="Enter text"
+          id="customId"
+          value="initial value"
+        />
+      )
       const input = container.querySelector('input[name="testName"]')
       expect(input).toBeInTheDocument()
-    })
-
-    it('renders with placeholder text', () => {
-      render(<InputText name="test" placeholder="Enter text" />)
       expect(screen.getByPlaceholderText('Enter text')).toBeInTheDocument()
-    })
-
-    it('renders with id attribute', () => {
-      render(<InputText name="test" id="customId" />)
       expect(screen.getByRole('textbox')).toHaveAttribute('id', 'customId')
-    })
-
-    it('renders with default value', () => {
-      render(<InputText name="test" value="initial value" />)
       expect(screen.getByRole('textbox')).toHaveValue('initial value')
     })
 
