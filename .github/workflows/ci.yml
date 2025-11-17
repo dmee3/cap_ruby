@@ -7,8 +7,8 @@ on:
     branches: [ main, master ]
 
 jobs:
-  test:
-    name: Tests
+  backend-test:
+    name: Backend Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -31,8 +31,31 @@ jobs:
     - name: Install JavaScript dependencies
       run: yarn install --immutable
 
-    - name: Run tests
+    - name: Build assets for tests
+      run: bin/vite build --clear --mode=test
+
+    - name: Run backend tests
       run: bundle exec rspec
+
+  frontend-test:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'yarn'
+
+    - name: Install JavaScript dependencies
+      run: yarn install --immutable
+
+    - name: Run frontend tests
+      run: yarn test:run
 
   lint:
     name: Linter

@@ -26,6 +26,10 @@ const InputText = forwardRef<HTMLInputElement, InputTextProps>(
     }: InputTextProps,
     ref
   ) => {
+    const valueProps = onChange
+      ? { value }
+      : { defaultValue: value }
+
     return (
       <input
         autoFocus={autofocus}
@@ -37,7 +41,7 @@ const InputText = forwardRef<HTMLInputElement, InputTextProps>(
         placeholder={placeholder}
         ref={ref}
         type="text"
-        value={value}
+        {...valueProps}
       />
     )
   })

@@ -28,6 +28,10 @@ const InputTextarea = forwardRef<HTMLTextAreaElement, InputTextareaProps>(
     }: InputTextareaProps,
     ref
   ) => {
+    const valueProps = onChange
+      ? { value }
+      : { defaultValue: value }
+
     return (
       <textarea
         autoFocus={autofocus}
@@ -39,7 +43,7 @@ const InputTextarea = forwardRef<HTMLTextAreaElement, InputTextareaProps>(
         placeholder={placeholder}
         ref={ref}
         rows={rows}
-        value={value}
+        {...valueProps}
       />
     )
   })
