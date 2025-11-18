@@ -1,5 +1,25 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: calendar_fundraisers
+#
+#  id         :integer          not null, primary key
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  season_id  :integer
+#  user_id    :integer
+#
+# Indexes
+#
+#  index_calendar_fundraisers_on_season_id  (season_id)
+#  index_calendar_fundraisers_on_user_id    (user_id)
+#
+# Foreign Keys
+#
+#  season_id  (season_id => seasons.id)
+#  user_id    (user_id => users.id)
+#
 require 'rails_helper'
 
 RSpec.describe Calendar::Fundraiser, type: :model do

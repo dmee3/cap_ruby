@@ -13,6 +13,7 @@ const ConflictCalendar = ({
   coordinator
 }: ConflictCalendarProps) => {
   const [conflicts, setConflicts] = useState([])
+  const isMobile = window.innerWidth < 768
 
   const displayTooltip = arg => {
     // Only show tooltips on grid view
@@ -24,7 +25,7 @@ const ConflictCalendar = ({
     const div = document.createElement('div')
     div.id = `conflict-${arg.event.id}-tooltip`
     div.classList.add(
-      'block', 'absolute', 'bottom-8', 'z-10', 'py-2', 'px-3', 'text-sm', 'bg-gray-200', 'dark:bg-gray-600','rounded-lg', 'shadow-sm', 'w-80', 'break-normal', 'whitespace-normal'
+      'block', 'absolute', 'bottom-8', 'z-10', 'py-2', 'px-3', 'text-sm', 'bg-gray-200', 'dark:bg-gray-600', 'rounded-lg', 'shadow-sm', 'w-80', 'break-normal', 'whitespace-normal'
     )
     div.textContent = reason
 
@@ -58,21 +59,32 @@ const ConflictCalendar = ({
       })
   }, [])
 
+  // Conditionally configure views based on screen size
+  const plugins = [dayGridPlugin, listPlugin]
+  const initialView = isMobile ? 'listWeek' : 'dayGridMonth'
+  const headerToolbar = isMobile
+    ? {
+      start: 'title',
+      center: '',
+      end: 'prev,today,next',
+    }
+    : {
+      start: 'title',
+      center: '',
+      end: 'dayGridMonth,listWeek prev,today,next',
+    }
+
   return (
     <>
       <FullCalendar
         events={conflicts}
         eventMouseEnter={(arg) => displayTooltip(arg)}
         eventMouseLeave={(arg) => {
-          document.getElementById(`conflict-${arg.event.id}-tooltip`).remove()
+          document.getElementById(`conflict-${arg.event.id}-tooltip`)?.remove()
         }}
-        headerToolbar={{
-          start: 'title',
-          center: '',
-          end: 'dayGridMonth,listWeek prev,today,next',
-        }}
-        initialView="dayGridMonth"
-        plugins={[dayGridPlugin, listPlugin]}
+        headerToolbar={headerToolbar}
+        initialView={initialView}
+        plugins={plugins}
         themeSystem={'standard'}
       />
     </>
