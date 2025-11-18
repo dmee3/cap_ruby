@@ -33,3 +33,22 @@ body.bg-sound-wave {
 #main-content {
   @apply md:flex-grow rounded-t-2xl md:rounded-tr-none mx-0 p-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white;
 }
+
+/* FullCalendar dark mode fixes */
+.bg-jet .fc .fc-list-sticky .fc-list-day {
+  /* gray-700 */
+  background-color: #374151 !important;
+  background: #374151 !important;
+}
+
+.bg-jet .fc .fc-list-day-cushion {
+  /* gray-700 */
+  background-color: #374151 !important;
+  background: #374151 !important;
+}
+
+.bg-jet .fc .fc-list-event:hover td {
+  /* gray-800 */
+  background-color: #1f2937 !important;
+  background: #1f2937 !important;
+}
