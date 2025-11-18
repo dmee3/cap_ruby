@@ -24,7 +24,7 @@ const ConflictCalendar = ({
     const div = document.createElement('div')
     div.id = `conflict-${arg.event.id}-tooltip`
     div.classList.add(
-      'block', 'absolute', 'bottom-8', 'z-10', 'py-2', 'px-3', 'text-sm', 'bg-gray-200', 'dark:bg-gray-600','rounded-lg', 'shadow-sm', 'w-80', 'break-normal', 'whitespace-normal'
+      'block', 'absolute', 'bottom-8', 'z-10', 'py-2', 'px-3', 'text-sm', 'bg-gray-200', 'dark:bg-gray-600', 'rounded-lg', 'shadow-sm', 'w-80', 'break-normal', 'whitespace-normal'
     )
     div.textContent = reason
 

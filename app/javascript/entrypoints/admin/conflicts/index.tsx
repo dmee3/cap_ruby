@@ -5,7 +5,6 @@ import Utilities from '../../../utilities/utilities'
 import addFlash from '../../../utilities/flashes'
 
 import { PlusSmallIcon, CheckIcon, XMarkIcon, ArchiveBoxXMarkIcon } from '@heroicons/react/24/outline'
-import Badge from '../../../react/components/Badge'
 
 import ConflictCalendar from '../../../react/widgets/coordinators/ConflictCalendar'
 import ConflictList from '../../../react/widgets/conflicts/ConflictList'
@@ -99,48 +98,40 @@ const AdminConflicts = () => {
           </a>
         </div>
       </div>
-      {pendingConflicts.length > 0 && (
-        <>
-          <h2>Pending</h2>
-          <ul className="divide-y divide-gray-300 dark:divide-gray-600">
-            {pendingConflicts.map(conflict => {
-              return <li key={conflict.id} className="flex flex-col space-y-2 p-4">
-                <div className="flex flex-row space-x-2 items-start">
-                  <div className="flex flex-1 flex-col">
-                    <span className="font-medium">{conflict.title}</span>
-                    <span className="text-sm font-light">{Utilities.displayDateTimeReadable(conflict.start)} to {Utilities.displayDateTimeReadable(conflict.end)}</span>
-                    <span className="text-sm text-secondary">{conflict.reason}</span>
-                  </div>
-                  <Badge
-                    text={conflict.status.name}
-                    color={Utilities.statusToColor(conflict.status.name)}
-                  />
-                </div>
-                <div className="flex justify-end space-x-2">
-                  <button className="btn-green btn-md" onClick={() => approveConflict(conflict.id)}>
-                    <CheckIcon className="h-6 w-6" />
-                  </button>
-
-                  <button className="btn-red btn-md" onClick={() => denyConflict(conflict.id)}>
-                    <XMarkIcon className="h-6 w-6" />
-                  </button>
-
-                  <button className="btn-gray btn-md" onClick={() => resolveConflict(conflict.id)}>
-                    <ArchiveBoxXMarkIcon className="h-6 w-6" />
-                  </button>
-                </div>
-              </li>
-            })}
-          </ul>
-        </>
-      )}
+      <ConflictList
+        title="Pending"
+        conflicts={pendingConflicts}
+        baseRedirectUrl="/admin/conflicts/"
+        showFilters={false}
+        actions={[
+          {
+            icon: CheckIcon,
+            onClick: approveConflict,
+            className: 'btn-green btn-md',
+            ariaLabel: 'Approve conflict'
+          },
+          {
+            icon: XMarkIcon,
+            onClick: denyConflict,
+            className: 'btn-red btn-md',
+            ariaLabel: 'Deny conflict'
+          },
+          {
+            icon: ArchiveBoxXMarkIcon,
+            onClick: resolveConflict,
+            className: 'btn-gray btn-md',
+            ariaLabel: 'Resolve conflict'
+          }
+        ]}
+      />
 
       <h2 className="mt-6">Calendar</h2>
       <ConflictCalendar coordinator={false} />
 
       <ConflictList
+        title="All"
         conflicts={conflicts}
-        baseRedirectUrl={"/admin/conflicts/"}
+        baseRedirectUrl="/admin/conflicts/"
       />
     </div>
   )
