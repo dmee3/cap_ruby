@@ -25,22 +25,14 @@ const TARP_HEIGHT_INCHES = TARP_HEIGHT_FEET * 12; // 720 inches
 // Scale factor: pixels per inch
 // SCALE = 1: 1,080 × 720 px (1 pixel per inch, print-ready)
 // SCALE = 10: 10,800 × 7,200 px (10 pixels per inch, high-res)
-const SCALE = 25;
-
-// Morse code mapping for text conversion
-const MORSE_MAP: Record<string, string> = {
-  'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.',
-  'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.',
-  'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-', 'U': '..-',
-  'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..', '?': '..--..'
-};
+const SCALE = 10;
 
 // Configuration constants
 const CONFIG = {
   // Ripple wave configuration
   ripple: {
     numRipplesPerWave: 7,
-    edgeMargin: 120, // Horizontal distance from edge for outer ripples (in inches at SCALE=1)
+    edgeMargin: 108, // Horizontal distance from edge for outer ripples (in inches at SCALE=1)
     waveAmplitude: 75, // Height of the sine wave (in inches at SCALE=1)
   },
   // Ring styling
@@ -52,8 +44,8 @@ const CONFIG = {
   // Wave layout
   wave: {
     count: 5,
-    topMargin: 160, // Distance from top edge (in inches)
-    bottomMargin: 190, // Distance from bottom edge (in inches)
+    topMargin: 180, // Distance from top edge (in inches)
+    bottomMargin: 170, // Distance from bottom edge (in inches)
   },
   // Arc/mask configuration
   arc: {
@@ -120,13 +112,34 @@ const TarpCanvas2026: React.FC = () => {
       }
 
       // X position: spread from left edge to right edge with eased spacing
-      const x = edgeMargin + (canvasWidth - 2 * edgeMargin) * horizontalProgress;
+      let x = edgeMargin + (canvasWidth - 2 * edgeMargin) * horizontalProgress;
 
       // Y position: wave pattern with peak on left, trough on right
       const waveAmplitude = CONFIG.ripple.waveAmplitude * SCALE;
       const wavePhase = progress * 2 * Math.PI; // Creates wave from 0 to 2π (full cycle)
       const baseY = canvasHeight / 2;
-      const y = baseY + Math.sin(wavePhase) * waveAmplitude;
+      let y = baseY + Math.sin(wavePhase) * waveAmplitude;
+
+      // Adjustments to snap ripples to grid lines (applied to all waves)
+      if (i === 0) {
+        y += 40 * SCALE;
+      } else if (i === 1) {
+        y += 18 * SCALE;
+        x += 3 * SCALE;
+      } else if (i === 2) {
+        y += -7 * SCALE;
+        x += -4 * SCALE;
+      } else if (i === 3) {
+        y += -5 * SCALE;
+      } else if (i === 4) {
+        y += 3 * SCALE;
+        x += 4 * SCALE;
+      } else if (i === 5) {
+        y += 4 * SCALE;
+        x += -3 * SCALE;
+      } else if (i === 6) {
+        y += 40 * SCALE;
+      }
 
       // Calculate distance from center ripple (index 3 is center)
       const centerIndex = Math.floor(numRipples / 2); // 3
@@ -268,153 +281,6 @@ const TarpCanvas2026: React.FC = () => {
     drawMultipleRippleWaves(ctx, canvasWidth, canvasHeight);
   };
 
-  // Function to draw morse code along an arc path
-  const drawMorseCodeAlongArc = (
-    ctx: CanvasRenderingContext2D,
-    text: string,
-    centerX: number,
-    centerY: number,
-    radius: number,
-    startAngle: number,
-    endAngle: number,
-    color: string
-  ) => {
-    // Convert text to morse code
-    const morseText = text.split('').map(char => MORSE_MAP[char.toUpperCase()] || char).join(' ');
-
-    // Morse code symbol dimensions (from CONFIG)
-    const baseDotSize = CONFIG.morse.dotSize;
-    const baseDashWidth = CONFIG.morse.dashWidth;
-    const baseDashHeight = CONFIG.morse.dashHeight;
-    const baseSymbolSpacing = CONFIG.morse.symbolSpacing;
-    const baseLetterSpacing = CONFIG.morse.letterSpacing;
-
-    // Apply scale
-    const dotSize = baseDotSize * SCALE;
-    const dashWidth = baseDashWidth * SCALE;
-    const dashHeight = baseDashHeight * SCALE;
-    const symbolSpacing = baseSymbolSpacing * SCALE;
-    const letterSpacing = baseLetterSpacing * SCALE;
-
-    // Calculate total angular span needed
-    let totalWidth = 0;
-    for (let i = 0; i < morseText.length; i++) {
-      const char = morseText[i];
-      if (char === ' ') {
-        totalWidth += baseLetterSpacing;
-      } else if (char === '.') {
-        totalWidth += (baseDotSize * 2) + baseSymbolSpacing;
-      } else if (char === '-') {
-        totalWidth += baseDashWidth + baseSymbolSpacing;
-      }
-    }
-
-    // Calculate available arc angle and center the text
-    const totalAngle = endAngle - startAngle;
-    const totalWidthScaled = totalWidth * SCALE;
-
-    // Start angle centered on the arc
-    let currentAngle = startAngle + (totalAngle - (totalWidthScaled / radius)) / 2;
-
-    ctx.save();
-    ctx.fillStyle = color;
-
-    for (let i = 0; i < morseText.length; i++) {
-      const char = morseText[i];
-      const x = centerX + Math.cos(currentAngle) * radius;
-      const y = centerY + Math.sin(currentAngle) * radius;
-
-      // Calculate rotation angle perpendicular to the arc
-      const rotationAngle = currentAngle + Math.PI / 2;
-
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(rotationAngle);
-
-      if (char === '.') {
-        // Draw a dot (circle)
-        ctx.beginPath();
-        ctx.arc(0, 0, dotSize, 0, 2 * Math.PI);
-        ctx.fill();
-      } else if (char === '-') {
-        // Draw a dash (pill shape with rounded ends)
-        const halfWidth = dashWidth / 2;
-        const halfHeight = dashHeight / 2;
-        const capRadius = halfHeight;
-
-        ctx.beginPath();
-        ctx.arc(-halfWidth, 0, capRadius, Math.PI / 2, -Math.PI / 2, false);
-        ctx.lineTo(halfWidth, -halfHeight);
-        ctx.arc(halfWidth, 0, capRadius, -Math.PI / 2, Math.PI / 2, false);
-        ctx.lineTo(-halfWidth, halfHeight);
-        ctx.closePath();
-        ctx.fill();
-      }
-
-      ctx.restore();
-
-      // Move to next position
-      if (i < morseText.length - 1) {
-        let spacing = 0;
-        if (char === ' ') {
-          spacing = letterSpacing;
-        } else if (char === '.') {
-          spacing = (dotSize * 2) + symbolSpacing;
-        } else if (char === '-') {
-          spacing = dashWidth + symbolSpacing;
-        }
-        currentAngle += spacing / radius;
-      }
-    }
-
-    ctx.restore();
-  };
-
-  // Function to draw morse code layer (rendered on top of gradient, below ripples)
-  const drawMorseCodeLayer = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
-    const arcDepthInches = CONFIG.arc.depthFeet * 12; // Convert feet to inches
-    const insetInches = CONFIG.arc.morseInsetInches;
-
-    // Calculate arc parameters (same as mask)
-    const width = TARP_WIDTH_INCHES;
-    const depth = arcDepthInches;
-    const radius = (width * width + 4 * depth * depth) / (8 * depth);
-
-    const morseColor = CONFIG.colors.backgroundCenter;
-
-    // Bottom arc morse code
-    // Circle center is BELOW the canvas, so to move inward we INCREASE radius
-    const bottomCenterX = canvasWidth / 2;
-    const bottomCenterY = (TARP_HEIGHT_INCHES + radius - depth) * SCALE;
-    const bottomRadius = (radius + insetInches) * SCALE; // Inset radius (larger moves arc UP toward center)
-
-    // Calculate angle range for bottom arc
-    const bottomY = TARP_HEIGHT_INCHES * SCALE;
-    const fullBottomStartAngle = Math.atan2(bottomY - bottomCenterY, 0 - bottomCenterX);
-    const fullBottomEndAngle = Math.atan2(bottomY - bottomCenterY, canvasWidth - bottomCenterX);
-    const bottomAngleSpan = fullBottomEndAngle - fullBottomStartAngle;
-    const bottomStartAngle = fullBottomStartAngle + bottomAngleSpan * 0.1;
-    const bottomEndAngle = fullBottomEndAngle - bottomAngleSpan * 0.1;
-
-    // drawMorseCodeAlongArc(ctx, CONFIG.morse.bottomText, bottomCenterX, bottomCenterY, bottomRadius, bottomStartAngle, bottomEndAngle, morseColor);
-
-    // Top arc morse code
-    // Circle center is ABOVE the canvas, so to move inward we DECREASE radius
-    const topCenterX = canvasWidth / 2;
-    const topCenterY = radius * SCALE;
-    const topRadius = (radius - insetInches) * SCALE; // Inset radius (smaller moves arc DOWN toward center)
-
-    // Calculate angle range for top arc
-    const cornerY = arcDepthInches * SCALE;
-    const fullTopStartAngle = Math.atan2(cornerY - topCenterY, 0 - topCenterX);
-    const fullTopEndAngle = Math.atan2(cornerY - topCenterY, canvasWidth - topCenterX);
-    const topAngleSpan = fullTopEndAngle - fullTopStartAngle;
-    const topStartAngle = fullTopStartAngle + topAngleSpan * 0.1;
-    const topEndAngle = fullTopEndAngle - topAngleSpan * 0.1;
-
-    // drawMorseCodeAlongArc(ctx, CONFIG.morse.topText, topCenterX, topCenterY, topRadius, topStartAngle, topEndAngle, morseColor);
-  };
-
   // Function to draw edge masks that simulate the curved tarp edges
   const drawEdgeMasks = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
     const arcDepthInches = CONFIG.arc.depthFeet * 12; // Convert feet to inches
@@ -448,25 +314,316 @@ const TarpCanvas2026: React.FC = () => {
     ctx.fill();
 
     // Top arc mask
-    // Arc goes from (0, 72) curving up to (540, 0) and back to (1080, 72)
-    // For this upward-curving arc, the circle center is BELOW the arc points
-    // Calculate: if distance from (540, y_c) to (540, 0) = radius, then y_c = radius
-    const topCenterX = (canvasWidth / 2);
-    const topCenterY = radius * SCALE; // Center is below the canvas
-    const topY = 0;
-    const cornerY = arcDepthInches * SCALE;
+    // Use the same arc radius as bottom, but shift the center up by the tarp height minus 2 * arc depth
+    // The tarp is 60 feet (720") tall, with 6-foot arcs on each end, leaving 48 feet between arc edges
+    const topCenterX = bottomCenterX;
+    const topCenterY = bottomCenterY - (TARP_HEIGHT_INCHES - 2 * arcDepthInches) * SCALE; // Shift up by 48 feet
 
-    // Calculate angles for the arc (measuring from center to points)
-    const topStartAngle = Math.atan2(cornerY - topCenterY, 0 - topCenterX);
-    const topEndAngle = Math.atan2(cornerY - topCenterY, canvasWidth - topCenterX);
+    // Use the same radius as the bottom arc
+    const topArcRadius = radius * SCALE;
+
+    // Calculate angles for the arc at the left and right edges
+    const leftX = 0;
+    const rightX = canvasWidth;
+
+    // Find where the arc intersects x=0 and x=canvasWidth
+    const topLeftDx = leftX - topCenterX;
+    const topLeftDySquared = topArcRadius * topArcRadius - topLeftDx * topLeftDx;
+    const topRightDx = rightX - topCenterX;
+    const topRightDySquared = topArcRadius * topArcRadius - topRightDx * topRightDx;
+
+    const topLeftY = topCenterY - Math.sqrt(topLeftDySquared);
+    const topRightY = topCenterY - Math.sqrt(topRightDySquared);
+
+    const topStartAngle = Math.atan2(topLeftY - topCenterY, leftX - topCenterX);
+    const topEndAngle = Math.atan2(topRightY - topCenterY, rightX - topCenterX);
 
     ctx.beginPath();
-    ctx.moveTo(0, cornerY); // Start at left corner (0, 72")
-    ctx.arc(topCenterX, topCenterY, radius * SCALE, topStartAngle, topEndAngle, false);
-    ctx.lineTo(canvasWidth, topY); // Go to top-right corner
-    ctx.lineTo(0, topY); // Go to top-left corner
+    ctx.moveTo(0, topLeftY);
+    ctx.arc(topCenterX, topCenterY, topArcRadius, topStartAngle, topEndAngle, false);
+    ctx.lineTo(canvasWidth, 0); // Go to top-right corner
+    ctx.lineTo(0, 0); // Go to top-left corner
     ctx.closePath();
     ctx.fill();
+  };
+
+  // Function to draw straight red grid overlay
+  const drawStraightGrid = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
+    const gridSpacingFeet = 6;
+    const gridSpacingInches = gridSpacingFeet * 12; // 72 inches
+    const gridSpacingPixels = gridSpacingInches * SCALE;
+
+    const horizontalOffsetFeet = 3;
+    const horizontalOffsetInches = horizontalOffsetFeet * 12; // 36 inches
+    const horizontalOffsetPixels = horizontalOffsetInches * SCALE;
+
+    const lineWidthInches = 1;
+    const lineWidthPixels = lineWidthInches * SCALE;
+
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = lineWidthPixels;
+
+    // Draw vertical lines (with 3-foot horizontal offset)
+    for (let x = horizontalOffsetPixels; x <= canvasWidth; x += gridSpacingPixels) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvasHeight);
+      ctx.stroke();
+    }
+
+    // Draw straight horizontal lines (no vertical offset, starts at 0)
+    for (let y = 0; y <= canvasHeight; y += gridSpacingPixels) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvasWidth, y);
+      ctx.stroke();
+    }
+  };
+
+  // Function to draw grid labels (upside-down text at intersections)
+  const drawGridLabels = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
+    const gridSpacingFeet = 6;
+    const gridSpacingInches = gridSpacingFeet * 12; // 72 inches
+    const gridSpacingPixels = gridSpacingInches * SCALE;
+
+    const horizontalOffsetFeet = 3;
+    const horizontalOffsetInches = horizontalOffsetFeet * 12; // 36 inches
+    const horizontalOffsetPixels = horizontalOffsetInches * SCALE;
+
+    const fontSizeInches = 1; // 1 inch tall
+    const fontSizePixels = fontSizeInches * SCALE;
+
+    // Calculate arc parameters (same as edge masks)
+    const arcDepthInches = CONFIG.arc.depthFeet * 12;
+    const width = TARP_WIDTH_INCHES;
+    const depth = arcDepthInches;
+    const radius = (width * width + 4 * depth * depth) / (8 * depth);
+
+    const baseCenterX = canvasWidth / 2;
+    const baseCenterY = (TARP_HEIGHT_INCHES + radius - depth) * SCALE;
+    const arcRadius = radius * SCALE;
+
+    ctx.fillStyle = 'white';
+    ctx.font = `${fontSizePixels}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Calculate total number of horizontal lines
+    const totalHorizontalLines = Math.floor(canvasHeight / gridSpacingPixels) + 1;
+
+    // Letters: A-J from bottom to top
+    const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+
+    // Calculate vertical line positions and their numbers
+    const verticalLinePositions: { x: number; number: number }[] = [];
+    let verticalIndex = 0;
+    for (let x = horizontalOffsetPixels; x <= canvasWidth; x += gridSpacingPixels) {
+      verticalLinePositions.push({ x, number: 0 }); // Will calculate numbers next
+      verticalIndex++;
+    }
+
+    // Assign numbers: 15 at edges, 50 at center
+    const centerIndex = Math.floor((verticalLinePositions.length - 1) / 2);
+    for (let i = 0; i < verticalLinePositions.length; i++) {
+      const distanceFromCenter = Math.abs(i - centerIndex);
+      // Numbers go from 15 to 50: 15, 20, 25, 30, 35, 40, 45, 50
+      // Distance 0 = 50, distance 1 = 45, distance 2 = 40, etc.
+      const number = 50 - (distanceFromCenter * 5);
+      verticalLinePositions[i].number = number;
+    }
+
+    // For each grid intersection point
+    for (let i = 0; i * gridSpacingPixels <= canvasHeight; i++) {
+      // Arc center for this horizontal line
+      const arcCenterY = baseCenterY - (i * gridSpacingPixels);
+
+      // Get letter for this row (top to bottom)
+      const letter = letters[i] || ''; // Use empty string if we run out of letters
+
+      for (let vIndex = 0; vIndex < verticalLinePositions.length; vIndex++) {
+        const { x, number } = verticalLinePositions[vIndex];
+
+        // Calculate the y-coordinate where this arc intersects the vertical line at x
+        const dx = x - baseCenterX;
+        const dySquared = arcRadius * arcRadius - dx * dx;
+
+        if (dySquared >= 0) {
+          const y = arcCenterY - Math.sqrt(dySquared);
+
+          // Save context for rotation
+          ctx.save();
+
+          // Move to intersection point
+          ctx.translate(x, y);
+
+          // Rotate 180 degrees (upside down)
+          ctx.rotate(Math.PI);
+
+          // Draw letter in upper-right quadrant (which is lower-left in our rotated space)
+          // Upper right = positive x, negative y in normal space
+          // After 180° rotation, we need negative x, positive y
+          const horizontalOffsetInches = 1.2; // 1.2 inches horizontal from center
+          const verticalOffsetInches = 1.5; // 1.5 inches vertical from center
+          const horizontalOffset = horizontalOffsetInches * SCALE;
+          const verticalOffset = verticalOffsetInches * SCALE;
+          ctx.fillText(letter, -horizontalOffset, verticalOffset);
+
+          // Draw number in upper-left quadrant (which is lower-right in our rotated space)
+          // Upper left = negative x, negative y in normal space
+          // After 180° rotation, we need positive x, positive y
+          ctx.fillText(number.toString(), horizontalOffset, verticalOffset);
+
+          // Restore context
+          ctx.restore();
+        }
+      }
+    }
+  };
+
+  // Function to draw white intersection grid overlay (only at grid intersections)
+  const drawWhiteIntersectionGrid = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
+    const gridSpacingFeet = 6;
+    const gridSpacingInches = gridSpacingFeet * 12; // 72 inches
+    const gridSpacingPixels = gridSpacingInches * SCALE;
+
+    const horizontalOffsetFeet = 3;
+    const horizontalOffsetInches = horizontalOffsetFeet * 12; // 36 inches
+    const horizontalOffsetPixels = horizontalOffsetInches * SCALE;
+
+    const lineWidthInches = 0.75;
+    const lineWidthPixels = lineWidthInches * SCALE;
+
+    const intersectionSegmentInches = 2; // Length on each side of intersection
+    const intersectionSegmentPixels = intersectionSegmentInches * SCALE;
+
+    // Calculate arc parameters (same as edge masks)
+    const arcDepthInches = CONFIG.arc.depthFeet * 12;
+    const width = TARP_WIDTH_INCHES;
+    const depth = arcDepthInches;
+    const radius = (width * width + 4 * depth * depth) / (8 * depth);
+
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = lineWidthPixels;
+
+    const baseCenterX = canvasWidth / 2;
+    const baseCenterY = (TARP_HEIGHT_INCHES + radius - depth) * SCALE;
+    const arcRadius = radius * SCALE;
+
+    // For each grid intersection point
+    for (let i = 0; i * gridSpacingPixels <= canvasHeight; i++) {
+      // Arc center for this horizontal line
+      const arcCenterY = baseCenterY - (i * gridSpacingPixels);
+
+      for (let x = horizontalOffsetPixels; x <= canvasWidth; x += gridSpacingPixels) {
+        // Calculate the y-coordinate where this arc intersects the vertical line at x
+        const dx = x - baseCenterX;
+        const dySquared = arcRadius * arcRadius - dx * dx;
+
+        if (dySquared >= 0) {
+          const y = arcCenterY - Math.sqrt(dySquared);
+
+          // Draw vertical segment (straight line)
+          ctx.beginPath();
+          ctx.moveTo(x, y - intersectionSegmentPixels);
+          ctx.lineTo(x, y + intersectionSegmentPixels);
+          ctx.stroke();
+
+          // Draw horizontal segment (arc segment)
+          // We need to find two points on the arc that are intersectionSegmentPixels away (along the arc)
+          // This is approximate - we'll use the arc length formula and work backwards
+
+          // For a small arc segment, we can approximate the angle span
+          // Arc length = radius * angle, so angle = arc length / radius
+          const arcLengthSegment = intersectionSegmentPixels;
+          const angleSpan = arcLengthSegment / arcRadius;
+
+          // Current angle from center to intersection point
+          const currentAngle = Math.atan2(y - arcCenterY, x - baseCenterX);
+
+          // Start and end angles for the horizontal arc segment
+          const startAngle = currentAngle - angleSpan;
+          const endAngle = currentAngle + angleSpan;
+
+          ctx.beginPath();
+          ctx.arc(baseCenterX, arcCenterY, arcRadius, startAngle, endAngle, false);
+          ctx.stroke();
+        }
+      }
+    }
+  };
+
+  // Function to draw white grid overlay
+  const drawGreenGrid = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
+    const gridSpacingFeet = 6;
+    const gridSpacingInches = gridSpacingFeet * 12; // 72 inches
+    const gridSpacingPixels = gridSpacingInches * SCALE;
+
+    const horizontalOffsetFeet = 3;
+    const horizontalOffsetInches = horizontalOffsetFeet * 12; // 36 inches
+    const horizontalOffsetPixels = horizontalOffsetInches * SCALE;
+
+    const lineWidthInches = 1;
+    const lineWidthPixels = lineWidthInches * SCALE;
+
+    // Calculate arc parameters (same as edge masks)
+    const arcDepthInches = CONFIG.arc.depthFeet * 12;
+    const width = TARP_WIDTH_INCHES;
+    const depth = arcDepthInches;
+    const radius = (width * width + 4 * depth * depth) / (8 * depth);
+
+    ctx.strokeStyle = 'green';
+    ctx.lineWidth = lineWidthPixels;
+
+    // Draw vertical lines (with 3-foot horizontal offset)
+    for (let x = horizontalOffsetPixels; x <= canvasWidth; x += gridSpacingPixels) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvasHeight);
+      ctx.stroke();
+    }
+
+    // Draw horizontal arc lines using the same arc radius, but shifting the center point up
+    // This creates truly parallel arcs with consistent spacing everywhere
+    const baseCenterX = canvasWidth / 2;
+    const baseCenterY = (TARP_HEIGHT_INCHES + radius - depth) * SCALE;
+
+    // Use the same radius for all arcs (the radius of the bottom edge mask)
+    const arcRadius = radius * SCALE;
+
+    // Left edge: x = 0
+    // Right edge: x = canvasWidth
+    const leftX = 0;
+    const rightX = canvasWidth;
+
+    // Draw arcs by shifting the center point up by gridSpacingPixels for each line
+    for (let i = 0; i * gridSpacingPixels <= canvasHeight; i++) {
+      // Shift the center point upward
+      const arcCenterX = baseCenterX;
+      const arcCenterY = baseCenterY - (i * gridSpacingPixels);
+
+      // Calculate where this arc intersects the left and right edges
+      const leftDx = leftX - arcCenterX;
+      const leftDySquared = arcRadius * arcRadius - leftDx * leftDx;
+
+      const rightDx = rightX - arcCenterX;
+      const rightDySquared = arcRadius * arcRadius - rightDx * rightDx;
+
+      // Only draw if the arc intersects the canvas width
+      if (leftDySquared >= 0 && rightDySquared >= 0) {
+        // We want the upper intersection point (smaller y value, closer to top)
+        const leftY = arcCenterY - Math.sqrt(leftDySquared);
+        const rightY = arcCenterY - Math.sqrt(rightDySquared);
+
+        // Calculate angles from center to these points
+        const startAngle = Math.atan2(leftY - arcCenterY, leftX - arcCenterX);
+        const endAngle = Math.atan2(rightY - arcCenterY, rightX - arcCenterX);
+
+        // Draw the arc
+        ctx.beginPath();
+        ctx.arc(arcCenterX, arcCenterY, arcRadius, startAngle, endAngle, false);
+        ctx.stroke();
+      }
+    }
   };
 
   // Function to draw multiple waves of ripples from top to bottom
@@ -496,20 +653,13 @@ const TarpCanvas2026: React.FC = () => {
 
       if (isMiddleWave) {
         // Middle wave: bright teal with higher opacity
-        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.teal, { min: 0.5, max: 0.8 }, true);
+        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.teal, { min: 0.6, max: 0.9 }, true);
+      } else if (distanceFromMiddle === 1) {
+        // Waves adjacent to center: dark teal with medium opacity
+        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, { min: 0.3, max: 0.4 }, false);
       } else {
-        // Other waves: dark teal with opacity based on distance from center
-        // Distance 1 (waves adjacent to center): slightly more transparent
-        // Distance 2 (outermost waves): even more transparent
-        let opacityRange;
-        if (distanceFromMiddle === 1) {
-          // Adjacent waves: moderate transparency
-          opacityRange = { min: 0.35, max: 0.55 };
-        } else {
-          // Outermost waves: high transparency
-          opacityRange = { min: 0.15, max: 0.25 };
-        }
-        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, opacityRange, false);
+        ;
+        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, { min: 0.1, max: 0.2 }, false);
       }
 
       // Restore the context state
@@ -530,27 +680,28 @@ const TarpCanvas2026: React.FC = () => {
     canvas.width = width;
     canvas.height = height;
 
-    // Fill canvas with radial gradient background (darker at edges, brighter at center)
-    const centerX = width / 2;
-    const centerY = height / 2;
-    const gradientRadius = Math.sqrt(centerX * centerX + centerY * centerY); // Diagonal distance to corner
-
-    const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, gradientRadius);
-    gradient.addColorStop(0, CONFIG.colors.backgroundCenter); // Bright at center
-    gradient.addColorStop(0.6, CONFIG.colors.background); // Transition to dark quickly
-    gradient.addColorStop(1, CONFIG.colors.background); // Dark at edges
-
-    ctx.fillStyle = gradient;
+    // Fill canvas with solid background color
+    ctx.fillStyle = CONFIG.colors.background;
+    // ctx.fillStyle = "rgb(0, 0, 0)";
     ctx.fillRect(0, 0, width, height);
-
-    // Draw morse code layer (below ripples)
-    drawMorseCodeLayer(ctx, width, height);
 
     // Draw ripple layer (on top of morse code)
     drawRipplesLayer(ctx, width, height);
 
     // Draw edge masks to simulate the curved tarp edges
     drawEdgeMasks(ctx, width, height);
+
+    // Draw grid overlay on top of everything
+    // drawGreenGrid(ctx, width, height);
+
+    // Draw white intersection grid
+    drawWhiteIntersectionGrid(ctx, width, height);
+
+    // Draw grid labels (upside-down text)
+    drawGridLabels(ctx, width, height);
+
+    // Draw straight red grid overlay
+    // drawStraightGrid(ctx, width, height);
 
     // Cleanup function to clear canvas on unmount
     return () => {
