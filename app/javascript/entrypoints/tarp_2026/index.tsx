@@ -64,7 +64,7 @@ const CONFIG = {
   },
   // Colors
   colors: {
-    background: '#061f37', // Dark blue-gray for edges
+    background: '#02111f', // Dark blue-gray for edges
     // backgroundCenter: '#153b46', // Dark blue-gray for edges
     backgroundCenter: '#14476e', // Brighter blue-gray for center
     teal: '#02aaa2', // Bright teal for center wave
@@ -281,8 +281,8 @@ const TarpCanvas2026: React.FC = () => {
     drawMultipleRippleWaves(ctx, canvasWidth, canvasHeight);
   };
 
-  // Function to draw edge masks that simulate the curved tarp edges
-  const drawEdgeMasks = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
+  // Function to create a clipping path for the tarp shape (curved top and bottom edges)
+  const createTarpClipPath = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
     const arcDepthInches = CONFIG.arc.depthFeet * 12; // Convert feet to inches
 
     // Calculate circular arc parameters
@@ -292,41 +292,24 @@ const TarpCanvas2026: React.FC = () => {
     const depth = arcDepthInches;
     const radius = (width * width + 4 * depth * depth) / (8 * depth);
 
-    ctx.fillStyle = 'black';
-
-    // Bottom arc mask
-    // Arc goes from (0, 720) curving up to (540, 648) and back to (1080, 720)
-    // Center of circle is at (width/2, 720 + radius - depth)
+    // Bottom arc parameters
     const bottomCenterX = (canvasWidth / 2);
     const bottomCenterY = (TARP_HEIGHT_INCHES + radius - depth) * SCALE;
     const bottomY = TARP_HEIGHT_INCHES * SCALE;
 
-    // Calculate angles for the arc
+    // Calculate angles for the bottom arc
     const bottomStartAngle = Math.atan2(bottomY - bottomCenterY, 0 - bottomCenterX);
     const bottomEndAngle = Math.atan2(bottomY - bottomCenterY, canvasWidth - bottomCenterX);
 
-    ctx.beginPath();
-    ctx.moveTo(0, bottomY);
-    ctx.lineTo(canvasWidth, bottomY);
-    // Arc back counterclockwise from right to left (going through the area outside canvas)
-    ctx.arc(bottomCenterX, bottomCenterY, radius * SCALE, bottomEndAngle, bottomStartAngle, true);
-    ctx.closePath();
-    ctx.fill();
-
-    // Top arc mask
-    // Use the same arc radius as bottom, but shift the center up by the tarp height minus 2 * arc depth
-    // The tarp is 60 feet (720") tall, with 6-foot arcs on each end, leaving 48 feet between arc edges
+    // Top arc parameters
     const topCenterX = bottomCenterX;
     const topCenterY = bottomCenterY - (TARP_HEIGHT_INCHES - 2 * arcDepthInches) * SCALE; // Shift up by 48 feet
-
-    // Use the same radius as the bottom arc
     const topArcRadius = radius * SCALE;
 
-    // Calculate angles for the arc at the left and right edges
+    // Calculate angles for the top arc at the left and right edges
     const leftX = 0;
     const rightX = canvasWidth;
 
-    // Find where the arc intersects x=0 and x=canvasWidth
     const topLeftDx = leftX - topCenterX;
     const topLeftDySquared = topArcRadius * topArcRadius - topLeftDx * topLeftDx;
     const topRightDx = rightX - topCenterX;
@@ -338,13 +321,18 @@ const TarpCanvas2026: React.FC = () => {
     const topStartAngle = Math.atan2(topLeftY - topCenterY, leftX - topCenterX);
     const topEndAngle = Math.atan2(topRightY - topCenterY, rightX - topCenterX);
 
+    // Create the clipping path that defines the visible tarp area
     ctx.beginPath();
-    ctx.moveTo(0, topLeftY);
-    ctx.arc(topCenterX, topCenterY, topArcRadius, topStartAngle, topEndAngle, false);
-    ctx.lineTo(canvasWidth, 0); // Go to top-right corner
-    ctx.lineTo(0, 0); // Go to top-left corner
+    // Start at bottom left
+    ctx.moveTo(0, bottomY);
+    // Draw bottom arc (curving inward)
+    ctx.arc(bottomCenterX, bottomCenterY, radius * SCALE, bottomStartAngle, bottomEndAngle, false);
+    // Draw right edge up to top arc
+    ctx.lineTo(canvasWidth, topRightY);
+    // Draw top arc (curving inward)
+    ctx.arc(topCenterX, topCenterY, topArcRadius, topEndAngle, topStartAngle, true);
+    // Close path back to bottom left
     ctx.closePath();
-    ctx.fill();
   };
 
   // Function to draw straight red grid overlay
@@ -680,16 +668,18 @@ const TarpCanvas2026: React.FC = () => {
     canvas.width = width;
     canvas.height = height;
 
-    // Fill canvas with solid background color
+    // Set up clipping path for the tarp shape (makes edges transparent)
+    ctx.save();
+    createTarpClipPath(ctx, width, height);
+    ctx.clip();
+
+    // Fill canvas with solid background color (only inside clipped area)
     ctx.fillStyle = CONFIG.colors.background;
     // ctx.fillStyle = "rgb(0, 0, 0)";
     ctx.fillRect(0, 0, width, height);
 
     // Draw ripple layer (on top of morse code)
     drawRipplesLayer(ctx, width, height);
-
-    // Draw edge masks to simulate the curved tarp edges
-    drawEdgeMasks(ctx, width, height);
 
     // Draw grid overlay on top of everything
     // drawGreenGrid(ctx, width, height);
@@ -699,6 +689,9 @@ const TarpCanvas2026: React.FC = () => {
 
     // Draw grid labels (upside-down text)
     drawGridLabels(ctx, width, height);
+
+    // Restore context (removes clipping)
+    ctx.restore();
 
     // Draw straight red grid overlay
     // drawStraightGrid(ctx, width, height);
