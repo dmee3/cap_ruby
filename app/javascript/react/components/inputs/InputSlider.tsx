@@ -26,13 +26,7 @@ const InputSlider = ({
   }
 
   return (
-    <div className="w-full">
-      {label && (
-        <label htmlFor={id} className="input-label mb-2 flex justify-between">
-          <span>{label}</span>
-          <span className="text-ocean font-semibold">{value}</span>
-        </label>
-      )}
+    <div className="w-full flex items-center">
       <input
         type="range"
         id={id}
