@@ -310,10 +310,10 @@ const TarpGridTool: React.FC = () => {
             name="markerScale"
             min={0.5}
             max={2}
-            step={0.1}
+            step={0.05}
             value={settings.markerScale}
             onChange={(value) => updateSetting('markerScale', value)}
-            label="Marker Scale:"
+            label="Marker Scale (value of 1 = 4 inches wide):"
           />
         </div>
 
