@@ -4,14 +4,37 @@ import InputText from '../../react/components/inputs/InputText';
 import InputToggle from '../../react/components/inputs/InputToggle';
 import InputSlider from '../../react/components/inputs/InputSlider';
 
+// Constants
+const INCHES_PER_FOOT = 12;
+const ASCII_CODE_A = 65;
+const LABEL_NUMBERING = {
+  CENTER: 50,
+  EDGE: 15,
+  INCREMENT: 5,
+} as const;
+
+const MARKER_DEFAULTS = {
+  LINE_WIDTH_INCHES: 0.5,
+  SEGMENT_LENGTH_INCHES: 2,
+  FONT_SIZE_INCHES: 1.5,
+  LABEL_OFFSET_INCHES: 1.5,
+} as const;
+
 interface GridSettings {
-  scale: number; // pixels per inch
-  gridSizeFeet: number; // grid spacing in feet
+  scale: number;
+  gridSizeFeet: number;
   tarpWidthFeet: number;
   tarpHeightFeet: number;
   showLabels: boolean;
-  horizontalOffsetFeet: number; // horizontal offset for vertical lines
-  markerScale: number; // scale factor for intersection lines and labels
+  horizontalOffsetFeet: number;
+  markerScale: number;
+}
+
+interface GridDimensions {
+  gridSpacingPixels: number;
+  horizontalOffsetPixels: number;
+  lineWidthPixels: number;
+  intersectionSegmentPixels: number;
 }
 
 const TarpGridTool: React.FC = () => {
@@ -32,151 +55,140 @@ const TarpGridTool: React.FC = () => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
+  const calculateDimensions = (): GridDimensions => {
+    const { scale, gridSizeFeet, horizontalOffsetFeet, markerScale } = settings;
+
+    return {
+      gridSpacingPixels: gridSizeFeet * INCHES_PER_FOOT * scale,
+      horizontalOffsetPixels: horizontalOffsetFeet * INCHES_PER_FOOT * scale,
+      lineWidthPixels: MARKER_DEFAULTS.LINE_WIDTH_INCHES * markerScale * scale,
+      intersectionSegmentPixels: MARKER_DEFAULTS.SEGMENT_LENGTH_INCHES * markerScale * scale,
+    };
+  };
+
+  const getFormFieldNumber = (formData: FormData, fieldName: string, fallback: number, minValue: number = 1): number => {
+    const value = formData.get(fieldName);
+    if (!value) return fallback;
+
+    const num = Number(value);
+    return num >= minValue ? num : fallback;
+  };
+
   const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
     const formData = new FormData(e.currentTarget);
-    const scaleStr = formData.get('scale');
-    const gridSizeFeetStr = formData.get('gridSizeFeet');
-    const tarpWidthFeetStr = formData.get('tarpWidthFeet');
-    const tarpHeightFeetStr = formData.get('tarpHeightFeet');
-    const horizontalOffsetFeetStr = formData.get('horizontalOffsetFeet');
-    const markerScaleStr = formData.get('markerScale');
-    const showLabels = formData.get('showLabels') === '1';
-
-    const scale = scaleStr ? Number(scaleStr) : settings.scale;
-    const gridSizeFeet = gridSizeFeetStr ? Number(gridSizeFeetStr) : settings.gridSizeFeet;
-    const tarpWidthFeet = tarpWidthFeetStr ? Number(tarpWidthFeetStr) : settings.tarpWidthFeet;
-    const tarpHeightFeet = tarpHeightFeetStr ? Number(tarpHeightFeetStr) : settings.tarpHeightFeet;
-    const horizontalOffsetFeet = horizontalOffsetFeetStr !== null ? Number(horizontalOffsetFeetStr) : settings.horizontalOffsetFeet;
-    const markerScale = markerScaleStr ? Number(markerScaleStr) : settings.markerScale;
 
     setSettings({
-      scale: scale > 0 ? scale : settings.scale,
-      gridSizeFeet: gridSizeFeet > 0 ? gridSizeFeet : settings.gridSizeFeet,
-      tarpWidthFeet: tarpWidthFeet > 0 ? tarpWidthFeet : settings.tarpWidthFeet,
-      tarpHeightFeet: tarpHeightFeet > 0 ? tarpHeightFeet : settings.tarpHeightFeet,
-      horizontalOffsetFeet: horizontalOffsetFeet >= 0 ? horizontalOffsetFeet : settings.horizontalOffsetFeet,
-      markerScale: markerScale > 0 ? markerScale : settings.markerScale,
-      showLabels,
+      scale: getFormFieldNumber(formData, 'scale', settings.scale),
+      gridSizeFeet: getFormFieldNumber(formData, 'gridSizeFeet', settings.gridSizeFeet),
+      tarpWidthFeet: getFormFieldNumber(formData, 'tarpWidthFeet', settings.tarpWidthFeet),
+      tarpHeightFeet: getFormFieldNumber(formData, 'tarpHeightFeet', settings.tarpHeightFeet),
+      horizontalOffsetFeet: getFormFieldNumber(formData, 'horizontalOffsetFeet', settings.horizontalOffsetFeet, 0),
+      markerScale: getFormFieldNumber(formData, 'markerScale', settings.markerScale, 0.1),
+      showLabels: formData.get('showLabels') === '1',
     });
   };
 
-  const drawGrid = (
+  const drawIntersectionMarker = (
     ctx: CanvasRenderingContext2D,
-    width: number,
-    height: number,
-    isExport: boolean = false
+    x: number,
+    y: number,
+    segmentLength: number
   ) => {
-    const { scale, gridSizeFeet, showLabels, horizontalOffsetFeet, markerScale } = settings;
+    // Vertical segment
+    ctx.beginPath();
+    ctx.moveTo(x, y - segmentLength);
+    ctx.lineTo(x, y + segmentLength);
+    ctx.stroke();
 
-    // Convert measurements to pixels
-    const gridSpacingInches = gridSizeFeet * 12;
-    const gridSpacingPixels = gridSpacingInches * scale;
-    const horizontalOffsetInches = horizontalOffsetFeet * 12;
-    const horizontalOffsetPixels = horizontalOffsetInches * scale;
-    const lineWidthInches = 0.5 * markerScale;
-    const lineWidthPixels = lineWidthInches * scale;
-    const intersectionSegmentInches = 2 * markerScale; // 2 inches on each side of intersection
-    const intersectionSegmentPixels = intersectionSegmentInches * scale;
+    // Horizontal segment
+    ctx.beginPath();
+    ctx.moveTo(x - segmentLength, y);
+    ctx.lineTo(x + segmentLength, y);
+    ctx.stroke();
+  };
 
-    // Clear canvas
-    if (isExport) {
-      ctx.clearRect(0, 0, width, height);
-    } else {
-      // Black background for visibility in tool
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(0, 0, width, height);
+  const generateGridLabels = (numRows: number) => {
+    return Array.from({ length: numRows }, (_, i) => String.fromCharCode(ASCII_CODE_A + i));
+  };
+
+  const calculateVerticalLineNumbers = (width: number, gridSpacingPixels: number, horizontalOffsetPixels: number) => {
+    const positions: { x: number; number: number }[] = [];
+
+    for (let x = horizontalOffsetPixels; x <= width; x += gridSpacingPixels) {
+      positions.push({ x, number: 0 });
     }
 
-    // Draw grid as intersection segments only
-    ctx.strokeStyle = '#FFFFFF';
-    ctx.lineWidth = lineWidthPixels;
+    const centerIndex = Math.floor((positions.length - 1) / 2);
 
-    // Draw intersection segments at each grid point
-    for (let y = 0; y <= height; y += gridSpacingPixels) {
-      for (let x = horizontalOffsetPixels; x <= width; x += gridSpacingPixels) {
-        // Draw vertical segment (straight line)
-        ctx.beginPath();
-        ctx.moveTo(x, y - intersectionSegmentPixels);
-        ctx.lineTo(x, y + intersectionSegmentPixels);
-        ctx.stroke();
-
-        // Draw horizontal segment (straight line)
-        ctx.beginPath();
-        ctx.moveTo(x - intersectionSegmentPixels, y);
-        ctx.lineTo(x + intersectionSegmentPixels, y);
-        ctx.stroke();
-      }
-    }
-
-    // Draw labels if enabled
-    if (showLabels) {
-      drawGridLabels(ctx, width, height);
-    }
+    return positions.map((pos, i) => {
+      const distanceFromCenter = Math.abs(i - centerIndex);
+      return {
+        ...pos,
+        number: LABEL_NUMBERING.CENTER - (distanceFromCenter * LABEL_NUMBERING.INCREMENT)
+      };
+    });
   };
 
   const drawGridLabels = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    const { scale, gridSizeFeet, horizontalOffsetFeet, tarpHeightFeet, markerScale } = settings;
+    const { scale, gridSizeFeet, tarpHeightFeet, markerScale } = settings;
+    const { gridSpacingPixels, horizontalOffsetPixels } = calculateDimensions();
 
-    const gridSpacingInches = gridSizeFeet * 12;
-    const gridSpacingPixels = gridSpacingInches * scale;
-    const horizontalOffsetInches = horizontalOffsetFeet * 12;
-    const horizontalOffsetPixels = horizontalOffsetInches * scale;
-    const fontSizeInches = 1.5 * markerScale;
-    const fontSizePixels = fontSizeInches * scale;
+    const fontSizePixels = MARKER_DEFAULTS.FONT_SIZE_INCHES * markerScale * scale;
+    const labelOffset = MARKER_DEFAULTS.LABEL_OFFSET_INCHES * markerScale * scale;
 
     ctx.fillStyle = '#FFFFFF';
     ctx.font = `${fontSizePixels}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    // Calculate how many rows we have based on tarp height and grid spacing
     const numRows = Math.floor(tarpHeightFeet / gridSizeFeet) + 1;
+    const letters = generateGridLabels(numRows);
+    const verticalLinePositions = calculateVerticalLineNumbers(width, gridSpacingPixels, horizontalOffsetPixels);
 
-    // Generate letters starting from A
-    const letters = Array.from({ length: numRows }, (_, i) =>
-      String.fromCharCode(65 + i) // 65 is 'A' in ASCII
-    );
-
-    // Calculate vertical line positions and their numbers
-    const verticalLinePositions: { x: number; number: number }[] = [];
-    for (let x = horizontalOffsetPixels; x <= width; x += gridSpacingPixels) {
-      verticalLinePositions.push({ x, number: 0 });
-    }
-
-    // Assign numbers: 15 at edges, 50 at center
-    const centerIndex = Math.floor((verticalLinePositions.length - 1) / 2);
-    for (let i = 0; i < verticalLinePositions.length; i++) {
-      const distanceFromCenter = Math.abs(i - centerIndex);
-      const number = 50 - (distanceFromCenter * 5);
-      verticalLinePositions[i].number = number;
-    }
-
-    // Draw labels at grid intersections
     let rowIndex = 0;
     for (let y = 0; y <= height; y += gridSpacingPixels) {
-      // Calculate letter index from bottom to top (reverse order)
       const letterIndex = numRows - 1 - rowIndex;
       const letter = letters[letterIndex] || '';
 
       for (const { x, number } of verticalLinePositions) {
         ctx.save();
         ctx.translate(x, y);
-        ctx.rotate(Math.PI); // Rotate 180 degrees (upside down)
+        ctx.rotate(Math.PI);
 
-        const horizontalOffsetInches = 1.5 * markerScale;
-        const verticalOffsetInches = 1.5 * markerScale;
-        const horizontalOffset = horizontalOffsetInches * scale;
-        const verticalOffset = verticalOffsetInches * scale;
-
-        // Draw letter (upper-right in rotated space)
-        ctx.fillText(letter, -horizontalOffset, verticalOffset);
-        // Draw number (upper-left in rotated space)
-        ctx.fillText(number.toString(), horizontalOffset, verticalOffset);
+        ctx.fillText(letter, -labelOffset, labelOffset);
+        ctx.fillText(number.toString(), labelOffset, labelOffset);
 
         ctx.restore();
       }
 
       rowIndex++;
+    }
+  };
+
+  const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number, isExport: boolean = false) => {
+    const { showLabels } = settings;
+    const { gridSpacingPixels, horizontalOffsetPixels, lineWidthPixels, intersectionSegmentPixels } = calculateDimensions();
+
+    // Set background
+    if (isExport) {
+      ctx.clearRect(0, 0, width, height);
+    } else {
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, width, height);
+    }
+
+    // Draw intersection markers
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = lineWidthPixels;
+
+    for (let y = 0; y <= height; y += gridSpacingPixels) {
+      for (let x = horizontalOffsetPixels; x <= width; x += gridSpacingPixels) {
+        drawIntersectionMarker(ctx, x, y, intersectionSegmentPixels);
+      }
+    }
+
+    if (showLabels) {
+      drawGridLabels(ctx, width, height);
     }
   };
 
@@ -188,16 +200,14 @@ const TarpGridTool: React.FC = () => {
     if (!ctx) return;
 
     const { scale, tarpWidthFeet, tarpHeightFeet, gridSizeFeet } = settings;
-    const width = tarpWidthFeet * 12 * scale;
-    const height = tarpHeightFeet * 12 * scale;
+    const width = tarpWidthFeet * INCHES_PER_FOOT * scale;
+    const height = tarpHeightFeet * INCHES_PER_FOOT * scale;
 
     exportCanvas.width = width;
     exportCanvas.height = height;
 
-    // Draw grid with transparent background
     drawGrid(ctx, width, height, true);
 
-    // Export as PNG
     exportCanvas.toBlob((blob) => {
       if (!blob) return;
 
@@ -218,8 +228,8 @@ const TarpGridTool: React.FC = () => {
     if (!ctx) return;
 
     const { scale, tarpWidthFeet, tarpHeightFeet } = settings;
-    const width = tarpWidthFeet * 12 * scale;
-    const height = tarpHeightFeet * 12 * scale;
+    const width = tarpWidthFeet * INCHES_PER_FOOT * scale;
+    const height = tarpHeightFeet * INCHES_PER_FOOT * scale;
 
     canvas.width = width;
     canvas.height = height;
@@ -238,7 +248,6 @@ const TarpGridTool: React.FC = () => {
     }}>
       <h1 style={{ marginBottom: '20px', fontSize: '24px' }}>Tarp Grid Tool</h1>
 
-      {/* Controls Panel */}
       <form onChange={handleFormChange} className="bg-secondary-dark rounded-lg p-10 mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-8">
         <div className="py-2">
           <label className="input-label mb-3 block" htmlFor="scale">
@@ -329,7 +338,6 @@ const TarpGridTool: React.FC = () => {
         </div>
       </form>
 
-      {/* Canvas Container */}
       <div style={{
         display: 'flex',
         justifyContent: 'center',
@@ -347,13 +355,11 @@ const TarpGridTool: React.FC = () => {
         />
       </div>
 
-      {/* Hidden export canvas */}
       <canvas ref={exportCanvasRef} style={{ display: 'none' }} />
     </div>
   );
 };
 
-// Mount the component to the DOM
 document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('root');
   if (container) {
