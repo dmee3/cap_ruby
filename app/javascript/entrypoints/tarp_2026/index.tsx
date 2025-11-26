@@ -670,13 +670,13 @@ const TarpCanvas2026: React.FC = () => {
 
     // Set up clipping path for the tarp shape (makes edges transparent)
     ctx.save();
-    createTarpClipPath(ctx, width, height);
-    ctx.clip();
+    // createTarpClipPath(ctx, width, height);
+    // ctx.clip();
 
     // Fill canvas with solid background color (only inside clipped area)
     ctx.fillStyle = CONFIG.colors.background;
     // ctx.fillStyle = "rgb(0, 0, 0)";
-    ctx.fillRect(0, 0, width, height);
+    // ctx.fillRect(0, 0, width, height);
 
     // Draw ripple layer (on top of morse code)
     drawRipplesLayer(ctx, width, height);
@@ -685,10 +685,10 @@ const TarpCanvas2026: React.FC = () => {
     // drawGreenGrid(ctx, width, height);
 
     // Draw white intersection grid
-    drawWhiteIntersectionGrid(ctx, width, height);
+    // drawWhiteIntersectionGrid(ctx, width, height);
 
     // Draw grid labels (upside-down text)
-    drawGridLabels(ctx, width, height);
+    // drawGridLabels(ctx, width, height);
 
     // Restore context (removes clipping)
     ctx.restore();
