@@ -64,7 +64,7 @@ const CONFIG = {
   },
   // Colors
   colors: {
-    background: '#02111f', // Dark blue-gray for edges
+    background: '#051526', // Dark blue-gray for edges
     // backgroundCenter: '#153b46', // Dark blue-gray for edges
     backgroundCenter: '#14476e', // Brighter blue-gray for center
     teal: '#02aaa2', // Bright teal for center wave
