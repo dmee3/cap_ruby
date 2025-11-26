@@ -249,92 +249,115 @@ const TarpGridTool: React.FC = () => {
       <h1 style={{ marginBottom: '20px', fontSize: '24px' }}>Tarp Grid Tool</h1>
 
       <form onChange={handleFormChange} className="bg-secondary-dark rounded-lg p-10 mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-8">
-        <div className="py-2">
-          <label className="input-label mb-3 block" htmlFor="scale">
-            Scale (pixels per inch):
-          </label>
-          <InputText
-            name="scale"
-            id="scale"
-            value={settings.scale.toString()}
-          />
+        <div className="flex flex-col">
+          <div className="input-label mb-3 h-6 flex items-center">
+            <label htmlFor="scale">Scale (pixels per inch):</label>
+          </div>
+          <div className="flex items-center flex-1">
+            <InputText
+              name="scale"
+              id="scale"
+              value={settings.scale.toString()}
+            />
+          </div>
         </div>
 
-        <div className="py-2">
-          <label className="input-label mb-3 block" htmlFor="gridSizeFeet">
-            Grid Size (feet):
-          </label>
-          <InputText
-            name="gridSizeFeet"
-            id="gridSizeFeet"
-            value={settings.gridSizeFeet.toString()}
-          />
+        <div className="flex flex-col">
+          <div className="input-label mb-3 h-6 flex items-center">
+            <label htmlFor="gridSizeFeet">Grid Size (feet):</label>
+          </div>
+          <div className="flex items-center flex-1">
+            <InputText
+              name="gridSizeFeet"
+              id="gridSizeFeet"
+              value={settings.gridSizeFeet.toString()}
+            />
+          </div>
         </div>
 
-        <div className="py-2">
-          <label className="input-label mb-3 block" htmlFor="tarpWidthFeet">
-            Tarp Width (feet):
-          </label>
-          <InputText
-            name="tarpWidthFeet"
-            id="tarpWidthFeet"
-            value={settings.tarpWidthFeet.toString()}
-          />
+        <div className="flex flex-col">
+          <div className="input-label mb-3 h-6 flex items-center">
+            <label htmlFor="tarpWidthFeet">Tarp Width (feet):</label>
+          </div>
+          <div className="flex items-center flex-1">
+            <InputText
+              name="tarpWidthFeet"
+              id="tarpWidthFeet"
+              value={settings.tarpWidthFeet.toString()}
+            />
+          </div>
         </div>
 
-        <div className="py-2">
-          <label className="input-label mb-3 block" htmlFor="tarpHeightFeet">
-            Tarp Height (feet):
-          </label>
-          <InputText
-            name="tarpHeightFeet"
-            id="tarpHeightFeet"
-            value={settings.tarpHeightFeet.toString()}
-          />
+        <div className="flex flex-col">
+          <div className="input-label mb-3 h-6 flex items-center">
+            <label htmlFor="tarpHeightFeet">Tarp Height (feet):</label>
+          </div>
+          <div className="flex items-center flex-1">
+            <InputText
+              name="tarpHeightFeet"
+              id="tarpHeightFeet"
+              value={settings.tarpHeightFeet.toString()}
+            />
+          </div>
         </div>
 
-        <div className="py-2">
-          <label className="input-label mb-3 block" htmlFor="horizontalOffsetFeet">
-            Horizontal Offset (feet):
-          </label>
-          <InputText
-            name="horizontalOffsetFeet"
-            id="horizontalOffsetFeet"
-            value={settings.horizontalOffsetFeet.toString()}
-          />
+        <div className="flex flex-col">
+          <div className="input-label mb-3 h-6 flex items-center">
+            <label htmlFor="horizontalOffsetFeet">Horizontal Offset (feet):</label>
+          </div>
+          <div className="flex items-center flex-1">
+            <InputText
+              name="horizontalOffsetFeet"
+              id="horizontalOffsetFeet"
+              value={settings.horizontalOffsetFeet.toString()}
+            />
+          </div>
         </div>
 
-        <div className="py-2">
-          <InputSlider
-            id="markerScale"
-            name="markerScale"
-            min={0.5}
-            max={2}
-            step={0.05}
-            value={settings.markerScale}
-            onChange={(value) => updateSetting('markerScale', value)}
-            label="Marker Scale (value of 1 = 4 inches wide):"
-          />
+        <div className="flex flex-col">
+          <div className="input-label mb-3 h-6 flex items-center justify-between">
+            <label htmlFor="markerScale">Marker Scale (value of 1 = 4 inches wide):</label>
+            <span className="text-ocean font-semibold ml-2">{settings.markerScale}</span>
+          </div>
+          <div className="flex items-center flex-1">
+            <InputSlider
+              id="markerScale"
+              name="markerScale"
+              min={0.5}
+              max={2}
+              step={0.05}
+              value={settings.markerScale}
+              onChange={(value) => updateSetting('markerScale', value)}
+            />
+          </div>
         </div>
 
-        <div className="py-2 flex items-center">
-          <InputToggle
-            id="showLabels"
-            name="showLabels"
-            checked={settings.showLabels}
-            onChange={(checked: boolean) => updateSetting('showLabels', checked)}
-            text="Show Labels"
-          />
+        <div className="flex flex-col">
+          <div className="input-label mb-3 h-6 flex items-center">
+            <label>Show Labels:</label>
+          </div>
+          <div className="flex items-center flex-1">
+            <InputToggle
+              id="showLabels"
+              name="showLabels"
+              checked={settings.showLabels}
+              onChange={(checked: boolean) => updateSetting('showLabels', checked)}
+              text=""
+            />
+          </div>
         </div>
 
-        <div className="py-2">
-          <button
-            type="button"
-            onClick={handleExport}
-            className="btn-primary w-full py-3"
-          >
-            Export Grid
-          </button>
+        <div className="flex flex-col">
+          <div className="h-6 mb-3"></div>
+          <div className="flex items-center flex-1">
+            <button
+              type="button"
+              onClick={handleExport}
+              className="btn-primary btn-md w-full"
+            >
+              Export Grid
+            </button>
+          </div>
         </div>
       </form>
 
