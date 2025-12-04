@@ -38,7 +38,7 @@ RSpec.describe 'Conflicts Workflow', type: :request do
     end
 
     it 'rejects conflicts with past start dates' do
-      member = sign_in_as_member(season: season)
+      sign_in_as_member(season: season)
       pending_status
 
       expect do
@@ -56,7 +56,7 @@ RSpec.describe 'Conflicts Workflow', type: :request do
     end
 
     it 'rejects conflicts with past end dates' do
-      member = sign_in_as_member(season: season)
+      sign_in_as_member(season: season)
       pending_status
 
       expect do
