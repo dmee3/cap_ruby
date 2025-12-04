@@ -109,6 +109,7 @@ Rails.application.routes.draw do
   get 'rhythm-converter', to: 'tools#rhythm_converter'
   get 'tarp-canvas', to: 'tools#tarp_canvas'
   get 'tarp-canvas-2026', to: 'tools#tarp_canvas_2026'
+  get 'tarp-cc2-2026', to: 'tools#tarp_cc2_2026'
   get 'tarp-grid-tool', to: 'tools#tarp_grid_tool'
 
   resources :calendars, only: %i[index new create]
