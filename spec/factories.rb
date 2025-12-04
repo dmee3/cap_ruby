@@ -53,12 +53,21 @@ FactoryBot.define do
   end
 
   factory :conflict do
-    end_date { DateTime.now + 1.day }
+    end_date { DateTime.now + 2.days }
     reason { Faker::TvShows::VentureBros.quote }
     season
-    start_date { DateTime.now }
+    start_date { DateTime.now + 1.day }
     conflict_status
     user
+
+    # Allow creating conflicts with past dates for testing
+    transient do
+      skip_future_date_validation { false }
+    end
+
+    after(:build) do |conflict, evaluator|
+      conflict.skip_future_date_validation = evaluator.skip_future_date_validation
+    end
   end
 
   factory :seasons_user do

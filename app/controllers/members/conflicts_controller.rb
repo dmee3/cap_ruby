@@ -6,12 +6,12 @@ module Members
 
     def new
       # Comment out to enable conflict submission
-      flash[:error] = 'Conflict submission is currently disabled'
-      redirect_to(root_url)
+      # flash[:error] = 'Conflict submission is currently disabled'
+      # redirect_to(root_url)
 
       # Uncomment to enable conflict submission
-      # @conflict = Conflict.new
-      # render('members/conflicts/new')
+      @conflict = Conflict.new
+      render('members/conflicts/new')
     end
 
     def create
@@ -23,8 +23,9 @@ module Members
         redirect_to(root_url)
       else
         Rollbar.info('Conflict could not be submitted.', errors: @conflict.errors.full_messages)
-        flash[:error] = @conflict.errors.full_messages.map { |m| "Error submitting conflict: #{m}" }
-        redirect_to('/members/conflicts/new')
+        flash.now[:error] = @conflict.errors.full_messages.to_sentence
+        @conflict = Conflict.new
+        render('members/conflicts/new')
       end
     end
 
