@@ -35,10 +35,27 @@ class Conflict < ApplicationRecord
   validates :start_date, presence: true
   validates :status_id, presence: true
   validates :user_id, presence: true
+  validate :future_dates_only, on: :create
+
+  attr_accessor :skip_future_date_validation
 
   scope :for_season, ->(season_id) { where(season_id: season_id) }
   scope :future_conflicts, -> { where('end_date > ?', Date.yesterday) }
   scope :past_conflicts, -> { where('end_date < ?', Date.today) }
   scope :with_status, ->(status_id) { where(conflict_status: status_id) }
   scope :without_status, ->(status_id) { where.not(conflict_status: status_id) }
+
+  private
+
+  def future_dates_only
+    return if skip_future_date_validation
+
+    now = Time.current
+
+    errors.add(:start_date, 'must be in the future') if start_date.present? && start_date <= now
+
+    return unless end_date.present? && end_date < now
+
+    errors.add(:end_date, 'must be in the future')
+  end
 end

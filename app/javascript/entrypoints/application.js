@@ -86,4 +86,15 @@ document.addEventListener('DOMContentLoaded', () => {
     disableMobile: true,
     enableTime: true,
   })
+
+  // Member conflict submission - only allow future dates
+  flatpickr('.flatpickr-dt-member-conflict', {
+    altInput: true,
+    altFormat: 'F j, Y h:i K',
+    altInputClass: 'input-text',
+    dateFormat: 'Y-m-d H:i',
+    disableMobile: true,
+    enableTime: true,
+    minDate: 'today',
+  })
 })

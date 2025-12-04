@@ -23,8 +23,9 @@ module Members
         redirect_to(root_url)
       else
         Rollbar.info('Conflict could not be submitted.', errors: @conflict.errors.full_messages)
-        flash[:error] = @conflict.errors.full_messages.map { |m| "Error submitting conflict: #{m}" }
-        redirect_to('/members/conflicts/new')
+        flash.now[:error] = @conflict.errors.full_messages.to_sentence
+        @conflict = Conflict.new
+        render('members/conflicts/new')
       end
     end
 

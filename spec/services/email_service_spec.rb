@@ -73,8 +73,8 @@ RSpec.describe EmailService do
         user: user,
         season: season,
         conflict_status: conflict_status,
-        start_date: DateTime.parse('2025-11-01 18:00'),
-        end_date: DateTime.parse('2025-11-02 18:00'),
+        start_date: 1.week.from_now,
+        end_date: 2.weeks.from_now,
         reason: 'Family vacation'
       )
     end

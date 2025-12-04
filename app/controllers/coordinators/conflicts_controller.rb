@@ -12,6 +12,7 @@ module Coordinators
 
     def create
       @conflict = Conflict.new(conflict_params)
+      @conflict.skip_future_date_validation = true
       if @conflict.save
         flash[:success] = 'Conflict created.'
         ActivityLogger.log_conflict(@conflict, current_user)
