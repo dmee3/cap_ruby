@@ -63,6 +63,63 @@ RSpec.describe Conflict, type: :model do
       subject.user_id = nil
       expect(subject).to_not be_valid
     end
+
+    context 'date validation for member submissions' do
+      let(:user) { create(:user) }
+      let(:season) { create(:season) }
+      let(:status) { create(:conflict_status) }
+
+      it 'rejects past start dates on create' do
+        conflict = Conflict.new(
+          user: user,
+          season: season,
+          conflict_status: status,
+          start_date: 1.day.ago,
+          end_date: 1.day.from_now,
+          reason: 'Test reason'
+        )
+        expect(conflict).to_not be_valid
+        expect(conflict.errors[:start_date]).to include('must be in the future')
+      end
+
+      it 'rejects past end dates on create' do
+        conflict = Conflict.new(
+          user: user,
+          season: season,
+          conflict_status: status,
+          start_date: 1.day.from_now,
+          end_date: 1.hour.ago,
+          reason: 'Test reason'
+        )
+        expect(conflict).to_not be_valid
+        expect(conflict.errors[:end_date]).to include('must be in the future')
+      end
+
+      it 'allows future dates on create' do
+        conflict = Conflict.new(
+          user: user,
+          season: season,
+          conflict_status: status,
+          start_date: 1.day.from_now,
+          end_date: 2.days.from_now,
+          reason: 'Test reason'
+        )
+        expect(conflict).to be_valid
+      end
+
+      it 'allows past dates when skip_future_date_validation is set' do
+        conflict = Conflict.new(
+          user: user,
+          season: season,
+          conflict_status: status,
+          start_date: 1.week.ago,
+          end_date: 1.day.ago,
+          reason: 'Test reason'
+        )
+        conflict.skip_future_date_validation = true
+        expect(conflict).to be_valid
+      end
+    end
   end
 
   context 'scopes' do
@@ -77,7 +134,8 @@ RSpec.describe Conflict, type: :model do
         :conflict,
         end_date: DateTime.yesterday - 1.year,
         conflict_status: denied_status,
-        season: last_season
+        season: last_season,
+        skip_future_date_validation: true
       )
     end
 

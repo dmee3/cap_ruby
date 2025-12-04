@@ -36,6 +36,42 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       expect(response).to redirect_to(root_url)
       expect(flash[:success]).to match(/submitted for review/)
     end
+
+    it 'rejects conflicts with past start dates' do
+      sign_in_as_member(season: season)
+      pending_status
+
+      expect do
+        post '/members/conflicts', params: {
+          conflict: {
+            start_date: 1.week.ago,
+            end_date: 2.weeks.from_now,
+            reason: 'Family vacation'
+          }
+        }
+      end.not_to change(Conflict, :count)
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('Start date must be in the future')
+    end
+
+    it 'rejects conflicts with past end dates' do
+      sign_in_as_member(season: season)
+      pending_status
+
+      expect do
+        post '/members/conflicts', params: {
+          conflict: {
+            start_date: 1.week.from_now,
+            end_date: 1.day.ago,
+            reason: 'Family vacation'
+          }
+        }
+      end.not_to change(Conflict, :count)
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('End date must be in the future')
+    end
   end
 
   describe 'Coordinator approves a conflict' do
@@ -78,6 +114,24 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       conflict.reload
       expect(conflict.conflict_status).to eq(approved_status)
       expect(response).to have_http_status(:success)
+    end
+
+    it 'can create conflicts with past dates' do
+      expect do
+        post '/coordinators/conflicts', params: {
+          conflict: {
+            user_id: member.id,
+            status_id: approved_status.id,
+            start_date: 1.week.ago,
+            end_date: 1.day.ago,
+            reason: 'Retroactive conflict entry'
+          }
+        }
+      end.to change(Conflict, :count).by(1)
+
+      conflict = Conflict.last
+      expect(conflict.start_date).to be < Time.current
+      expect(flash[:success]).to match(/created/)
     end
   end
 
@@ -147,6 +201,24 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       get "/admin/conflicts/#{conflict.id}/edit"
 
       expect(response).to have_http_status(:success)
+    end
+
+    it 'can create conflicts with past dates' do
+      expect do
+        post '/admin/conflicts', params: {
+          conflict: {
+            user_id: member.id,
+            status_id: approved_status.id,
+            start_date: 1.week.ago,
+            end_date: 1.day.ago,
+            reason: 'Retroactive conflict entry'
+          }
+        }
+      end.to change(Conflict, :count).by(1)
+
+      conflict = Conflict.last
+      expect(conflict.start_date).to be < Time.current
+      expect(flash[:success]).to match(/created/)
     end
   end
 end
