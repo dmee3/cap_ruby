@@ -118,7 +118,7 @@ const TarpCC22026: React.FC = () => {
     ctx.fillRect(0, 0, width, height);
 
     const ringRadiusPx = ringRadius * SCALE;
-    const spacing = ringRadiusPx * 1.9; // Distance between ring centers
+    const spacing = ringRadiusPx * 1.6; // Distance between ring centers
 
     // Create a clipping region for the area
     ctx.beginPath();
@@ -128,12 +128,12 @@ const TarpCC22026: React.FC = () => {
     const numCols = Math.ceil(width / spacing) + 2;
     const numRows = Math.ceil(height / spacing) + 2;
 
-    ctx.lineWidth = SCALE * 1.6; // Doubled from 0.8
+    ctx.lineWidth = SCALE * 1.6;
 
     // Draw rings in a grid pattern
     for (let row = -1; row < numRows; row++) {
       for (let col = -1; col < numCols; col++) {
-        const centerX = col * spacing + spacing / 2 * (row % 2);
+        const centerX = col * spacing;
         const centerY = row * spacing;
 
         ctx.strokeStyle = ringColor;
@@ -148,76 +148,99 @@ const TarpCC22026: React.FC = () => {
     ctx.restore();
   };
 
-  // Function to draw Greek key/meander pattern
+  // Function to draw Greek key pattern
   const drawGreekKey = (
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
-    width: number,
-    height: number,
+    size: number,
     angle: number, // Rotation angle of the pattern in degrees
     color1: string,
-    color2: string,
     backgroundColor: string,
-    keySize: number = 8 // Size of each meander unit in inches
+    keySize: number = 8 // Size of each key unit in inches
   ) => {
     ctx.save();
-    ctx.translate(x + width / 2, y + height / 2);
+    ctx.translate(x + size / 2, y + size / 2);
     ctx.rotate((angle * Math.PI) / 180);
-    ctx.translate(-width / 2, -height / 2);
+    ctx.translate(-size / 2, -size / 2);
 
     // Fill background color first
     ctx.fillStyle = backgroundColor;
-    ctx.fillRect(0, 0, width, height);
-
-    const keySizePx = keySize * SCALE;
-    const lineWidth = keySizePx * 0.15;
+    ctx.fillRect(0, 0, size, size);
 
     // Create a clipping region for the area
     ctx.beginPath();
-    ctx.rect(0, 0, width, height);
+    ctx.rect(0, 0, size, size);
     ctx.clip();
 
-    ctx.lineWidth = lineWidth;
+    const patternSize = keySize * SCALE;
+
+    ctx.lineWidth = SCALE * 1.6;
     ctx.lineCap = 'square';
     ctx.lineJoin = 'miter';
+    ctx.strokeStyle = color1;
 
-    const numCols = Math.ceil(width / keySizePx) + 2;
-    const numRows = Math.ceil(height / keySizePx) + 2;
-
-    // Draw Greek key meander pattern
-    for (let row = -1; row < numRows; row++) {
-      for (let col = -1; col < numCols; col++) {
-        const baseX = col * keySizePx;
-        const baseY = row * keySizePx;
-
-        // Alternate colors
-        ctx.strokeStyle = (row + col) % 2 === 0 ? color1 : color2;
-
-        // Draw meander (Greek key) shape
-        ctx.beginPath();
-
-        // Outer rectangle
-        ctx.moveTo(baseX, baseY);
-        ctx.lineTo(baseX + keySizePx, baseY);
-        ctx.lineTo(baseX + keySizePx, baseY + keySizePx);
-        ctx.lineTo(baseX, baseY + keySizePx);
-        ctx.closePath();
-        ctx.stroke();
-
-        // Inner spiral pattern
-        const inset = keySizePx * 0.2;
-        ctx.beginPath();
-        ctx.moveTo(baseX + inset, baseY + inset);
-        ctx.lineTo(baseX + keySizePx - inset, baseY + inset);
-        ctx.lineTo(baseX + keySizePx - inset, baseY + keySizePx - inset);
-        ctx.lineTo(baseX + inset * 2, baseY + keySizePx - inset);
-        ctx.lineTo(baseX + inset * 2, baseY + inset * 2);
-        ctx.lineTo(baseX + keySizePx - inset * 2, baseY + inset * 2);
-        ctx.stroke();
+    let baseX = 0;
+    let baseY = 0;
+    while (baseX < size && baseY < size) {
+      drawGreekKeyUnit(ctx, baseX, baseY, patternSize);
+      baseX += patternSize;
+      if (baseX >= size) {
+        baseX = 0;
+        baseY += patternSize * 7 / 8;
       }
     }
 
+    ctx.restore();
+  }
+
+  const drawGreekKeyUnit = (
+    ctx: CanvasRenderingContext2D,
+    baseX: number,
+    baseY: number,
+    patternSize: number
+  ) => {
+    ctx.save();
+    // Square outline
+    const inset = patternSize / 7;
+
+    ctx.beginPath();
+    // Upper Left Spiral
+    ctx.moveTo(baseX + inset * 2, baseY + inset * 2);
+    ctx.lineTo(baseX + inset * 3, baseY + inset * 2);
+    ctx.lineTo(baseX + inset * 3, baseY + inset * 3);
+    ctx.lineTo(baseX + inset * 1, baseY + inset * 3);
+    ctx.lineTo(baseX + inset * 1, baseY + inset * 1);
+    ctx.lineTo(baseX + inset * 4, baseY + inset * 1);
+
+    // Vertical line
+    ctx.lineTo(baseX + inset * 4, baseY + inset * 6);
+
+    // Lower Left Spiral
+    ctx.lineTo(baseX + inset * 1, baseY + inset * 6);
+    ctx.lineTo(baseX + inset * 1, baseY + inset * 4);
+    ctx.lineTo(baseX + inset * 3, baseY + inset * 4);
+    ctx.lineTo(baseX + inset * 3, baseY + inset * 5);
+    ctx.lineTo(baseX + inset * 2, baseY + inset * 5);
+    ctx.stroke();
+
+    // Upper Right Spiral
+    ctx.moveTo(baseX + inset * 6, baseY + inset * 2);
+    ctx.lineTo(baseX + inset * 5, baseY + inset * 2);
+    ctx.lineTo(baseX + inset * 5, baseY + inset * 3);
+    ctx.lineTo(baseX + inset * 7, baseY + inset * 3);
+    ctx.lineTo(baseX + inset * 7, baseY + inset * 1);
+    ctx.lineTo(baseX + inset * 4, baseY + inset * 1);
+    ctx.stroke();
+
+    // Lower Right Spiral
+    ctx.moveTo(baseX + inset * 4, baseY + inset * 6);
+    ctx.lineTo(baseX + inset * 7, baseY + inset * 6);
+    ctx.lineTo(baseX + inset * 7, baseY + inset * 4);
+    ctx.lineTo(baseX + inset * 5, baseY + inset * 4);
+    ctx.lineTo(baseX + inset * 5, baseY + inset * 5);
+    ctx.lineTo(baseX + inset * 6, baseY + inset * 5);
+    ctx.stroke();
     ctx.restore();
   };
 
@@ -250,12 +273,12 @@ const TarpCC22026: React.FC = () => {
     // Simple seeded random function
     let seedValue = seed;
     const seededRandom = () => {
-      seedValue = (seedValue * 9301 + 49297) % 233280;
+      seedValue = (seedValue * Math.random() * 10000) % 233280;
       return seedValue / 233280;
     };
 
     // Generate random rectangles
-    const numRectangles = 25;
+    const numRectangles = 10;
 
     for (let i = 0; i < numRectangles; i++) {
       const rectX = seededRandom() * width * 0.9;
@@ -269,11 +292,6 @@ const TarpCC22026: React.FC = () => {
 
       // Draw rectangle
       ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
-
-      // Draw black border
-      ctx.strokeStyle = '#000000';
-      ctx.lineWidth = SCALE * 0.5;
-      ctx.strokeRect(rectX, rectY, rectWidth, rectHeight);
     }
 
     ctx.restore();
@@ -319,8 +337,10 @@ const TarpCC22026: React.FC = () => {
         const centerX = col * spacing + offsetX;
         const centerY = row * spacing;
 
-        // Draw a simple 5-petal flower
-        const petalRadius = flowerSizePx / 3;
+        // Draw a simple 5-petal flower with random size variation
+        const sizeVariation = 0.7 + Math.random() * 0.6; // Random size between 0.7 and 1.3
+        const petalRadius = (flowerSizePx / 3) * sizeVariation;
+        const petalDistance = (flowerSizePx / 2.5) * sizeVariation; // Distance from center to petal center
         const numPetals = 5;
 
         ctx.fillStyle = petalColor;
@@ -328,17 +348,17 @@ const TarpCC22026: React.FC = () => {
         // Draw petals
         for (let p = 0; p < numPetals; p++) {
           const petalAngle = (p / numPetals) * Math.PI * 2;
-          const petalX = centerX + Math.cos(petalAngle) * petalRadius;
-          const petalY = centerY + Math.sin(petalAngle) * petalRadius;
+          const petalX = centerX + Math.cos(petalAngle) * petalDistance;
+          const petalY = centerY + Math.sin(petalAngle) * petalDistance;
 
-          // Draw petal as an ellipse
+          // Draw petal as an ellipse (rotated to point outward from center)
           ctx.beginPath();
           ctx.ellipse(
             petalX,
             petalY,
-            petalRadius * 0.6,
-            petalRadius * 1.2,
-            petalAngle,
+            petalRadius * 0.5,
+            petalRadius * 1.5,
+            petalAngle + Math.PI / 2, // Rotate 90 degrees to point outward
             0,
             2 * Math.PI
           );
@@ -444,8 +464,8 @@ const TarpCC22026: React.FC = () => {
       swatchHeight,
       0, // No rotation
       '#386374',
-      '#ffffff', // White background
-      18 // Ring radius in inches (6 * 3 for scaling)
+      '#e8dcc8', // Warm beige background
+      24 // Ring radius in inches
     );
 
     // Swatch 2: Greek Key
@@ -455,11 +475,9 @@ const TarpCC22026: React.FC = () => {
       swatch2X,
       swatchY,
       swatchWidth,
-      swatchHeight,
       0, // No rotation
       '#5a5a5a', // Grey pattern
-      '#3a3a3a', // Darker grey pattern
-      '#ffffff', // White background
+      '#e8dcc8', // Warm beige background
       24 // Key size in inches (8 * 3 for scaling)
     );
 
@@ -473,7 +491,7 @@ const TarpCC22026: React.FC = () => {
       swatchHeight,
       0, // No rotation
       ['#8a8a8a', '#6a6a6a', '#4a4a4a', '#2a2a2a'], // Greyscale colors
-      '#ffffff', // White background
+      '#e8dcc8', // Warm beige background
       123 // Seed for consistent pattern
     );
 
@@ -496,7 +514,7 @@ const TarpCC22026: React.FC = () => {
       0, // No rotation
       '#7a7a7a', // Grey petals
       '#4a4a4a', // Dark grey centers
-      '#ffffff', // White background
+      '#e8dcc8', // Warm beige background
       24 // Flower size in inches (8 * 3 for scaling)
     );
 
