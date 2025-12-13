@@ -64,11 +64,9 @@ const CONFIG = {
   },
   // Colors
   colors: {
-    background: '#051526', // Dark blue-gray for edges
-    // backgroundCenter: '#153b46', // Dark blue-gray for edges
-    backgroundCenter: '#14476e', // Brighter blue-gray for center
+    background: '#0a1f35', // Dark blue-gray for edges (brightened)
     teal: '#02aaa2', // Bright teal for center wave
-    blue: '#005a50', // Dark teal for other waves
+    blue: '#007a6e', // Dark teal for other waves (brightened)
     outsideRippleCenterRing: '#85e600', // Chartreuse green for the outside ripple center ring
     centerRippleInnerRing: '#ec67f0', // Pink/magenta for the very center ripple
 
@@ -254,12 +252,16 @@ const TarpCanvas2026: React.FC = () => {
         const isFirstOrLastRipple = config.rippleIndex === 0 || config.rippleIndex === (config.totalRipples ?? 0) - 1;
         const isCenterRipple = config.rippleIndex === 3;
 
+        // Multiplier to increase opacity of special colored rings
+        const specialColorOpacityMultiplier = 1.3;
+        const boostedOpacity = Math.min(1.0, opacity * specialColorOpacityMultiplier);
+
         if ((isFirstOrLastRipple) && outsideInnerR !== undefined && outsideInnerG !== undefined && outsideInnerB !== undefined) {
-          // First or last ripple: use outsideRippleCenterRing color
-          ctx.strokeStyle = `rgba(${outsideInnerR}, ${outsideInnerG}, ${outsideInnerB}, ${opacity})`;
+          // First or last ripple: use outsideRippleCenterRing color (chartreuse)
+          ctx.strokeStyle = `rgba(${outsideInnerR}, ${outsideInnerG}, ${outsideInnerB}, ${boostedOpacity})`;
         } else if (innerR !== undefined && innerG !== undefined && innerB !== undefined) {
-          // Middle ripples: use centerRippleInnerRing color
-          ctx.strokeStyle = `rgba(${innerR}, ${innerG}, ${innerB}, ${opacity})`;
+          // Middle ripples: use centerRippleInnerRing color (pink/magenta)
+          ctx.strokeStyle = `rgba(${innerR}, ${innerG}, ${innerB}, ${boostedOpacity})`;
         } else {
           ctx.strokeStyle = `rgba(${baseR}, ${baseG}, ${baseB}, ${opacity})`;
         }
@@ -622,7 +624,15 @@ const TarpCanvas2026: React.FC = () => {
     const topMargin = CONFIG.wave.topMargin * SCALE;
     const bottomMargin = CONFIG.wave.bottomMargin * SCALE;
 
+    const middleWaveIndex = Math.floor(numWaves / 2);
+
+    // Draw all waves except the center wave first
     for (let waveIndex = 0; waveIndex < numWaves; waveIndex++) {
+      const isMiddleWave = waveIndex === middleWaveIndex;
+
+      // Skip the center wave in this pass
+      if (isMiddleWave) continue;
+
       const waveProgress = waveIndex / (numWaves - 1); // 0 to 1
 
       // Y position: spread from top margin to bottom margin
@@ -635,24 +645,29 @@ const TarpCanvas2026: React.FC = () => {
       ctx.translate(0, y - canvasHeight / 2);
 
       // Determine color and opacity based on wave index
-      const middleWaveIndex = Math.floor(numWaves / 2);
-      const isMiddleWave = waveIndex === middleWaveIndex;
       const distanceFromMiddle = Math.abs(waveIndex - middleWaveIndex);
 
-      if (isMiddleWave) {
-        // Middle wave: bright teal with higher opacity
-        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.teal, { min: 0.6, max: 0.9 }, true);
-      } else if (distanceFromMiddle === 1) {
+      if (distanceFromMiddle === 1) {
         // Waves adjacent to center: dark teal with medium opacity
-        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, { min: 0.3, max: 0.4 }, false);
+        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, { min: 0.45, max: 0.55 }, false);
       } else {
         ;
-        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, { min: 0.1, max: 0.2 }, false);
+        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, { min: 0.25, max: 0.35 }, false);
       }
 
       // Restore the context state
       ctx.restore();
     }
+
+    // Draw the center wave last so it appears on top
+    const centerWaveProgress = middleWaveIndex / (numWaves - 1);
+    const centerY = topMargin + (canvasHeight - topMargin - bottomMargin) * centerWaveProgress;
+
+    ctx.save();
+    ctx.translate(0, centerY - canvasHeight / 2);
+    // Middle wave: bright teal with higher opacity
+    drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.teal, { min: 0.7, max: 1.0 }, true);
+    ctx.restore();
   };
 
   useEffect(() => {
@@ -670,13 +685,12 @@ const TarpCanvas2026: React.FC = () => {
 
     // Set up clipping path for the tarp shape (makes edges transparent)
     ctx.save();
-    // createTarpClipPath(ctx, width, height);
-    // ctx.clip();
+    createTarpClipPath(ctx, width, height);
+    ctx.clip();
 
     // Fill canvas with solid background color (only inside clipped area)
     ctx.fillStyle = CONFIG.colors.background;
-    // ctx.fillStyle = "rgb(0, 0, 0)";
-    // ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(0, 0, width, height);
 
     // Draw ripple layer (on top of morse code)
     drawRipplesLayer(ctx, width, height);
