@@ -105,6 +105,7 @@ const TarpCC22026: React.FC = () => {
     height: number,
     angle: number, // Rotation angle of the pattern in degrees
     ringColor: string,
+    borderColor: string,
     backgroundColor: string,
     ringRadius: number = 6 // Radius of each ring in inches
   ) => {
@@ -128,20 +129,34 @@ const TarpCC22026: React.FC = () => {
     const numCols = Math.ceil(width / spacing) + 2;
     const numRows = Math.ceil(height / spacing) + 2;
 
-    ctx.lineWidth = SCALE * 1.6;
+    // Draw rings in segments to create interlocking effect
+    // Draw 6 specific 45-degree segments: 0-45°, 90-135°, 180-225°, 270-315°, 45-90°, 135-180°
+    const segments = [0, 2, 4, 6, 1, 3, 5, 7]; // segment * 45° gives start angle
+    for (let i = 0; i < segments.length; i++) {
+      const segment = segments[i];
+      const startAngle = segment * Math.PI / 4; // 0°, 90°, 180°, 270°
+      const endAngle = startAngle + Math.PI / 4; // 45-degree arc
 
-    // Draw rings in a grid pattern
-    for (let row = -1; row < numRows; row++) {
-      for (let col = -1; col < numCols; col++) {
-        const centerX = col * spacing;
-        const centerY = row * spacing;
+      for (let row = -1; row < numRows; row++) {
+        for (let col = -1; col < numCols; col++) {
+          const centerX = col * spacing;
+          const centerY = row * spacing;
 
-        ctx.strokeStyle = ringColor;
+          // Draw border segment (outer ring)
+          ctx.strokeStyle = borderColor;
+          ctx.lineWidth = SCALE * 4.4; // Wider for border
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, ringRadiusPx, startAngle, endAngle);
+          ctx.stroke();
 
-        // Draw ring
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, ringRadiusPx, 0, 2 * Math.PI);
-        ctx.stroke();
+          // Draw main ring segment (inner) - extended by 0.5° on each side to close gaps
+          const innerExtension = 0.5 * Math.PI / 180; // 0.5 degrees in radians
+          ctx.strokeStyle = ringColor;
+          ctx.lineWidth = SCALE * 2.2;
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, ringRadiusPx, startAngle - innerExtension, endAngle + innerExtension);
+          ctx.stroke();
+        }
       }
     }
 
@@ -463,7 +478,8 @@ const TarpCC22026: React.FC = () => {
       swatchWidth,
       swatchHeight,
       0, // No rotation
-      '#386374',
+      '#386374', // Ring color
+      '#ffffff', // Border color (white)
       '#e8dcc8', // Warm beige background
       24 // Ring radius in inches
     );
