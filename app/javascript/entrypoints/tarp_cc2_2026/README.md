@@ -1,0 +1,192 @@
+# CC2 2026 Tarp Design Tool
+
+## Overview
+
+This is a canvas-based design tool for creating a visual mockup of the CC2 (Cap City 2) 2026 performance tarp. The tarp will be used during competitive performances and serves as the visual foundation for the show.
+
+## Physical Specifications
+
+- **Dimensions**: 90 feet wide × 60 feet tall
+- **Scale Factor**: Configurable via `SCALE` constant (pixels per inch)
+- **Canvas Size**: Calculated as tarp dimensions × SCALE
+- **Base Unit**: All measurements in code are in inches, then multiplied by SCALE
+
+## Design Elements
+
+### 1. Background & Scratches
+
+**Background Color**: Dark grey
+
+**Scratch Marks**:
+- Purpose: Create a worn, textured appearance
+- Count: Configurable in `CONFIG.scratches.count`
+- Length: Random within configurable min/max range
+- Width: Configurable base width with random variation (0.7-1.3x)
+- Angle: Configurable angle above horizontal
+- Direction: Alternates between two complementary angles (angle and 180° - angle)
+- Opacity: Configurable
+- Color: Black
+- Shape: Tapered at both ends using sine wave (widest at center, points at ends)
+
+### 2. Pattern Swatches
+
+The tool displays four decorative pattern options as swatches for review:
+
+**Swatch Specifications**:
+- Dimensions and spacing defined in code (see useEffect)
+- Layout: First row with 3 patterns, second row with 1 centered pattern
+- Background colors vary by pattern (warm beige for patterns 1-3, teal for pattern 4)
+
+#### Pattern 1: Interlocking Rings
+
+**Location**: First swatch
+
+**Design Details**:
+- Configurable ring radius (parameter to function)
+- Ring spacing: 1.6 × ring radius
+- Grid pattern with no offset between rows
+- Ring color: Teal/blue-grey
+- Border color: White
+- Two-layer design: wider outer border, narrower inner ring
+
+**Interlocking Effect**:
+The rings use a sophisticated segmented drawing approach to create a realistic weaving/chain mail effect:
+
+- Each ring is divided into 8 segments of 45° each
+- Segments are drawn in a specific order across ALL rings (not ring-by-ring)
+- Drawing order alternates to create over/under weaving effect
+- Inner ring segments are slightly extended to eliminate visible gaps
+- This creates the visual effect of rings weaving over and under each other
+
+**Implementation**: `drawInterlockingRings()` function
+
+#### Pattern 2: Greek Key
+
+**Location**: Second swatch
+
+**Design Details**:
+- Repeating tiled pattern across swatch area
+- Configurable key unit size (parameter to function)
+- Square line caps and miter joins for clean corners
+- Color: Grey
+- Pattern divided into 7 equal units per key
+- Slightly tighter vertical spacing for better tiling
+
+**Pattern Structure**:
+Each Greek key unit is a symmetrical meander pattern with four spiral corners:
+
+- **Left Side**: Upper and lower spirals that create inward rectangular patterns, connected by a vertical line
+- **Right Side**: Mirror image of left side spirals
+- **Vertical Centerline**: Connects all four spirals through the middle
+- All spirals create a continuous, maze-like geometric pattern
+
+**Implementation**: `drawGreekKey()` and `drawGreekKeyUnit()` functions
+
+#### Pattern 3: Random Rectangles (Mondrian-style)
+
+**Location**: Third swatch
+
+**Design Details**:
+- Abstract overlapping rectangles
+- Colors: Greyscale palette (multiple grey shades)
+- Randomization: Seeded random for reproducible pattern
+- Rectangle dimensions and positions randomly generated within bounds
+- Color selection: Random from palette
+
+**Implementation**: `drawRandomRectangles()` function
+
+#### Pattern 4: Octagons
+
+**Location**: Second row, centered
+
+**Design Details**:
+- Configurable octagon size (parameter to function)
+- Grid spacing proportional to octagon size
+- Octagon color: Warm beige
+- Grid line color: Grey
+- Background color: Teal
+- Line widths proportional to octagon size
+
+**Octagon Structure**:
+- Regular octagons with 8 sides (horizontal/vertical edges emphasized)
+- Arranged in regular grid pattern
+- Connecting grid lines between octagons
+- Drawing order: background → grid lines → octagons → connections
+
+**Implementation**: `drawOctagons()` function
+
+## Code Structure
+
+### Main Component: `TarpCC22026`
+
+React functional component that renders a single canvas element.
+
+### Key Functions
+
+1. **`drawScratch()`**: Draws individual tapered scratch marks
+2. **`drawInterlockingRings()`**: Creates chain mail-style interlocking rings
+3. **`drawGreekKey()`**: Draws repeating Greek meander pattern
+4. **`drawGreekKeyUnit()`**: Draws a single Greek key unit
+5. **`drawRandomRectangles()`**: Creates Mondrian-style abstract rectangles
+6. **`drawOctagons()`**: Draws octagon grid pattern with connecting lines
+7. **`drawScratches()`**: Orchestrates drawing all scratch marks
+
+### useEffect Hook
+
+Runs once on component mount to:
+1. Set canvas dimensions
+2. Fill background
+3. Draw scratch texture
+4. Draw all pattern swatches
+5. Add labels to each swatch
+
+## Development Notes
+
+### Coordinate System
+- Origin (0,0) is top-left
+- Angles measured in radians
+- 0° is to the right (3 o'clock position)
+- Angles increase clockwise
+
+### Drawing Order
+Critical for achieving proper visual effects:
+1. Background fill
+2. Scratch marks (with opacity)
+3. Pattern swatches (each pattern fills its own background first)
+4. Text labels
+
+### Performance Considerations
+- High SCALE values create very large canvases
+- Each scratch is drawn individually
+- Interlocking rings require multiple passes over all rings
+- Consider reducing scratch count or SCALE for development/testing
+
+### Color Palette
+All color values are defined in the code. Key colors include:
+- **Background**: Dark grey
+- **Scratches**: Black
+- **Swatch backgrounds**: Warm beige (patterns 1-3), Teal (pattern 4)
+- **Interlocking Rings**: Teal rings with white borders
+- **Greek Key**: Grey
+- **Random Rectangles**: Greyscale palette (multiple shades)
+- **Octagons**: Warm beige octagons with grey grid lines on teal background
+
+## Future Enhancements
+
+Potential areas for expansion:
+- Interactive pattern selection/preview
+- Pattern rotation controls
+- Color customization UI
+- Export to different formats/resolutions
+- Pattern density controls
+- Multiple pattern combinations
+- Real-time preview at different scales
+
+## File Location
+
+`/Users/danmeehan/Stuff/Cap/cap_ruby/app/javascript/entrypoints/tarp_cc2_2026/index.tsx`
+
+## Related Files
+
+- View template: `/Users/danmeehan/Stuff/Cap/cap_ruby/app/views/tools/tarp_cc2_2026.html.erb`
+- Route: Defined in `config/routes.rb`

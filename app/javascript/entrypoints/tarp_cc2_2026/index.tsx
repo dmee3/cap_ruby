@@ -18,23 +18,47 @@ const SCALE = 10;
 const CONFIG = {
   colors: {
     background: '#3a3a3a', // Dark grey background
-    scratches: '#000000', // Black scratch marks
+    threads: '#000000', // Black threads
   },
-  scratches: {
-    count: 800, // Number of scratch marks to draw
-    minLength: 12, // Minimum length in inches
-    maxLength: 120, // Maximum length in inches
-    baseWidth: 2, // Base width in inches at center of scratch (20 pixels at SCALE=10)
-    angleDegrees: 30, // Angle above horizontal
-    opacity: 0.6, // Opacity of scratch marks
+  weave: {
+    warpThreads: {
+      count: 1200, // Number of warp threads (one direction)
+      angle: 30, // Angle in degrees
+      minLength: 36, // Minimum length in inches (creates "holes")
+      maxLength: 240, // Maximum length in inches (some span most of canvas)
+    },
+    weftThreads: {
+      count: 1200, // Number of weft threads (other direction)
+      angle: 150, // Complementary angle in degrees
+      minLength: 36, // Minimum length in inches (creates "holes")
+      maxLength: 240, // Maximum length in inches
+    },
+    baseWidth: 2, // Base width in inches at center of thread
+    opacity: 0.6, // Base opacity for threads
+    pattern: 'plain', // Plain weave: simple over-under pattern
+    seed: 42069, // Seed for reproducible randomness
+    variation: {
+      positionOffset: 0.15, // Position offset from grid (0-1, as fraction of spacing)
+      thicknessVariation: 0.2, // Thickness variation (0.8-1.2x)
+      curveAmount: 0.3, // How much threads curve at intersections (in thread widths)
+    },
   },
 } as const;
 
 const TarpCC22026: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Function to draw a single scratch mark with tapered ends
-  const drawScratch = (
+  // Seeded random number generator for reproducible patterns
+  const createSeededRandom = (seed: number) => {
+    let state = seed;
+    return () => {
+      state = (state * 1664525 + 1013904223) % 4294967296;
+      return state / 4294967296;
+    };
+  };
+
+  // Function to draw a single thread with tapered ends
+  const drawThread = (
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
@@ -50,12 +74,11 @@ const TarpCC22026: React.FC = () => {
     const endX = x + Math.cos(angle) * halfLength;
     const endY = y + Math.sin(angle) * halfLength;
 
-    // Draw the scratch as a tapered line using a path
-    // We'll create a shape that's wider in the middle and tapers to points at the ends
+    // Draw the thread as a tapered line using a path
     const numSegments = 20;
     ctx.beginPath();
 
-    // Draw upper edge of the scratch
+    // Draw upper edge of the thread
     for (let i = 0; i <= numSegments; i++) {
       const t = i / numSegments;
       const currentX = startX + (endX - startX) * t;
@@ -66,7 +89,7 @@ const TarpCC22026: React.FC = () => {
       const widthMultiplier = Math.sin(t * Math.PI);
       const currentWidth = baseWidth * widthMultiplier / 2;
 
-      // Offset perpendicular to the scratch direction
+      // Offset perpendicular to the thread direction
       const offsetX = currentX - Math.sin(angle) * currentWidth;
       const offsetY = currentY + Math.cos(angle) * currentWidth;
 
@@ -77,7 +100,7 @@ const TarpCC22026: React.FC = () => {
       }
     }
 
-    // Draw lower edge of the scratch (in reverse)
+    // Draw lower edge of the thread (in reverse)
     for (let i = numSegments; i >= 0; i--) {
       const t = i / numSegments;
       const currentX = startX + (endX - startX) * t;
@@ -130,7 +153,6 @@ const TarpCC22026: React.FC = () => {
     const numRows = Math.ceil(height / spacing) + 2;
 
     // Draw rings in segments to create interlocking effect
-    // Draw 6 specific 45-degree segments: 0-45°, 90-135°, 180-225°, 270-315°, 45-90°, 135-180°
     const segments = [0, 2, 4, 6, 1, 3, 5, 7]; // segment * 45° gives start angle
     for (let i = 0; i < segments.length; i++) {
       const segment = segments[i];
@@ -312,18 +334,18 @@ const TarpCC22026: React.FC = () => {
     ctx.restore();
   };
 
-  // Function to draw floral pattern
-  const drawFloral = (
+  // Function to draw octagon pattern
+  const drawOctagons = (
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
     width: number,
     height: number,
     angle: number, // Rotation angle of the pattern in degrees
-    petalColor: string,
-    centerColor: string,
+    octagonColor: string,
+    gridColor: string,
     backgroundColor: string,
-    flowerSize: number = 8 // Size of each flower in inches
+    octagonSize: number = 8 // Size of each octagon in inches
   ) => {
     ctx.save();
     ctx.translate(x + width / 2, y + height / 2);
@@ -334,8 +356,8 @@ const TarpCC22026: React.FC = () => {
     ctx.fillStyle = backgroundColor;
     ctx.fillRect(0, 0, width, height);
 
-    const flowerSizePx = flowerSize * SCALE;
-    const spacing = flowerSizePx * 1.5;
+    const octagonSizePx = octagonSize * SCALE;
+    const spacing = octagonSizePx * 1.6;
 
     // Create a clipping region for the area
     ctx.beginPath();
@@ -345,83 +367,171 @@ const TarpCC22026: React.FC = () => {
     const numCols = Math.ceil(width / spacing) + 2;
     const numRows = Math.ceil(height / spacing) + 2;
 
-    // Draw flowers in a grid pattern
+    // Draw grid underlay between octagons (draw first so octagons appear on top)
+    ctx.strokeStyle = gridColor;
+    ctx.lineWidth = octagonSizePx * 0.04; // Half the thickness of the octagons
+
+    // Draw vertical grid lines (between columns)
+    for (let col = 0; col < numCols; col++) {
+      const gridX = col * spacing - spacing / 2;
+      ctx.beginPath();
+      ctx.moveTo(gridX, -spacing);
+      ctx.lineTo(gridX, height + spacing);
+      ctx.stroke();
+    }
+
+    // Draw horizontal grid lines (between rows)
+    for (let row = 0; row < numRows; row++) {
+      const gridY = row * spacing - spacing / 2;
+      ctx.beginPath();
+      ctx.moveTo(-spacing, gridY);
+      ctx.lineTo(width + spacing, gridY);
+      ctx.stroke();
+    }
+
+    // Draw octagons on top of the grid
+    ctx.strokeStyle = octagonColor;
+    ctx.lineWidth = octagonSizePx * 0.08; // Fairly thick line
+
+    // Draw octagons in a grid pattern
     for (let row = -1; row < numRows; row++) {
       for (let col = -1; col < numCols; col++) {
-        const offsetX = (row % 2) * (spacing / 2);
-        const centerX = col * spacing + offsetX;
+        const centerX = col * spacing;
         const centerY = row * spacing;
 
-        // Draw a simple 5-petal flower with random size variation
-        const sizeVariation = 0.7 + Math.random() * 0.6; // Random size between 0.7 and 1.3
-        const petalRadius = (flowerSizePx / 3) * sizeVariation;
-        const petalDistance = (flowerSizePx / 2.5) * sizeVariation; // Distance from center to petal center
-        const numPetals = 5;
+        // Draw octagon with horizontal/vertical sides longer than diagonal sides
+        // Rotated 22.5° so sides are horizontal/vertical instead of at 45°
+        const size = octagonSizePx / 2;
+        const longSide = size * 0.25; // Length of horizontal/vertical segments
 
-        ctx.fillStyle = petalColor;
-
-        // Draw petals
-        for (let p = 0; p < numPetals; p++) {
-          const petalAngle = (p / numPetals) * Math.PI * 2;
-          const petalX = centerX + Math.cos(petalAngle) * petalDistance;
-          const petalY = centerY + Math.sin(petalAngle) * petalDistance;
-
-          // Draw petal as an ellipse (rotated to point outward from center)
-          ctx.beginPath();
-          ctx.ellipse(
-            petalX,
-            petalY,
-            petalRadius * 0.5,
-            petalRadius * 1.5,
-            petalAngle + Math.PI / 2, // Rotate 90 degrees to point outward
-            0,
-            2 * Math.PI
-          );
-          ctx.fill();
-        }
-
-        // Draw flower center
-        ctx.fillStyle = centerColor;
         ctx.beginPath();
-        ctx.arc(centerX, centerY, petalRadius * 0.5, 0, 2 * Math.PI);
-        ctx.fill();
+        // Start at top, go clockwise
+        // Top edge
+        ctx.moveTo(centerX - longSide, centerY - size);
+        ctx.lineTo(centerX + longSide, centerY - size);
+        // Top-right corner
+        ctx.lineTo(centerX + size, centerY - longSide);
+        // Right edge
+        ctx.lineTo(centerX + size, centerY + longSide);
+        // Bottom-right corner
+        ctx.lineTo(centerX + longSide, centerY + size);
+        // Bottom edge
+        ctx.lineTo(centerX - longSide, centerY + size);
+        // Bottom-left corner
+        ctx.lineTo(centerX - size, centerY + longSide);
+        // Left edge
+        ctx.lineTo(centerX - size, centerY - longSide);
+        // Top-left corner (back to start)
+        ctx.closePath();
+        ctx.stroke();
+
+        // Draw connecting lines to neighbors (only draw to right and bottom to avoid duplicates)
+        // Connect to south neighbor (two vertical lines from bottom edge)
+        ctx.beginPath();
+        ctx.moveTo(centerX - longSide, centerY + size);
+        ctx.lineTo(centerX - longSide, centerY + size + (spacing - octagonSizePx));
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(centerX + longSide, centerY + size);
+        ctx.lineTo(centerX + longSide, centerY + size + (spacing - octagonSizePx));
+        ctx.stroke();
+
+        // Connect to east neighbor (two horizontal lines from right edge)
+        ctx.beginPath();
+        ctx.moveTo(centerX + size, centerY - longSide);
+        ctx.lineTo(centerX + size + (spacing - octagonSizePx), centerY - longSide);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(centerX + size, centerY + longSide);
+        ctx.lineTo(centerX + size + (spacing - octagonSizePx), centerY + longSide);
+        ctx.stroke();
       }
     }
 
     ctx.restore();
   };
 
-  // Function to draw all scratch marks
-  const drawScratches = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    console.log('Drawing scratches...', CONFIG.scratches);
-    const angleRadians = (CONFIG.scratches.angleDegrees * Math.PI) / 180;
+  // Function to draw woven thread texture
+  const drawWeave = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    console.log('Drawing woven texture...', CONFIG.weave);
+    console.log('Canvas dimensions:', width, height);
+    const random = createSeededRandom(CONFIG.weave.seed);
 
-    ctx.fillStyle = CONFIG.colors.scratches;
-    ctx.globalAlpha = CONFIG.scratches.opacity;
+    const warpAngleRad = (CONFIG.weave.warpThreads.angle * Math.PI) / 180;
+    const weftAngleRad = (CONFIG.weave.weftThreads.angle * Math.PI) / 180;
+    console.log('Warp angle (rad):', warpAngleRad, 'Weft angle (rad):', weftAngleRad);
 
-    // Draw scratches in both directions
-    for (let i = 0; i < CONFIG.scratches.count; i++) {
-      // Random position across the canvas
-      const x = Math.random() * width;
-      const y = Math.random() * height;
+    // Calculate grid spacing for deterministic positioning
+    // Base spacing on physical dimensions (inches) so it scales with SCALE constant
 
-      // Random length
-      const lengthInches = CONFIG.scratches.minLength +
-        Math.random() * (CONFIG.scratches.maxLength - CONFIG.scratches.minLength);
+    // Calculate tarp diagonal in inches
+    const tarpWidthInches = TARP_WIDTH_INCHES;
+    const tarpHeightInches = TARP_HEIGHT_INCHES;
+    const tarpDiagonalInches = Math.sqrt(tarpWidthInches * tarpWidthInches + tarpHeightInches * tarpHeightInches);
+
+    // Space threads evenly across the diagonal (in inches), then convert to pixels
+    // Use 1.5x diagonal for extra coverage beyond edges
+    const warpSpacingInches = (tarpDiagonalInches * 1.5) / CONFIG.weave.warpThreads.count;
+    const weftSpacingInches = (tarpDiagonalInches * 1.5) / CONFIG.weave.weftThreads.count;
+
+    const warpSpacing = warpSpacingInches * SCALE;
+    const weftSpacing = weftSpacingInches * SCALE;
+
+    // Generate warp thread positions (angle: 30°)
+    // Use seeded random to position thread centers across the entire canvas
+    const warpThreads: Array<{ x: number; y: number; length: number; index: number }> = [];
+
+    for (let i = 0; i < CONFIG.weave.warpThreads.count; i++) {
+      // Random position across entire canvas (with margin for threads extending beyond)
+      const x = random() * width * 1.2 - width * 0.1; // 120% width centered
+      const y = random() * height * 1.2 - height * 0.1; // 120% height centered
+
+      // Random length for threadbare effect
+      const lengthInches = CONFIG.weave.warpThreads.minLength +
+        random() * (CONFIG.weave.warpThreads.maxLength - CONFIG.weave.warpThreads.minLength);
       const length = lengthInches * SCALE;
 
-      // Random width variation
-      const widthVariation = 0.7 + Math.random() * 0.6; // 0.7 to 1.3
-      const baseWidth = CONFIG.scratches.baseWidth * SCALE * widthVariation;
+      warpThreads.push({ x, y, length, index: i });
+    }
+    console.log('First 5 warp threads:', warpThreads.slice(0, 5));
 
-      // Alternate between the two directions
-      // Direction 1: 30° above horizontal, right-to-left (angle = 150°)
-      // Direction 2: 30° above horizontal, left-to-right (angle = 30°)
-      const angle = i % 2 === 0
-        ? Math.PI - angleRadians  // 150° for right-to-left
-        : angleRadians;            // 30° for left-to-right
+    // Generate weft thread positions (angle: 150°)
+    // Use seeded random to position thread centers across the entire canvas
+    const weftThreads: Array<{ x: number; y: number; length: number; index: number }> = [];
 
-      drawScratch(ctx, x, y, length, angle, baseWidth);
+    for (let i = 0; i < CONFIG.weave.weftThreads.count; i++) {
+      // Random position across entire canvas (with margin for threads extending beyond)
+      const x = random() * width * 1.2 - width * 0.1; // 120% width centered
+      const y = random() * height * 1.2 - height * 0.1; // 120% height centered
+
+      const lengthInches = CONFIG.weave.weftThreads.minLength +
+        random() * (CONFIG.weave.weftThreads.maxLength - CONFIG.weave.weftThreads.minLength);
+      const length = lengthInches * SCALE;
+
+      weftThreads.push({ x, y, length, index: i });
+    }
+    console.log('First 5 weft threads:', weftThreads.slice(0, 5));
+    console.log('Warp spacing:', warpSpacing, 'Weft spacing:', weftSpacing);
+
+    ctx.fillStyle = CONFIG.colors.threads;
+    ctx.globalAlpha = CONFIG.weave.opacity;
+
+    // Draw warp threads
+    for (const warp of warpThreads) {
+      const thicknessVar = 1 + (random() - 0.5) * CONFIG.weave.variation.thicknessVariation;
+      const threadWidth = CONFIG.weave.baseWidth * SCALE * thicknessVar;
+
+      drawThread(ctx, warp.x, warp.y, warp.length, warpAngleRad, threadWidth);
+    }
+
+    // Draw weft threads
+    for (const weft of weftThreads) {
+      const thicknessVar = 1 + (random() - 0.5) * CONFIG.weave.variation.thicknessVariation;
+      const threadWidth = CONFIG.weave.baseWidth * SCALE * thicknessVar;
+
+      drawThread(ctx, weft.x, weft.y, weft.length, weftAngleRad, threadWidth);
     }
 
     // Reset global alpha
@@ -454,8 +564,8 @@ const TarpCC22026: React.FC = () => {
     ctx.fillRect(0, 0, width, height);
     console.log('Background drawn');
 
-    // Draw scratch marks on top
-    drawScratches(ctx, width, height);
+    // Draw woven thread texture on top
+    drawWeave(ctx, width, height);
 
     // Draw sample swatches of decorative patterns for review
     const swatchWidth = 200 * SCALE; // 200 inches wide
@@ -494,7 +604,7 @@ const TarpCC22026: React.FC = () => {
       0, // No rotation
       '#5a5a5a', // Grey pattern
       '#e8dcc8', // Warm beige background
-      24 // Key size in inches (8 * 3 for scaling)
+      16 // Key size in inches (8 * 3 for scaling)
     );
 
     // Swatch 3: Random Rectangles
@@ -520,22 +630,22 @@ const TarpCC22026: React.FC = () => {
     const swatch2RowY = swatchY + swatchHeight + swatchSpacing + 50 * SCALE;
     const swatch4X = 100 * SCALE + swatchWidth + swatchSpacing; // Center it
 
-    // Swatch 4: Floral
-    drawFloral(
+    // Swatch 4: Octagons
+    drawOctagons(
       ctx,
       swatch4X,
       swatch2RowY,
       swatchWidth,
       swatchHeight,
       0, // No rotation
-      '#7a7a7a', // Grey petals
-      '#4a4a4a', // Dark grey centers
-      '#e8dcc8', // Warm beige background
-      24 // Flower size in inches (8 * 3 for scaling)
+      '#e8dcc8', // Warm beige octagons
+      '#5a5a5a', // Grey grid overlay
+      '#386374', // Teal background
+      16 // Octagon size in inches
     );
 
-    // Draw label for floral pattern
-    ctx.fillText('Floral', swatch4X + swatchWidth / 2, swatch2RowY - 20 * SCALE);
+    // Draw label for octagon pattern
+    ctx.fillText('Octagons', swatch4X + swatchWidth / 2, swatch2RowY - 20 * SCALE);
 
     // Cleanup function to clear canvas on unmount
     return () => {
