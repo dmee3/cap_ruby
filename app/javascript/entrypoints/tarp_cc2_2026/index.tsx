@@ -130,7 +130,8 @@ const TarpCC22026: React.FC = () => {
     ringColor: string,
     borderColor: string,
     backgroundColor: string,
-    ringRadius: number = 6 // Radius of each ring in inches
+    ringRadius: number = 6, // Radius of each ring in inches
+    seed: number = 42 // Seed for reproducible randomness
   ) => {
     ctx.save();
     ctx.translate(x + width / 2, y + height / 2);
@@ -182,6 +183,32 @@ const TarpCC22026: React.FC = () => {
       }
     }
 
+    // Draw topographical opacity overlay using background color
+    // Sample the height map at a high rate and draw semi-transparent background color
+    // Using inverse of height map: [0.5, 1] becomes [0, 0.5] for overlay opacity
+    const sampleSize = spacing * 0.0625; // Very high sample rate (1/16th of a ring spacing)
+
+    for (let y = 0; y < height; y += sampleSize) {
+      for (let x = 0; x < width; x += sampleSize) {
+        // Sample height at center of this region
+        const heightValue = getHeightMapValue(x + sampleSize / 2, y + sampleSize / 2, seed, spacing * 1.5);
+
+        // Invert: height 0.5 → overlay 0.5, height 1.0 → overlay 0
+        const overlayAlpha = 1 - heightValue;
+
+        // Draw semi-transparent background color rectangle
+        ctx.fillStyle = backgroundColor;
+        ctx.globalAlpha = overlayAlpha;
+
+        const rectWidth = Math.min(sampleSize, width - x);
+        const rectHeight = Math.min(sampleSize, height - y);
+        ctx.fillRect(x, y, rectWidth, rectHeight);
+      }
+    }
+
+    // Reset alpha
+    ctx.globalAlpha = 1.0;
+
     ctx.restore();
   };
 
@@ -194,7 +221,8 @@ const TarpCC22026: React.FC = () => {
     angle: number, // Rotation angle of the pattern in degrees
     color1: string,
     backgroundColor: string,
-    keySize: number = 8 // Size of each key unit in inches
+    keySize: number = 8, // Size of each key unit in inches
+    seed: number = 42 // Seed for reproducible randomness
   ) => {
     ctx.save();
     ctx.translate(x + size / 2, y + size / 2);
@@ -217,16 +245,48 @@ const TarpCC22026: React.FC = () => {
     ctx.lineJoin = 'miter';
     ctx.strokeStyle = color1;
 
-    let baseX = 0;
+    let rowIndex = 0;
     let baseY = 0;
-    while (baseX < size && baseY < size) {
-      drawGreekKeyUnit(ctx, baseX, baseY, patternSize);
-      baseX += patternSize;
-      if (baseX >= size) {
-        baseX = 0;
-        baseY += patternSize * 7 / 8;
+    while (baseY < size) {
+      // Offset every other row by half a pattern width
+      const xOffset = (rowIndex % 2 === 1) ? patternSize / 2 : 0;
+      let baseX = xOffset - patternSize; // Start one pattern to the left
+
+      while (baseX < size + patternSize) { // Draw a bit beyond edge to handle offset
+        drawGreekKeyUnit(ctx, baseX, baseY, patternSize);
+        baseX += patternSize;
+      }
+
+      baseY += patternSize * 7 / 8;
+      rowIndex++;
+    }
+
+    // Draw topographical opacity overlay using background color
+    // Sample the height map at a high rate and draw semi-transparent background color
+    // Using inverse of height map: [0.5, 1] becomes [0, 0.5] for overlay opacity
+    const spacing = patternSize; // Use pattern size as spacing reference
+    const sampleSize = spacing * 0.0625; // Very high sample rate (1/16th of a pattern spacing)
+
+    for (let y = 0; y < size; y += sampleSize) {
+      for (let x = 0; x < size; x += sampleSize) {
+        // Sample height at center of this region
+        const heightValue = getHeightMapValue(x + sampleSize / 2, y + sampleSize / 2, seed, spacing * 1.5);
+
+        // Invert: height 0.5 → overlay 0.5, height 1.0 → overlay 0
+        const overlayAlpha = 1 - heightValue;
+
+        // Draw semi-transparent background color rectangle
+        ctx.fillStyle = backgroundColor;
+        ctx.globalAlpha = overlayAlpha;
+
+        const rectWidth = Math.min(sampleSize, size - x);
+        const rectHeight = Math.min(sampleSize, size - y);
+        ctx.fillRect(x, y, rectWidth, rectHeight);
       }
     }
+
+    // Reset alpha
+    ctx.globalAlpha = 1.0;
 
     ctx.restore();
   }
@@ -290,6 +350,7 @@ const TarpCC22026: React.FC = () => {
     height: number,
     angle: number, // Rotation angle of the pattern in degrees
     colors: string[], // Array of colors to use
+    accentColor: string, // Accent color to add variety
     backgroundColor: string,
     seed: number = 42 // Seed for reproducible randomness
   ) => {
@@ -307,34 +368,209 @@ const TarpCC22026: React.FC = () => {
     ctx.rect(0, 0, width, height);
     ctx.clip();
 
-    // Simple seeded random function
-    let seedValue = seed;
-    const seededRandom = () => {
-      seedValue = (seedValue * Math.random() * 10000) % 233280;
-      return seedValue / 233280;
-    };
+    // Use proper seeded random (same as elsewhere in the codebase)
+    const random = createSeededRandom(seed);
 
-    // Generate random rectangles
+    // Generate rectangles with intentional placement that appears random
     const numRectangles = 10;
+    const rectangles: Array<{ x: number; y: number; w: number; h: number; color: string }> = [];
 
     for (let i = 0; i < numRectangles; i++) {
-      const rectX = seededRandom() * width * 0.9;
-      const rectY = seededRandom() * height * 0.9;
-      const rectWidth = (seededRandom() * 0.3 + 0.1) * width;
-      const rectHeight = (seededRandom() * 0.3 + 0.1) * height;
+      // Create well-distributed positions using a combination of grid and offset
+      const gridCols = 3;
+      const gridRows = 3;
+      const cellWidth = width / gridCols;
+      const cellHeight = height / gridRows;
 
-      // Pick a random color
-      const colorIndex = Math.floor(seededRandom() * colors.length);
-      ctx.fillStyle = colors[colorIndex];
+      // Use grid position with random offset for better distribution
+      const gridX = (i % gridCols) * cellWidth;
+      const gridY = Math.floor(i / gridCols) * cellHeight;
+      const offsetX = (random() - 0.5) * cellWidth * 0.8;
+      const offsetY = (random() - 0.5) * cellHeight * 0.8;
 
-      // Draw rectangle
-      ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
+      let rectX = gridX + offsetX;
+      let rectY = gridY + offsetY;
+
+      // Generate rectangle dimensions with aspect ratio constraint (max 3:1 ratio)
+      const baseSize = Math.min(width, height) * (random() * 0.15 + 0.15); // 15-30% of smaller dimension
+      const aspectRatio = random() * 2 + 0.5; // 0.5 to 2.5, then clamped to 3:1 max
+      const clampedAspect = Math.min(aspectRatio, 3);
+
+      let rectWidth, rectHeight;
+      if (random() > 0.5) {
+        rectWidth = baseSize * clampedAspect;
+        rectHeight = baseSize;
+      } else {
+        rectWidth = baseSize;
+        rectHeight = baseSize * clampedAspect;
+      }
+
+      // Pick a random color from grayscale colors, with occasional accent
+      const useAccent = random() < 0.2; // 20% chance to use accent color
+      let rectColor: string;
+      if (useAccent) {
+        rectColor = accentColor;
+      } else {
+        const colorIndex = Math.floor(random() * colors.length);
+        rectColor = colors[colorIndex];
+      }
+
+      // Check for color collision with overlapping rectangles
+      // Also enforce minimum overlap requirement (if overlapping, must be at least 5% of either rect)
+      // And prevent one rectangle being mostly inside another (max 80% containment)
+      let hasColorCollision = false;
+      for (const existing of rectangles) {
+        // Check if rectangles overlap
+        const overlaps = !(
+          rectX + rectWidth < existing.x ||
+          rectX > existing.x + existing.w ||
+          rectY + rectHeight < existing.y ||
+          rectY > existing.y + existing.h
+        );
+
+        if (overlaps) {
+          // Calculate overlap area
+          const overlapLeft = Math.max(rectX, existing.x);
+          const overlapRight = Math.min(rectX + rectWidth, existing.x + existing.w);
+          const overlapTop = Math.max(rectY, existing.y);
+          const overlapBottom = Math.min(rectY + rectHeight, existing.y + existing.h);
+
+          const overlapWidth = overlapRight - overlapLeft;
+          const overlapHeight = overlapBottom - overlapTop;
+          const overlapArea = overlapWidth * overlapHeight;
+
+          const rectArea = rectWidth * rectHeight;
+          const existingArea = existing.w * existing.h;
+
+          const overlapPercentOfRect = overlapArea / rectArea;
+          const overlapPercentOfExisting = overlapArea / existingArea;
+
+          // If one rectangle is more than 80% inside the other, adjust position
+          if (overlapPercentOfRect > 0.8 || overlapPercentOfExisting > 0.8) {
+            // Shift rectangle to be more offset from existing
+            const centerX = rectX + rectWidth / 2;
+            const centerY = rectY + rectHeight / 2;
+            const existingCenterX = existing.x + existing.w / 2;
+            const existingCenterY = existing.y + existing.h / 2;
+
+            // Push away significantly to reduce containment
+            const dx = centerX - existingCenterX;
+            const dy = centerY - existingCenterY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > 0) {
+              const pushDistance = Math.max(rectWidth, rectHeight) * 0.5;
+              rectX += (dx / distance) * pushDistance;
+              rectY += (dy / distance) * pushDistance;
+            }
+          }
+          // If overlap is too small (less than 5% of either rectangle), adjust position to separate them
+          else if (overlapPercentOfRect < 0.05 && overlapPercentOfExisting < 0.05) {
+            // Move rectangle away to create separation
+            const centerX = rectX + rectWidth / 2;
+            const centerY = rectY + rectHeight / 2;
+            const existingCenterX = existing.x + existing.w / 2;
+            const existingCenterY = existing.y + existing.h / 2;
+
+            // Push away from existing rectangle
+            const dx = centerX - existingCenterX;
+            const dy = centerY - existingCenterY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > 0) {
+              const pushDistance = Math.max(rectWidth, rectHeight) * 0.15;
+              rectX += (dx / distance) * pushDistance;
+              rectY += (dy / distance) * pushDistance;
+            }
+          }
+
+          if (existing.color === rectColor) {
+            // Color collision! Pick a different color
+            hasColorCollision = true;
+            break;
+          }
+        }
+      }
+
+      // If color collision, cycle to next color
+      if (hasColorCollision) {
+        if (rectColor === accentColor) {
+          // Switch to first grayscale
+          rectColor = colors[0];
+        } else {
+          // Find current color index and move to next
+          const currentIndex = colors.indexOf(rectColor);
+          rectColor = colors[(currentIndex + 1) % colors.length];
+        }
+      }
+
+      rectangles.push({ x: rectX, y: rectY, w: rectWidth, h: rectHeight, color: rectColor });
     }
+
+    // Draw all rectangles
+    for (const rect of rectangles) {
+      ctx.fillStyle = rect.color;
+      ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+    }
+
+    // Draw topographical opacity overlay using background color
+    // Sample the height map at a high rate and draw semi-transparent background color
+    // Using inverse of height map with reduced effect: [0.5, 1] becomes [0, 0.25] for overlay opacity
+    const spacing = width / 10; // Use a reasonable spacing based on swatch size
+    const sampleSize = spacing * 0.0625; // Very high sample rate (1/16th of spacing)
+
+    for (let y = 0; y < height; y += sampleSize) {
+      for (let x = 0; x < width; x += sampleSize) {
+        // Sample height at center of this region
+        const heightValue = getHeightMapValue(x + sampleSize / 2, y + sampleSize / 2, seed, spacing * 1.5);
+
+        // Invert and scale: height 0.5 → overlay 0.25, height 1.0 → overlay 0
+        const overlayAlpha = (1 - heightValue) * 0.5;
+
+        // Draw semi-transparent background color rectangle
+        ctx.fillStyle = backgroundColor;
+        ctx.globalAlpha = overlayAlpha;
+
+        const rectWidth = Math.min(sampleSize, width - x);
+        const rectHeight = Math.min(sampleSize, height - y);
+        ctx.fillRect(x, y, rectWidth, rectHeight);
+      }
+    }
+
+    // Reset alpha
+    ctx.globalAlpha = 1.0;
 
     ctx.restore();
   };
 
-  // Function to draw octagon pattern
+  // Generate a smooth 3D height map using Perlin-like noise
+  // Returns z value in range [0.5, 1] for given x, y coordinates
+  const getHeightMapValue = (
+    x: number,
+    y: number,
+    seed: number,
+    scale: number = 100 // How "zoomed in" the noise is (smaller = more variation)
+  ): number => {
+    // Create multiple octaves of noise for smooth variation
+    const random = createSeededRandom(seed);
+
+    // Simple pseudo-Perlin noise using sine waves at different frequencies
+    const nx = x / scale;
+    const ny = y / scale;
+
+    // Layer multiple frequencies for more natural variation
+    const noise1 = Math.sin(nx * 2 + random() * 100) * Math.cos(ny * 2 + random() * 100);
+    const noise2 = Math.sin(nx * 4 + random() * 100) * Math.cos(ny * 4 + random() * 100) * 0.5;
+    const noise3 = Math.sin(nx * 8 + random() * 100) * Math.cos(ny * 8 + random() * 100) * 0.25;
+
+    // Combine octaves
+    const combined = (noise1 + noise2 + noise3) / 1.75;
+
+    // Map from [-1, 1] to [0.5, 1]
+    return 0.75 + (combined * 0.25);
+  };
+
+  // Function to draw octagon pattern with topographical opacity overlay and texture
   const drawOctagons = (
     ctx: CanvasRenderingContext2D,
     x: number,
@@ -345,7 +581,8 @@ const TarpCC22026: React.FC = () => {
     octagonColor: string,
     gridColor: string,
     backgroundColor: string,
-    octagonSize: number = 8 // Size of each octagon in inches
+    octagonSize: number = 8, // Size of each octagon in inches
+    seed: number = 42 // Seed for reproducible randomness
   ) => {
     ctx.save();
     ctx.translate(x + width / 2, y + height / 2);
@@ -367,11 +604,14 @@ const TarpCC22026: React.FC = () => {
     const numCols = Math.ceil(width / spacing) + 2;
     const numRows = Math.ceil(height / spacing) + 2;
 
-    // Draw grid underlay between octagons (draw first so octagons appear on top)
-    ctx.strokeStyle = gridColor;
-    ctx.lineWidth = octagonSizePx * 0.04; // Half the thickness of the octagons
+    // Create seeded random for reproducible effects
+    const random = createSeededRandom(seed);
 
-    // Draw vertical grid lines (between columns)
+    // LAYER 1: Draw grid underlay (drawn first, stays underneath)
+    ctx.strokeStyle = gridColor;
+    ctx.lineWidth = octagonSizePx * 0.04;
+
+    // Draw vertical grid lines
     for (let col = 0; col < numCols; col++) {
       const gridX = col * spacing - spacing / 2;
       ctx.beginPath();
@@ -380,7 +620,7 @@ const TarpCC22026: React.FC = () => {
       ctx.stroke();
     }
 
-    // Draw horizontal grid lines (between rows)
+    // Draw horizontal grid lines
     for (let row = 0; row < numRows; row++) {
       const gridY = row * spacing - spacing / 2;
       ctx.beginPath();
@@ -389,9 +629,9 @@ const TarpCC22026: React.FC = () => {
       ctx.stroke();
     }
 
-    // Draw octagons on top of the grid
+    // LAYER 2: Draw octagons at full opacity
     ctx.strokeStyle = octagonColor;
-    ctx.lineWidth = octagonSizePx * 0.08; // Fairly thick line
+    ctx.lineWidth = octagonSizePx * 0.08;
 
     // Draw octagons in a grid pattern
     for (let row = -1; row < numRows; row++) {
@@ -400,9 +640,8 @@ const TarpCC22026: React.FC = () => {
         const centerY = row * spacing;
 
         // Draw octagon with horizontal/vertical sides longer than diagonal sides
-        // Rotated 22.5° so sides are horizontal/vertical instead of at 45°
         const size = octagonSizePx / 2;
-        const longSide = size * 0.25; // Length of horizontal/vertical segments
+        const longSide = size * 0.25;
 
         ctx.beginPath();
         // Start at top, go clockwise
@@ -425,7 +664,9 @@ const TarpCC22026: React.FC = () => {
         ctx.closePath();
         ctx.stroke();
 
-        // Draw connecting lines to neighbors (only draw to right and bottom to avoid duplicates)
+        // Draw connecting lines to neighbors
+        // (only draw to right and bottom to avoid duplicates)
+
         // Connect to south neighbor (two vertical lines from bottom edge)
         ctx.beginPath();
         ctx.moveTo(centerX - longSide, centerY + size);
@@ -448,6 +689,49 @@ const TarpCC22026: React.FC = () => {
         ctx.lineTo(centerX + size + (spacing - octagonSizePx), centerY + longSide);
         ctx.stroke();
       }
+    }
+
+    // LAYER 2.5: Draw topographical opacity overlay using background color
+    // Sample the height map at a high rate and draw semi-transparent background color
+    // Using inverse of height map: [0.5, 1] becomes [0, 0.5] for overlay opacity
+    const sampleSize = spacing * 0.0625; // Very high sample rate (1/16th of an octagon spacing)
+
+    for (let y = 0; y < height; y += sampleSize) {
+      for (let x = 0; x < width; x += sampleSize) {
+        // Sample height at center of this region
+        const heightValue = getHeightMapValue(x + sampleSize / 2, y + sampleSize / 2, seed, spacing * 1.5);
+
+        // Invert: height 0.5 → overlay 0.5, height 1.0 → overlay 0
+        const overlayAlpha = 1 - heightValue;
+
+        // Draw semi-transparent background color rectangle
+        ctx.fillStyle = backgroundColor;
+        ctx.globalAlpha = overlayAlpha;
+
+        const rectWidth = Math.min(sampleSize, width - x);
+        const rectHeight = Math.min(sampleSize, height - y);
+        ctx.fillRect(x, y, rectWidth, rectHeight);
+      }
+    }
+
+    // Reset alpha
+    ctx.globalAlpha = 1.0;
+
+    // LAYER 3: Add texture overlay (grain/noise) on top of everything
+    const grainDensity = 0.15; // Percentage of pixels to add grain to
+    const grainSize = Math.max(1, SCALE * 0.3); // Size of grain particles
+    const numGrainParticles = Math.floor((width * height * grainDensity) / (grainSize * grainSize));
+
+    for (let i = 0; i < numGrainParticles; i++) {
+      const grainX = random() * width;
+      const grainY = random() * height;
+      const grainAlpha = random() * 0.15; // Very subtle grain
+
+      // Randomly darken or lighten
+      const isDark = random() > 0.5;
+      ctx.fillStyle = isDark ? `rgba(0, 0, 0, ${grainAlpha})` : `rgba(255, 255, 255, ${grainAlpha})`;
+
+      ctx.fillRect(grainX, grainY, grainSize, grainSize);
     }
 
     ctx.restore();
@@ -591,7 +875,8 @@ const TarpCC22026: React.FC = () => {
       '#386374', // Ring color
       '#ffffff', // Border color (white)
       '#e8dcc8', // Warm beige background
-      24 // Ring radius in inches
+      24, // Ring radius in inches
+      456 // Seed for reproducible topographical overlay
     );
 
     // Swatch 2: Greek Key
@@ -604,7 +889,8 @@ const TarpCC22026: React.FC = () => {
       0, // No rotation
       '#5a5a5a', // Grey pattern
       '#e8dcc8', // Warm beige background
-      16 // Key size in inches (8 * 3 for scaling)
+      32, // Key size in inches (16 * 1.5 = 24)
+      234 // Seed for reproducible topographical overlay
     );
 
     // Swatch 3: Random Rectangles
@@ -616,9 +902,10 @@ const TarpCC22026: React.FC = () => {
       swatchWidth,
       swatchHeight,
       0, // No rotation
-      ['#8a8a8a', '#6a6a6a', '#4a4a4a', '#2a2a2a'], // Greyscale colors
+      ['#8a8a8a', '#6a6a6a', '#4a4a4a'], // Greyscale colors (removed darkest)
+      '#386374', // Accent color (teal)
       '#e8dcc8', // Warm beige background
-      123 // Seed for consistent pattern
+      5 // Seed for consistent pattern
     );
 
     // Draw labels for first row of swatches
@@ -641,7 +928,8 @@ const TarpCC22026: React.FC = () => {
       '#e8dcc8', // Warm beige octagons
       '#5a5a5a', // Grey grid overlay
       '#386374', // Teal background
-      16 // Octagon size in inches
+      16, // Octagon size in inches
+      789 // Seed for reproducible weathering
     );
 
     // Draw label for octagon pattern
