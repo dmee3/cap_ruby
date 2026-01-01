@@ -12,7 +12,7 @@ const TARP_HEIGHT_INCHES = TARP_HEIGHT_FEET * 12; // 720 inches
 // Scale factor: pixels per inch
 // SCALE = 1: 1,080 × 720 px (1 pixel per inch, print-ready)
 // SCALE = 10: 10,800 × 7,200 px (10 pixels per inch, high-res)
-const SCALE = 1;
+const SCALE = 4;
 
 // Configuration constants
 const CONFIG = {
@@ -712,7 +712,7 @@ const TarpCC22026: React.FC = () => {
     ribbonSpacing: number
   ) => {
     const angleRad = (angleDeg * Math.PI) / 180;
-    const halfLength = ribbonTotalLength / 4;
+    const halfLength = ribbonTotalLength / 2;
     const perpAngleRad = angleRad + Math.PI / 2;
 
     // Calculate where the centerline should start
@@ -742,11 +742,11 @@ const TarpCC22026: React.FC = () => {
       {
         startX: centerRibbonStartX - Math.cos(perpAngleRad) * ribbonSpacing,
         startY: centerRibbonStartY - Math.sin(perpAngleRad) * ribbonSpacing,
-        patternOffset: 2
+        patternOffset: 0
       }
     ];
 
-    const patterns = ['rings', 'greekKey', 'rectangles', 'octagons'];
+    const patterns = ['rings', 'greekKey', 'octagons', 'rectangles'];
     const numSegments = Math.ceil(ribbonTotalLength / segmentLength);
 
     for (const ribbonOffset of ribbonOffsets) {
@@ -762,7 +762,7 @@ const TarpCC22026: React.FC = () => {
           case 'rings':
             drawInterlockingRings(
               ctx, segmentX, segmentY, segmentLength, ribbonWidth, angleDeg,
-              '#386374', '#ffffff', '#e8dcc8', 24, 456 + i
+              '#386374', '#a0a0a0', '#d5d5ee', 24, 456 + i
             );
             break;
           case 'greekKey':
@@ -774,13 +774,13 @@ const TarpCC22026: React.FC = () => {
           case 'rectangles':
             drawRandomRectangles(
               ctx, segmentX, segmentY, segmentLength, ribbonWidth, angleDeg,
-              ['#8a8a8a', '#6a6a6a', '#4a4a4a'], '#386374', '#e8dcc8', 5 + i
+              ['#8a8a8a', '#6a6a6a', '#4a4a4a'], '#386374', '#a8c0d0', 5 + i
             );
             break;
           case 'octagons':
             drawOctagons(
               ctx, segmentX, segmentY, segmentLength, ribbonWidth, angleDeg,
-              '#e8dcc8', '#5a5a5a', '#386374', 16, 789 + i
+              '#b8a070', '#5a5a5a', '#386374', 16, 789 + i
             );
             break;
         }
@@ -790,13 +790,10 @@ const TarpCC22026: React.FC = () => {
 
   // Function to draw woven thread texture
   const drawWeave = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    console.log('Drawing woven texture...', CONFIG.weave);
-    console.log('Canvas dimensions:', width, height);
     const random = createSeededRandom(CONFIG.weave.seed);
 
     const warpAngleRad = (CONFIG.weave.warpThreads.angle * Math.PI) / 180;
     const weftAngleRad = (CONFIG.weave.weftThreads.angle * Math.PI) / 180;
-    console.log('Warp angle (rad):', warpAngleRad, 'Weft angle (rad):', weftAngleRad);
 
     // Calculate grid spacing for deterministic positioning
     // Base spacing on physical dimensions (inches) so it scales with SCALE constant
@@ -828,7 +825,6 @@ const TarpCC22026: React.FC = () => {
 
       warpThreads.push({ x, y, length, index: i });
     }
-    console.log('First 5 warp threads:', warpThreads.slice(0, 5));
 
     // Generate weft thread positions (angle: 150°)
     // Use seeded random to position thread centers across the entire canvas
@@ -845,9 +841,6 @@ const TarpCC22026: React.FC = () => {
 
       weftThreads.push({ x, y, length, index: i });
     }
-    console.log('First 5 weft threads:', weftThreads.slice(0, 5));
-    console.log('Warp spacing:', warpSpacing, 'Weft spacing:', weftSpacing);
-
     ctx.fillStyle = CONFIG.colors.threads;
     ctx.globalAlpha = CONFIG.weave.opacity;
 
@@ -872,7 +865,6 @@ const TarpCC22026: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log('TarpCC22026 useEffect running...');
     const canvas = canvasRef.current;
     if (!canvas) {
       console.log('Canvas ref not found');
@@ -890,12 +882,10 @@ const TarpCC22026: React.FC = () => {
     const height = TARP_HEIGHT_INCHES * SCALE; // 720 * SCALE pixels
     canvas.width = width;
     canvas.height = height;
-    console.log('Canvas dimensions:', width, height);
 
     // Fill canvas with dark grey background
     ctx.fillStyle = CONFIG.colors.background;
     ctx.fillRect(0, 0, width, height);
-    console.log('Background drawn');
 
     // Draw woven thread texture on top
     drawWeave(ctx, width, height);
