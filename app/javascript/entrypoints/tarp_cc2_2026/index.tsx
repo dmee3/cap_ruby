@@ -23,13 +23,13 @@ const CONFIG = {
   weave: {
     warpThreads: {
       count: 1200, // Number of warp threads (one direction)
-      angle: 30, // Angle in degrees
+      angle: 33.69, // Angle in degrees (lower-left to upper-right diagonal)
       minLength: 36, // Minimum length in inches (creates "holes")
       maxLength: 240, // Maximum length in inches (some span most of canvas)
     },
     weftThreads: {
       count: 1200, // Number of weft threads (other direction)
-      angle: 150, // Complementary angle in degrees
+      angle: 146.31, // Complementary angle in degrees (180 - 33.69)
       minLength: 36, // Minimum length in inches (creates "holes")
       maxLength: 240, // Maximum length in inches
     },
@@ -217,7 +217,8 @@ const TarpCC22026: React.FC = () => {
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
-    size: number,
+    width: number,
+    height: number,
     angle: number, // Rotation angle of the pattern in degrees
     color1: string,
     backgroundColor: string,
@@ -225,17 +226,17 @@ const TarpCC22026: React.FC = () => {
     seed: number = 42 // Seed for reproducible randomness
   ) => {
     ctx.save();
-    ctx.translate(x + size / 2, y + size / 2);
+    ctx.translate(x + width / 2, y + height / 2);
     ctx.rotate((angle * Math.PI) / 180);
-    ctx.translate(-size / 2, -size / 2);
+    ctx.translate(-width / 2, -height / 2);
 
     // Fill background color first
     ctx.fillStyle = backgroundColor;
-    ctx.fillRect(0, 0, size, size);
+    ctx.fillRect(0, 0, width, height);
 
     // Create a clipping region for the area
     ctx.beginPath();
-    ctx.rect(0, 0, size, size);
+    ctx.rect(0, 0, width, height);
     ctx.clip();
 
     const patternSize = keySize * SCALE;
@@ -247,12 +248,12 @@ const TarpCC22026: React.FC = () => {
 
     let rowIndex = 0;
     let baseY = 0;
-    while (baseY < size) {
+    while (baseY < height) {
       // Offset every other row by half a pattern width
       const xOffset = (rowIndex % 2 === 1) ? patternSize / 2 : 0;
       let baseX = xOffset - patternSize; // Start one pattern to the left
 
-      while (baseX < size + patternSize) { // Draw a bit beyond edge to handle offset
+      while (baseX < width + patternSize) { // Draw a bit beyond edge to handle offset
         drawGreekKeyUnit(ctx, baseX, baseY, patternSize);
         baseX += patternSize;
       }
@@ -267,8 +268,8 @@ const TarpCC22026: React.FC = () => {
     const spacing = patternSize; // Use pattern size as spacing reference
     const sampleSize = spacing * 0.0625; // Very high sample rate (1/16th of a pattern spacing)
 
-    for (let y = 0; y < size; y += sampleSize) {
-      for (let x = 0; x < size; x += sampleSize) {
+    for (let y = 0; y < height; y += sampleSize) {
+      for (let x = 0; x < width; x += sampleSize) {
         // Sample height at center of this region
         const heightValue = getHeightMapValue(x + sampleSize / 2, y + sampleSize / 2, seed, spacing * 1.5);
 
@@ -279,8 +280,8 @@ const TarpCC22026: React.FC = () => {
         ctx.fillStyle = backgroundColor;
         ctx.globalAlpha = overlayAlpha;
 
-        const rectWidth = Math.min(sampleSize, size - x);
-        const rectHeight = Math.min(sampleSize, size - y);
+        const rectWidth = Math.min(sampleSize, width - x);
+        const rectHeight = Math.min(sampleSize, height - y);
         ctx.fillRect(x, y, rectWidth, rectHeight);
       }
     }
@@ -851,89 +852,235 @@ const TarpCC22026: React.FC = () => {
     // Draw woven thread texture on top
     drawWeave(ctx, width, height);
 
-    // Draw sample swatches of decorative patterns for review
-    const swatchWidth = 200 * SCALE; // 200 inches wide
-    const swatchHeight = 150 * SCALE; // 150 inches tall
-    const swatchSpacing = 50 * SCALE; // 50 inches between swatches
-    const swatchY = 100 * SCALE; // 100 inches from top
+    // Draw pattern ribbons at warp angle (33.69°)
+    const ribbonWidth = 6 * 12 * SCALE; // 6 feet = 72 inches (perpendicular to ribbon)
+    const segmentLength = 12 * 12 * SCALE; // 12 feet = 144 inches (along ribbon direction)
 
-    // Setup text styling
-    ctx.fillStyle = '#ffffff';
-    ctx.font = `${20 * SCALE}px sans-serif`;
-    ctx.textAlign = 'center';
+    // Calculate how long the ribbon needs to be to span the tarp diagonally
+    const tarpDiagonal = Math.sqrt(width * width + height * height);
+    const ribbonTotalLength = tarpDiagonal * 1.5; // Extra length to ensure full coverage
 
-    // First row of swatches - Decorative/Rug patterns
-    // Swatch 1: Interlocking Rings
-    const swatch1X = 100 * SCALE;
-    drawInterlockingRings(
-      ctx,
-      swatch1X,
-      swatchY,
-      swatchWidth,
-      swatchHeight,
-      0, // No rotation
-      '#386374', // Ring color
-      '#ffffff', // Border color (white)
-      '#e8dcc8', // Warm beige background
-      24, // Ring radius in inches
-      456 // Seed for reproducible topographical overlay
-    );
+    // Position ribbon to cross through center of tarp
+    const warpAngleDeg = CONFIG.weave.warpThreads.angle; // 33.69°
+    const warpAngleRad = (warpAngleDeg * Math.PI) / 180;
 
-    // Swatch 2: Greek Key
-    const swatch2X = swatch1X + swatchWidth + swatchSpacing;
-    drawGreekKey(
-      ctx,
-      swatch2X,
-      swatchY,
-      swatchWidth,
-      0, // No rotation
-      '#5a5a5a', // Grey pattern
-      '#e8dcc8', // Warm beige background
-      32, // Key size in inches (16 * 1.5 = 24)
-      234 // Seed for reproducible topographical overlay
-    );
+    // Calculate starting position - start from outside the tarp and draw across
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const halfLength = ribbonTotalLength / 2;
 
-    // Swatch 3: Random Rectangles
-    const swatch3X = swatch2X + swatchWidth + swatchSpacing;
-    drawRandomRectangles(
-      ctx,
-      swatch3X,
-      swatchY,
-      swatchWidth,
-      swatchHeight,
-      0, // No rotation
-      ['#8a8a8a', '#6a6a6a', '#4a4a4a'], // Greyscale colors (removed darkest)
-      '#386374', // Accent color (teal)
-      '#e8dcc8', // Warm beige background
-      5 // Seed for consistent pattern
-    );
+    // Calculate perpendicular offset for additional ribbons
+    const ribbonSpacing = ribbonWidth * 3; // Space ribbons apart (3x ribbon width)
+    const perpAngleRad = warpAngleRad + Math.PI / 2; // Perpendicular angle
 
-    // Draw labels for first row of swatches
-    ctx.fillText('Interlocking Rings', swatch1X + swatchWidth / 2, swatchY - 20 * SCALE);
-    ctx.fillText('Greek Key', swatch2X + swatchWidth / 2, swatchY - 20 * SCALE);
-    ctx.fillText('Random Rectangles', swatch3X + swatchWidth / 2, swatchY - 20 * SCALE);
+    // Starting point of the center ribbon (beginning of the line through center)
+    // Offset perpendicular by half ribbon width so centerline passes through corners
+    const offsetDist = ribbonWidth / 2;
+    const centerRibbonStartX = centerX - Math.cos(warpAngleRad) * halfLength - Math.cos(perpAngleRad) * offsetDist;
+    const centerRibbonStartY = centerY - Math.sin(warpAngleRad) * halfLength - Math.sin(perpAngleRad) * offsetDist;
 
-    // Second row - just floral pattern (centered)
-    const swatch2RowY = swatchY + swatchHeight + swatchSpacing + 50 * SCALE;
-    const swatch4X = 100 * SCALE + swatchWidth + swatchSpacing; // Center it
+    // Create array of ribbon starting positions with pattern offsets
+    const ribbonOffsets = [
+      { startX: centerRibbonStartX, startY: centerRibbonStartY, patternOffset: 0 }, // Center ribbon - starts with rings
+      { // Above/right ribbon (perpendicular offset in one direction) - starts with greekKey
+        startX: centerRibbonStartX + Math.cos(perpAngleRad) * ribbonSpacing,
+        startY: centerRibbonStartY + Math.sin(perpAngleRad) * ribbonSpacing,
+        patternOffset: 1
+      },
+      { // Below/left ribbon (perpendicular offset in other direction) - starts with rectangles
+        startX: centerRibbonStartX - Math.cos(perpAngleRad) * ribbonSpacing,
+        startY: centerRibbonStartY - Math.sin(perpAngleRad) * ribbonSpacing,
+        patternOffset: 2
+      }
+    ];
 
-    // Swatch 4: Octagons
-    drawOctagons(
-      ctx,
-      swatch4X,
-      swatch2RowY,
-      swatchWidth,
-      swatchHeight,
-      0, // No rotation
-      '#e8dcc8', // Warm beige octagons
-      '#5a5a5a', // Grey grid overlay
-      '#386374', // Teal background
-      16, // Octagon size in inches
-      789 // Seed for reproducible weathering
-    );
+    // Draw pattern segments along each ribbon
+    const patterns = ['rings', 'greekKey', 'rectangles', 'octagons'];
+    const numSegments = Math.ceil(ribbonTotalLength / segmentLength);
 
-    // Draw label for octagon pattern
-    ctx.fillText('Octagons', swatch4X + swatchWidth / 2, swatch2RowY - 20 * SCALE);
+    for (const ribbonOffset of ribbonOffsets) {
+      for (let i = 0; i < numSegments; i++) {
+        const patternIndex = (i + ribbonOffset.patternOffset) % patterns.length;
+        const pattern = patterns[patternIndex];
+
+        // Calculate position along the ribbon for this segment
+        const segmentDistance = i * segmentLength;
+        const segmentStartX = ribbonOffset.startX + Math.cos(warpAngleRad) * segmentDistance;
+        const segmentStartY = ribbonOffset.startY + Math.sin(warpAngleRad) * segmentDistance;
+
+        // Position is the top-left corner before rotation
+        const segmentX = segmentStartX;
+        const segmentY = segmentStartY;
+
+      switch (pattern) {
+        case 'rings':
+          drawInterlockingRings(
+            ctx,
+            segmentX,
+            segmentY,
+            segmentLength,
+            ribbonWidth,
+            warpAngleDeg,
+            '#386374', // Ring color (teal)
+            '#ffffff', // Border color (white)
+            '#e8dcc8', // Warm beige background
+            24, // Ring radius in inches
+            456 + i // Unique seed per segment
+          );
+          break;
+        case 'greekKey':
+          drawGreekKey(
+            ctx,
+            segmentX,
+            segmentY,
+            segmentLength,
+            ribbonWidth,
+            warpAngleDeg,
+            '#5a5a5a', // Grey pattern
+            '#e8dcc8', // Warm beige background
+            32, // Key size in inches
+            234 + i // Unique seed per segment
+          );
+          break;
+        case 'rectangles':
+          drawRandomRectangles(
+            ctx,
+            segmentX,
+            segmentY,
+            segmentLength,
+            ribbonWidth,
+            warpAngleDeg,
+            ['#8a8a8a', '#6a6a6a', '#4a4a4a'], // Greyscale colors
+            '#386374', // Accent color (teal)
+            '#e8dcc8', // Warm beige background
+            5 + i // Unique seed per segment
+          );
+          break;
+        case 'octagons':
+          drawOctagons(
+            ctx,
+            segmentX,
+            segmentY,
+            segmentLength,
+            ribbonWidth,
+            warpAngleDeg,
+            '#e8dcc8', // Warm beige octagons
+            '#5a5a5a', // Grey grid overlay
+            '#386374', // Teal background
+            16, // Octagon size in inches
+            789 + i // Unique seed per segment
+          );
+          break;
+      }
+      }
+    }
+
+    // Draw pattern ribbons at weft angle (146.31°) - opposite direction
+    const weftAngleDeg = CONFIG.weave.weftThreads.angle; // 146.31°
+    const weftAngleRad = (weftAngleDeg * Math.PI) / 180;
+
+    // Calculate perpendicular offset for weft ribbons
+    const weftPerpAngleRad = weftAngleRad + Math.PI / 2; // Perpendicular angle
+
+    // Starting point of the center ribbon at weft angle
+    // Offset perpendicular by half ribbon width so centerline passes through corners
+    const weftMidX = width / 2;
+    const weftMidY = height / 2;
+    const weftCenterRibbonStartX = weftMidX - Math.cos(weftAngleRad) * halfLength - Math.cos(weftPerpAngleRad) * offsetDist;
+    const weftCenterRibbonStartY = weftMidY - Math.sin(weftAngleRad) * halfLength - Math.sin(weftPerpAngleRad) * offsetDist;
+
+    // Create array of weft ribbon starting positions with pattern offsets
+    const weftRibbonOffsets = [
+      { startX: weftCenterRibbonStartX, startY: weftCenterRibbonStartY, patternOffset: 0 }, // Center ribbon - starts with rings
+      { // Above/right ribbon
+        startX: weftCenterRibbonStartX + Math.cos(weftPerpAngleRad) * ribbonSpacing,
+        startY: weftCenterRibbonStartY + Math.sin(weftPerpAngleRad) * ribbonSpacing,
+        patternOffset: 1
+      },
+      { // Below/left ribbon
+        startX: weftCenterRibbonStartX - Math.cos(weftPerpAngleRad) * ribbonSpacing,
+        startY: weftCenterRibbonStartY - Math.sin(weftPerpAngleRad) * ribbonSpacing,
+        patternOffset: 2
+      }
+    ];
+
+    // Draw pattern segments along each weft ribbon
+    for (const ribbonOffset of weftRibbonOffsets) {
+      for (let i = 0; i < numSegments; i++) {
+        const patternIndex = (i + ribbonOffset.patternOffset) % patterns.length;
+        const pattern = patterns[patternIndex];
+
+        // Calculate position along the ribbon for this segment
+        const segmentDistance = i * segmentLength;
+        const segmentStartX = ribbonOffset.startX + Math.cos(weftAngleRad) * segmentDistance;
+        const segmentStartY = ribbonOffset.startY + Math.sin(weftAngleRad) * segmentDistance;
+
+        // Position is the top-left corner before rotation
+        const segmentX = segmentStartX;
+        const segmentY = segmentStartY;
+
+      switch (pattern) {
+        case 'rings':
+          drawInterlockingRings(
+            ctx,
+            segmentX,
+            segmentY,
+            segmentLength,
+            ribbonWidth,
+            weftAngleDeg,
+            '#386374', // Ring color (teal)
+            '#ffffff', // Border color (white)
+            '#e8dcc8', // Warm beige background
+            24, // Ring radius in inches
+            456 + i // Unique seed per segment
+          );
+          break;
+        case 'greekKey':
+          drawGreekKey(
+            ctx,
+            segmentX,
+            segmentY,
+            segmentLength,
+            ribbonWidth,
+            weftAngleDeg,
+            '#5a5a5a', // Grey pattern
+            '#e8dcc8', // Warm beige background
+            32, // Key size in inches
+            234 + i // Unique seed per segment
+          );
+          break;
+        case 'rectangles':
+          drawRandomRectangles(
+            ctx,
+            segmentX,
+            segmentY,
+            segmentLength,
+            ribbonWidth,
+            weftAngleDeg,
+            ['#8a8a8a', '#6a6a6a', '#4a4a4a'], // Greyscale colors
+            '#386374', // Accent color (teal)
+            '#e8dcc8', // Warm beige background
+            5 + i // Unique seed per segment
+          );
+          break;
+        case 'octagons':
+          drawOctagons(
+            ctx,
+            segmentX,
+            segmentY,
+            segmentLength,
+            ribbonWidth,
+            weftAngleDeg,
+            '#e8dcc8', // Warm beige octagons
+            '#5a5a5a', // Grey grid overlay
+            '#386374', // Teal background
+            16, // Octagon size in inches
+            789 + i // Unique seed per segment
+          );
+          break;
+      }
+      }
+    }
 
     // Cleanup function to clear canvas on unmount
     return () => {
