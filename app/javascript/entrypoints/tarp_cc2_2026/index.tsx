@@ -44,46 +44,107 @@ const CONFIG = {
   },
   ribbons: {
     width: 5, // Ribbon width in feet (perpendicular to ribbon direction)
-    segmentLength: 24, // Pattern segment length in feet (along ribbon direction)
     spacingMultiplier: 3.2, // Ribbon spacing as multiple of ribbon width (16 feet center-to-center)
-    lengthMultiplier: 1.5, // Ribbon length as multiple of tarp diagonal
     // Ribbon layers drawn in array order (first = bottom layer, last = top layer)
     layers: [
-      { direction: 'warp' as const, position: 'center' as const, patternOffset: 0, shift: 0 },
-      { direction: 'weft' as const, position: 'above' as const, patternOffset: 0, shift: -8 },
-      { direction: 'weft' as const, position: 'below' as const, patternOffset: 0, shift: 6 },
-      { direction: 'warp' as const, position: 'above' as const, patternOffset: 2, shift: 0 },
-      { direction: 'warp' as const, position: 'below' as const, patternOffset: 3, shift: 0 },
-      { direction: 'weft' as const, position: 'center' as const, patternOffset: 2, shift: 0 },
+      // Center warp ribbon
+      {
+        direction: 'warp' as const,
+        position: 'center' as const,
+        shift: 0,
+        segmentArray: [
+          { pattern: 'rings' as const, length: 20, seed: 456, colors: { background: '#acaba7', primary: '#415463', accent: '#dec573' } },
+          { pattern: 'greekKey' as const, length: 20, seed: 234, colors: { background: '#e8dcc8', primary: '#5a5a5a', accent: '#5a5a5a' } },
+          { pattern: 'octagons' as const, length: 20, seed: 789, colors: { background: '#162745', primary: '#dec573', accent: '#5a5a5a' } },
+          { pattern: 'rectangles' as const, length: 20, seed: 5, colors: { background: '#a8c0d0', primary: ['#8a8a8a', '#6a6a6a', '#4a4a4a'] as const, accent: '#415463' } },
+          { pattern: 'rings' as const, length: 20, seed: 456, colors: { background: '#acaba7', primary: '#415463', accent: '#dec573' } },
+          { pattern: 'greekKey' as const, length: 20, seed: 234, colors: { background: '#e8dcc8', primary: '#5a5a5a', accent: '#5a5a5a' } },
+        ],
+      },
+      // Above weft ribbon
+      {
+        direction: 'weft' as const,
+        position: 'above' as const,
+        shift: -8,
+        segmentArray: [
+          { pattern: 'rings' as const, length: 20, seed: 456, colors: { background: '#acaba7', primary: '#415463', accent: '#dec573' } },
+          { pattern: 'greekKey' as const, length: 20, seed: 234, colors: { background: '#e8dcc8', primary: '#5a5a5a', accent: '#5a5a5a' } },
+          { pattern: 'octagons' as const, length: 20, seed: 789, colors: { background: '#162745', primary: '#dec573', accent: '#5a5a5a' } },
+          { pattern: 'rectangles' as const, length: 20, seed: 5, colors: { background: '#a8c0d0', primary: ['#8a8a8a', '#6a6a6a', '#4a4a4a'] as const, accent: '#415463' } },
+          { pattern: 'rings' as const, length: 20, seed: 456, colors: { background: '#acaba7', primary: '#415463', accent: '#dec573' } },
+          { pattern: 'greekKey' as const, length: 20, seed: 234, colors: { background: '#e8dcc8', primary: '#5a5a5a', accent: '#5a5a5a' } },
+        ],
+      },
+      // Below weft ribbon
+      {
+        direction: 'weft' as const,
+        position: 'below' as const,
+        shift: 8,
+        segmentArray: [
+          { pattern: 'rings' as const, length: 20, seed: 456, colors: { background: '#acaba7', primary: '#415463', accent: '#dec573' } },
+          { pattern: 'greekKey' as const, length: 20, seed: 234, colors: { background: '#e8dcc8', primary: '#5a5a5a', accent: '#5a5a5a' } },
+          { pattern: 'octagons' as const, length: 20, seed: 789, colors: { background: '#162745', primary: '#dec573', accent: '#5a5a5a' } },
+          { pattern: 'rectangles' as const, length: 20, seed: 5, colors: { background: '#a8c0d0', primary: ['#8a8a8a', '#6a6a6a', '#4a4a4a'] as const, accent: '#415463' } },
+          { pattern: 'rings' as const, length: 20, seed: 456, colors: { background: '#acaba7', primary: '#415463', accent: '#dec573' } },
+          { pattern: 'greekKey' as const, length: 20, seed: 234, colors: { background: '#e8dcc8', primary: '#5a5a5a', accent: '#5a5a5a' } },
+        ],
+      },
+      // Above warp ribbon
+      {
+        direction: 'warp' as const,
+        position: 'above' as const,
+        shift: 8,
+        segmentArray: [
+          { pattern: 'octagons' as const, length: 20, seed: 789, colors: { background: '#162745', primary: '#dec573', accent: '#5a5a5a' } },
+          { pattern: 'rectangles' as const, length: 20, seed: 5, colors: { background: '#a8c0d0', primary: ['#8a8a8a', '#6a6a6a', '#4a4a4a'] as const, accent: '#415463' } },
+          { pattern: 'rings' as const, length: 20, seed: 456, colors: { background: '#acaba7', primary: '#415463', accent: '#dec573' } },
+          { pattern: 'greekKey' as const, length: 20, seed: 234, colors: { background: '#e8dcc8', primary: '#5a5a5a', accent: '#5a5a5a' } },
+          { pattern: 'octagons' as const, length: 20, seed: 789, colors: { background: '#162745', primary: '#dec573', accent: '#5a5a5a' } },
+          { pattern: 'rectangles' as const, length: 20, seed: 5, colors: { background: '#a8c0d0', primary: ['#8a8a8a', '#6a6a6a', '#4a4a4a'] as const, accent: '#415463' } },
+        ],
+      },
+      // Below warp ribbon
+      {
+        direction: 'warp' as const,
+        position: 'below' as const,
+        shift: -8,
+        segmentArray: [
+          { pattern: 'rectangles' as const, length: 20, seed: 5, colors: { background: '#a8c0d0', primary: ['#8a8a8a', '#6a6a6a', '#4a4a4a'] as const, accent: '#415463' } },
+          { pattern: 'rings' as const, length: 20, seed: 456, colors: { background: '#acaba7', primary: '#415463', accent: '#dec573' } },
+          { pattern: 'greekKey' as const, length: 20, seed: 234, colors: { background: '#e8dcc8', primary: '#5a5a5a', accent: '#5a5a5a' } },
+          { pattern: 'octagons' as const, length: 20, seed: 789, colors: { background: '#162745', primary: '#dec573', accent: '#5a5a5a' } },
+          { pattern: 'rectangles' as const, length: 20, seed: 5, colors: { background: '#a8c0d0', primary: ['#8a8a8a', '#6a6a6a', '#4a4a4a'] as const, accent: '#415463' } },
+          { pattern: 'rings' as const, length: 20, seed: 456, colors: { background: '#acaba7', primary: '#415463', accent: '#dec573' } },
+        ],
+      },
+      // Center weft ribbon
+      {
+        direction: 'weft' as const,
+        position: 'center' as const,
+        shift: 0,
+        segmentArray: [
+          { pattern: 'octagons' as const, length: 20, seed: 789, colors: { background: '#162745', primary: '#dec573', accent: '#5a5a5a' } },
+          { pattern: 'rectangles' as const, length: 20, seed: 5, colors: { background: '#a8c0d0', primary: ['#8a8a8a', '#6a6a6a', '#4a4a4a'] as const, accent: '#415463' } },
+          { pattern: 'rings' as const, length: 20, seed: 456, colors: { background: '#acaba7', primary: '#415463', accent: '#dec573' } },
+          { pattern: 'greekKey' as const, length: 20, seed: 234, colors: { background: '#e8dcc8', primary: '#5a5a5a', accent: '#5a5a5a' } },
+          { pattern: 'octagons' as const, length: 20, seed: 789, colors: { background: '#162745', primary: '#dec573', accent: '#5a5a5a' } },
+          { pattern: 'rectangles' as const, length: 20, seed: 5, colors: { background: '#a8c0d0', primary: ['#8a8a8a', '#6a6a6a', '#4a4a4a'] as const, accent: '#415463' } },
+        ],
+      },
     ],
   },
   patterns: {
-    order: ['rings', 'greekKey', 'octagons', 'rectangles'] as const,
     rings: {
       ringRadius: 24, // Radius in inches
-      ringColor: '#415463', // Teal
-      borderColor: '#dec573', // Grey
-      backgroundColor: '#acaba7', // Light purple-blue
-      seedBase: 456, // Base seed for pattern variation
     },
     greekKey: {
       keySize: 32, // Size of each key unit in inches
-      patternColor: '#5a5a5a', // Grey
-      backgroundColor: '#e8dcc8', // Warm beige
-      seedBase: 234,
     },
     rectangles: {
-      colors: ['#8a8a8a', '#6a6a6a', '#4a4a4a'], // Greyscale colors
-      accentColor: '#415463', // Teal
-      backgroundColor: '#a8c0d0', // Muted light blue
-      seedBase: 5,
+      // No global parameters needed
     },
     octagons: {
       octagonSize: 16, // Size in inches
-      octagonColor: '#dec573', // Muted gold
-      gridColor: '#5a5a5a', // Grey
-      backgroundColor: '#162745', // Teal
-      seedBase: 789,
     },
   },
   topography: {
@@ -350,9 +411,9 @@ const TarpCC22026: React.FC = () => {
     width: number,
     height: number,
     angle: number, // Rotation angle of the pattern in degrees
-    colors: readonly string[], // Array of colors to use
-    accentColor: string, // Accent color to add variety
-    backgroundColor: string,
+    primary: readonly string[], // Array of primary colors to use
+    accent: string, // Accent color to add variety
+    background: string,
     seed: number = 42 // Seed for reproducible randomness
   ) => {
     ctx.save();
@@ -361,7 +422,7 @@ const TarpCC22026: React.FC = () => {
     ctx.translate(-width / 2, -height / 2);
 
     // Fill background color first
-    ctx.fillStyle = backgroundColor;
+    ctx.fillStyle = background;
     ctx.fillRect(0, 0, width, height);
 
     // Create a clipping region for the area
@@ -410,10 +471,10 @@ const TarpCC22026: React.FC = () => {
       const useAccent = random() < 0.2; // 20% chance to use accent color
       let rectColor: string;
       if (useAccent) {
-        rectColor = accentColor;
+        rectColor = accent;
       } else {
-        const colorIndex = Math.floor(random() * colors.length);
-        rectColor = colors[colorIndex];
+        const colorIndex = Math.floor(random() * primary.length);
+        rectColor = primary[colorIndex];
       }
 
       // Check for color collision with overlapping rectangles
@@ -495,13 +556,13 @@ const TarpCC22026: React.FC = () => {
 
       // If color collision, cycle to next color
       if (hasColorCollision) {
-        if (rectColor === accentColor) {
+        if (rectColor === accent) {
           // Switch to first grayscale
-          rectColor = colors[0];
+          rectColor = primary[0];
         } else {
           // Find current color index and move to next
-          const currentIndex = colors.indexOf(rectColor);
-          rectColor = colors[(currentIndex + 1) % colors.length];
+          const currentIndex = primary.indexOf(rectColor);
+          rectColor = primary[(currentIndex + 1) % primary.length];
         }
       }
 
@@ -516,7 +577,7 @@ const TarpCC22026: React.FC = () => {
 
     // Draw topographical opacity overlay with reduced effect
     const spacing = width / 10;
-    drawTopographicalOverlay(ctx, width, height, backgroundColor, seed, spacing, 0.5);
+    drawTopographicalOverlay(ctx, width, height, background, seed, spacing, 0.5);
 
     ctx.restore();
   };
@@ -745,18 +806,28 @@ const TarpCC22026: React.FC = () => {
     ctx: CanvasRenderingContext2D,
     angleDeg: number,
     ribbonWidth: number,
-    segmentLength: number,
-    ribbonTotalLength: number,
     centerX: number,
     centerY: number,
     ribbonSpacing: number,
     position: 'center' | 'above' | 'below',
-    patternOffset: number,
+    segmentArray: ReadonlyArray<{
+      pattern: 'rings' | 'greekKey' | 'octagons' | 'rectangles';
+      length: number;
+      seed: number;
+      colors: {
+        background: string;
+        primary: string | readonly string[];
+        accent: string;
+      };
+    }>,
     shift: number // Shift along ribbon direction in feet (positive = forward along angle direction)
   ) => {
     const angleRad = (angleDeg * Math.PI) / 180;
-    const halfLength = ribbonTotalLength / 2;
     const perpAngleRad = angleRad + Math.PI / 2;
+
+    // Calculate total ribbon length from segment array (convert feet to pixels)
+    const ribbonTotalLength = segmentArray.reduce((sum, seg) => sum + seg.length * 12 * SCALE, 0);
+    const halfLength = ribbonTotalLength / 2;
 
     // Calculate where the centerline should start
     const centerlineStartX = centerX - Math.cos(angleRad) * halfLength;
@@ -764,15 +835,10 @@ const TarpCC22026: React.FC = () => {
 
     // The drawing functions add (segmentLength/2, ribbonWidth/2) in world coordinates before rotating
     // We need to compensate for this to get the centerline positioned correctly
-    //
-    // For segment i, the center will be at:
-    //   (startX + i*segLen*cos + segLen/2, startY + i*segLen*sin + ribWidth/2)
-    // We want this to equal:
-    //   (centerlineStartX + (i+0.5)*segLen*cos, centerlineStartY + (i+0.5)*segLen*sin)
-    //
-    // Solving for startX and startY:
-    const baseCenterRibbonStartX = centerlineStartX + 0.5 * segmentLength * Math.cos(angleRad) - segmentLength / 2;
-    const baseCenterRibbonStartY = centerlineStartY + 0.5 * segmentLength * Math.sin(angleRad) - ribbonWidth / 2;
+    // Use the first segment's length for the initial offset calculation
+    const firstSegmentLengthPx = segmentArray[0].length * 12 * SCALE;
+    const baseRibbonStartX = centerlineStartX + 0.5 * firstSegmentLengthPx * Math.cos(angleRad) - firstSegmentLengthPx / 2;
+    const baseRibbonStartY = centerlineStartY + 0.5 * firstSegmentLengthPx * Math.sin(angleRad) - ribbonWidth / 2;
 
     // Calculate position offset based on ribbon position
     let positionOffsetX = 0;
@@ -791,61 +857,65 @@ const TarpCC22026: React.FC = () => {
     const shiftOffsetX = Math.cos(angleRad) * shiftPx;
     const shiftOffsetY = Math.sin(angleRad) * shiftPx;
 
-    const ribbonStartX = baseCenterRibbonStartX + positionOffsetX + shiftOffsetX;
-    const ribbonStartY = baseCenterRibbonStartY + positionOffsetY + shiftOffsetY;
-
-    const patterns = CONFIG.patterns.order;
-    const numSegments = Math.ceil(ribbonTotalLength / segmentLength);
+    const ribbonStartX = baseRibbonStartX + positionOffsetX + shiftOffsetX;
+    const ribbonStartY = baseRibbonStartY + positionOffsetY + shiftOffsetY;
 
     // Draw pattern segments along this ribbon
-    for (let i = 0; i < numSegments; i++) {
-      const patternIndex = (i + patternOffset) % patterns.length;
-      const pattern = patterns[patternIndex];
+    let cumulativeDistance = 0;
+    for (let i = 0; i < segmentArray.length; i++) {
+      const segment = segmentArray[i];
+      const segmentLengthPx = segment.length * 12 * SCALE; // Convert feet to pixels
 
-      const segmentDistance = i * segmentLength;
-      const segmentX = ribbonStartX + Math.cos(angleRad) * segmentDistance;
-      const segmentY = ribbonStartY + Math.sin(angleRad) * segmentDistance;
+      // Calculate segment position (drawing functions handle their own centering)
+      const segmentX = ribbonStartX + Math.cos(angleRad) * cumulativeDistance;
+      const segmentY = ribbonStartY + Math.sin(angleRad) * cumulativeDistance;
 
-      switch (pattern) {
+      // Extract colors from segment (handle both string and array for primary)
+      const { background, primary, accent } = segment.colors;
+
+      switch (segment.pattern) {
         case 'rings':
           drawInterlockingRings(
-            ctx, segmentX, segmentY, segmentLength, ribbonWidth, angleDeg,
-            CONFIG.patterns.rings.ringColor,
-            CONFIG.patterns.rings.borderColor,
-            CONFIG.patterns.rings.backgroundColor,
+            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, angleDeg,
+            typeof primary === 'string' ? primary : primary[0], // ringColor
+            accent, // borderColor
+            background, // backgroundColor
             CONFIG.patterns.rings.ringRadius,
-            CONFIG.patterns.rings.seedBase + i
+            segment.seed
           );
           break;
         case 'greekKey':
           drawGreekKey(
-            ctx, segmentX, segmentY, segmentLength, ribbonWidth, angleDeg,
-            CONFIG.patterns.greekKey.patternColor,
-            CONFIG.patterns.greekKey.backgroundColor,
+            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, angleDeg,
+            typeof primary === 'string' ? primary : primary[0], // patternColor
+            background, // backgroundColor
             CONFIG.patterns.greekKey.keySize,
-            CONFIG.patterns.greekKey.seedBase + i
+            segment.seed
           );
           break;
         case 'rectangles':
           drawRandomRectangles(
-            ctx, segmentX, segmentY, segmentLength, ribbonWidth, angleDeg,
-            CONFIG.patterns.rectangles.colors,
-            CONFIG.patterns.rectangles.accentColor,
-            CONFIG.patterns.rectangles.backgroundColor,
-            CONFIG.patterns.rectangles.seedBase + i
+            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, angleDeg,
+            Array.isArray(primary) ? primary : [primary], // primary colors array
+            accent, // accent color
+            background, // background
+            segment.seed
           );
           break;
         case 'octagons':
           drawOctagons(
-            ctx, segmentX, segmentY, segmentLength, ribbonWidth, angleDeg,
-            CONFIG.patterns.octagons.octagonColor,
-            CONFIG.patterns.octagons.gridColor,
-            CONFIG.patterns.octagons.backgroundColor,
+            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, angleDeg,
+            typeof primary === 'string' ? primary : primary[0], // octagonColor
+            accent, // gridColor
+            background, // backgroundColor
             CONFIG.patterns.octagons.octagonSize,
-            CONFIG.patterns.octagons.seedBase + i
+            segment.seed
           );
           break;
       }
+
+      // Accumulate distance for next segment
+      cumulativeDistance += segmentLengthPx;
     }
   };
 
@@ -939,9 +1009,6 @@ const TarpCC22026: React.FC = () => {
 
     // Setup ribbon parameters from config
     const ribbonWidth = CONFIG.ribbons.width * 12 * SCALE; // Convert feet to inches, then to pixels
-    const segmentLength = CONFIG.ribbons.segmentLength * 12 * SCALE; // Convert feet to inches, then to pixels
-    const tarpDiagonal = Math.sqrt(width * width + height * height);
-    const ribbonTotalLength = tarpDiagonal * CONFIG.ribbons.lengthMultiplier;
     const ribbonSpacing = ribbonWidth * CONFIG.ribbons.spacingMultiplier;
     const centerX = width / 2;
     const centerY = height / 2;
@@ -956,13 +1023,11 @@ const TarpCC22026: React.FC = () => {
         ctx,
         angle,
         ribbonWidth,
-        segmentLength,
-        ribbonTotalLength,
         centerX,
         centerY,
         ribbonSpacing,
         layer.position,
-        layer.patternOffset,
+        layer.segmentArray,
         layer.shift
       );
     }
