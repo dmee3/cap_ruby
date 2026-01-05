@@ -6,10 +6,60 @@ This is a canvas-based design tool for creating a visual mockup of the CC2 (Cap 
 
 ## Physical Specifications
 
-- **Dimensions**: 90 feet wide × 60 feet tall
+- **Dimensions**: 84 feet wide × 42 feet tall (configurable via `TARP_WIDTH_FEET` and `TARP_HEIGHT_FEET`)
 - **Scale Factor**: Configurable via `SCALE` constant (pixels per inch)
 - **Canvas Size**: Calculated as tarp dimensions × SCALE
 - **Base Unit**: All measurements in code are in inches, then multiplied by SCALE
+
+## Configuration
+
+All visual parameters are centralized in the `CONFIG` object at the top of the file. This includes:
+
+### Ribbon Configuration (`CONFIG.ribbons`)
+- **width**: Ribbon width in feet (perpendicular to ribbon direction)
+- **segmentLength**: Pattern segment length in feet (along ribbon direction)
+- **spacingMultiplier**: Ribbon spacing as multiple of ribbon width (center-to-center distance)
+- **lengthMultiplier**: Ribbon length as multiple of tarp diagonal
+- **layers**: Array of ribbon layer definitions, drawn in order (first = bottom, last = top)
+  - Each layer has:
+    - **direction**: `'warp'` (26.57°) or `'weft'` (153.43°)
+    - **position**: `'center'`, `'above'`, or `'below'` (perpendicular offset from center)
+    - **patternOffset**: Starting pattern index (0-3 for rings, greekKey, octagons, rectangles)
+    - **shift**: Distance to shift ribbon along its direction in feet (positive = forward, negative = backward)
+
+**Example layer configuration:**
+```typescript
+layers: [
+  { direction: 'warp', position: 'center', patternOffset: 0, shift: 0 },     // Bottom layer
+  { direction: 'weft', position: 'center', patternOffset: 2, shift: 5 },     // Shifted 5 feet forward
+  { direction: 'warp', position: 'above', patternOffset: 2, shift: -3 },     // Shifted 3 feet backward
+  { direction: 'weft', position: 'above', patternOffset: 0, shift: 0 },
+  { direction: 'warp', position: 'below', patternOffset: 3, shift: 12 },     // Shifted 12 feet forward
+  { direction: 'weft', position: 'below', patternOffset: 0, shift: 0 },      // Top layer
+]
+```
+
+**Shift parameter usage:**
+- Allows fine-tuning where ribbons intersect and overlap
+- Positive values shift the ribbon forward along its angle direction
+- Negative values shift the ribbon backward
+- Measured in feet for easy alignment with segment lengths (typically 24 feet)
+
+### Pattern Configuration (`CONFIG.patterns`)
+- **order**: Array defining pattern order (e.g., `['rings', 'greekKey', 'octagons', 'rectangles']`)
+- **rings**: Ring pattern colors (ringColor, borderColor, backgroundColor), ringRadius, seedBase
+- **greekKey**: Greek key pattern colors (patternColor, backgroundColor), keySize, seedBase
+- **rectangles**: Rectangle pattern colors array, accentColor, backgroundColor, seedBase
+- **octagons**: Octagon pattern colors (octagonColor, backgroundColor), octagonSize, seedBase
+
+### Weave Configuration (`CONFIG.weave`)
+- **warpThreads.angle**: Angle in degrees for warp threads (lower-left to upper-right)
+- **weftThreads.angle**: Angle in degrees for weft threads (upper-left to lower-right)
+- Thread count, length ranges, opacity, and variation parameters
+
+### Topography Configuration (`CONFIG.topography`)
+- **sampleRate**: Sample size as fraction of spacing for overlay rendering
+- **scaleMultiplier**: Height map scale as multiple of spacing
 
 ## Design Elements
 
@@ -102,16 +152,14 @@ Each Greek key unit is a symmetrical meander pattern with four spiral corners:
 **Design Details**:
 - Configurable octagon size (parameter to function)
 - Grid spacing proportional to octagon size
-- Octagon color: Warm beige
-- Grid line color: Grey
-- Background color: Teal
+- Octagon color: Muted gold
+- Background color: Dark blue
 - Line widths proportional to octagon size
 
 **Octagon Structure**:
 - Regular octagons with 8 sides (horizontal/vertical edges emphasized)
 - Arranged in regular grid pattern
-- Connecting grid lines between octagons
-- Drawing order: background → grid lines → octagons → connections
+- Drawing order: background → octagons → topographical overlay → grain texture
 
 **Implementation**: `drawOctagons()` function
 

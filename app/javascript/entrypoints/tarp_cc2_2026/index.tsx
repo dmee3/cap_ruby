@@ -2,16 +2,16 @@ import React, { useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 
 // Tarp dimensions in feet
-const TARP_WIDTH_FEET = 90;
-const TARP_HEIGHT_FEET = 60;
+const TARP_WIDTH_FEET = 84;
+const TARP_HEIGHT_FEET = 42;
 
 // Convert to inches (base unit: 1 pixel = 1 inch at SCALE = 1)
-const TARP_WIDTH_INCHES = TARP_WIDTH_FEET * 12;  // 1,080 inches
-const TARP_HEIGHT_INCHES = TARP_HEIGHT_FEET * 12; // 720 inches
+const TARP_WIDTH_INCHES = TARP_WIDTH_FEET * 12;  // 1,008 inches
+const TARP_HEIGHT_INCHES = TARP_HEIGHT_FEET * 12; // 504 inches
 
 // Scale factor: pixels per inch
-// SCALE = 1: 1,080 × 720 px (1 pixel per inch, print-ready)
-// SCALE = 10: 10,800 × 7,200 px (10 pixels per inch, high-res)
+// SCALE = 1: 1,008 × 504 px (1 pixel per inch, print-ready)
+// SCALE = 10: 10,080 × 5,040 px (10 pixels per inch, high-res)
 const SCALE = 4;
 
 // Configuration constants
@@ -23,13 +23,13 @@ const CONFIG = {
   weave: {
     warpThreads: {
       count: 1200, // Number of warp threads (one direction)
-      angle: 33.69, // Angle in degrees (lower-left to upper-right diagonal)
+      angle: 26.57, // Angle in degrees (lower-left to upper-right diagonal, arctan(42/84))
       minLength: 36, // Minimum length in inches (creates "holes")
       maxLength: 240, // Maximum length in inches (some span most of canvas)
     },
     weftThreads: {
       count: 1200, // Number of weft threads (other direction)
-      angle: 146.31, // Complementary angle in degrees (180 - 33.69)
+      angle: 153.43, // Complementary angle in degrees (180 - 26.57)
       minLength: 36, // Minimum length in inches (creates "holes")
       maxLength: 240, // Maximum length in inches
     },
@@ -41,6 +41,54 @@ const CONFIG = {
       thicknessVariation: 0.2, // Thickness variation (0.8-1.2x)
       curveAmount: 0.3, // How much threads curve at intersections (in thread widths)
     },
+  },
+  ribbons: {
+    width: 5, // Ribbon width in feet (perpendicular to ribbon direction)
+    segmentLength: 24, // Pattern segment length in feet (along ribbon direction)
+    spacingMultiplier: 3.2, // Ribbon spacing as multiple of ribbon width (16 feet center-to-center)
+    lengthMultiplier: 1.5, // Ribbon length as multiple of tarp diagonal
+    // Ribbon layers drawn in array order (first = bottom layer, last = top layer)
+    layers: [
+      { direction: 'warp' as const, position: 'center' as const, patternOffset: 0, shift: 0 },
+      { direction: 'weft' as const, position: 'above' as const, patternOffset: 0, shift: -8 },
+      { direction: 'weft' as const, position: 'below' as const, patternOffset: 0, shift: 6 },
+      { direction: 'warp' as const, position: 'above' as const, patternOffset: 2, shift: 0 },
+      { direction: 'warp' as const, position: 'below' as const, patternOffset: 3, shift: 0 },
+      { direction: 'weft' as const, position: 'center' as const, patternOffset: 2, shift: 0 },
+    ],
+  },
+  patterns: {
+    order: ['rings', 'greekKey', 'octagons', 'rectangles'] as const,
+    rings: {
+      ringRadius: 24, // Radius in inches
+      ringColor: '#415463', // Teal
+      borderColor: '#dec573', // Grey
+      backgroundColor: '#acaba7', // Light purple-blue
+      seedBase: 456, // Base seed for pattern variation
+    },
+    greekKey: {
+      keySize: 32, // Size of each key unit in inches
+      patternColor: '#5a5a5a', // Grey
+      backgroundColor: '#e8dcc8', // Warm beige
+      seedBase: 234,
+    },
+    rectangles: {
+      colors: ['#8a8a8a', '#6a6a6a', '#4a4a4a'], // Greyscale colors
+      accentColor: '#415463', // Teal
+      backgroundColor: '#a8c0d0', // Muted light blue
+      seedBase: 5,
+    },
+    octagons: {
+      octagonSize: 16, // Size in inches
+      octagonColor: '#dec573', // Muted gold
+      gridColor: '#5a5a5a', // Grey
+      backgroundColor: '#162745', // Teal
+      seedBase: 789,
+    },
+  },
+  topography: {
+    sampleRate: 0.0625, // Sample size as fraction of spacing (1/16)
+    scaleMultiplier: 1.5, // Height map scale as multiple of spacing
   },
 } as const;
 
@@ -302,7 +350,7 @@ const TarpCC22026: React.FC = () => {
     width: number,
     height: number,
     angle: number, // Rotation angle of the pattern in degrees
-    colors: string[], // Array of colors to use
+    colors: readonly string[], // Array of colors to use
     accentColor: string, // Accent color to add variety
     backgroundColor: string,
     seed: number = 42 // Seed for reproducible randomness
@@ -511,7 +559,7 @@ const TarpCC22026: React.FC = () => {
     spacing: number,
     alphaMultiplier: number = 1.0 // Multiplier for overlay opacity (default full effect)
   ) => {
-    const sampleSize = spacing * 0.0625; // Very high sample rate (1/16th of spacing)
+    const sampleSize = spacing * CONFIG.topography.sampleRate;
 
     // Pre-calculate all height map values and cache them
     // This avoids recreating the random generator and recalculating sin/cos for each pixel
@@ -524,7 +572,7 @@ const TarpCC22026: React.FC = () => {
       for (let col = 0; col < cols; col++) {
         const x = col * sampleSize + sampleSize / 2;
         const y = row * sampleSize + sampleSize / 2;
-        heightCache[row][col] = getHeightMapValue(x, y, seed, spacing * 1.5);
+        heightCache[row][col] = getHeightMapValue(x, y, seed, spacing * CONFIG.topography.scaleMultiplier);
       }
     }
 
@@ -593,29 +641,46 @@ const TarpCC22026: React.FC = () => {
     // Create seeded random for reproducible effects
     const random = createSeededRandom(seed);
 
-    // LAYER 1: Draw grid underlay (drawn first, stays underneath)
-    ctx.strokeStyle = gridColor;
-    ctx.lineWidth = octagonSizePx * 0.04;
+    // LAYER 2: Draw connecting lines between octagons
+    ctx.strokeStyle = octagonColor;
+    ctx.lineWidth = octagonSizePx * 0.08;
 
-    // Draw vertical grid lines
-    for (let col = 0; col < numCols; col++) {
-      const gridX = col * spacing - spacing / 2;
-      ctx.beginPath();
-      ctx.moveTo(gridX, -spacing);
-      ctx.lineTo(gridX, height + spacing);
-      ctx.stroke();
+    // Draw horizontal connecting lines (octagon to octagon to the right)
+    for (let row = -1; row < numRows; row++) {
+      for (let col = -1; col < numCols - 1; col++) {
+        const centerX = col * spacing;
+        const centerY = row * spacing;
+        const nextCenterX = (col + 1) * spacing;
+
+        const size = octagonSizePx / 2;
+        const longSide = size * 0.25;
+
+        // Line from right edge of current octagon to left edge of next octagon
+        ctx.beginPath();
+        ctx.moveTo(centerX + size, centerY);
+        ctx.lineTo(nextCenterX - size, centerY);
+        ctx.stroke();
+      }
     }
 
-    // Draw horizontal grid lines
-    for (let row = 0; row < numRows; row++) {
-      const gridY = row * spacing - spacing / 2;
-      ctx.beginPath();
-      ctx.moveTo(-spacing, gridY);
-      ctx.lineTo(width + spacing, gridY);
-      ctx.stroke();
+    // Draw vertical connecting lines (octagon to octagon below)
+    for (let row = -1; row < numRows - 1; row++) {
+      for (let col = -1; col < numCols; col++) {
+        const centerX = col * spacing;
+        const centerY = row * spacing;
+        const nextCenterY = (row + 1) * spacing;
+
+        const size = octagonSizePx / 2;
+
+        // Line from bottom edge of current octagon to top edge of next octagon
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY + size);
+        ctx.lineTo(centerX, nextCenterY - size);
+        ctx.stroke();
+      }
     }
 
-    // LAYER 2: Draw octagons at full opacity
+    // LAYER 3: Draw octagons at full opacity
     ctx.strokeStyle = octagonColor;
     ctx.lineWidth = octagonSizePx * 0.08;
 
@@ -649,38 +714,13 @@ const TarpCC22026: React.FC = () => {
         // Top-left corner (back to start)
         ctx.closePath();
         ctx.stroke();
-
-        // Draw connecting lines to neighbors
-        // (only draw to right and bottom to avoid duplicates)
-
-        // Connect to south neighbor (two vertical lines from bottom edge)
-        ctx.beginPath();
-        ctx.moveTo(centerX - longSide, centerY + size);
-        ctx.lineTo(centerX - longSide, centerY + size + (spacing - octagonSizePx));
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(centerX + longSide, centerY + size);
-        ctx.lineTo(centerX + longSide, centerY + size + (spacing - octagonSizePx));
-        ctx.stroke();
-
-        // Connect to east neighbor (two horizontal lines from right edge)
-        ctx.beginPath();
-        ctx.moveTo(centerX + size, centerY - longSide);
-        ctx.lineTo(centerX + size + (spacing - octagonSizePx), centerY - longSide);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(centerX + size, centerY + longSide);
-        ctx.lineTo(centerX + size + (spacing - octagonSizePx), centerY + longSide);
-        ctx.stroke();
       }
     }
 
-    // LAYER 2.5: Draw topographical opacity overlay
+    // LAYER 4: Draw topographical opacity overlay
     drawTopographicalOverlay(ctx, width, height, backgroundColor, seed, spacing);
 
-    // LAYER 3: Add texture overlay (grain/noise) on top of everything
+    // LAYER 5: Add texture overlay (grain/noise) on top of everything
     const grainDensity = 0.15; // Percentage of pixels to add grain to
     const grainSize = Math.max(1, SCALE * 0.3); // Size of grain particles
     const numGrainParticles = Math.floor((width * height * grainDensity) / (grainSize * grainSize));
@@ -700,8 +740,8 @@ const TarpCC22026: React.FC = () => {
     ctx.restore();
   };
 
-  // Helper function to draw pattern ribbons at a given angle
-  const drawPatternRibbons = (
+  // Helper function to draw a single pattern ribbon
+  const drawSingleRibbon = (
     ctx: CanvasRenderingContext2D,
     angleDeg: number,
     ribbonWidth: number,
@@ -709,7 +749,10 @@ const TarpCC22026: React.FC = () => {
     ribbonTotalLength: number,
     centerX: number,
     centerY: number,
-    ribbonSpacing: number
+    ribbonSpacing: number,
+    position: 'center' | 'above' | 'below',
+    patternOffset: number,
+    shift: number // Shift along ribbon direction in feet (positive = forward along angle direction)
   ) => {
     const angleRad = (angleDeg * Math.PI) / 180;
     const halfLength = ribbonTotalLength / 2;
@@ -728,62 +771,80 @@ const TarpCC22026: React.FC = () => {
     //   (centerlineStartX + (i+0.5)*segLen*cos, centerlineStartY + (i+0.5)*segLen*sin)
     //
     // Solving for startX and startY:
-    const centerRibbonStartX = centerlineStartX + 0.5 * segmentLength * Math.cos(angleRad) - segmentLength / 2;
-    const centerRibbonStartY = centerlineStartY + 0.5 * segmentLength * Math.sin(angleRad) - ribbonWidth / 2;
+    const baseCenterRibbonStartX = centerlineStartX + 0.5 * segmentLength * Math.cos(angleRad) - segmentLength / 2;
+    const baseCenterRibbonStartY = centerlineStartY + 0.5 * segmentLength * Math.sin(angleRad) - ribbonWidth / 2;
 
-    // Create array of ribbon starting positions with pattern offsets
-    const ribbonOffsets = [
-      { startX: centerRibbonStartX, startY: centerRibbonStartY, patternOffset: 0 },
-      {
-        startX: centerRibbonStartX + Math.cos(perpAngleRad) * ribbonSpacing,
-        startY: centerRibbonStartY + Math.sin(perpAngleRad) * ribbonSpacing,
-        patternOffset: 1
-      },
-      {
-        startX: centerRibbonStartX - Math.cos(perpAngleRad) * ribbonSpacing,
-        startY: centerRibbonStartY - Math.sin(perpAngleRad) * ribbonSpacing,
-        patternOffset: 0
-      }
-    ];
+    // Calculate position offset based on ribbon position
+    let positionOffsetX = 0;
+    let positionOffsetY = 0;
 
-    const patterns = ['rings', 'greekKey', 'octagons', 'rectangles'];
+    if (position === 'above') {
+      positionOffsetX = Math.cos(perpAngleRad) * ribbonSpacing;
+      positionOffsetY = Math.sin(perpAngleRad) * ribbonSpacing;
+    } else if (position === 'below') {
+      positionOffsetX = -Math.cos(perpAngleRad) * ribbonSpacing;
+      positionOffsetY = -Math.sin(perpAngleRad) * ribbonSpacing;
+    }
+
+    // Apply directional shift (convert feet to pixels)
+    const shiftPx = shift * 12 * SCALE;
+    const shiftOffsetX = Math.cos(angleRad) * shiftPx;
+    const shiftOffsetY = Math.sin(angleRad) * shiftPx;
+
+    const ribbonStartX = baseCenterRibbonStartX + positionOffsetX + shiftOffsetX;
+    const ribbonStartY = baseCenterRibbonStartY + positionOffsetY + shiftOffsetY;
+
+    const patterns = CONFIG.patterns.order;
     const numSegments = Math.ceil(ribbonTotalLength / segmentLength);
 
-    for (const ribbonOffset of ribbonOffsets) {
-      for (let i = 0; i < numSegments; i++) {
-        const patternIndex = (i + ribbonOffset.patternOffset) % patterns.length;
-        const pattern = patterns[patternIndex];
+    // Draw pattern segments along this ribbon
+    for (let i = 0; i < numSegments; i++) {
+      const patternIndex = (i + patternOffset) % patterns.length;
+      const pattern = patterns[patternIndex];
 
-        const segmentDistance = i * segmentLength;
-        const segmentX = ribbonOffset.startX + Math.cos(angleRad) * segmentDistance;
-        const segmentY = ribbonOffset.startY + Math.sin(angleRad) * segmentDistance;
+      const segmentDistance = i * segmentLength;
+      const segmentX = ribbonStartX + Math.cos(angleRad) * segmentDistance;
+      const segmentY = ribbonStartY + Math.sin(angleRad) * segmentDistance;
 
-        switch (pattern) {
-          case 'rings':
-            drawInterlockingRings(
-              ctx, segmentX, segmentY, segmentLength, ribbonWidth, angleDeg,
-              '#386374', '#a0a0a0', '#d5d5ee', 24, 456 + i
-            );
-            break;
-          case 'greekKey':
-            drawGreekKey(
-              ctx, segmentX, segmentY, segmentLength, ribbonWidth, angleDeg,
-              '#5a5a5a', '#e8dcc8', 32, 234 + i
-            );
-            break;
-          case 'rectangles':
-            drawRandomRectangles(
-              ctx, segmentX, segmentY, segmentLength, ribbonWidth, angleDeg,
-              ['#8a8a8a', '#6a6a6a', '#4a4a4a'], '#386374', '#a8c0d0', 5 + i
-            );
-            break;
-          case 'octagons':
-            drawOctagons(
-              ctx, segmentX, segmentY, segmentLength, ribbonWidth, angleDeg,
-              '#b8a070', '#5a5a5a', '#386374', 16, 789 + i
-            );
-            break;
-        }
+      switch (pattern) {
+        case 'rings':
+          drawInterlockingRings(
+            ctx, segmentX, segmentY, segmentLength, ribbonWidth, angleDeg,
+            CONFIG.patterns.rings.ringColor,
+            CONFIG.patterns.rings.borderColor,
+            CONFIG.patterns.rings.backgroundColor,
+            CONFIG.patterns.rings.ringRadius,
+            CONFIG.patterns.rings.seedBase + i
+          );
+          break;
+        case 'greekKey':
+          drawGreekKey(
+            ctx, segmentX, segmentY, segmentLength, ribbonWidth, angleDeg,
+            CONFIG.patterns.greekKey.patternColor,
+            CONFIG.patterns.greekKey.backgroundColor,
+            CONFIG.patterns.greekKey.keySize,
+            CONFIG.patterns.greekKey.seedBase + i
+          );
+          break;
+        case 'rectangles':
+          drawRandomRectangles(
+            ctx, segmentX, segmentY, segmentLength, ribbonWidth, angleDeg,
+            CONFIG.patterns.rectangles.colors,
+            CONFIG.patterns.rectangles.accentColor,
+            CONFIG.patterns.rectangles.backgroundColor,
+            CONFIG.patterns.rectangles.seedBase + i
+          );
+          break;
+        case 'octagons':
+          drawOctagons(
+            ctx, segmentX, segmentY, segmentLength, ribbonWidth, angleDeg,
+            CONFIG.patterns.octagons.octagonColor,
+            CONFIG.patterns.octagons.gridColor,
+            CONFIG.patterns.octagons.backgroundColor,
+            CONFIG.patterns.octagons.octagonSize,
+            CONFIG.patterns.octagons.seedBase + i
+          );
+          break;
       }
     }
   };
@@ -795,21 +856,7 @@ const TarpCC22026: React.FC = () => {
     const warpAngleRad = (CONFIG.weave.warpThreads.angle * Math.PI) / 180;
     const weftAngleRad = (CONFIG.weave.weftThreads.angle * Math.PI) / 180;
 
-    // Calculate grid spacing for deterministic positioning
-    // Base spacing on physical dimensions (inches) so it scales with SCALE constant
-
-    // Calculate tarp diagonal in inches
-    const tarpDiagonalInches = Math.sqrt(TARP_WIDTH_INCHES * TARP_WIDTH_INCHES + TARP_HEIGHT_INCHES * TARP_HEIGHT_INCHES);
-
-    // Space threads evenly across the diagonal (in inches), then convert to pixels
-    // Use 1.5x diagonal for extra coverage beyond edges
-    const warpSpacingInches = (tarpDiagonalInches * 1.5) / CONFIG.weave.warpThreads.count;
-    const weftSpacingInches = (tarpDiagonalInches * 1.5) / CONFIG.weave.weftThreads.count;
-
-    const warpSpacing = warpSpacingInches * SCALE;
-    const weftSpacing = weftSpacingInches * SCALE;
-
-    // Generate warp thread positions (angle: 30°)
+    // Generate warp thread positions
     // Use seeded random to position thread centers across the entire canvas
     const warpThreads: Array<{ x: number; y: number; length: number; index: number }> = [];
 
@@ -826,7 +873,7 @@ const TarpCC22026: React.FC = () => {
       warpThreads.push({ x, y, length, index: i });
     }
 
-    // Generate weft thread positions (angle: 150°)
+    // Generate weft thread positions
     // Use seeded random to position thread centers across the entire canvas
     const weftThreads: Array<{ x: number; y: number; length: number; index: number }> = [];
 
@@ -890,38 +937,35 @@ const TarpCC22026: React.FC = () => {
     // Draw woven thread texture on top
     drawWeave(ctx, width, height);
 
-    // Setup ribbon parameters
-    const ribbonWidth = 6 * 12 * SCALE; // 6 feet = 72 inches (perpendicular to ribbon)
-    const segmentLength = 12 * 12 * SCALE; // 12 feet = 144 inches (along ribbon direction)
+    // Setup ribbon parameters from config
+    const ribbonWidth = CONFIG.ribbons.width * 12 * SCALE; // Convert feet to inches, then to pixels
+    const segmentLength = CONFIG.ribbons.segmentLength * 12 * SCALE; // Convert feet to inches, then to pixels
     const tarpDiagonal = Math.sqrt(width * width + height * height);
-    const ribbonTotalLength = tarpDiagonal * 1.5; // Extra length to ensure full coverage
-    const ribbonSpacing = ribbonWidth * 3; // Space ribbons apart (3x ribbon width)
+    const ribbonTotalLength = tarpDiagonal * CONFIG.ribbons.lengthMultiplier;
+    const ribbonSpacing = ribbonWidth * CONFIG.ribbons.spacingMultiplier;
     const centerX = width / 2;
     const centerY = height / 2;
 
-    // Draw pattern ribbons at warp angle (33.69° - lower-left to upper-right)
-    drawPatternRibbons(
-      ctx,
-      CONFIG.weave.warpThreads.angle,
-      ribbonWidth,
-      segmentLength,
-      ribbonTotalLength,
-      centerX,
-      centerY,
-      ribbonSpacing
-    );
+    // Draw pattern ribbons layer by layer (bottom to top)
+    for (const layer of CONFIG.ribbons.layers) {
+      const angle = layer.direction === 'warp'
+        ? CONFIG.weave.warpThreads.angle
+        : CONFIG.weave.weftThreads.angle;
 
-    // Draw pattern ribbons at weft angle (146.31° - upper-left to lower-right)
-    drawPatternRibbons(
-      ctx,
-      CONFIG.weave.weftThreads.angle,
-      ribbonWidth,
-      segmentLength,
-      ribbonTotalLength,
-      centerX,
-      centerY,
-      ribbonSpacing
-    );
+      drawSingleRibbon(
+        ctx,
+        angle,
+        ribbonWidth,
+        segmentLength,
+        ribbonTotalLength,
+        centerX,
+        centerY,
+        ribbonSpacing,
+        layer.position,
+        layer.patternOffset,
+        layer.shift
+      );
+    }
 
     // Cleanup function to clear canvas on unmount
     return () => {

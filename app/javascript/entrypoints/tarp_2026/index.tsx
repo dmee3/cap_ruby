@@ -64,7 +64,7 @@ const CONFIG = {
   },
   // Colors
   colors: {
-    background: '#0a1f35', // Dark blue-gray for edges (brightened)
+    background: '#08263d', // Dark blue-gray for edges (brightened)
     teal: '#02aaa2', // Bright teal for center wave
     blue: '#007a6e', // Dark teal for other waves (brightened)
     outsideRippleCenterRing: '#85e600', // Chartreuse green for the outside ripple center ring
@@ -75,18 +75,6 @@ const CONFIG = {
 
 const TarpCanvas2026: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  // Helper function to convert hex color to rgba
-  const hexToRgba = (hex: string, alpha: number): string => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    if (result) {
-      const r = parseInt(result[1], 16);
-      const g = parseInt(result[2], 16);
-      const b = parseInt(result[3], 16);
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    }
-    return hex; // Fallback to original color
-  };
 
   // Function to draw a single wave of ripples with a specific color
   const drawRippleWaveWithColor = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number, color: string, opacityRange?: { min: number; max: number }, isCenterWave?: boolean) => {
@@ -649,10 +637,10 @@ const TarpCanvas2026: React.FC = () => {
 
       if (distanceFromMiddle === 1) {
         // Waves adjacent to center: dark teal with medium opacity
-        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, { min: 0.45, max: 0.55 }, false);
+        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, { min: 0.5, max: 0.6 }, false);
       } else {
         ;
-        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, { min: 0.25, max: 0.35 }, false);
+        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, { min: 0.3, max: 0.4 }, false);
       }
 
       // Restore the context state
