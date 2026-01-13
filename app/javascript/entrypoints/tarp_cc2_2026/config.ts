@@ -9,7 +9,7 @@ export const TARP_HEIGHT_INCHES = TARP_HEIGHT_FEET * 12; // 504 inches
 // Scale factor: pixels per inch
 // SCALE = 1: 1,008 × 504 px (1 pixel per inch, print-ready)
 // SCALE = 10: 10,080 × 5,040 px (10 pixels per inch, high-res)
-export const SCALE = 4;
+export const SCALE = 10;
 
 // Configuration constants
 export const CONFIG = {
@@ -50,9 +50,9 @@ export const CONFIG = {
       {
         direction: 'warp' as const,
         position: 'center' as const,
-        shift: 0,
+        shift: 2.02,
         segmentArray: [
-          { pattern: 'rings' as const, length: 20, colors: { background: '#3b4b65', primary: '#dec573', accent: '#dec573' } },
+          { pattern: 'rings' as const, length: 15.96, colors: { background: '#3b4b65', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'greekKey' as const, length: 20, colors: { background: '#3f3e3a', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'artDeco' as const, length: 20, colors: { background: '#3f3e3a', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'curvedTowers' as const, length: 20, colors: { background: '#2a3b4c', primary: '#dec573', accent: '#dec573' } },
@@ -64,12 +64,10 @@ export const CONFIG = {
       {
         direction: 'weft' as const,
         position: 'above' as const,
-        shift: -8,
+        shift: 15.52,
         segmentArray: [
-          { pattern: 'rings' as const, length: 20, colors: { background: '#3b4b65', primary: '#dec573', accent: '#dec573' } },
-          { pattern: 'greekKey' as const, length: 20, colors: { background: '#3f3e3a', primary: '#dec573', accent: '#dec573' } },
+          { pattern: 'octagons' as const, length: 12.96, colors: { background: '#162745', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'curvedTowers' as const, length: 20, colors: { background: '#2a3b4c', primary: '#dec573', accent: '#dec573' } },
-          { pattern: 'octagons' as const, length: 20, colors: { background: '#162745', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'rings' as const, length: 20, colors: { background: '#3b4b65', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'greekKey' as const, length: 20, colors: { background: '#3f3e3a', primary: '#dec573', accent: '#dec573' } },
         ],
@@ -78,39 +76,33 @@ export const CONFIG = {
       {
         direction: 'weft' as const,
         position: 'below' as const,
-        shift: 8,
+        shift: -8.48,
         segmentArray: [
-          { pattern: 'rings' as const, length: 20, colors: { background: '#3b4b65', primary: '#dec573', accent: '#dec573' } },
+          { pattern: 'rings' as const, length: 12.96, colors: { background: '#3b4b65', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'greekKey' as const, length: 20, colors: { background: '#3f3e3a', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'octagons' as const, length: 20, colors: { background: '#162745', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'curvedTowers' as const, length: 20, colors: { background: '#2a3b4c', primary: '#dec573', accent: '#dec573' } },
-          { pattern: 'rings' as const, length: 20, colors: { background: '#3b4b65', primary: '#dec573', accent: '#dec573' } },
-          { pattern: 'greekKey' as const, length: 20, colors: { background: '#3f3e3a', primary: '#dec573', accent: '#dec573' } },
         ],
       },
       // Below warp ribbon (how?)
       {
         direction: 'warp' as const,
         position: 'above' as const,
-        shift: 8,
+        shift: -8.48,
         segmentArray: [
-          { pattern: 'curvedTowers' as const, length: 20, colors: { background: '#2a3b4c', primary: '#dec573', accent: '#dec573' } },
+          { pattern: 'curvedTowers' as const, length: 12.96, colors: { background: '#2a3b4c', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'octagons' as const, length: 20, colors: { background: '#162745', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'artDeco' as const, length: 20, colors: { background: '#3f3e3a', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'rings' as const, length: 20, colors: { background: '#3b4b65', primary: '#dec573', accent: '#dec573' } },
-          { pattern: 'greekKey' as const, length: 20, colors: { background: '#3f3e3a', primary: '#dec573', accent: '#dec573' } },
-          { pattern: 'octagons' as const, length: 20, colors: { background: '#162745', primary: '#dec573', accent: '#dec573' } },
         ],
       },
       // Above warp ribbon (how?)
       {
         direction: 'warp' as const,
         position: 'below' as const,
-        shift: -8,
+        shift: 15.52,
         segmentArray: [
-          { pattern: 'rings' as const, length: 20, colors: { background: '#3b4b65', primary: '#dec573', accent: '#dec573' } },
-          { pattern: 'curvedTowers' as const, length: 20, colors: { background: '#2a3b4c', primary: '#dec573', accent: '#dec573' } },
-          { pattern: 'rings' as const, length: 20, colors: { background: '#3b4b65', primary: '#dec573', accent: '#dec573' } },
+          { pattern: 'rings' as const, length: 12.96, colors: { background: '#3b4b65', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'greekKey' as const, length: 20, colors: { background: '#3f3e3a', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'octagons' as const, length: 20, colors: { background: '#162745', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'artDeco' as const, length: 20, colors: { background: '#3f3e3a', primary: '#dec573', accent: '#dec573' } },
@@ -120,9 +112,9 @@ export const CONFIG = {
       {
         direction: 'weft' as const,
         position: 'center' as const,
-        shift: 0,
+        shift: 2.02,
         segmentArray: [
-          { pattern: 'octagons' as const, length: 20, colors: { background: '#162745', primary: '#dec573', accent: '#dec573' } },
+          { pattern: 'octagons' as const, length: 15.96, colors: { background: '#162745', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'artDeco' as const, length: 20, colors: { background: '#3f3e3a', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'rings' as const, length: 20, colors: { background: '#3b4b65', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'greekKey' as const, length: 20, colors: { background: '#3f3e3a', primary: '#dec573', accent: '#dec573' } },

@@ -111,6 +111,7 @@ Rails.application.routes.draw do
   get 'tarp-canvas-2026', to: 'tools#tarp_canvas_2026'
   get 'tarp-cc2-2026', to: 'tools#tarp_cc2_2026'
   get 'tarp-grid-tool', to: 'tools#tarp_grid_tool'
+  get 'jersey-2026', to: 'tools#jersey_2026'
 
   resources :calendars, only: %i[index new create]
   get '/calendars/members', to: 'calendars#members'

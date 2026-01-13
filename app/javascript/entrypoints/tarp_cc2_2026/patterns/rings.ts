@@ -25,7 +25,7 @@ export const drawInterlockingRings = (
   );
 
   // Adjust inset to center pattern vertically
-  insetAmount += ringRadius * SCALE * 0.3;
+  insetAmount += ringRadius * SCALE * 0.95;
 
   const ringRadiusPx = ringRadius * SCALE;
   const spacing = ringRadiusPx * 1.6; // Distance between ring centers
@@ -36,7 +36,7 @@ export const drawInterlockingRings = (
   for (let row = -1; row < numRows; row++) {
     for (let col = -1; col < numCols; col++) {
       const centerX = col * spacing;
-      const centerY = insetAmount + row * spacing - ringRadius * 1.5;
+      const centerY = insetAmount + row * spacing - ringRadius * SCALE;
 
       // Draw ring
       ctx.strokeStyle = ringColor;
