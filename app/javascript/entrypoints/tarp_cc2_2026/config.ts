@@ -2,9 +2,16 @@
 export const TARP_WIDTH_FEET = 84;
 export const TARP_HEIGHT_FEET = 42;
 
+// Canvas overhang (to show ribbon extensions beyond tarp edges)
+export const CANVAS_OVERHANG_FEET = 20; // 20 feet on each side
+
 // Convert to inches (base unit: 1 pixel = 1 inch at SCALE = 1)
 export const TARP_WIDTH_INCHES = TARP_WIDTH_FEET * 12;  // 1,008 inches
 export const TARP_HEIGHT_INCHES = TARP_HEIGHT_FEET * 12; // 504 inches
+
+// Canvas dimensions (tarp + overhang on all sides)
+export const CANVAS_WIDTH_INCHES = TARP_WIDTH_INCHES + (CANVAS_OVERHANG_FEET * 12 * 2);  // Tarp + 20ft each side
+export const CANVAS_HEIGHT_INCHES = TARP_HEIGHT_INCHES + (CANVAS_OVERHANG_FEET * 12 * 2); // Tarp + 20ft each side
 
 // Scale factor: pixels per inch
 // SCALE = 1: 1,008 × 504 px (1 pixel per inch, print-ready)
@@ -100,9 +107,9 @@ export const CONFIG = {
       {
         direction: 'warp' as const,
         position: 'below' as const,
-        shift: 15.52,
+        shift: 14.5, // Adjusted offset by half the reduction (0.5)
         segmentArray: [
-          { pattern: 'rings' as const, length: 12.96, colors: { background: '#3b4b65', primary: '#dec573', accent: '#dec573' } },
+          { pattern: 'rings' as const, length: 15, colors: { background: '#3b4b65', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'greekKey' as const, length: 20, colors: { background: '#3f3e3a', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'octagons' as const, length: 20, colors: { background: '#162745', primary: '#dec573', accent: '#dec573' } },
           { pattern: 'artDeco' as const, length: 20, colors: { background: '#3f3e3a', primary: '#dec573', accent: '#dec573' } },
