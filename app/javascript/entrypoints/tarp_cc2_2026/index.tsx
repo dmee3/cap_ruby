@@ -92,7 +92,9 @@ const TarpCC22026: React.FC = () => {
     position: 'center' | 'above' | 'below',
     shift: number, // Shift along ribbon direction in feet
     layerIndex: number, // For unique seeding per ribbon
-    segmentArray: ReadonlyArray<{ length: number }> // To calculate total ribbon length
+    segmentArray: ReadonlyArray<{ length: number }>, // To calculate total ribbon length
+    canvasWidth: number,
+    canvasHeight: number
   ) => {
     const angleRad = (angleDeg * Math.PI) / 180;
     const perpAngleRad = angleRad + Math.PI / 2;
@@ -158,6 +160,15 @@ const TarpCC22026: React.FC = () => {
       threads.push({ x: threadX, y: threadY, length });
     }
 
+    // Apply clipping to tarp bounds (not including overhang)
+    ctx.save();
+    ctx.beginPath();
+    const overhangPx = CANVAS_OVERHANG_FEET * 12 * SCALE;
+    const tarpWidth = TARP_WIDTH_INCHES * SCALE;
+    const tarpHeight = TARP_HEIGHT_INCHES * SCALE;
+    ctx.rect(overhangPx, overhangPx, tarpWidth, tarpHeight);
+    ctx.clip();
+
     // Draw the guide threads
     ctx.fillStyle = CONFIG.colors.guideThreads;
     ctx.globalAlpha = CONFIG.weave.opacity;
@@ -171,6 +182,8 @@ const TarpCC22026: React.FC = () => {
 
     // Reset global alpha
     ctx.globalAlpha = 1.0;
+
+    ctx.restore();
   };
 
   // Helper function to create fraying clipping path
@@ -187,15 +200,15 @@ const TarpCC22026: React.FC = () => {
     const perpAngleRad = ribbonAngleRad + Math.PI / 2;
     const frayLengthPx = frayLengthFeet * 12 * SCALE;
 
-    // Create seeded random for this ribbon's fraying
-    const random = createSeededRandom(CONFIG.weave.seed + ribbonIndex * 5000);
+    // Create seeded random for this ribbon's fraying but use a consistent seed value
+    const random = createSeededRandom(43);
 
     // Frayed threads should align with the ribbon's own angle (warp or weft)
     // The ribbon angle IS the thread angle
     const threadAngleRad = ribbonAngleRad;
 
-    // Number of frayed threads (reduced to 2/3 of original 30)
-    const numThreads = 20;
+    // Number of frayed threads
+    const numThreads = 40;
 
     // Generate thread positions
     const threads: Array<{ startX: number; startY: number; endX: number; endY: number; length: number; angle: number }> = [];
@@ -247,13 +260,12 @@ const TarpCC22026: React.FC = () => {
 
     // Apply clipping if requested
     if (applyClipping && segmentLengthPx) {
+      // Use destination-out compositing to erase the triangular fraying sections
+      // This ensures overlapping triangles always erase, never "un-erase"
       ctx.save();
+      ctx.globalCompositeOperation = 'destination-out';
 
-      // Create the clipping region in local coordinate system (no rotation)
-      ctx.beginPath();
-      ctx.rect(ribbonStartX, ribbonStartY - ribbonWidth / 2, segmentLengthPx, ribbonWidth);
-
-      // Cut out thread shapes directly in world coordinates
+      // Draw each triangle as a filled shape with curved S-shaped sides to erase it
       for (const thread of threads) {
         const threadWidth = 3 * SCALE;
         const dx = thread.endX - thread.startX;
@@ -264,72 +276,182 @@ const TarpCC22026: React.FC = () => {
         ctx.save();
         ctx.translate(thread.startX, thread.startY);
         ctx.rotate(angle);
-        ctx.moveTo(-threadWidth / 2, -threadWidth / 2);
-        ctx.lineTo(-threadWidth / 2, threadWidth / 2);
-        ctx.lineTo(length, 0);
-        ctx.lineTo(-threadWidth / 2, -threadWidth / 2);
+
+        // Calculate S-curve control points for thread-like appearance
+        // Both curves bow outward (away from centerline) to avoid intersection
+        const baseWidth = threadWidth * 2 / 3;
+        const curveAmount = length * 0.15; // Curve control point offset (15% of length)
+
+        ctx.beginPath();
+
+        // Start at top-left corner of base
+        ctx.moveTo(-baseWidth, -baseWidth);
+
+        // Top edge (straight line across base)
+        ctx.lineTo(-baseWidth, baseWidth);
+
+        // Bottom edge (S-curve from bottom-left base to point)
+        // For a true S-curve: first control point pulls one way, second pulls opposite way
+        const cp1X = length * 0.33; // First control point at 1/3
+        const cp1Y = baseWidth + curveAmount; // Pull outward (down)
+        const cp2X = length * 0.67; // Second control point at 2/3
+        const cp2Y = baseWidth - curveAmount; // Pull inward (up) - creates the S
+        ctx.bezierCurveTo(cp1X, cp1Y, cp2X, cp2Y, length, 0);
+
+        // Top edge (S-curve from point back to top-left base)
+        // Mirror: first control point pulls one way, second pulls opposite
+        const cp3X = length * 0.67; // First control point at 2/3 (going backward)
+        const cp3Y = baseWidth - curveAmount; // Pull inward (down) - creates the S
+        const cp4X = length * 0.33; // Second control point at 1/3
+        const cp4Y = -baseWidth + curveAmount; // Pull outward (up)
+        ctx.bezierCurveTo(cp3X, cp3Y, cp4X, cp4Y, -baseWidth, -baseWidth);
+
+        ctx.closePath();
+        ctx.fill();
+
         ctx.restore();
       }
 
-      ctx.clip('evenodd');
-    }
-
-    for (const thread of threads) {
-      // Thinner threads
-      const threadWidth = (0.5 + random() * 1) * SCALE; // 0.5-1.5 pixels at SCALE=1
-
-      ctx.lineWidth = threadWidth;
-      ctx.strokeStyle = '#dec573'; // Gold with 100% opacity
-      ctx.lineCap = 'round';
-
-      ctx.beginPath();
-      ctx.moveTo(thread.startX, thread.startY);
-      ctx.lineTo(thread.endX, thread.endY);
-      ctx.stroke();
-    }
-
-    if (applyClipping) {
       ctx.restore();
     }
   };
 
-  // Helper function to draw a single pattern ribbon
+  // Render a ribbon to an off-screen canvas and return it
+  const renderRibbonToCanvas = (
+    layerIndex: number
+  ): HTMLCanvasElement => {
+    const layer = CONFIG.ribbons.layers[layerIndex];
+    const ribbonWidth = CONFIG.ribbons.width * 12 * SCALE;
+    const ribbonTotalLength = layer.segmentArray.reduce((sum, seg) => sum + seg.length * 12 * SCALE, 0);
+
+    // Create off-screen canvas
+    const canvas = document.createElement('canvas');
+
+    // Check canvas size limits (most browsers max around 32,767 pixels per dimension)
+    const maxCanvasSize = 32767;
+    if (ribbonTotalLength > maxCanvasSize || ribbonWidth > maxCanvasSize) {
+      console.warn(`Ribbon ${layerIndex} exceeds canvas limits: ${ribbonTotalLength} × ${ribbonWidth}. Max: ${maxCanvasSize}`);
+      console.warn(`Ribbon will be rendered in display code using split method`);
+      // Return a marker canvas - the split rendering will handle display
+      canvas.width = 1;
+      canvas.height = 1;
+      return canvas;
+    }
+
+    canvas.width = ribbonTotalLength;
+    canvas.height = ribbonWidth;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      console.error('Failed to get canvas context');
+      return canvas;
+    }
+
+    // Draw pattern segments horizontally
+    const insetAmount = 5 * SCALE;
+    let cumulativeX = 0;
+
+    for (let i = 0; i < layer.segmentArray.length; i++) {
+      const segment = layer.segmentArray[i];
+      const segmentLengthPx = segment.length * 12 * SCALE;
+
+      const segmentX = cumulativeX;
+      const segmentY = 0;
+
+      const { background, primary, accent } = segment.colors;
+
+      switch (segment.pattern) {
+        case 'rings':
+          drawInterlockingRings(
+            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, 0,
+            typeof primary === 'string' ? primary : primary[0],
+            background,
+            CONFIG.patterns.rings.ringRadius,
+            insetAmount
+          );
+          break;
+        case 'greekKey':
+          drawGreekKey(
+            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, 0,
+            typeof primary === 'string' ? primary : primary[0],
+            background,
+            CONFIG.patterns.greekKey.keySize,
+            insetAmount
+          );
+          break;
+        case 'octagons':
+          drawOctagons(
+            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, 0,
+            typeof primary === 'string' ? primary : primary[0],
+            background,
+            CONFIG.patterns.octagons.octagonSize,
+            insetAmount
+          );
+          break;
+        case 'artDeco':
+          drawArtDecoPattern(
+            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, 0,
+            typeof primary === 'string' ? primary : primary[0],
+            background,
+            CONFIG.patterns.artDeco.gridSize,
+            insetAmount
+          );
+          break;
+        case 'curvedTowers':
+          drawCurvedTowers(
+            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, 0,
+            typeof primary === 'string' ? primary : primary[0],
+            background,
+            CONFIG.patterns.curvedTowers.tileSize,
+            insetAmount
+          );
+          break;
+      }
+
+      drawGoldBorderLines(ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, 0);
+
+      // Apply fraying effect to first segment using destination-out compositing
+      if (i === 0) {
+        drawFrayingEffect(
+          ctx,
+          0,
+          ribbonWidth / 2,
+          ribbonWidth,
+          0,
+          5,
+          layerIndex,
+          true,
+          segmentLengthPx
+        );
+      }
+
+      cumulativeX += segmentLengthPx;
+    }
+
+    return canvas;
+  };
+
+  // Draw a pre-rendered ribbon canvas onto the main canvas at the correct position and angle
   const drawSingleRibbon = (
     ctx: CanvasRenderingContext2D,
+    ribbonCanvas: HTMLCanvasElement,
     angleDeg: number,
     ribbonWidth: number,
     centerX: number,
     centerY: number,
     ribbonSpacing: number,
     position: 'center' | 'above' | 'below',
-    segmentArray: ReadonlyArray<{
-      pattern: 'rings' | 'greekKey' | 'octagons' | 'artDeco' | 'curvedTowers';
-      length: number;
-      colors: {
-        background: string;
-        primary: string | readonly string[];
-        accent: string;
-      };
-    }>,
-    shift: number, // Shift along ribbon direction in feet (positive = forward along angle direction)
-    ribbonIndex: number = 0 // Index for seeded randomness
+    shift: number,
+    ribbonTotalLength: number
   ) => {
     const angleRad = (angleDeg * Math.PI) / 180;
     const perpAngleRad = angleRad + Math.PI / 2;
 
-    // Calculate total ribbon length from segment array (convert feet to pixels)
-    const ribbonTotalLength = segmentArray.reduce((sum, seg) => sum + seg.length * 12 * SCALE, 0);
     const halfLength = ribbonTotalLength / 2;
 
-    // Calculate where the centerline should start (beginning of the ribbon)
+    // Calculate where the centerline should start
     const centerlineStartX = centerX - Math.cos(angleRad) * halfLength;
     const centerlineStartY = centerY - Math.sin(angleRad) * halfLength;
-
-    // The pattern drawing functions rotate around their center point, so we position
-    // each segment at its start point along the centerline. The perpendicular offset
-    // accounts for the ribbon width centering.
-    const baseRibbonStartX = centerlineStartX;
-    const baseRibbonStartY = centerlineStartY - ribbonWidth / 2;
 
     // Calculate position offset based on ribbon position
     let positionOffsetX = 0;
@@ -343,166 +465,31 @@ const TarpCC22026: React.FC = () => {
       positionOffsetY = -Math.sin(perpAngleRad) * ribbonSpacing;
     }
 
-    // Apply directional shift (convert feet to pixels)
+    // Apply directional shift
     const shiftPx = shift * 12 * SCALE;
     const shiftOffsetX = Math.cos(angleRad) * shiftPx;
     const shiftOffsetY = Math.sin(angleRad) * shiftPx;
 
-    const ribbonStartX = baseRibbonStartX + positionOffsetX + shiftOffsetX;
-    const ribbonStartY = baseRibbonStartY + positionOffsetY + shiftOffsetY;
+    const ribbonStartX = centerlineStartX + positionOffsetX + shiftOffsetX;
+    const ribbonStartY = centerlineStartY + positionOffsetY + shiftOffsetY;
 
-    // Apply inset to pattern drawing area (5 inches on each side)
-    const insetAmount = 5 * SCALE; // 5 inches per side
-    const insetOffsetX = Math.cos(perpAngleRad) * insetAmount; // Offset to center pattern
-    const insetOffsetY = Math.sin(perpAngleRad) * insetAmount;
-
-    // Draw pattern segments along this ribbon
-    let cumulativeDistance = 0;
-    for (let i = 0; i < segmentArray.length; i++) {
-      const segment = segmentArray[i];
-      const segmentLengthPx = segment.length * 12 * SCALE; // Convert feet to pixels
-
-      // Calculate segment center position along the ribbon centerline
-      // Each segment starts at cumulativeDistance and extends segmentLengthPx
-      const segmentCenterDistance = cumulativeDistance + segmentLengthPx / 2;
-
-      // Position the segment (pattern functions translate to their own center)
-      const segmentX = ribbonStartX + Math.cos(angleRad) * segmentCenterDistance - segmentLengthPx / 2 + insetOffsetX;
-      const segmentY = ribbonStartY + Math.sin(angleRad) * segmentCenterDistance + insetOffsetY;
-
-      // Apply fraying clip path to first segment
-      if (i === 0) {
-        ctx.save();
-
-        // Create clipping path that excludes the frayed area
-        const frayLengthPx = 5 * 12 * SCALE; // 5 feet
-        const threads = createFrayingClipPath(ctx, ribbonStartX, ribbonStartY + ribbonWidth / 2, ribbonWidth, angleDeg, 5, ribbonIndex);
-
-        // Create a rotated rectangle for the segment (aligned with ribbon angle)
-        ctx.beginPath();
-        // First, establish the coordinate system for the segment
-        ctx.save();
-        ctx.translate(ribbonStartX, ribbonStartY + ribbonWidth / 2);
-        ctx.rotate(angleRad);
-
-        // Draw the outer rectangle
-        ctx.rect(0, -ribbonWidth / 2, segmentLengthPx, ribbonWidth);
-
-        // Cut out areas where threads are - but in the LOCAL coordinate system
-        for (const thread of threads) {
-          const threadWidth = 3 * SCALE; // Slightly wider clip than visual thread
-
-          // Transform thread positions to local coordinates
-          // Inverse transform: rotate back and translate back
-          const localStartX = (thread.startX - ribbonStartX) * Math.cos(-angleRad) - (thread.startY - (ribbonStartY + ribbonWidth / 2)) * Math.sin(-angleRad);
-          const localStartY = (thread.startX - ribbonStartX) * Math.sin(-angleRad) + (thread.startY - (ribbonStartY + ribbonWidth / 2)) * Math.cos(-angleRad);
-          const localEndX = (thread.endX - ribbonStartX) * Math.cos(-angleRad) - (thread.endY - (ribbonStartY + ribbonWidth / 2)) * Math.sin(-angleRad);
-          const localEndY = (thread.endX - ribbonStartX) * Math.sin(-angleRad) + (thread.endY - (ribbonStartY + ribbonWidth / 2)) * Math.cos(-angleRad);
-
-          const dx = localEndX - localStartX;
-          const dy = localEndY - localStartY;
-          const length = Math.sqrt(dx * dx + dy * dy);
-          const angle = Math.atan2(dy, dx);
-
-          // Create a tapered shape for the thread in local coordinates
-          ctx.save();
-          ctx.translate(localStartX, localStartY);
-          ctx.rotate(angle);
-
-          // Draw a triangle/tapered shape
-          ctx.moveTo(-threadWidth / 2, -threadWidth / 2); // Top left
-          ctx.lineTo(-threadWidth / 2, threadWidth / 2);  // Bottom left
-          ctx.lineTo(length, 0);                       // Point at end
-          ctx.lineTo(-threadWidth / 2, -threadWidth / 2); // Close path
-
-          ctx.restore();
-        }
-
-        ctx.restore();
-
-        ctx.clip();
-      }
-
-      // Extract colors from segment (handle both string and array for primary)
-      const { background, primary, accent } = segment.colors;
-
-      switch (segment.pattern) {
-        case 'rings':
-          drawInterlockingRings(
-            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, angleDeg,
-            typeof primary === 'string' ? primary : primary[0], // ringColor
-            background, // backgroundColor
-            CONFIG.patterns.rings.ringRadius,
-            insetAmount
-          );
-          break;
-        case 'greekKey':
-          drawGreekKey(
-            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, angleDeg,
-            typeof primary === 'string' ? primary : primary[0], // patternColor
-            background, // backgroundColor
-            CONFIG.patterns.greekKey.keySize,
-            insetAmount
-          );
-          break;
-        case 'octagons':
-          drawOctagons(
-            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, angleDeg,
-            typeof primary === 'string' ? primary : primary[0], // octagonColor
-            background, // backgroundColor
-            CONFIG.patterns.octagons.octagonSize,
-            insetAmount
-          );
-          break;
-        case 'artDeco':
-          drawArtDecoPattern(
-            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, angleDeg,
-            typeof primary === 'string' ? primary : primary[0], // lineColor
-            background, // backgroundColor
-            CONFIG.patterns.artDeco.gridSize,
-            insetAmount
-          );
-          break;
-        case 'curvedTowers':
-          drawCurvedTowers(
-            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, angleDeg,
-            typeof primary === 'string' ? primary : primary[0], // lineColor
-            background, // backgroundColor
-            CONFIG.patterns.curvedTowers.tileSize,
-            insetAmount
-          );
-          break;
-      }
-
-      // Draw gold border lines (2" outer gutter, 1.5" gold line, 1.5" inner gutter)
-      drawGoldBorderLines(ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, angleDeg);
-
-      // Restore clipping for first segment
-      if (i === 0) {
-        ctx.restore();
-
-        // Now draw fraying effect on top with clipping
-        drawFrayingEffect(
-          ctx,
-          ribbonStartX,
-          ribbonStartY + ribbonWidth / 2, // Center vertically on the ribbon
-          ribbonWidth,
-          angleDeg,
-          5, // 5 feet of fraying
-          ribbonIndex,
-          true, // Apply clipping
-          segmentLengthPx
-        );
-      }
-
-      // Accumulate distance for next segment
-      cumulativeDistance += segmentLengthPx;
-    }
+    // Draw the pre-rendered ribbon canvas
+    // ribbonStartX, ribbonStartY is the starting point along the centerline
+    ctx.save();
+    ctx.translate(ribbonStartX, ribbonStartY);
+    ctx.rotate(angleRad);
+    ctx.drawImage(ribbonCanvas, 0, -ribbonWidth / 2);
+    ctx.restore();
   };
 
-  const drawRibbons = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+  const drawRibbons = (
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    ribbonCanvases: HTMLCanvasElement[]
+  ) => {
     // Setup ribbon parameters from config
-    const ribbonWidth = CONFIG.ribbons.width * 12 * SCALE; // Convert feet to inches, then to pixels
+    const ribbonWidth = CONFIG.ribbons.width * 12 * SCALE;
     const ribbonSpacing = ribbonWidth * CONFIG.ribbons.spacingMultiplier;
     // Center ribbons on the tarp area (not the full canvas)
     const overhangPx = CANVAS_OVERHANG_FEET * 12 * SCALE;
@@ -525,8 +512,10 @@ const TarpCC22026: React.FC = () => {
         ribbonSpacing,
         layer.position,
         layer.shift,
-        i, // Pass layer index for unique seeding
-        layer.segmentArray // Pass segment array to calculate ribbon length
+        i,
+        layer.segmentArray,
+        width,
+        height
       );
     }
 
@@ -537,17 +526,19 @@ const TarpCC22026: React.FC = () => {
         ? CONFIG.weave.warpThreads.angle
         : CONFIG.weave.weftThreads.angle;
 
+      const ribbonTotalLength = layer.segmentArray.reduce((sum, seg) => sum + seg.length * 12 * SCALE, 0);
+
       drawSingleRibbon(
         ctx,
+        ribbonCanvases[i],
         angle,
         ribbonWidth,
         centerX,
         centerY,
         ribbonSpacing,
         layer.position,
-        layer.segmentArray,
         layer.shift,
-        i // Pass ribbon index for seeded randomness
+        ribbonTotalLength
       );
     }
   };
@@ -564,6 +555,7 @@ const TarpCC22026: React.FC = () => {
     const angleRad = (angle * Math.PI) / 180;
     const perpAngleRad = angleRad + Math.PI / 2;
 
+    // Center is relative to tarp area (not canvas)
     const centerX = TARP_WIDTH_INCHES / 2;
     const centerY = TARP_HEIGHT_INCHES / 2;
 
@@ -591,13 +583,18 @@ const TarpCC22026: React.FC = () => {
     const ribbonTotalLength = layer.segmentArray.reduce((sum, seg) => sum + seg.length * 12, 0);
     const ribbonHalfLength = ribbonTotalLength / 2;
 
-    // Calculate distance to tarp edges in both directions
+    // Calculate start position of ribbon (left/beginning edge along centerline)
+    const ribbonStartX = ribbonCenterX - Math.cos(angleRad) * ribbonHalfLength;
+    const ribbonStartY = ribbonCenterY - Math.sin(angleRad) * ribbonHalfLength;
+
+    // Calculate end position of ribbon (right/end edge along centerline)
+    const ribbonEndX = ribbonCenterX + Math.cos(angleRad) * ribbonHalfLength;
+    const ribbonEndY = ribbonCenterY + Math.sin(angleRad) * ribbonHalfLength;
+
     // Direction vector
     const dx = Math.cos(angleRad);
     const dy = Math.sin(angleRad);
 
-    // Find intersection with tarp boundaries in negative direction (toward start)
-    let tStart = -ribbonHalfLength * 2; // Start well before
     const tarpBounds = {
       xMin: 0,
       xMax: TARP_WIDTH_INCHES,
@@ -605,48 +602,66 @@ const TarpCC22026: React.FC = () => {
       yMax: TARP_HEIGHT_INCHES
     };
 
-    // Find where ribbon exits tarp at the start (negative direction)
-    for (let t = -ribbonHalfLength; t <= 0; t += 1) {
-      const x = ribbonCenterX + dx * t;
-      const y = ribbonCenterY + dy * t;
+    // Find where ribbon enters tarp from the start
+    let distanceToTarpStart = 0;
+    for (let t = 0; t <= ribbonTotalLength; t += 0.5) {
+      const x = ribbonStartX + dx * t;
+      const y = ribbonStartY + dy * t;
 
       if (x >= tarpBounds.xMin && x <= tarpBounds.xMax &&
         y >= tarpBounds.yMin && y <= tarpBounds.yMax) {
-        tStart = t;
+        distanceToTarpStart = t;
         break;
       }
     }
 
-    // Find where ribbon exits tarp at the end (positive direction)
-    let tEnd = ribbonHalfLength * 2; // Start well after
-    for (let t = ribbonHalfLength; t >= 0; t -= 1) {
-      const x = ribbonCenterX + dx * t;
-      const y = ribbonCenterY + dy * t;
+    // Find where ribbon exits tarp from the end
+    let distanceToTarpEnd = ribbonTotalLength;
+    for (let t = ribbonTotalLength; t >= 0; t -= 0.5) {
+      const x = ribbonStartX + dx * t;
+      const y = ribbonStartY + dy * t;
 
       if (x >= tarpBounds.xMin && x <= tarpBounds.xMax &&
         y >= tarpBounds.yMin && y <= tarpBounds.yMax) {
-        tEnd = t;
+        distanceToTarpEnd = t;
         break;
       }
     }
 
-    const startOverhang = Math.abs(tStart) - ribbonHalfLength;
-    const endOverhang = tEnd - ribbonHalfLength;
+    const startOverhang = distanceToTarpStart;
+    const endOverhang = ribbonTotalLength - distanceToTarpEnd;
 
     const firstSegmentLength = layer.segmentArray[0].length * 12;
     const lastSegmentLength = layer.segmentArray[layer.segmentArray.length - 1].length * 12;
 
     return {
-      startOverhang: Math.abs(startOverhang),
-      endOverhang: Math.abs(endOverhang),
+      startOverhang,
+      endOverhang,
       firstSegmentLength,
       lastSegmentLength,
-      firstSegmentOnTarp: Math.max(0, firstSegmentLength - Math.abs(startOverhang)),
-      lastSegmentOnTarp: Math.max(0, lastSegmentLength - Math.abs(endOverhang))
+      firstSegmentOnTarp: Math.max(0, firstSegmentLength - startOverhang),
+      lastSegmentOnTarp: Math.max(0, lastSegmentLength - endOverhang)
     };
   };
 
   const drawIndividualRibbon = (
+    canvas: HTMLCanvasElement,
+    ribbonCanvas: HTMLCanvasElement
+  ) => {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set canvas dimensions to match the pre-rendered ribbon
+    canvas.width = ribbonCanvas.width;
+    canvas.height = ribbonCanvas.height;
+
+    // Simply copy the pre-rendered ribbon
+    ctx.drawImage(ribbonCanvas, 0, 0);
+  };
+
+  // Special rendering for long ribbons that exceed canvas limits
+  // Renders each half independently and displays them stacked vertically with a gap
+  const drawIndividualRibbonSplit = (
     canvas: HTMLCanvasElement,
     layerIndex: number
   ) => {
@@ -654,141 +669,121 @@ const TarpCC22026: React.FC = () => {
     if (!ctx) return;
 
     const layer = CONFIG.ribbons.layers[layerIndex];
-    const ribbonWidth = CONFIG.ribbons.width * 12 * SCALE; // Convert feet to inches, then to pixels
+    const ribbonWidth = CONFIG.ribbons.width * 12 * SCALE;
 
-    // Calculate total ribbon length
-    const ribbonTotalLength = layer.segmentArray.reduce((sum, seg) => sum + seg.length * 12 * SCALE, 0);
+    // Calculate which segments go in each half
+    const segments = layer.segmentArray;
+    const totalLength = segments.reduce((sum, seg) => sum + seg.length, 0);
+    const halfLength = totalLength / 2;
 
-    // Set canvas dimensions: width = total length, height = ribbon width (horizontal orientation)
-    canvas.width = ribbonTotalLength;
-    canvas.height = ribbonWidth;
+    let firstHalfSegments: typeof segments = [];
+    let secondHalfSegments: typeof segments = [];
+    let accumulated = 0;
 
-    // Fill background with white
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, ribbonTotalLength, ribbonWidth);
+    for (const segment of segments) {
+      if (accumulated < halfLength) {
+        firstHalfSegments.push(segment);
+      } else {
+        secondHalfSegments.push(segment);
+      }
+      accumulated += segment.length;
+    }
 
-    // Draw pattern segments horizontally
-    const insetAmount = 5 * SCALE; // 5 inches per side
+    const firstHalfLength = firstHalfSegments.reduce((sum, seg) => sum + seg.length * 12 * SCALE, 0);
+    const secondHalfLength = secondHalfSegments.reduce((sum, seg) => sum + seg.length * 12 * SCALE, 0);
+    const maxHalfLength = Math.max(firstHalfLength, secondHalfLength);
+
+    const gapInches = 24; // 2 feet gap between halves
+    const gapPx = gapInches * SCALE;
+
+    // Canvas size: wide enough for longest half, tall enough for both halves plus gap
+    canvas.width = maxHalfLength;
+    canvas.height = ribbonWidth * 2 + gapPx;
+
+    // Render first half at top
+    const insetAmount = 5 * SCALE;
     let cumulativeX = 0;
 
-    for (let i = 0; i < layer.segmentArray.length; i++) {
-      const segment = layer.segmentArray[i];
-      const segmentLengthPx = segment.length * 12 * SCALE; // Convert feet to pixels
-
-      // Position at (cumulativeX, 0) for horizontal stacking
-      const segmentX = cumulativeX;
-      const segmentY = 0;
-
-      // Apply fraying clip path to first segment
-      if (i === 0) {
-        ctx.save();
-
-        // Create clipping path that excludes the frayed area
-        const frayLengthPx = 5 * 12 * SCALE; // 5 feet
-        const threads = createFrayingClipPath(ctx, 0, ribbonWidth / 2, ribbonWidth, 0, 5, layerIndex);
-
-        // Create a rectangle for the segment (horizontal, no rotation needed)
-        ctx.beginPath();
-        ctx.rect(0, 0, segmentLengthPx, ribbonWidth);
-
-        // Cut out areas where threads are using composite operation
-        for (const thread of threads) {
-          const threadWidth = 3 * SCALE; // Slightly wider clip than visual thread
-          const dx = thread.endX - thread.startX;
-          const dy = thread.endY - thread.startY;
-          const length = Math.sqrt(dx * dx + dy * dy);
-          const angle = Math.atan2(dy, dx);
-
-          // Create a tapered shape for the thread (rectangle at start, point at end)
-          ctx.save();
-          ctx.translate(thread.startX, thread.startY);
-          ctx.rotate(angle);
-
-          // Draw a triangle/tapered shape
-          ctx.moveTo(-threadWidth / 2, -threadWidth / 2); // Top left
-          ctx.lineTo(-threadWidth / 2, threadWidth / 2);  // Bottom left
-          ctx.lineTo(length, 0);                       // Point at end
-          ctx.lineTo(-threadWidth / 2, -threadWidth / 2); // Close path
-
-          ctx.restore();
-        }
-
-        ctx.clip(); // Use even-odd rule to create holes
-      }
-
-      // Extract colors from segment (handle both string and array for primary)
+    for (let i = 0; i < firstHalfSegments.length; i++) {
+      const segment = firstHalfSegments[i];
+      const segmentLengthPx = segment.length * 12 * SCALE;
       const { background, primary, accent } = segment.colors;
 
       switch (segment.pattern) {
         case 'rings':
-          drawInterlockingRings(
-            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, 0, // width and height swapped for horizontal
-            typeof primary === 'string' ? primary : primary[0], // ringColor
-            background, // backgroundColor
-            CONFIG.patterns.rings.ringRadius,
-            insetAmount
-          );
+          drawInterlockingRings(ctx, cumulativeX, 0, segmentLengthPx, ribbonWidth, 0,
+            typeof primary === 'string' ? primary : primary[0], background,
+            CONFIG.patterns.rings.ringRadius, insetAmount);
           break;
         case 'greekKey':
-          drawGreekKey(
-            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, 0,
-            typeof primary === 'string' ? primary : primary[0], // patternColor
-            background, // backgroundColor
-            CONFIG.patterns.greekKey.keySize,
-            insetAmount
-          );
+          drawGreekKey(ctx, cumulativeX, 0, segmentLengthPx, ribbonWidth, 0,
+            typeof primary === 'string' ? primary : primary[0], background,
+            CONFIG.patterns.greekKey.keySize, insetAmount);
           break;
         case 'octagons':
-          drawOctagons(
-            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, 0,
-            typeof primary === 'string' ? primary : primary[0], // octagonColor
-            background, // backgroundColor
-            CONFIG.patterns.octagons.octagonSize,
-            insetAmount
-          );
+          drawOctagons(ctx, cumulativeX, 0, segmentLengthPx, ribbonWidth, 0,
+            typeof primary === 'string' ? primary : primary[0], background,
+            CONFIG.patterns.octagons.octagonSize, insetAmount);
           break;
         case 'artDeco':
-          drawArtDecoPattern(
-            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, 0,
-            typeof primary === 'string' ? primary : primary[0], // lineColor
-            background, // backgroundColor
-            CONFIG.patterns.artDeco.gridSize,
-            insetAmount
-          );
+          drawArtDecoPattern(ctx, cumulativeX, 0, segmentLengthPx, ribbonWidth, 0,
+            typeof primary === 'string' ? primary : primary[0], background,
+            CONFIG.patterns.artDeco.gridSize, insetAmount);
           break;
         case 'curvedTowers':
-          drawCurvedTowers(
-            ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, 0,
-            typeof primary === 'string' ? primary : primary[0], // lineColor
-            background, // backgroundColor
-            CONFIG.patterns.curvedTowers.tileSize,
-            insetAmount
-          );
+          drawCurvedTowers(ctx, cumulativeX, 0, segmentLengthPx, ribbonWidth, 0,
+            typeof primary === 'string' ? primary : primary[0], background,
+            CONFIG.patterns.curvedTowers.tileSize, insetAmount);
           break;
       }
 
-      // Draw gold border lines (2" outer gutter, 1.5" gold line, 1.5" inner gutter)
-      drawGoldBorderLines(ctx, segmentX, segmentY, segmentLengthPx, ribbonWidth, 0);
+      drawGoldBorderLines(ctx, cumulativeX, 0, segmentLengthPx, ribbonWidth, 0);
 
-      // Restore clipping for first segment
+      // Apply fraying to first segment only
       if (i === 0) {
-        ctx.restore();
-
-        // Now draw fraying effect on top with clipping
-        drawFrayingEffect(
-          ctx,
-          0,
-          ribbonWidth / 2, // Center vertically on the ribbon
-          ribbonWidth,
-          0, // Horizontal orientation
-          5, // 5 feet of fraying
-          layerIndex,
-          true, // Apply clipping
-          segmentLengthPx
-        );
+        drawFrayingEffect(ctx, 0, ribbonWidth / 2, ribbonWidth, 0, 5, layerIndex, true, segmentLengthPx);
       }
 
-      // Accumulate distance for next segment
+      cumulativeX += segmentLengthPx;
+    }
+
+    // Render second half at bottom
+    cumulativeX = 0;
+    const secondHalfY = ribbonWidth + gapPx;
+
+    for (const segment of secondHalfSegments) {
+      const segmentLengthPx = segment.length * 12 * SCALE;
+      const { background, primary, accent } = segment.colors;
+
+      switch (segment.pattern) {
+        case 'rings':
+          drawInterlockingRings(ctx, cumulativeX, secondHalfY, segmentLengthPx, ribbonWidth, 0,
+            typeof primary === 'string' ? primary : primary[0], background,
+            CONFIG.patterns.rings.ringRadius, insetAmount);
+          break;
+        case 'greekKey':
+          drawGreekKey(ctx, cumulativeX, secondHalfY, segmentLengthPx, ribbonWidth, 0,
+            typeof primary === 'string' ? primary : primary[0], background,
+            CONFIG.patterns.greekKey.keySize, insetAmount);
+          break;
+        case 'octagons':
+          drawOctagons(ctx, cumulativeX, secondHalfY, segmentLengthPx, ribbonWidth, 0,
+            typeof primary === 'string' ? primary : primary[0], background,
+            CONFIG.patterns.octagons.octagonSize, insetAmount);
+          break;
+        case 'artDeco':
+          drawArtDecoPattern(ctx, cumulativeX, secondHalfY, segmentLengthPx, ribbonWidth, 0,
+            typeof primary === 'string' ? primary : primary[0], background,
+            CONFIG.patterns.artDeco.gridSize, insetAmount);
+          break;
+        case 'curvedTowers':
+          drawCurvedTowers(ctx, cumulativeX, secondHalfY, segmentLengthPx, ribbonWidth, 0,
+            typeof primary === 'string' ? primary : primary[0], background,
+            CONFIG.patterns.curvedTowers.tileSize, insetAmount);
+          break;
+      }
+
+      drawGoldBorderLines(ctx, cumulativeX, secondHalfY, segmentLengthPx, ribbonWidth, 0);
       cumulativeX += segmentLengthPx;
     }
   };
@@ -806,52 +801,59 @@ const TarpCC22026: React.FC = () => {
       return;
     }
 
+    // Pre-render all ribbons to off-screen canvases
+    const ribbonCanvases = CONFIG.ribbons.layers.map((_, index) => renderRibbonToCanvas(index));
+
+    // MAIN CANVAS RENDERING COMMENTED OUT FOR INDIVIDUAL RIBBON EXPORT
     // Set canvas size based on tarp dimensions + overhang
-    const width = CANVAS_WIDTH_INCHES * SCALE;
-    const height = CANVAS_HEIGHT_INCHES * SCALE;
-    canvas.width = width;
-    canvas.height = height;
+    // const width = CANVAS_WIDTH_INCHES * SCALE;
+    // const height = CANVAS_HEIGHT_INCHES * SCALE;
+    // canvas.width = width;
+    // canvas.height = height;
 
-    const overhangPx = CANVAS_OVERHANG_FEET * 12 * SCALE;
-    const tarpWidth = TARP_WIDTH_INCHES * SCALE;
-    const tarpHeight = TARP_HEIGHT_INCHES * SCALE;
+    // const overhangPx = CANVAS_OVERHANG_FEET * 12 * SCALE;
+    // const tarpWidth = TARP_WIDTH_INCHES * SCALE;
+    // const tarpHeight = TARP_HEIGHT_INCHES * SCALE;
 
-    // Fill entire canvas with white background (overhang area)
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, width, height);
+    // // Fill entire canvas with black background (overhang area)
+    // ctx.fillStyle = '#000';
+    // ctx.fillRect(0, 0, width, height);
 
-    // Fill tarp area with dark grey background
-    ctx.fillStyle = CONFIG.colors.background;
-    ctx.fillRect(overhangPx, overhangPx, tarpWidth, tarpHeight);
+    // // Fill tarp area with dark grey background
+    // ctx.fillStyle = CONFIG.colors.background;
+    // ctx.fillRect(overhangPx, overhangPx, tarpWidth, tarpHeight);
 
-    // Use clipping region to only draw weave on tarp area
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(overhangPx, overhangPx, tarpWidth, tarpHeight);
-    ctx.clip();
+    // // Use clipping region to only draw weave on tarp area
+    // ctx.save();
+    // ctx.beginPath();
+    // ctx.rect(overhangPx, overhangPx, tarpWidth, tarpHeight);
+    // ctx.clip();
 
-    // Draw woven thread texture only on tarp area (clipped)
-    drawWeave(ctx, width, height);
+    // // Draw woven thread texture only on tarp area (clipped)
+    // drawWeave(ctx, width, height);
 
-    ctx.restore();
+    // ctx.restore();
 
-    // Draw all ribbons (with guide threads) - they'll extend beyond tarp into overhang
-    drawRibbons(ctx, width, height);
+    // // Draw all ribbons (with guide threads) using pre-rendered canvases
+    // drawRibbons(ctx, width, height, ribbonCanvases);
+
+    // Draw individual ribbons on their display canvases
+    CONFIG.ribbons.layers.forEach((_, index) => {
+      const displayCanvas = ribbonCanvasRefs.current[index];
+      if (displayCanvas) {
+        // Use split rendering for ribbons 0 and 5 (center ribbons that are too long)
+        if (index === 0 || index === 5) {
+          drawIndividualRibbonSplit(displayCanvas, index);
+        } else {
+          drawIndividualRibbon(displayCanvas, ribbonCanvases[index]);
+        }
+      }
+    });
 
     // Cleanup function to clear canvas on unmount
     return () => {
       ctx.clearRect(0, 0, width, height);
     };
-  }, []);
-
-  useEffect(() => {
-    // Draw individual ribbons on their own canvases
-    CONFIG.ribbons.layers.forEach((_, index) => {
-      const canvas = ribbonCanvasRefs.current[index];
-      if (canvas) {
-        drawIndividualRibbon(canvas, index);
-      }
-    });
   }, []);
 
   return (
