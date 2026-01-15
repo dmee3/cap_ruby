@@ -25,7 +25,7 @@ const TARP_HEIGHT_INCHES = TARP_HEIGHT_FEET * 12; // 720 inches
 // Scale factor: pixels per inch
 // SCALE = 1: 1,080 × 720 px (1 pixel per inch, print-ready)
 // SCALE = 10: 10,800 × 7,200 px (10 pixels per inch, high-res)
-const SCALE = 10;
+const SCALE = 25;
 
 // Configuration constants
 const CONFIG = {
@@ -64,7 +64,7 @@ const CONFIG = {
   },
   // Colors
   colors: {
-    background: '#0a1f35', // Dark blue-gray for edges (brightened)
+    background: '#08263d', // Dark blue-gray for edges (brightened)
     teal: '#02aaa2', // Bright teal for center wave
     blue: '#007a6e', // Dark teal for other waves (brightened)
     outsideRippleCenterRing: '#85e600', // Chartreuse green for the outside ripple center ring
@@ -75,18 +75,10 @@ const CONFIG = {
 
 const TarpCanvas2026: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  // Helper function to convert hex color to rgba
-  const hexToRgba = (hex: string, alpha: number): string => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    if (result) {
-      const r = parseInt(result[1], 16);
-      const g = parseInt(result[2], 16);
-      const b = parseInt(result[3], 16);
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    }
-    return hex; // Fallback to original color
-  };
+  const smallBackgroundRippleRef = useRef<HTMLCanvasElement>(null);
+  const largeBackgroundRippleRef = useRef<HTMLCanvasElement>(null);
+  const largeChartreuseRippleRef = useRef<HTMLCanvasElement>(null);
+  const mediumPinkRippleRef = useRef<HTMLCanvasElement>(null);
 
   // Function to draw a single wave of ripples with a specific color
   const drawRippleWaveWithColor = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number, color: string, opacityRange?: { min: number; max: number }, isCenterWave?: boolean) => {
@@ -616,6 +608,51 @@ const TarpCanvas2026: React.FC = () => {
     }
   };
 
+  // Function to draw a single ripple on a transparent background
+  const drawSingleRipple = (
+    canvas: HTMLCanvasElement,
+    diameterFeet: number,
+    numRings: number,
+    color: string,
+    baseOpacity: number,
+    isCenterWave: boolean,
+    rippleIndex: number,
+    totalRipples: number
+  ) => {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const diameterInches = diameterFeet * 12;
+    const maxRadius = (diameterInches / 2) * SCALE;
+    const minRadius = maxRadius / 8;
+
+    // Size canvas to fit the ripple with some padding
+    const padding = 20 * SCALE; // 20 inches padding
+    const canvasSize = (diameterInches * SCALE) + (2 * padding);
+    canvas.width = canvasSize;
+    canvas.height = canvasSize;
+
+    // Clear to transparent
+    ctx.clearRect(0, 0, canvasSize, canvasSize);
+
+    // Draw ripple centered on canvas
+    const centerX = canvasSize / 2;
+    const centerY = canvasSize / 2;
+
+    drawConcentricRingsWithColor(ctx, {
+      centerX,
+      centerY,
+      maxRadius,
+      minRadius,
+      baseOpacity,
+      color,
+      numRings,
+      isCenterWave,
+      rippleIndex,
+      totalRipples
+    });
+  };
+
   // Function to draw multiple waves of ripples from top to bottom
   const drawMultipleRippleWaves = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
     const numWaves = CONFIG.wave.count;
@@ -649,10 +686,10 @@ const TarpCanvas2026: React.FC = () => {
 
       if (distanceFromMiddle === 1) {
         // Waves adjacent to center: dark teal with medium opacity
-        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, { min: 0.45, max: 0.55 }, false);
+        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, { min: 0.5, max: 0.6 }, false);
       } else {
         ;
-        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, { min: 0.25, max: 0.35 }, false);
+        drawRippleWaveWithColor(ctx, canvasWidth, canvasHeight, CONFIG.colors.blue, { min: 0.3, max: 0.4 }, false);
       }
 
       // Restore the context state
@@ -710,6 +747,63 @@ const TarpCanvas2026: React.FC = () => {
     // Draw straight red grid overlay
     // drawStraightGrid(ctx, width, height);
 
+    // Draw individual ripples on separate canvases
+    // Small background ripple (9 feet, 4 rings, blue, low opacity)
+    if (smallBackgroundRippleRef.current) {
+      drawSingleRipple(
+        smallBackgroundRippleRef.current,
+        9,  // diameter in feet
+        4,  // number of rings
+        CONFIG.colors.blue,
+        0.3,  // base opacity
+        false,  // not center wave
+        0,  // ripple index (doesn't matter for non-center wave)
+        7   // total ripples
+      );
+    }
+
+    // Large background ripple (18 feet, 7 rings, blue, higher opacity)
+    if (largeBackgroundRippleRef.current) {
+      drawSingleRipple(
+        largeBackgroundRippleRef.current,
+        18,  // diameter in feet
+        7,   // number of rings
+        CONFIG.colors.blue,
+        0.5,  // base opacity
+        false,  // not center wave
+        0,   // ripple index (doesn't matter for non-center wave)
+        7    // total ripples
+      );
+    }
+
+    // Large chartreuse ripple (18 feet, 7 rings, teal base, chartreuse center)
+    if (largeChartreuseRippleRef.current) {
+      drawSingleRipple(
+        largeChartreuseRippleRef.current,
+        18,  // diameter in feet
+        7,   // number of rings
+        CONFIG.colors.teal,
+        0.9,  // base opacity
+        true,  // center wave
+        0,   // first ripple (gets chartreuse center)
+        7    // total ripples
+      );
+    }
+
+    // Medium pink ripple (12 feet, 5 rings, teal base, pink center)
+    if (mediumPinkRippleRef.current) {
+      drawSingleRipple(
+        mediumPinkRippleRef.current,
+        12,  // diameter in feet
+        5,   // number of rings
+        CONFIG.colors.teal,
+        0.8,  // base opacity
+        true,  // center wave
+        1,   // second ripple (gets pink center)
+        7    // total ripples
+      );
+    }
+
     // Cleanup function to clear canvas on unmount
     return () => {
       ctx.clearRect(0, 0, width, height);
@@ -717,15 +811,81 @@ const TarpCanvas2026: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-      <canvas
-        ref={canvasRef}
-        style={{
-          border: '1px solid #ccc',
-          maxWidth: '100%',
-          height: 'auto'
-        }}
-      />
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', gap: '40px' }}>
+      {/* Main tarp canvas */}
+      <div>
+        <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>Main Tarp (90' × 60')</h2>
+        <canvas
+          ref={canvasRef}
+          style={{
+            border: '1px solid #ccc',
+            maxWidth: '100%',
+            height: 'auto'
+          }}
+        />
+      </div>
+
+      {/* Individual ripples */}
+      <div style={{ width: '100%' }}>
+        <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Individual Ripples</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px', justifyItems: 'center' }}>
+          <div style={{ textAlign: 'center' }}>
+            <h3 style={{ marginBottom: '10px' }}>Small Background Ripple</h3>
+            <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>9' diameter, 4 rings, blue</p>
+            <canvas
+              ref={smallBackgroundRippleRef}
+              style={{
+                border: '1px solid #ccc',
+                maxWidth: '100%',
+                height: 'auto',
+                background: 'repeating-conic-gradient(#ddd 0% 25%, transparent 0% 50%) 50% / 20px 20px'
+              }}
+            />
+          </div>
+
+          <div style={{ textAlign: 'center' }}>
+            <h3 style={{ marginBottom: '10px' }}>Large Background Ripple</h3>
+            <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>18' diameter, 7 rings, blue</p>
+            <canvas
+              ref={largeBackgroundRippleRef}
+              style={{
+                border: '1px solid #ccc',
+                maxWidth: '100%',
+                height: 'auto',
+                background: 'repeating-conic-gradient(#ddd 0% 25%, transparent 0% 50%) 50% / 20px 20px'
+              }}
+            />
+          </div>
+
+          <div style={{ textAlign: 'center' }}>
+            <h3 style={{ marginBottom: '10px' }}>Large Chartreuse Ripple</h3>
+            <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>18' diameter, 7 rings, teal + chartreuse center</p>
+            <canvas
+              ref={largeChartreuseRippleRef}
+              style={{
+                border: '1px solid #ccc',
+                maxWidth: '100%',
+                height: 'auto',
+                background: 'repeating-conic-gradient(#ddd 0% 25%, transparent 0% 50%) 50% / 20px 20px'
+              }}
+            />
+          </div>
+
+          <div style={{ textAlign: 'center' }}>
+            <h3 style={{ marginBottom: '10px' }}>Medium Pink Ripple</h3>
+            <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>12' diameter, 5 rings, teal + pink center</p>
+            <canvas
+              ref={mediumPinkRippleRef}
+              style={{
+                border: '1px solid #ccc',
+                maxWidth: '100%',
+                height: 'auto',
+                background: 'repeating-conic-gradient(#ddd 0% 25%, transparent 0% 50%) 50% / 20px 20px'
+              }}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
