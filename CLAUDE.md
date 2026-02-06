@@ -30,6 +30,7 @@ Manage all aspects of ensemble operations including member registration, rehears
 - `yarn install` - Install JavaScript dependencies
 - `yarn dev` or `bin/vite dev` - Start Vite development server
 - `yarn build` or `bin/vite build` - Build assets for production
+- **IMPORTANT:** Do NOT run `yarn build` or `bin/vite build` to verify changes unless explicitly requested. The build process is automatic in development.
 
 **Database Operations:**
 - `bundle exec rails db:drop db:create db:migrate` - Reset local database

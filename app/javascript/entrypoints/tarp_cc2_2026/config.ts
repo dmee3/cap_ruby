@@ -16,7 +16,7 @@ export const CANVAS_HEIGHT_INCHES = TARP_HEIGHT_INCHES + (CANVAS_OVERHANG_FEET *
 // Scale factor: pixels per inch
 // SCALE = 1: 1,008 × 504 px (1 pixel per inch, print-ready)
 // SCALE = 10: 10,080 × 5,040 px (10 pixels per inch, high-res)
-export const SCALE = 16;
+export const SCALE = 10;
 
 // Configuration constants
 export const CONFIG = {

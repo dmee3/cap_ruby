@@ -19,6 +19,11 @@ import { createSeededRandom } from './utils';
 const TarpCC22026: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ribbonCanvasRefs = useRef<(HTMLCanvasElement | null)[]>([]);
+  const fabric1Ref = useRef<HTMLCanvasElement>(null);
+  const fabric2Ref = useRef<HTMLCanvasElement>(null);
+  const fabric3Ref = useRef<HTMLCanvasElement>(null);
+  const fabric4Ref = useRef<HTMLCanvasElement>(null);
+  const fabric5Ref = useRef<HTMLCanvasElement>(null);
 
   // Helper function to draw a single thread with tapered ends
   const drawThread = (
@@ -676,8 +681,8 @@ const TarpCC22026: React.FC = () => {
     const totalLength = segments.reduce((sum, seg) => sum + seg.length, 0);
     const halfLength = totalLength / 2;
 
-    let firstHalfSegments: typeof segments = [];
-    let secondHalfSegments: typeof segments = [];
+    let firstHalfSegments = [];
+    let secondHalfSegments = [];
     let accumulated = 0;
 
     for (const segment of segments) {
@@ -806,8 +811,8 @@ const TarpCC22026: React.FC = () => {
 
     // MAIN CANVAS RENDERING COMMENTED OUT FOR INDIVIDUAL RIBBON EXPORT
     // Set canvas size based on tarp dimensions + overhang
-    // const width = CANVAS_WIDTH_INCHES * SCALE;
-    // const height = CANVAS_HEIGHT_INCHES * SCALE;
+    const width = CANVAS_WIDTH_INCHES * SCALE;
+    const height = CANVAS_HEIGHT_INCHES * SCALE;
     // canvas.width = width;
     // canvas.height = height;
 
@@ -843,9 +848,102 @@ const TarpCC22026: React.FC = () => {
       if (displayCanvas) {
         // Use split rendering for ribbons 0 and 5 (center ribbons that are too long)
         if (index === 0 || index === 5) {
-          drawIndividualRibbonSplit(displayCanvas, index);
+          // drawIndividualRibbonSplit(displayCanvas, index);
         } else {
           drawIndividualRibbon(displayCanvas, ribbonCanvases[index]);
+        }
+      }
+    });
+
+    // Initialize fabric canvases with patterns at half scale
+    const fabricRefs = [fabric1Ref, fabric2Ref, fabric3Ref, fabric4Ref, fabric5Ref];
+    const fabricWidthInches = 60;
+    const fabricHeightInches = 72;
+
+    // Define which pattern each fabric should use
+    const fabricPatterns = [
+      { pattern: 'rings' as const, colors: { background: '#3b4b65', primary: '#dec573', accent: '#dec573' } },
+      { pattern: 'greekKey' as const, colors: { background: '#3f3e3a', primary: '#dec573', accent: '#dec573' } },
+      { pattern: 'octagons' as const, colors: { background: '#162745', primary: '#dec573', accent: '#dec573' } },
+      { pattern: 'curvedTowers' as const, colors: { background: '#2a3b4c', primary: '#dec573', accent: '#dec573' } },
+      { pattern: 'artDeco' as const, colors: { background: '#3f3e3a', primary: '#dec573', accent: '#dec573' } },
+    ];
+
+    fabricRefs.forEach((ref, index) => {
+      if (ref.current) {
+        const fabricCanvas = ref.current;
+        const fabricCtx = fabricCanvas.getContext('2d');
+        if (fabricCtx) {
+          // Set canvas dimensions
+          fabricCanvas.width = fabricWidthInches * SCALE;
+          fabricCanvas.height = fabricHeightInches * SCALE;
+
+          const fabricWidth = fabricWidthInches * SCALE;
+          const fabricHeight = fabricHeightInches * SCALE;
+          const { pattern, colors } = fabricPatterns[index];
+          const { background, primary } = colors;
+
+          // Inset amount (reduced to half for fabric - 2.5" instead of 5")
+          const insetAmount = 2.5 * SCALE;
+
+          // Draw pattern at 2x density by dividing the pattern size parameters by 2
+          switch (pattern) {
+            case 'rings':
+              drawInterlockingRings(
+                fabricCtx, 0, 0, fabricWidth, fabricHeight, 0,
+                typeof primary === 'string' ? primary : primary[0],
+                background,
+                CONFIG.patterns.rings.ringRadius / 2, // Divide by 2 to make pattern 2x denser
+                insetAmount,
+                0.5, // Half line width
+                true // Inset all sides
+              );
+              break;
+            case 'greekKey':
+              drawGreekKey(
+                fabricCtx, 0, 0, fabricWidth, fabricHeight, 0,
+                typeof primary === 'string' ? primary : primary[0],
+                background,
+                CONFIG.patterns.greekKey.keySize / 2, // Divide by 2 to make pattern 2x denser
+                insetAmount,
+                0.5, // Half line width
+                true // Inset all sides
+              );
+              break;
+            case 'octagons':
+              drawOctagons(
+                fabricCtx, 0, 0, fabricWidth, fabricHeight, 0,
+                typeof primary === 'string' ? primary : primary[0],
+                background,
+                CONFIG.patterns.octagons.octagonSize / 2, // Divide by 2 to make pattern 2x denser
+                insetAmount,
+                true // Inset all sides
+              );
+              break;
+            case 'curvedTowers':
+              drawCurvedTowers(
+                fabricCtx, 0, 0, fabricWidth, fabricHeight, 0,
+                typeof primary === 'string' ? primary : primary[0],
+                background,
+                CONFIG.patterns.curvedTowers.tileSize / 2, // Divide by 2 to make pattern 2x denser
+                insetAmount,
+                0.5, // Half line width
+                true // Inset all sides
+              );
+              break;
+            case 'artDeco':
+              drawArtDecoPattern(
+                fabricCtx, 0, 0, fabricWidth, fabricHeight, 0,
+                typeof primary === 'string' ? primary : primary[0],
+                background,
+                CONFIG.patterns.artDeco.gridSize / 2, // Divide by 2 to make pattern 2x denser
+                insetAmount
+              );
+              break;
+          }
+
+          // Draw gold border lines on all 4 sides with half width
+          drawGoldBorderLines(fabricCtx, 0, 0, fabricWidth, fabricHeight, 0, true, 0.5);
         }
       }
     });
@@ -909,6 +1007,71 @@ const TarpCC22026: React.FC = () => {
             </div>
           );
         })}
+      </div>
+
+      {/* Fabric canvases */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '400px' }}>
+          <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', fontWeight: 'bold', color: '#000' }}>Fabric 1 - Rings</h3>
+          <p style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>60" × 72" (6 ft) - 2× Density</p>
+          <canvas
+            ref={fabric1Ref}
+            style={{
+              border: '1px solid #ccc',
+              maxWidth: '100%',
+              height: 'auto'
+            }}
+          />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '400px' }}>
+          <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', fontWeight: 'bold', color: '#000' }}>Fabric 2 - Greek Key</h3>
+          <p style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>60" × 72" (6 ft) - 2× Density</p>
+          <canvas
+            ref={fabric2Ref}
+            style={{
+              border: '1px solid #ccc',
+              maxWidth: '100%',
+              height: 'auto'
+            }}
+          />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '400px' }}>
+          <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', fontWeight: 'bold', color: '#000' }}>Fabric 3 - Octagons</h3>
+          <p style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>60" × 72" (6 ft) - 2× Density</p>
+          <canvas
+            ref={fabric3Ref}
+            style={{
+              border: '1px solid #ccc',
+              maxWidth: '100%',
+              height: 'auto'
+            }}
+          />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '400px' }}>
+          <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', fontWeight: 'bold', color: '#000' }}>Fabric 4 - Curved Towers</h3>
+          <p style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>60" × 72" (6 ft) - 2× Density</p>
+          <canvas
+            ref={fabric4Ref}
+            style={{
+              border: '1px solid #ccc',
+              maxWidth: '100%',
+              height: 'auto'
+            }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '400px' }}>
+          <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', fontWeight: 'bold', color: '#000' }}>Fabric 5 - Art Deco</h3>
+          <p style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>60" × 72" (6 ft) - 2× Density</p>
+          <canvas
+            ref={fabric5Ref}
+            style={{
+              border: '1px solid #ccc',
+              maxWidth: '100%',
+              height: 'auto'
+            }}
+          />
+        </div>
       </div>
     </div>
   );

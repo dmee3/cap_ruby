@@ -21,13 +21,14 @@ export const drawArtDecoPattern = (
   backgroundColor: string,
   gridSize: number = 24, // Size of each tile in inches
   insetAmount: number = 0, // Inset from edges in pixels
+  lineWidthMultiplier: number = 1, // Multiplier for line width (default 1 = normal)
 ) => {
   const { patternWidth, patternHeight } = setupPatternInset(
     ctx, x, y, width, height, angle, backgroundColor, insetAmount
   );
 
   ctx.strokeStyle = lineColor;
-  ctx.lineWidth = gridSize * 0.1;
+  ctx.lineWidth = gridSize * 0.1 * lineWidthMultiplier;
 
   const gridSizePx = gridSize * SCALE;
   const spacing = gridSizePx * 1.5;

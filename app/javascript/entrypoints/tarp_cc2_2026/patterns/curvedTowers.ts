@@ -185,13 +185,15 @@ export const drawCurvedTowers = (
   backgroundColor: string,
   tileSize: number = 32, // Total height of one repeating tile in inches
   insetAmount: number = 0, // Inset from edges in pixels
+  lineWidthMultiplier: number = 1, // Multiplier for line width (default 1 = normal)
+  insetAllSides: boolean = false, // Whether to inset all 4 sides or just top/bottom
 ) => {
   const { patternWidth, patternHeight } = setupPatternInset(
-    ctx, x, y, width, height, angle, backgroundColor, insetAmount
+    ctx, x, y, width, height, angle, backgroundColor, insetAmount, insetAllSides
   );
 
   ctx.strokeStyle = lineColor;
-  ctx.lineWidth = SCALE; // 1 inch line width
+  ctx.lineWidth = SCALE * lineWidthMultiplier; // 1 inch line width (scaled by multiplier)
 
   // Calculate spacing between lines (4 lines within tileSize)
   const lineSpacing = tileSize / 4;

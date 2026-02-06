@@ -19,9 +19,11 @@ export const drawOctagons = (
   backgroundColor: string,
   octagonSize: number = 8, // Size of each octagon in inches
   insetAmount: number = 0, // Inset from edges in pixels
+  insetAllSides: boolean = false, // Whether to inset all 4 sides or just top/bottom
+  lineWidthMultiplier: number = 1, // Multiplier for line width (default 1 = normal)
 ) => {
   const { patternWidth, patternHeight } = setupPatternInset(
-    ctx, x, y, width, height, angle, backgroundColor, insetAmount
+    ctx, x, y, width, height, angle, backgroundColor, insetAmount, insetAllSides
   );
 
   const octagonSizePx = octagonSize * SCALE;
@@ -31,7 +33,7 @@ export const drawOctagons = (
   const numRows = Math.ceil(patternHeight / spacing) + 2;
 
   ctx.strokeStyle = octagonColor;
-  ctx.lineWidth = octagonSizePx * 0.08;
+  ctx.lineWidth = octagonSizePx * 0.08 * lineWidthMultiplier;
   const yOffset = octagonSize * 0.5;
 
   // Draw horizontal connecting lines (octagon to octagon to the right)
@@ -70,7 +72,7 @@ export const drawOctagons = (
 
   // LAYER 3: Draw octagons at full opacity
   ctx.strokeStyle = octagonColor;
-  ctx.lineWidth = octagonSizePx * 0.08;
+  ctx.lineWidth = octagonSizePx * 0.08 * lineWidthMultiplier;
 
   // Draw octagons in a grid pattern
   for (let row = -1; row < numRows; row++) {

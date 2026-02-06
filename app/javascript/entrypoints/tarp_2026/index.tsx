@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
+import { drawStageProps, drawVinylCalculation, drawVinylLayout } from './stagePropsDrawing';
 
 // Type definition for ring configuration
 interface RingConfig {
@@ -25,7 +26,7 @@ const TARP_HEIGHT_INCHES = TARP_HEIGHT_FEET * 12; // 720 inches
 // Scale factor: pixels per inch
 // SCALE = 1: 1,080 × 720 px (1 pixel per inch, print-ready)
 // SCALE = 10: 10,800 × 7,200 px (10 pixels per inch, high-res)
-const SCALE = 25;
+const SCALE = 10;
 
 // Configuration constants
 const CONFIG = {
@@ -79,6 +80,8 @@ const TarpCanvas2026: React.FC = () => {
   const largeBackgroundRippleRef = useRef<HTMLCanvasElement>(null);
   const largeChartreuseRippleRef = useRef<HTMLCanvasElement>(null);
   const mediumPinkRippleRef = useRef<HTMLCanvasElement>(null);
+  const stagePropsRef = useRef<HTMLCanvasElement>(null);
+  const vinylCalculationRef = useRef<HTMLCanvasElement>(null);
 
   // Function to draw a single wave of ripples with a specific color
   const drawRippleWaveWithColor = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number, color: string, opacityRange?: { min: number; max: number }, isCenterWave?: boolean) => {
@@ -708,44 +711,45 @@ const TarpCanvas2026: React.FC = () => {
   };
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    // Commented out main tarp rendering for performance
+    // const canvas = canvasRef.current;
+    // if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    // const ctx = canvas.getContext('2d');
+    // if (!ctx) return;
 
-    // Set canvas size based on tarp dimensions
-    const width = TARP_WIDTH_INCHES * SCALE;   // 1,080 * SCALE pixels
-    const height = TARP_HEIGHT_INCHES * SCALE; // 720 * SCALE pixels
-    canvas.width = width;
-    canvas.height = height;
+    // // Set canvas size based on tarp dimensions
+    // const width = TARP_WIDTH_INCHES * SCALE;   // 1,080 * SCALE pixels
+    // const height = TARP_HEIGHT_INCHES * SCALE; // 720 * SCALE pixels
+    // canvas.width = width;
+    // canvas.height = height;
 
-    // Set up clipping path for the tarp shape (makes edges transparent)
-    ctx.save();
-    createTarpClipPath(ctx, width, height);
-    ctx.clip();
+    // // Set up clipping path for the tarp shape (makes edges transparent)
+    // ctx.save();
+    // createTarpClipPath(ctx, width, height);
+    // ctx.clip();
 
-    // Fill canvas with solid background color (only inside clipped area)
-    ctx.fillStyle = CONFIG.colors.background;
-    ctx.fillRect(0, 0, width, height);
+    // // Fill canvas with solid background color (only inside clipped area)
+    // ctx.fillStyle = CONFIG.colors.background;
+    // ctx.fillRect(0, 0, width, height);
 
-    // Draw ripple layer (on top of morse code)
-    drawRipplesLayer(ctx, width, height);
+    // // Draw ripple layer (on top of morse code)
+    // drawRipplesLayer(ctx, width, height);
 
-    // Draw grid overlay on top of everything
-    // drawGreenGrid(ctx, width, height);
+    // // Draw grid overlay on top of everything
+    // // drawGreenGrid(ctx, width, height);
 
-    // Draw white intersection grid
-    // drawWhiteIntersectionGrid(ctx, width, height);
+    // // Draw white intersection grid
+    // // drawWhiteIntersectionGrid(ctx, width, height);
 
-    // Draw grid labels (upside-down text)
-    // drawGridLabels(ctx, width, height);
+    // // Draw grid labels (upside-down text)
+    // // drawGridLabels(ctx, width, height);
 
-    // Restore context (removes clipping)
-    ctx.restore();
+    // // Restore context (removes clipping)
+    // ctx.restore();
 
-    // Draw straight red grid overlay
-    // drawStraightGrid(ctx, width, height);
+    // // Draw straight red grid overlay
+    // // drawStraightGrid(ctx, width, height);
 
     // Draw individual ripples on separate canvases
     // Small background ripple (9 feet, 4 rings, blue, low opacity)
@@ -804,16 +808,26 @@ const TarpCanvas2026: React.FC = () => {
       );
     }
 
+    // Draw stage props diagram
+    if (stagePropsRef.current) {
+      drawStageProps(stagePropsRef.current);
+    }
+
+    // Draw vinyl calculation diagram
+    if (vinylCalculationRef.current) {
+      drawVinylCalculation(vinylCalculationRef.current);
+    }
+
     // Cleanup function to clear canvas on unmount
-    return () => {
-      ctx.clearRect(0, 0, width, height);
-    };
+    // return () => {
+    //   ctx.clearRect(0, 0, width, height);
+    // };
   }, []);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', gap: '40px' }}>
-      {/* Main tarp canvas */}
-      <div>
+      {/* Main tarp canvas - Commented out for performance */}
+      {/* <div>
         <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>Main Tarp (90' × 60')</h2>
         <canvas
           ref={canvasRef}
@@ -823,9 +837,41 @@ const TarpCanvas2026: React.FC = () => {
             height: 'auto'
           }}
         />
+      </div> */}
+
+      {/* Stage Props Diagram */}
+      <div>
+        <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>Stage Props - Assembled View</h2>
+        <p style={{ textAlign: 'center', fontSize: '14px', color: '#666', marginBottom: '10px' }}>
+          Two concentric rings that break apart into segments
+        </p>
+        <canvas
+          ref={stagePropsRef}
+          style={{
+            border: '1px solid #ccc',
+            maxWidth: '100%',
+            height: 'auto'
+          }}
+        />
       </div>
 
-      {/* Individual ripples */}
+      {/* Vinyl Strip Calculation */}
+      <div>
+        <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>Vinyl Strip Width Calculation</h2>
+        <p style={{ textAlign: 'center', fontSize: '14px', color: '#666', marginBottom: '10px' }}>
+          Red lines show the vinyl strip dimensions needed to cover each segment type
+        </p>
+        <canvas
+          ref={vinylCalculationRef}
+          style={{
+            border: '1px solid #ccc',
+            maxWidth: '100%',
+            height: 'auto'
+          }}
+        />
+      </div>
+
+      {/* Individual ripples - Commented out for performance */}
       <div style={{ width: '100%' }}>
         <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Individual Ripples</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px', justifyItems: 'center' }}>
