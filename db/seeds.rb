@@ -106,14 +106,15 @@ STATUS_ARRAY = [
 ].freeze
 
 # Create Me
-unless User.find_by_email ENV['ROOT_USER_EMAIL']
+root_email = ENV.fetch('ROOT_USER_EMAIL', 'admin@example.com')
+unless User.find_by_email(root_email)
   me = User.new(
-    first_name: ENV['ROOT_USER_FIRST_NAME'],
-    last_name: ENV['ROOT_USER_LAST_NAME'],
-    username: ENV['ROOT_USER_USERNAME'],
-    email: ENV['ROOT_USER_EMAIL'],
-    password: ENV['ROOT_USER_PASSWORD'],
-    password_confirmation: ENV['ROOT_USER_PASSWORD']
+    first_name: ENV.fetch('ROOT_USER_FIRST_NAME', 'Admin'),
+    last_name: ENV.fetch('ROOT_USER_LAST_NAME', 'User'),
+    username: ENV.fetch('ROOT_USER_USERNAME', 'adminuser'),
+    email: root_email,
+    password: ENV.fetch('ROOT_USER_PASSWORD', 'abc12345'),
+    password_confirmation: ENV.fetch('ROOT_USER_PASSWORD', 'abc12345')
   )
 
   %w[2018 2019 2020 2021 2022].each { |year| me.seasons << seasons[year][:season] }
@@ -124,6 +125,33 @@ unless User.find_by_email ENV['ROOT_USER_EMAIL']
     puts "\e[035mRoot User created\e[0m"
   else
     puts "\e[031mERROR: Unable to create Root User\e[0m"
+  end
+end
+
+# Create dev users with known credentials (one per role) — only in non-production
+unless Rails.env.production?
+  DEV_USERS = [
+    { first_name: 'Dev', last_name: 'Coordinator', username: 'devcoordinator', email: 'coordinator@example.com', role: 'coordinator' },
+    { first_name: 'Dev', last_name: 'Staff',       username: 'devstaff',       email: 'staff@example.com',       role: 'staff' },
+    { first_name: 'Dev', last_name: 'Member',      username: 'devmember',      email: 'member@example.com',      role: 'member' }
+  ].freeze
+
+  DEV_USERS.each do |attrs|
+    next if User.find_by_email(attrs[:email])
+
+    u = User.new(
+      first_name: attrs[:first_name],
+      last_name: attrs[:last_name],
+      username: attrs[:username],
+      email: attrs[:email],
+      password: 'abc12345',
+      password_confirmation: 'abc12345'
+    )
+
+    %w[2018 2019 2020 2021 2022].each { |year| u.seasons << seasons[year][:season] }
+    u.seasons_users.each { |su| su.role = attrs[:role] }
+    u.save!
+    puts "\e[035m#{attrs[:role].capitalize} dev user created (#{attrs[:email]} / abc12345)\e[0m"
   end
 end
 
@@ -143,7 +171,8 @@ TOTAL_MEMBERS.times do |i|
     last_name: last_name,
     username: username,
     email: email,
-    password: 'abc12345'
+    password: 'abc12345',
+    password_confirmation: 'abc12345'
   )
 
   user.save
