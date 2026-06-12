@@ -11,6 +11,7 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
+gem 'psych', '4.0.3' # pin to built-in default; psych 5.x removes parse C method causing build failures on GCC 15
 gem 'acts_as_paranoid'
 gem 'bcrypt', '~> 3.1.7'
 gem 'bootsnap', require: false # Reduces boot times through caching; required in config/boot.rb
