@@ -2,7 +2,7 @@
 
 module Auditions
   class Registration
-    attr_reader :type, :first_name, :last_name, :email, :city, :state, :instrument, :date,
+    attr_reader :type, :first_name, :last_name, :email, :phone, :city, :state, :instrument, :date,
                 :experience, :birthdate, :pronouns, :shoe_size, :shirt_size, :conflicts
 
     # Product names and mappings are now configured in config/auditions/{year}.yml
@@ -20,8 +20,8 @@ module Auditions
     FIELD_TO_SYMBOL = {
       'First Name' => :first_name,
       'Last Name' => :last_name,
-      'City' => :city,
-      'State' => :state,
+      'Address' => :address,
+      'Phone' => :phone,
       'Preferred Pronouns' => :pronouns,
       'Shoe Size' => :shoe_size,
       'Shirt Size' => :shirt_size,
@@ -49,7 +49,7 @@ module Auditions
 
     class << self
       def header_row
-        ['First Name', 'Last Name', 'Email', 'City', 'State', 'Pronouns', 'Shoe', 'Shirt',
+        ['First Name', 'Last Name', 'Email', 'Phone', 'City', 'State', 'Pronouns', 'Shoe', 'Shirt',
          'Birthdate', 'Purchased', 'Experience', 'Conflicts']
       end
     end
@@ -68,6 +68,7 @@ module Auditions
         @first_name,
         @last_name,
         @email,
+        @phone,
         @city,
         @state,
         @pronouns,
@@ -88,8 +89,7 @@ module Auditions
       # Validate that we have the required fields
       required_fields = [
         field_mappings['first_name_field'], field_mappings['last_name_field'],
-        field_mappings['city_field'], field_mappings['state_field'],
-        field_mappings['instrument_field']
+        field_mappings['address_field'], field_mappings['instrument_field']
       ]
 
       validation_result = DataValidator.validate_custom_fields(
@@ -108,14 +108,14 @@ module Auditions
       # Parse required fields
       @first_name = find_field_value(custom_fields, field_mappings['first_name_field']).to_s.strip
       @last_name = find_field_value(custom_fields, field_mappings['last_name_field']).to_s.strip
-      @city = find_field_value(custom_fields, field_mappings['city_field']).to_s.titleize
 
-      state_value = find_field_value(custom_fields, field_mappings['state_field'])
-      parse_state_field(state_value)
+      address_value = find_field_value(custom_fields, field_mappings['address_field'])
+      parse_address_field(address_value)
 
       @instrument = find_field_value(custom_fields, field_mappings['instrument_field']).to_s.strip
 
       # Parse optional fields (these may be missing without causing failure)
+      @phone = find_field_value(custom_fields, field_mappings['phone_field']).to_s.strip
       @pronouns = find_field_value(custom_fields, field_mappings['pronouns_field']).to_s.strip
       @shoe_size = find_field_value(custom_fields, field_mappings['shoe_size_field']).to_s.strip
       @shirt_size = find_field_value(custom_fields, field_mappings['shirt_size_field']).to_s.strip
@@ -138,22 +138,18 @@ module Auditions
       field&.dig('value') || ''
     end
 
-    def parse_state_field(state_value)
-      return @state = '' unless state_value.present?
-
-      state_str = state_value.to_s.strip
-      if state_str.length == 2
-        @state = state_str.upcase
-      else
-        @state = StateConverterService.abbreviation(state_str)
-      end
+    def parse_address_field(address_value)
+      parsed = AddressParser.parse(address_value)
+      @city = parsed[:city]
+      @state = parsed[:state]
     rescue StandardError => e
-      Logger.warn('Failed to parse state field', {
-                    state_value: state_value,
+      Logger.warn('Failed to parse address field', {
+                    address_value: address_value,
                     email: @email,
                     error: e.message
                   })
-      @state = state_str
+      @city = ''
+      @state = ''
     end
 
     def parse_custom_fields_fallback(custom_fields)
@@ -161,11 +157,11 @@ module Auditions
 
       @first_name = find_field_value(custom_fields, 'First Name')
       @last_name = find_field_value(custom_fields, 'Last Name')
-      @city = find_field_value(custom_fields, 'City').titleize
 
-      state_value = find_field_value(custom_fields, 'State')
-      parse_state_field(state_value)
+      address_value = find_field_value(custom_fields, 'Address')
+      parse_address_field(address_value)
 
+      @phone = find_field_value(custom_fields, 'Phone')
       @pronouns = find_field_value(custom_fields, 'Preferred Pronouns')
       @shoe_size = find_field_value(custom_fields, 'Shoe Size')
       @shirt_size = find_field_value(custom_fields, 'Shirt Size')

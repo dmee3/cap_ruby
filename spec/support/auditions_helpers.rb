@@ -29,8 +29,8 @@ module AuditionsHelpers
           'customizations' => [
             { 'label' => 'First Name', 'value' => 'Jane' },
             { 'label' => 'Last Name', 'value' => 'Smith' },
-            { 'label' => 'City', 'value' => 'Toledo' },
-            { 'label' => 'State', 'value' => 'Ohio' },
+            { 'label' => 'Address', 'value' => '456 Oak Ave, Toledo, OH 43604 US' },
+            { 'label' => 'Phone', 'value' => '555-867-5309' },
             { 'label' => 'Primary Instrument', 'value' => 'Marimba' },
             { 'label' => 'Preferred Pronouns', 'value' => 'she/her' },
             { 'label' => 'Shoe Size', 'value' => '8' },

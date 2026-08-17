@@ -7,12 +7,12 @@ RSpec.describe Auditions::Registration do
 
   let(:registration_item) do
     {
-      'productName' => 'CC26 Music Ensemble Audition Registration',
+      'productName' => 'CC27 Music Ensemble Audition Registration',
       'customizations' => [
         { 'label' => 'First Name', 'value' => 'Jane' },
         { 'label' => 'Last Name', 'value' => 'Smith' },
-        { 'label' => 'City', 'value' => 'Toledo' },
-        { 'label' => 'State', 'value' => 'Ohio' },
+        { 'label' => 'Address', 'value' => '789 Elm St, Toledo, OH 43604 US' },
+        { 'label' => 'Phone', 'value' => '555-123-4567' },
         { 'label' => 'Primary Instrument', 'value' => 'Marimba' },
         { 'label' => 'Preferred Pronouns', 'value' => 'she/her' },
         { 'label' => 'Shoe Size', 'value' => '8' },
@@ -69,7 +69,7 @@ RSpec.describe Auditions::Registration do
     it 'returns expected headers' do
       headers = described_class.header_row
 
-      expected = ['First Name', 'Last Name', 'Email', 'City', 'State', 'Pronouns',
+      expected = ['First Name', 'Last Name', 'Email', 'Phone', 'City', 'State', 'Pronouns',
                   'Shoe', 'Shirt', 'Birthdate', 'Purchased', 'Experience', 'Conflicts']
       expect(headers).to eq(expected)
     end
@@ -77,7 +77,7 @@ RSpec.describe Auditions::Registration do
 
   describe '#initialize' do
     it 'creates registration with all fields' do
-      with_test_auditions_year('2026') do
+      with_test_auditions_year('2027') do
         registration = described_class.new(date: date, item: registration_item, email: email)
 
         expect(registration.type).to eq('Music Registration')
@@ -85,6 +85,7 @@ RSpec.describe Auditions::Registration do
         expect(registration.date).to eq(date - 4.hours)
         expect(registration.first_name).to eq('Jane')
         expect(registration.last_name).to eq('Smith')
+        expect(registration.phone).to eq('555-123-4567')
         expect(registration.city).to eq('Toledo')
         expect(registration.state).to eq('OH')
         expect(registration.instrument).to eq('Marimba')
@@ -102,10 +103,10 @@ RSpec.describe Auditions::Registration do
       end
     end
 
-    it 'handles two-letter state codes' do
-      with_test_auditions_year('2026') do
+    it 'handles two-letter state codes in the address' do
+      with_test_auditions_year('2027') do
         item = registration_item.dup
-        item['customizations'].find { |c| c['label'] == 'State' }['value'] = 'TX'
+        item['customizations'].find { |c| c['label'] == 'Address' }['value'] = '1 Main St, Austin, TX 78701 US'
 
         registration = described_class.new(date: date, item: item, email: email)
 
@@ -113,34 +114,38 @@ RSpec.describe Auditions::Registration do
       end
     end
 
-    it 'converts full state names to abbreviations' do
-      with_test_auditions_year('2026') do
-        # Mock StateConverterService
+    it 'converts full state names to abbreviations in the address' do
+      with_test_auditions_year('2027') do
+        item = registration_item.dup
+        item['customizations'].find { |c| c['label'] == 'Address' }['value'] =
+          '1 Main St, Toledo, Ohio 43604 US'
+
         allow(Auditions::StateConverterService).to receive(:abbreviation).with('Ohio').and_return('OH')
 
-        registration = described_class.new(date: date, item: registration_item, email: email)
+        registration = described_class.new(date: date, item: item, email: email)
 
         expect(registration.state).to eq('OH')
       end
     end
 
     it 'handles missing optional fields' do
-      with_test_auditions_year('2026') do
+      with_test_auditions_year('2027') do
         item = registration_item.dup
         item['customizations'] = item['customizations'].select do |field|
-          ['First Name', 'Last Name', 'City', 'State', 'Primary Instrument'].include?(field['label'])
+          ['First Name', 'Last Name', 'Address', 'Primary Instrument'].include?(field['label'])
         end
 
         registration = described_class.new(date: date, item: item, email: email)
 
         expect(registration.first_name).to eq('Jane')
+        expect(registration.phone).to eq('')
         expect(registration.experience).to eq('')
         expect(registration.birthdate).to eq('')
       end
     end
 
     it 'handles invalid custom fields structure' do
-      with_test_auditions_year('2026') do
+      with_test_auditions_year('2027') do
         item = registration_item.dup
         item['customizations'] = [
           { 'label' => 'First Name' }, # missing value
@@ -158,9 +163,7 @@ RSpec.describe Auditions::Registration do
 
   describe '#to_row' do
     it 'returns formatted row data' do
-      with_test_auditions_year('2026') do
-        allow(Auditions::StateConverterService).to receive(:abbreviation).with('Ohio').and_return('OH')
-
+      with_test_auditions_year('2027') do
         registration = described_class.new(date: date, item: registration_item, email: email)
         row = registration.to_row
 
@@ -168,6 +171,7 @@ RSpec.describe Auditions::Registration do
                             'Jane',
                             'Smith',
                             'jane@example.com',
+                            '555-123-4567',
                             'Toledo',
                             'OH',
                             'she/her',
@@ -214,30 +218,27 @@ RSpec.describe Auditions::Registration do
       end
     end
 
-    describe 'state parsing' do
-      it 'handles state conversion errors' do
-        with_test_auditions_year('2026') do
-          item = registration_item.dup
-          item['customizations'].find { |c| c['label'] == 'State' }['value'] = 'Invalid State'
+    describe 'address parsing' do
+      it 'handles address parsing errors' do
+        with_test_auditions_year('2027') do
+          allow(Auditions::AddressParser).to receive(:parse).and_raise(StandardError, 'boom')
 
-          allow(Auditions::StateConverterService).to receive(:abbreviation).and_raise(
-            StandardError, 'Invalid state'
-          )
+          registration = described_class.new(date: date, item: registration_item, email: email)
 
-          registration = described_class.new(date: date, item: item, email: email)
-
-          expect(registration.state).to eq('Invalid State') # Falls back to original value
+          expect(registration.state).to eq('')
+          expect(registration.city).to eq('')
         end
       end
 
-      it 'handles empty state value' do
-        with_test_auditions_year('2026') do
+      it 'handles empty address value' do
+        with_test_auditions_year('2027') do
           item = registration_item.dup
-          item['customizations'].find { |c| c['label'] == 'State' }['value'] = ''
+          item['customizations'].find { |c| c['label'] == 'Address' }['value'] = ''
 
           registration = described_class.new(date: date, item: item, email: email)
 
           expect(registration.state).to eq('')
+          expect(registration.city).to eq('')
         end
       end
     end
