@@ -11,7 +11,7 @@ RSpec.describe Auditions::Registration do
       'customizations' => [
         { 'label' => 'First Name', 'value' => 'Jane' },
         { 'label' => 'Last Name', 'value' => 'Smith' },
-        { 'label' => 'Address', 'value' => "789 Elm St\nToledo, OH 43604" },
+        { 'label' => 'Address', 'value' => '789 Elm St, Toledo, OH 43604 US' },
         { 'label' => 'Phone', 'value' => '555-123-4567' },
         { 'label' => 'Primary Instrument', 'value' => 'Marimba' },
         { 'label' => 'Preferred Pronouns', 'value' => 'she/her' },
@@ -106,7 +106,7 @@ RSpec.describe Auditions::Registration do
     it 'handles two-letter state codes in the address' do
       with_test_auditions_year('2027') do
         item = registration_item.dup
-        item['customizations'].find { |c| c['label'] == 'Address' }['value'] = "1 Main St\nAustin, TX 78701"
+        item['customizations'].find { |c| c['label'] == 'Address' }['value'] = '1 Main St, Austin, TX 78701 US'
 
         registration = described_class.new(date: date, item: item, email: email)
 
@@ -118,7 +118,7 @@ RSpec.describe Auditions::Registration do
       with_test_auditions_year('2027') do
         item = registration_item.dup
         item['customizations'].find { |c| c['label'] == 'Address' }['value'] =
-          "1 Main St\nToledo, Ohio 43604"
+          '1 Main St, Toledo, Ohio 43604 US'
 
         allow(Auditions::StateConverterService).to receive(:abbreviation).with('Ohio').and_return('OH')
 

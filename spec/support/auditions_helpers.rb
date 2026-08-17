@@ -29,7 +29,7 @@ module AuditionsHelpers
           'customizations' => [
             { 'label' => 'First Name', 'value' => 'Jane' },
             { 'label' => 'Last Name', 'value' => 'Smith' },
-            { 'label' => 'Address', 'value' => "456 Oak Ave\nToledo, OH 43604" },
+            { 'label' => 'Address', 'value' => '456 Oak Ave, Toledo, OH 43604 US' },
             { 'label' => 'Phone', 'value' => '555-867-5309' },
             { 'label' => 'Primary Instrument', 'value' => 'Marimba' },
             { 'label' => 'Preferred Pronouns', 'value' => 'she/her' },

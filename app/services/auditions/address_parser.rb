@@ -2,34 +2,28 @@
 
 module Auditions
   class AddressParser
-    # Squarespace's native Address form field renders as a multi-line string, e.g.:
-    #   "123 Main St\nColumbus, OH 43215\nUnited States"
-    # We only care about pulling city/state back out of it.
-    CITY_STATE_LINE = /\A\s*(?<city>[^,]+),\s*(?<state>[A-Za-z .]+?)\s*(?:\d{5}(?:-\d{4})?)?\s*\z/.freeze
+    # Squarespace's native Address form field renders as a single comma-separated
+    # string, e.g.:
+    #   "2062 Shetland St, Marysville, OH 43040 US"
+    #   "123 Main St, Columbus, OH 43215"
+    # The last segment holds state (+ optional zip/country); the segment before
+    # it is the city. We only care about pulling city/state back out of it.
+    STATE_SEGMENT = /\A\s*(?<state>[A-Za-z .]+?)\s*(?:\d{5}(?:-\d{4})?)?\s*(?:[A-Za-z]{2,})?\s*\z/.freeze
 
     class << self
       def parse(address)
         return { city: '', state: '' } if address.blank?
 
-        line = city_state_line(address)
-        return { city: '', state: '' } unless line
+        segments = address.to_s.split(',').map(&:strip).reject(&:blank?)
+        return { city: '', state: '' } if segments.size < 2
 
-        match = CITY_STATE_LINE.match(line)
-        return { city: '', state: '' } unless match
+        state_match = STATE_SEGMENT.match(segments.last)
+        return { city: '', state: '' } unless state_match
 
         {
-          city: match[:city].to_s.strip.titleize,
-          state: StateConverterService.abbreviation(match[:state].to_s.strip)
+          city: segments[-2].to_s.strip.titleize,
+          state: StateConverterService.abbreviation(state_match[:state].to_s.strip)
         }
-      end
-
-      private
-
-      # The city/state/zip line is usually the second line, but fall back to
-      # scanning every line in case the street address is missing.
-      def city_state_line(address)
-        lines = address.to_s.split("\n").map(&:strip).reject(&:blank?)
-        lines.find { |l| l.match?(CITY_STATE_LINE) }
       end
     end
   end
