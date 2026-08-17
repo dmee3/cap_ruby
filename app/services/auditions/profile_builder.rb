@@ -150,6 +150,7 @@ module Auditions
           first_name: reg.first_name,
           last_name: reg.last_name,
           email: reg.email,
+          phone: reg.phone,
           city: reg.city,
           state: reg.state,
           pronouns: reg.pronouns,
