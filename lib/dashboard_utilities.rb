@@ -61,7 +61,7 @@ class DashboardUtilities
     end
 
     def behind_members(season_id)
-      members = User.for_season(season_id).with_payments.with_role(:member).to_a
+      members = User.for_season(season_id).with_payments.with_role_for_season('member', season_id).to_a
       members.reject! { |m| m.dues_status_okay?(season_id) }
       members.map do |m|
         {
