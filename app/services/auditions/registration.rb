@@ -17,20 +17,6 @@ module Auditions
       'CC26 Visual Ensemble Audition Registration' => 'Visual Registration'
     }.freeze
 
-    FIELD_TO_SYMBOL = {
-      'First Name' => :first_name,
-      'Last Name' => :last_name,
-      'Address' => :address,
-      'Phone' => :phone,
-      'Preferred Pronouns' => :pronouns,
-      'Shoe Size' => :shoe_size,
-      'Shirt Size' => :shirt_size,
-      'Primary Instrument' => :instrument,
-      'Birthdate' => :birthdate,
-      'Experience' => :experience,
-      'Known Conflicts' => :conflicts
-    }.freeze
-
     def self.product_names
       Configuration.registration_product_names
     rescue StandardError => e
