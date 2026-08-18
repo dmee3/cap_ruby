@@ -13,6 +13,10 @@ module External
         instance.clear_sheet(sheet_id, tab_name)
       end
 
+      def unmerge_sheet(sheet_id, tab_name)
+        instance.unmerge_sheet(sheet_id, tab_name)
+      end
+
       def format_sheet(sheet_id, tab_name, header_rows, subheader_rows, instrument_rows,
                        registered_rows = [])
         instance.format_sheet(
@@ -50,6 +54,16 @@ module External
     def clear_sheet(sheet_id, tab_name)
       request_body = Google::Apis::SheetsV4::ClearValuesRequest.new
       service.clear_values(sheet_id, "'#{tab_name}'!A1:Z1000", request_body)
+    end
+
+    # Merged cells from a previous write can persist across runs (e.g. if a run's
+    # write_sheet succeeds but format_sheet doesn't run). Any new values written into
+    # a still-merged range collapse down to that range's single cell on read, silently
+    # dropping data. Unmerging before write_sheet ensures values always land on
+    # unmerged cells, regardless of what a prior run left behind.
+    def unmerge_sheet(sheet_id, tab_name)
+      tab_id = tab_name_to_id(sheet_id, tab_name)
+      service.batch_update_spreadsheet(sheet_id, { requests: [unmerge_all_cells_request_body(tab_id)] })
     end
 
     def format_sheet(sheet_id, tab_name, header_rows, subheader_rows, instrument_rows,

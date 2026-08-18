@@ -56,6 +56,7 @@ module Auditions
       Logger.debug('Writing packet data to spreadsheet', { rows: packet_data.size })
 
       clear_and_format_sheet(Configuration.packets_sheet_name)
+      unmerge_sheet(Configuration.packets_sheet_name)
 
       sheets_api.write_sheet(
         Configuration.spreadsheet_id,
@@ -84,6 +85,7 @@ module Auditions
       Logger.debug('Writing registration data to spreadsheet', { rows: registration_data.size })
 
       clear_and_format_sheet(Configuration.registrations_sheet_name)
+      unmerge_sheet(Configuration.registrations_sheet_name)
 
       sheets_api.write_sheet(
         Configuration.spreadsheet_id,
@@ -114,6 +116,15 @@ module Auditions
       sheets_api.clear_sheet(Configuration.spreadsheet_id, sheet_name)
     rescue StandardError => e
       Logger.error('Failed to clear/format sheet', e, { sheet_name: sheet_name })
+      raise
+    end
+
+    # Unmerging before writing values prevents stale merges from a previous run
+    # (e.g. one where format_sheet didn't complete) from swallowing new data.
+    def unmerge_sheet(sheet_name)
+      sheets_api.unmerge_sheet(Configuration.spreadsheet_id, sheet_name)
+    rescue StandardError => e
+      Logger.error('Failed to unmerge sheet', e, { sheet_name: sheet_name })
       raise
     end
 
