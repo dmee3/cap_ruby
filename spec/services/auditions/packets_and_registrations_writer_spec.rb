@@ -69,10 +69,24 @@ RSpec.describe Auditions::PacketsAndRegistrationsWriter do
     it 'calls clear and write for both sheets' do
       with_test_auditions_year('2026') do
         expect(External::GoogleSheetsApi).to receive(:clear_sheet).twice
+        expect(External::GoogleSheetsApi).to receive(:unmerge_sheet).twice
         expect(External::GoogleSheetsApi).to receive(:write_sheet).twice
         expect(External::GoogleSheetsApi).to receive(:format_sheet).twice
 
         service.call(profiles)
+      end
+    end
+
+    it 'unmerges the sheet before writing values, so stale merges from a prior run cannot swallow new data' do
+      with_test_auditions_year('2026') do
+        call_order = []
+        allow(External::GoogleSheetsApi).to receive(:unmerge_sheet) { call_order << :unmerge_sheet }
+        allow(External::GoogleSheetsApi).to receive(:write_sheet) { call_order << :write_sheet }
+
+        service.call(profiles)
+
+        packets_calls = call_order.first(2)
+        expect(packets_calls).to eq(%i[unmerge_sheet write_sheet])
       end
     end
   end

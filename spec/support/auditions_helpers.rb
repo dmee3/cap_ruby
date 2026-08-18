@@ -66,6 +66,7 @@ module AuditionsHelpers
 
   def mock_google_sheets_api
     allow(External::GoogleSheetsApi).to receive(:clear_sheet)
+    allow(External::GoogleSheetsApi).to receive(:unmerge_sheet)
     allow(External::GoogleSheetsApi).to receive(:format_sheet)
     allow(External::GoogleSheetsApi).to receive(:write_sheet)
     allow(External::GoogleSheetsApi).to receive(:read_sheet).and_return([])
