@@ -9,7 +9,7 @@ class ToolsController < ApplicationController
 
   def tarp_cc2_2026; end # rubocop:disable Naming/VariableNumber
 
-  def tarp_cc2_2026_segments; end # rubocop:disable Naming/VariableNumber
+  def tarp_cc2_2026_segments; end
 
   def tarp_grid_tool; end
 

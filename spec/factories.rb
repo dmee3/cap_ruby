@@ -17,6 +17,13 @@ FactoryBot.define do
     year { Date.today.year }
   end
 
+  factory :event do
+    name { Faker::Music.band }
+    start_date { Date.today + rand(1..30).days }
+    end_date { start_date + 1.day }
+    season
+  end
+
   factory :activity do
     activity_date { Date.today - rand(1..60).days }
     activity_type { Faker::Beer.brand }

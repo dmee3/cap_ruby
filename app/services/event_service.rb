@@ -3,7 +3,7 @@
 class EventService
   class << self
     def next_event(season_id)
-      Event.where(season_id: season_id).select { |e| e[:end_date] >= Date.today }.first
+      Event.where(season_id: season_id).where('end_date >= ?', Date.today).order(:start_date).first
     end
   end
 end
