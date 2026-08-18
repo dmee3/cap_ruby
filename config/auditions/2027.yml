@@ -23,6 +23,7 @@ field_mappings:
     city_field: "City"
     state_field: "State"
     instrument_field: "Instrument"
+    experience_field: "Experience"
 
   registration:
     first_name_field: "First Name"

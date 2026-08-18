@@ -43,7 +43,8 @@ RSpec.describe Auditions::Packet do
     it 'returns expected headers' do
       headers = described_class.header_row
 
-      expect(headers).to eq(['First Name', 'Last Name', 'Email', 'City', 'State', 'Downloaded'])
+      expect(headers).to eq(['First Name', 'Last Name', 'Email', 'City', 'State', 'Downloaded',
+                             'Experience'])
     end
   end
 
@@ -100,6 +101,16 @@ RSpec.describe Auditions::Packet do
       end
     end
 
+    it 'defaults experience to blank for older orders that predate the question' do
+      with_test_auditions_year('2027') do
+        # packet_item has no 'Experience' customization, simulating an order placed
+        # before the field was added to the Squarespace form
+        packet = described_class.new(date: date, item: packet_item, email: email)
+
+        expect(packet.experience).to eq('')
+      end
+    end
+
     it 'handles missing custom fields gracefully' do
       with_test_auditions_year('2026') do
         item = packet_item.dup
@@ -112,6 +123,7 @@ RSpec.describe Auditions::Packet do
         expect(packet.city).to eq('')
         expect(packet.state).to eq('')
         expect(packet.instrument).to eq('')
+        expect(packet.experience).to eq('')
       end
     end
 
@@ -144,7 +156,28 @@ RSpec.describe Auditions::Packet do
                             'test@example.com',
                             'Columbus',
                             'OH',
-                            '9/1 8:00 am' # date - 4 hours formatted
+                            '9/1 8:00 am', # date - 4 hours formatted
+                            '' # experience not collected in 2026
+                          ])
+      end
+    end
+
+    it 'includes experience when the year config collects it' do
+      with_test_auditions_year('2027') do
+        item = packet_item.dup
+        item['customizations'] << { 'label' => 'Experience', 'value' => '3 years marching band' }
+
+        packet = described_class.new(date: date, item: item, email: email)
+        row = packet.to_row
+
+        expect(row).to eq([
+                            'John',
+                            'Doe',
+                            'test@example.com',
+                            'Columbus',
+                            'OH',
+                            '9/1 8:00 am',
+                            '3 years marching band'
                           ])
       end
     end

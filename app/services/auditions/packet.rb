@@ -2,7 +2,8 @@
 
 module Auditions
   class Packet
-    attr_reader :type, :first_name, :last_name, :email, :city, :state, :instrument, :date
+    attr_reader :type, :first_name, :last_name, :email, :city, :state, :instrument, :date,
+                :experience
 
     # Note for next year - make sure to share the spreadsheets with the service account!
     # Product names are now configured in config/auditions/{year}.yml
@@ -23,7 +24,7 @@ module Auditions
 
     class << self
       def header_row
-        ['First Name', 'Last Name', 'Email', 'City', 'State', 'Downloaded'].freeze
+        ['First Name', 'Last Name', 'Email', 'City', 'State', 'Downloaded', 'Experience'].freeze
       end
     end
 
@@ -36,7 +37,7 @@ module Auditions
     end
 
     def to_row
-      [@first_name, @last_name, @email, @city, @state, @date.strftime('%-m/%-d %-l:%M %P')]
+      [@first_name, @last_name, @email, @city, @state, @date.strftime('%-m/%-d %-l:%M %P'), @experience]
     end
 
     private
@@ -72,6 +73,12 @@ module Auditions
         field['label'] == field_mappings['instrument_field']
       end
       @instrument = instrument_field['value'].to_s.strip
+
+      # Experience is optional: older orders predate this question and won't have it
+      experience_field = custom_fields.find do |field|
+        field['label'] == field_mappings['experience_field']
+      end
+      @experience = experience_field&.dig('value').to_s.strip
     rescue StandardError => e
       Logger.error('Failed to parse packet custom fields', e, {
                      product_name: @type,
@@ -121,6 +128,7 @@ module Auditions
         @city = ''
         @state = ''
         @instrument = ''
+        @experience = ''
         return
       end
 
@@ -149,6 +157,11 @@ module Auditions
       end
       instrument_value = instrument&.dig('value')
       @instrument = instrument_value.to_s.strip
+
+      experience = custom_fields.find do |field|
+        field.is_a?(Hash) && field['label'] == 'Experience'
+      end
+      @experience = experience&.dig('value').to_s.strip
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
