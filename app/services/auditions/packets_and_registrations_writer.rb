@@ -128,6 +128,10 @@ module Auditions
       raise
     end
 
+    def sort_by_name(entries)
+      entries.sort_by { |entry| [entry.first_name.to_s, entry.last_name.to_s] }
+    end
+
     def build_organized_packet_data(packets)
       # Group packets by type
       packets_by_type = packets.group_by(&:type)
@@ -161,8 +165,8 @@ module Auditions
           instrument_rows << current_row
           current_row += 1
 
-          # Add packet data rows (sorted by date)
-          packets_for_instrument.sort_by(&:date).each do |packet|
+          # Add packet data rows (sorted by name)
+          sort_by_name(packets_for_instrument).each do |packet|
             data_rows << packet.to_row
             current_row += 1
           end
@@ -218,8 +222,8 @@ module Auditions
           instrument_rows << current_row
           current_row += 1
 
-          # Add registration data rows (sorted by date)
-          registrations_for_instrument.sort_by(&:date).each do |registration|
+          # Add registration data rows (sorted by name)
+          sort_by_name(registrations_for_instrument).each do |registration|
             data_rows << registration.to_row
             current_row += 1
           end
