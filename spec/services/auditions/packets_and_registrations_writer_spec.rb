@@ -90,7 +90,7 @@ RSpec.describe Auditions::PacketsAndRegistrationsWriter do
       end
     end
 
-    it 'sorts packets and registrations by last name, then first name, instead of by date' do
+    it 'sorts packets and registrations by first name, then last name, instead of by date' do
       with_test_auditions_year('2026') do
         written_data = { packets: nil, registrations: nil }
         allow(External::GoogleSheetsApi).to receive(:write_sheet) do |_id, sheet_name, data, **|
@@ -116,8 +116,8 @@ RSpec.describe Auditions::PacketsAndRegistrationsWriter do
           Auditions::Registration.new(date: DateTime.current, item: item, email: "#{first}@example.com")
         end
 
-        packets = [make_packet.call('Zack Young'), make_packet.call('Amy Adams')]
-        registrations = [make_registration.call('Zack', 'Young'), make_registration.call('Amy', 'Adams')]
+        packets = [make_packet.call('Zack Adams'), make_packet.call('Amy Young')]
+        registrations = [make_registration.call('Zack', 'Adams'), make_registration.call('Amy', 'Young')]
 
         profiles = packets.map do |packet|
           Auditions::Profile.new(first_name: packet.first_name, last_name: packet.last_name,
@@ -130,13 +130,13 @@ RSpec.describe Auditions::PacketsAndRegistrationsWriter do
 
         service.call(profiles)
 
-        packet_names = written_data[:packets].select { |row| row.size >= 2 && %w[Adams Young].include?(row[1]) }
-        expect(packet_names.map { |row| row[1] }).to eq(%w[Adams Young])
+        packet_names = written_data[:packets].select { |row| row.size >= 1 && %w[Amy Zack].include?(row[0]) }
+        expect(packet_names.map { |row| row[0] }).to eq(%w[Amy Zack])
 
         registration_names = written_data[:registrations].select do |row|
-          row.size >= 2 && %w[Adams Young].include?(row[1])
+          row.size >= 1 && %w[Amy Zack].include?(row[0])
         end
-        expect(registration_names.map { |row| row[1] }).to eq(%w[Adams Young])
+        expect(registration_names.map { |row| row[0] }).to eq(%w[Amy Zack])
       end
     end
   end

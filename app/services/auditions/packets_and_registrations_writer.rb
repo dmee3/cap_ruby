@@ -129,7 +129,7 @@ module Auditions
     end
 
     def sort_by_name(entries)
-      entries.sort_by { |entry| [entry.last_name.to_s, entry.first_name.to_s] }
+      entries.sort_by { |entry| [entry.first_name.to_s, entry.last_name.to_s] }
     end
 
     def build_organized_packet_data(packets)
