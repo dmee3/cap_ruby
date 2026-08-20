@@ -390,4 +390,86 @@ RSpec.describe Auditions::RecruitmentUpdater do
       end
     end
   end
+
+  describe 'profiles whose instrument does not match a known tab category' do
+    def packet_with_instrument(instrument, email:, name: 'Person Name')
+      with_test_auditions_year('2026') do
+        Auditions::Packet.new(
+          date: DateTime.current,
+          item: {
+            'productName' => 'Cap City 2026 Front Ensemble Audition Packet',
+            'customizations' => [
+              { 'label' => 'Name', 'value' => name },
+              { 'label' => 'City', 'value' => 'Austin' },
+              { 'label' => 'State', 'value' => 'TX' },
+              { 'label' => 'Instrument', 'value' => instrument }
+            ]
+          },
+          email: email
+        )
+      end
+    end
+
+    before do
+      described_class::ORIGINAL_TAB_NAMES.each do |tab_name|
+        allow(mock_sheets_api).to receive(:read_sheet)
+          .with('test-recruitment-id', tab_name)
+          .and_return([])
+        allow(mock_sheets_api).to receive(:write_sheet)
+          .with('test-recruitment-id', tab_name, anything, formulae: true)
+      end
+      allow(mock_sheets_api).to receive(:clear_sheet).with('test-recruitment-id', 'UNSORTED')
+      allow(mock_sheets_api).to receive(:format_sheet)
+        .with('test-recruitment-id', 'UNSORTED', anything, anything, anything, anything)
+    end
+
+    it 'still surfaces a mallet player on UNSORTED even without an exact MALLETS instrument match' do
+      packet = packet_with_instrument('Mallets', email: 'mallet.player@example.com', name: 'Mallet Player')
+      profile = Auditions::Profile.new(first_name: 'Mallet', last_name: 'Player',
+                                       email: 'mallet.player@example.com', packet: packet)
+
+      written_rows = nil
+      allow(mock_sheets_api).to receive(:write_sheet) do |_id, tab_name, rows, **|
+        written_rows = rows if tab_name == 'UNSORTED'
+      end
+
+      result = service.call([profile])
+
+      expect(result).to be_success
+      expect(written_rows.flatten).to include('Mallet')
+      expect(written_rows.flatten.join(' ')).to include('Marked instrument as Mallets')
+    end
+
+    it 'still surfaces an electro player on UNSORTED even without an exact ELECTRO instrument match' do
+      packet = packet_with_instrument('Electronics', email: 'electro.player@example.com', name: 'Electro Player')
+      profile = Auditions::Profile.new(first_name: 'Electro', last_name: 'Player',
+                                       email: 'electro.player@example.com', packet: packet)
+
+      written_rows = nil
+      allow(mock_sheets_api).to receive(:write_sheet) do |_id, tab_name, rows, **|
+        written_rows = rows if tab_name == 'UNSORTED'
+      end
+
+      result = service.call([profile])
+
+      expect(result).to be_success
+      expect(written_rows.flatten).to include('Electro')
+      expect(written_rows.flatten.join(' ')).to include('Marked instrument as Electronics')
+    end
+
+    it 'groups unmatched-instrument profiles under an UNMATCHED section rather than dropping them' do
+      packet = packet_with_instrument('Kazoo', email: 'kazoo.player@example.com', name: 'Kazoo Player')
+      profile = Auditions::Profile.new(first_name: 'Kazoo', last_name: 'Player',
+                                       email: 'kazoo.player@example.com', packet: packet)
+
+      written_rows = nil
+      allow(mock_sheets_api).to receive(:write_sheet) do |_id, tab_name, rows, **|
+        written_rows = rows if tab_name == 'UNSORTED'
+      end
+
+      service.call([profile])
+
+      expect(written_rows).to include(['UNMATCHED'])
+    end
+  end
 end
