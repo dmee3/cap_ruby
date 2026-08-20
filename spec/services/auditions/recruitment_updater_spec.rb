@@ -325,7 +325,7 @@ RSpec.describe Auditions::RecruitmentUpdater do
   describe 'instrument handling' do
     it 'correctly identifies multi-instrument tabs' do
       expect(described_class::TAB_INSTRUMENT_MAPPING['MALLETS']).to contain_exactly(
-        'Marimba', 'Vibraphone', 'Xylophone', 'Glockenspiel'
+        'Marimba', 'Vibraphone', 'Xylophone', 'Glockenspiel', 'Keyboard'
       )
       expect(described_class::TAB_INSTRUMENT_MAPPING['AUX']).to contain_exactly(
         'Drum Kit', 'Auxiliary Percussion'
@@ -438,6 +438,22 @@ RSpec.describe Auditions::RecruitmentUpdater do
       expect(result).to be_success
       expect(written_rows.flatten).to include('Mallet')
       expect(written_rows.flatten.join(' ')).to include('Marked instrument as Mallets')
+    end
+
+    it "recognizes 'Keyboard' as a MALLETS instrument, since that's what packet buyers actually select" do
+      packet = packet_with_instrument('Keyboard', email: 'keyboard.player@example.com', name: 'Keyboard Player')
+      profile = Auditions::Profile.new(first_name: 'Keyboard', last_name: 'Player',
+                                       email: 'keyboard.player@example.com', packet: packet)
+
+      written_rows = nil
+      allow(mock_sheets_api).to receive(:write_sheet) do |_id, tab_name, rows, **|
+        written_rows = rows if tab_name == 'UNSORTED'
+      end
+
+      service.call([profile])
+
+      expect(written_rows).to include(['MALLETS'])
+      expect(written_rows).not_to include(['UNMATCHED'])
     end
 
     it 'still surfaces an electro player on UNSORTED even without an exact ELECTRO instrument match' do

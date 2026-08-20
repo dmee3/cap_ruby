@@ -7,7 +7,7 @@ module Auditions
 
     # New tab-to-instruments mapping for the updated structure
     TAB_INSTRUMENT_MAPPING = {
-      'MALLETS' => %w[Marimba Vibraphone Xylophone Glockenspiel],
+      'MALLETS' => %w[Marimba Vibraphone Xylophone Glockenspiel Keyboard],
       'AUX' => ['Drum Kit', 'Auxiliary Percussion'],
       'ELECTRO' => ['Synthesizer', 'Bass Guitar'],
       'SD' => ['Snare'],
