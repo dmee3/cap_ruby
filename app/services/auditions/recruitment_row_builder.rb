@@ -2,18 +2,6 @@
 
 module Auditions
   class RecruitmentRowBuilder
-    # Tab-to-instruments mapping (shared with RecruitmentUpdater)
-    TAB_INSTRUMENT_MAPPING = {
-      'MALLETS' => %w[Marimba Vibraphone Xylophone Glockenspiel],
-      'AUX' => ['Drum Kit', 'Auxiliary Percussion'],
-      'ELECTRO' => ['Synthesizer', 'Bass Guitar'],
-      'SD' => ['Snare'],
-      'TN' => ['Tenors'],
-      'BD' => ['Bass'],
-      'CYM' => ['Cymbals'],
-      'VE' => ['Visual Ensemble']
-    }.freeze
-
     class << self
       def build_row_for_unsorted(profile, tab_name)
         row = [
@@ -103,9 +91,11 @@ module Auditions
       def build_instrument_note(profile, tab_name)
         return '' unless tab_name
 
-        # Only add instrument note for multi-instrument tabs
-        instruments = TAB_INSTRUMENT_MAPPING[tab_name] || []
-        return '' unless instruments.size > 1
+        # Only add instrument note for multi-instrument tabs, or for the
+        # UNMATCHED bucket where the instrument is the only clue as to why
+        # the profile couldn't be auto-categorized.
+        instruments = RecruitmentUpdater::TAB_INSTRUMENT_MAPPING[tab_name] || []
+        return '' unless instruments.size > 1 || tab_name == RecruitmentUpdater::UNMATCHED_TAB
 
         # Determine the instrument to use:
         # 1. If there's a registration, use the instrument from the registration

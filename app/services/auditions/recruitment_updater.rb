@@ -7,7 +7,7 @@ module Auditions
 
     # New tab-to-instruments mapping for the updated structure
     TAB_INSTRUMENT_MAPPING = {
-      'MALLETS' => %w[Marimba Vibraphone Xylophone Glockenspiel],
+      'MALLETS' => %w[Marimba Vibraphone Xylophone Glockenspiel Keyboard],
       'AUX' => ['Drum Kit', 'Auxiliary Percussion'],
       'ELECTRO' => ['Synthesizer', 'Bass Guitar'],
       'SD' => ['Snare'],
@@ -16,6 +16,10 @@ module Auditions
       'CYM' => ['Cymbals'],
       'VE' => ['Visual Ensemble']
     }.freeze
+    # Bucket for profiles whose packet instrument doesn't match any known tab
+    # category (e.g. a typo, a synonym, or a brand-new instrument option).
+    # These still surface on UNSORTED rather than being dropped silently.
+    UNMATCHED_TAB = 'UNMATCHED'
     UNSORTED_HEADERS = [
       'THESE PEOPLE HAVE DOWNLOADED A PACKET OR REGISTERED,',
       'BUT ARE NOT ON THE RECRUITMENT DOC.',
@@ -43,16 +47,20 @@ module Auditions
       Logger.debug('Starting recruitment sheet updates',
                    { tabs: TAB_NAMES.size, profiles: profiles.size })
 
-      # First, update existing rows in original tabs (no new additions)
-      all_new_profiles = []
+      # First, update existing rows in original tabs and gather each tab's rows
+      # so we know who's already accounted for somewhere on the doc.
+      rows_by_tab = {}
       ORIGINAL_TAB_NAMES.each do |tab_name|
-        result = update_existing_rows_only(tab_name, profiles)
+        result, rows = update_existing_rows_only(tab_name, profiles)
         return result if result.is_a?(Result) && result.failure?
 
-        # Collect profiles that don't exist in this tab
-        new_profiles_for_tab = collect_new_profiles_for_tab(tab_name, profiles)
-        all_new_profiles.concat(new_profiles_for_tab.map { |p| { profile: p, tab: tab_name } })
+        rows_by_tab[tab_name] = rows
       end
+
+      # Any packet-holding profile not already present on ANY tab's sheet
+      # belongs on UNSORTED, regardless of whether its instrument value
+      # matches one of the known tab categories.
+      all_new_profiles = collect_unaccounted_profiles(profiles, rows_by_tab)
 
       # Then, update the UNSORTED tab with all new profiles organized by section
       result = update_unsorted_tab(all_new_profiles)
@@ -66,44 +74,44 @@ module Auditions
       Logger.debug('Processing recruitment tab existing rows only', { tab: tab_name })
 
       rows = read_sheet_rows(tab_name)
-      return Result.failure(["Failed to read recruitment sheet tab: #{tab_name}"]) if rows.nil?
+      return [Result.failure(["Failed to read recruitment sheet tab: #{tab_name}"]), []] if rows.nil?
 
-      return Result.success({}) if rows.empty?
+      return [nil, rows] if rows.empty?
 
       RecruitmentRowBuilder.update_existing_rows_for_tab(tab_name, rows, profiles)
 
       write_result = write_sheet_rows(tab_name, rows)
-      return write_result if write_result.is_a?(Result) && write_result.failure?
+      return [write_result, rows] if write_result.is_a?(Result) && write_result.failure?
 
       Logger.debug('Tab existing rows updated successfully',
                    { tab: tab_name, total_rows: rows.size })
-      nil # Success - no Result object needed
+      [nil, rows] # Success - no Result object needed
     rescue StandardError => e
       Logger.error('Failed to update recruitment tab existing rows', e, { tab: tab_name })
-      Result.failure(["Failed to update recruitment tab #{tab_name}: #{e.message}"])
+      [Result.failure(["Failed to update recruitment tab #{tab_name}: #{e.message}"]), []]
     end
 
-    def collect_new_profiles_for_tab(tab_name, profiles)
-      rows = read_sheet_rows(tab_name)
-      return [] if rows.nil?
+    # Any profile with a packet that isn't already a row on one of the original
+    # tab sheets is "unaccounted for" and belongs on UNSORTED - tagged with its
+    # best-guess tab when the instrument matches a known category, or UNMATCHED_TAB
+    # when it doesn't. Previously, profiles whose instrument didn't exactly match
+    # one of TAB_INSTRUMENT_MAPPING's values were silently dropped entirely instead
+    # of falling through to UNSORTED.
+    def collect_unaccounted_profiles(profiles, rows_by_tab)
+      profiles.filter_map do |profile|
+        next unless profile.packet
+        next if ORIGINAL_TAB_NAMES.any? { |tab_name| profile_exists_in_rows?(profile, rows_by_tab[tab_name]) }
 
-      instruments = TAB_INSTRUMENT_MAPPING[tab_name] || []
-
-      if instruments.size > 1
-        # Multi-instrument tab - collect profiles for any of the instruments
-        instruments.flat_map do |instrument|
-          find_new_profiles_for_instrument(profiles, rows, instrument)
-        end.uniq
-      else
-        # Single instrument tab
-        instrument = instruments.first
-        return [] unless instrument
-
-        find_new_profiles_for_instrument(profiles, rows, instrument)
+        { profile: profile, tab: guess_tab_for_instrument(profile.packet.instrument) }
       end
-    rescue StandardError => e
-      Logger.error('Failed to collect new profiles for tab', e, { tab: tab_name })
-      []
+    end
+
+    def guess_tab_for_instrument(instrument)
+      TAB_INSTRUMENT_MAPPING.each do |tab_name, instruments|
+        return tab_name if instruments.include?(instrument)
+      end
+
+      UNMATCHED_TAB
     end
 
     def update_unsorted_tab(new_profiles_by_tab)
@@ -167,8 +175,9 @@ module Auditions
       # Group profiles by tab
       profiles_by_tab = new_profiles_by_tab.group_by { |item| item[:tab] }
 
-      # Add sections for each tab that has new profiles
-      ORIGINAL_TAB_NAMES.each do |tab_name|
+      # Add sections for each tab that has new profiles, plus a trailing
+      # section for profiles whose instrument didn't match any known tab
+      (ORIGINAL_TAB_NAMES + [UNMATCHED_TAB]).each do |tab_name|
         profiles_for_tab = profiles_by_tab[tab_name] || []
         next if profiles_for_tab.empty?
 
@@ -229,20 +238,6 @@ module Auditions
     rescue StandardError => e
       Logger.error('Failed to write recruitment sheet', e, { tab: tab_name })
       Result.failure(["Failed to write recruitment sheet #{tab_name}: #{e.message}"])
-    end
-
-    def find_new_profiles_for_instrument(profiles, existing_rows, instrument)
-      profiles.select do |profile|
-        profile_has_instrument?(profile, instrument) &&
-          !profile_exists_in_rows?(profile, existing_rows)
-      end
-    end
-
-    def profile_has_instrument?(profile, instrument)
-      return false unless profile.packet
-
-      # Get instrument from packet if available
-      profile.packet.instrument == instrument
     end
 
     def profile_exists_in_rows?(profile, rows)
