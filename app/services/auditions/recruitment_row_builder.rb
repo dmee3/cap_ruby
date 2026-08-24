@@ -31,9 +31,14 @@ module Auditions
           profile = find_matching_profile(row, profiles)
           next unless profile
 
+          backfill_email(row, profile)
           mark_packet_downloaded(row, profile, tab_name) if profile.packet
           mark_registered(row) if profile.registration
         end
+      end
+
+      def backfill_email(row, profile)
+        row[5] = profile.email if row[5].to_s.strip.empty? && profile.email.present?
       end
 
       def mark_packet_downloaded(row, profile, tab_name = nil)

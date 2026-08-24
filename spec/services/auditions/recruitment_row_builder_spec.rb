@@ -50,7 +50,7 @@ RSpec.describe Auditions::RecruitmentRowBuilder do
   describe '.update_existing_rows_for_tab' do
     let(:existing_rows) do
       [
-        ['', 'Test', 'User', '', '', 'City, ST', 'test@example.com', '', '', '', '']
+        ['', 'Test', 'User', '', 'City, ST', 'test@example.com', '', '', '', '']
       ]
     end
 
@@ -68,10 +68,26 @@ RSpec.describe Auditions::RecruitmentRowBuilder do
 
       expect(existing_rows[0][9]).to include('Marked instrument as Snare')
     end
+
+    it 'backfills a blank email column from the matched profile' do
+      existing_rows[0][5] = ''
+
+      described_class.update_existing_rows_for_tab('SD', existing_rows, profiles)
+
+      expect(existing_rows[0][5]).to eq('test@example.com')
+    end
+
+    it 'does not overwrite an existing email column' do
+      existing_rows[0][5] = 'someone-else@example.com'
+
+      described_class.update_existing_rows_for_tab('SD', existing_rows, profiles)
+
+      expect(existing_rows[0][5]).to eq('someone-else@example.com')
+    end
   end
 
   describe '.mark_packet_downloaded' do
-    let(:row) { ['', 'Test', 'User', '', '', 'City, ST', 'test@example.com', '', '', '', ''] }
+    let(:row) { ['', 'Test', 'User', '', 'City, ST', 'test@example.com', '', '', '', ''] }
 
     it 'marks packet as downloaded' do
       described_class.mark_packet_downloaded(row, profile_with_packet, 'SD')
