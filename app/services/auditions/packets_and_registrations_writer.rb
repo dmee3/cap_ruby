@@ -128,8 +128,8 @@ module Auditions
       raise
     end
 
-    def sort_by_name(entries)
-      entries.sort_by { |entry| [entry.first_name.to_s, entry.last_name.to_s] }
+    def sort_chronologically(entries)
+      entries.sort_by(&:date)
     end
 
     def build_organized_packet_data(packets)
@@ -165,8 +165,8 @@ module Auditions
           instrument_rows << current_row
           current_row += 1
 
-          # Add packet data rows (sorted by name)
-          sort_by_name(packets_for_instrument).each do |packet|
+          # Add packet data rows (sorted chronologically)
+          sort_chronologically(packets_for_instrument).each do |packet|
             data_rows << packet.to_row
             current_row += 1
           end
@@ -222,8 +222,8 @@ module Auditions
           instrument_rows << current_row
           current_row += 1
 
-          # Add registration data rows (sorted by name)
-          sort_by_name(registrations_for_instrument).each do |registration|
+          # Add registration data rows (sorted chronologically)
+          sort_chronologically(registrations_for_instrument).each do |registration|
             data_rows << registration.to_row
             current_row += 1
           end
