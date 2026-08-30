@@ -90,7 +90,7 @@ RSpec.describe Auditions::PacketsAndRegistrationsWriter do
       end
     end
 
-    it 'sorts packets and registrations by first name, then last name, instead of by date' do
+    it 'sorts packets and registrations chronologically, not by name' do
       with_test_auditions_year('2026') do
         written_data = { packets: nil, registrations: nil }
         allow(External::GoogleSheetsApi).to receive(:write_sheet) do |_id, sheet_name, data, **|
@@ -102,22 +102,27 @@ RSpec.describe Auditions::PacketsAndRegistrationsWriter do
         end
 
         packet_item = sample_packet_order['lineItems'].first
-        make_packet = lambda do |name|
+        make_packet = lambda do |name, date|
           item = packet_item.deep_dup
           item['customizations'].find { |c| c['label'] == 'Name' }['value'] = name
-          Auditions::Packet.new(date: DateTime.current, item: item, email: "#{name}@example.com")
+          Auditions::Packet.new(date: date, item: item, email: "#{name}@example.com")
         end
 
         registration_item = sample_registration_order['lineItems'].first
-        make_registration = lambda do |first, last|
+        make_registration = lambda do |first, last, date|
           item = registration_item.deep_dup
           item['customizations'].find { |c| c['label'] == 'First Name' }['value'] = first
           item['customizations'].find { |c| c['label'] == 'Last Name' }['value'] = last
-          Auditions::Registration.new(date: DateTime.current, item: item, email: "#{first}@example.com")
+          Auditions::Registration.new(date: date, item: item, email: "#{first}@example.com")
         end
 
-        packets = [make_packet.call('Zack Adams'), make_packet.call('Amy Young')]
-        registrations = [make_registration.call('Zack', 'Adams'), make_registration.call('Amy', 'Young')]
+        # Alphabetically 'Zack' would sort before... but 'Amy' registered/downloaded first,
+        # so chronological order should put Amy first despite the name ordering.
+        packets = [make_packet.call('Zack Adams', 2.days.ago), make_packet.call('Amy Young', 3.days.ago)]
+        registrations = [
+          make_registration.call('Zack', 'Adams', 2.days.ago),
+          make_registration.call('Amy', 'Young', 3.days.ago)
+        ]
 
         profiles = packets.map do |packet|
           Auditions::Profile.new(first_name: packet.first_name, last_name: packet.last_name,
