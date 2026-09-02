@@ -3,15 +3,5 @@
 class ToolsController < ApplicationController
   def rhythm_converter; end
 
-  def tarp_canvas; end
-
-  def tarp_canvas_2026; end # rubocop:disable Naming/VariableNumber
-
-  def tarp_cc2_2026; end # rubocop:disable Naming/VariableNumber
-
-  def tarp_cc2_2026_segments; end
-
   def tarp_grid_tool; end
-
-  def jersey_2026; end # rubocop:disable Naming/VariableNumber
 end
