@@ -87,9 +87,34 @@ Manage all aspects of ensemble operations including member registration, rehears
 - Available to all authenticated users
 
 ### Auditions System
-- Public-facing audition registration
-- Google Sheets integration for data processing
-- No authentication required
+
+Processes prospective-member audition sales from Squarespace into Google Sheets that
+staff use to organize and follow up with people who register or download an audition packet.
+
+**Seasonality:** This subsystem is only touched for ~6 weeks a year during pre-season prep
+(roughly Aug–Nov), then sits unused until the next season. Heavy recent git activity here
+reflects that annual cycle, not the app's overall focus.
+
+**Public endpoints** (no auth): `GET /auditions-spreadsheet` (`AuditionsController#index`)
+shows the page; `GET /auditions-spreadsheet-generate` (`#update`) triggers a sync. The same
+sync also runs via `rake auditions:update_spreadsheet` (used for scheduled runs).
+
+**Pipeline** (`Auditions::SpreadsheetService.update` → `Auditions::Orchestrator`, all under
+`app/services/auditions/`). Steps use a `Result` object and short-circuit on failure:
+1. `DataFetcher` — pulls orders from the Squarespace Orders API (`lib/external/squarespace_api.rb`), validates them
+2. `ProfileBuilder` — converts order line items into `Packet` / `Registration` objects by product name, then merges them into `Profile`s keyed on email
+3. `PacketsAndRegistrationsWriter` — rewrites the "Packets" and "Registrations" tabs of the main spreadsheet, grouped by type → instrument, sorted chronologically; clears and unmerges cells first to avoid stale-merge corruption
+4. `RecruitmentUpdater` — only if `RECRUITMENT_SPREADSHEET_ID` is set; updates per-section tabs (`MALLETS/SD/TN/BD/CYM/AUX/ELECTRO/VE`) via `TAB_INSTRUMENT_MAPPING` and drops anyone not already on a tab onto `UNSORTED`
+
+**Per-year config:** `config/auditions/{year}.yml`, selected by the `AUDITIONS_YEAR` env var
+(defaults to the current calendar year). Holds the date range, Squarespace product names →
+display types, and form-field label mappings. To set up a new season, copy the previous
+year's file and update it, then **share both Google Sheets with the service account**.
+The `PRODUCT_NAMES` constants in the model classes are fallbacks only.
+
+**Env vars:** `AUDITIONS_YEAR`, `AUDITIONS_SPREADSHEET_ID`, `RECRUITMENT_SPREADSHEET_ID`,
+`SQUARESPACE_API_KEY`, plus Google service-account credentials
+(see `app/services/auditions/GOOGLE_CREDENTIALS_SETUP.md`).
 
 ## User Roles & Permissions
 
@@ -330,11 +355,17 @@ app/models/
 
 **Services:**
 - `app/services/` contains business logic extracted from controllers/models
-- Examples: payment processing, Google API integrations, complex queries
+- Examples: `payment_service.rb`, `payment_schedule_service.rb`, `event_service.rb`, `email_service.rb`, `inventory_service.rb`
+- `app/services/auditions/` — the auditions/recruitment spreadsheet pipeline (see Auditions System above)
+- `app/services/calendar/` — calendar fundraiser logic
+- `lib/external/` — third-party API clients (`SquarespaceApi`, `GoogleSheetsApi`, `GoogleDriveApi`), under the `External::` namespace
 
 **Background Jobs:**
 - `app/jobs/` contains Sidekiq jobs
 - Handle async tasks: emails, API calls, scheduled tasks
+
+**Rake Tasks:**
+- `lib/tasks/` — notably `auditions:update_spreadsheet` (scheduled auditions sync)
 
 **Routes:**
 - `config/routes.rb` defines all endpoints
@@ -404,5 +435,6 @@ app/models/
 - FactoryBot for test data generation
 
 **Current State:**
-- Limited test coverage (as noted by maintainer)
-- Integration tests needed before major refactoring (e.g., adding Sorbet)
+- Coverage is uneven: solid in some areas (`app/services/auditions/` has thorough specs, and several other services have coverage), thin-to-absent elsewhere (most controllers, models, and React widgets)
+- Integration tests still needed across most of the app before major refactoring (e.g., adding Sorbet)
+- When adding a feature, check whether the surrounding code has specs and match that bar
