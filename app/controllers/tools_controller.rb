@@ -3,7 +3,5 @@
 class ToolsController < ApplicationController
   def rhythm_converter; end
 
-  def tarp_canvas; end
-
   def tarp_grid_tool; end
 end

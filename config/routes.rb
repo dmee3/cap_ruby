@@ -107,7 +107,6 @@ Rails.application.routes.draw do
   post 'settings-password', to: 'settings#change_password'
 
   get 'rhythm-converter', to: 'tools#rhythm_converter'
-  get 'tarp-canvas', to: 'tools#tarp_canvas'
   get 'tarp-grid-tool', to: 'tools#tarp_grid_tool'
 
   resources :calendars, only: %i[index new create]
