@@ -5,8 +5,6 @@ class ToolsController < ApplicationController
 
   def tarp_canvas; end
 
-  def tarp_canvas_2026; end # rubocop:disable Naming/VariableNumber
-
   def tarp_grid_tool; end
 
   def jersey_2026; end # rubocop:disable Naming/VariableNumber

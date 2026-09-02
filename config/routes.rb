@@ -108,7 +108,6 @@ Rails.application.routes.draw do
 
   get 'rhythm-converter', to: 'tools#rhythm_converter'
   get 'tarp-canvas', to: 'tools#tarp_canvas'
-  get 'tarp-canvas-2026', to: 'tools#tarp_canvas_2026'
   get 'tarp-grid-tool', to: 'tools#tarp_grid_tool'
   get 'jersey-2026', to: 'tools#jersey_2026'
 
