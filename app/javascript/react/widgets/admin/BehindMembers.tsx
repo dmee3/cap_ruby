@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Utilities from '../../../utilities/utilities'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
-import Badge from '../../components/Badge'
+import Pill from '../../components/Pill'
 
 type BehindMembersProps = {
 }
@@ -76,10 +76,7 @@ const BehindMembers = ({
                     <span className="mb-0.5 font-medium">{member.name}</span>
                   </div>
                   <div>
-                    <Badge
-                      text={`-$${member.behind / 100.0}`}
-                      color="red"
-                    />
+                    <Pill tone="danger">{`-$${member.behind / 100.0}`}</Pill>
                   </div>
                 </div>
                 <div>

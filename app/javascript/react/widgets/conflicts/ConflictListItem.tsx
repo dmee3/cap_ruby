@@ -1,5 +1,5 @@
 import React from 'react'
-import Badge from '../../components/Badge'
+import StatusPill from '../../components/StatusPill'
 import Utilities from '../../../utilities/utilities'
 import { ConflictAction } from './ConflictList'
 
@@ -37,10 +37,7 @@ const ConflictListItem = ({
           </span>
           <span className="text-sm text-secondary">{conflict.reason}</span>
         </div>
-        <Badge
-          text={conflict.status.name}
-          color={Utilities.statusToColor(conflict.status.name)}
-        />
+        <StatusPill status={conflict.status.name} />
       </div>
       {hasActions && (
         <div className="flex w-full justify-end space-x-2 px-4 pb-4 pt-0">

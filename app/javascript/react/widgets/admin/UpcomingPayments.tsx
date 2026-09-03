@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Utilities from '../../../utilities/utilities'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 
-import Badge from '../../components/Badge'
+import Pill from '../../components/Pill'
 
 type UpcomingPaymentProps = {
 }
@@ -106,10 +106,7 @@ const UpcomingPayment = ({
                     </span>
                   </div>
                   <div>
-                    <Badge
-                      text={Utilities.formatMoney(payment.owed)}
-                      color='green'
-                    />
+                    <Pill tone="success">{Utilities.formatMoney(payment.owed)}</Pill>
                   </div>
                 </div>
                 <div>
