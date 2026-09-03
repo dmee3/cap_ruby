@@ -1,8 +1,5 @@
 @layer components {
-  /* ------------------------------------------------------------------
-   * New app shell (phase D markup). Sidebar is `bg-nav` (jet) in both
-   * themes as the brand anchor.
-   * ------------------------------------------------------------------ */
+  /* App shell. Sidebar is `bg-nav` (jet) in both themes as the brand anchor. */
   .app-sidebar {
     @apply hidden md:flex flex-col w-[220px] shrink-0 bg-nav text-flash
            h-screen sticky top-0 p-2 overflow-y-auto;
@@ -40,17 +37,5 @@
   /* Page content well — dashboards are card grids directly on bg-page */
   #main-content {
     @apply flex-1 min-w-0 w-full max-w-[1200px] mx-auto px-6 md:px-8 py-6 text-primary;
-  }
-}
-
-/* ------------------------------------------------------------------
- * Legacy shell (old per-role layouts + _sidebar partials). Removed in
- * phase G once the one-shell markup lands. Kept here so the app stays
- * usable during the phase C -> D window.
- * ------------------------------------------------------------------ */
-@layer components {
-  #sidebar {
-    @apply text-flash w-40 flex bg-nav flex-col p-2 fixed inset-y-0 left-0
-           md:relative transition z-40 overflow-hidden;
   }
 }
