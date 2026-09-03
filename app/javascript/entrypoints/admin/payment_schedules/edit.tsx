@@ -129,7 +129,7 @@ const AdminPaymentSchedulesEdit = () => {
 
   const createDefaultSchedule = (event) => {
     event.target.disabled = true
-    event.target.classList.add('.btn-disabled')
+    event.target.classList.add('btn-disabled')
     fetch(`/api/admin/payment_schedules/create-default`, {
       method: 'POST',
       headers: {
@@ -148,7 +148,7 @@ const AdminPaymentSchedulesEdit = () => {
       .catch(error => {
         console.error(error)
         event.target.disabled = false
-        event.target.classList.remove('.btn-disabled')
+        event.target.classList.remove('btn-disabled')
       })
   }
 

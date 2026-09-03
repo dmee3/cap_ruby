@@ -142,7 +142,7 @@ const PaymentsTable = ({
           {displayedList.map(member => {
             return <tr
               key={member.id}
-              className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="cursor-pointer hover:bg-sunken"
               onClick={() => handleMemberClick(member.id)}
             >
               <td className="table-cell">

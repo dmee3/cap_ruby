@@ -50,27 +50,27 @@ const BehindMembers = ({
   fetchBehindMembers()
 
   return (
-    <div className="h-full card-flat border-gray-300 flex flex-col">
+    <div className="h-full card-flat flex flex-col">
       <div className="flex flex-col">
-        <span className="card-title text-gray-500">BEHIND MEMBERS</span>
-        <span className="text-3xl text-white font-extrabold font-mono">
+        <span className="card-title">BEHIND MEMBERS</span>
+        <span className="text-metric font-mono">
           {members.length === 0 &&
-            <span className="text-green-500">{members.length}</span>
+            <span className="text-success-fg">{members.length}</span>
           }
           {members.length < 5 && members.length > 0 &&
-            <span className="text-yellow-500">{members.length}</span>
+            <span className="text-warning-fg">{members.length}</span>
           }
           {members.length >= 5 &&
-            <span className="text-red-500">{members.length}</span>
+            <span className="text-danger-fg">{members.length}</span>
           }
         </span>
       </div>
 
       <div className="flex flex-col flex-1 justify-between">
-        <ul className="divide-y divide-gray-300 dark:divide-gray-600">
+        <ul className="divide-y divide-border-default">
           {displayedMembers.map(member => (
             <li key={member.id}>
-              <a href={`/admin/users/${member.id}`} className="px-5 py-4 -mx-5 flex flex-col group hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+              <a href={`/admin/users/${member.id}`} className="px-5 py-4 -mx-5 flex flex-col group hover:bg-sunken transition">
                 <div className="flex justify-between">
                   <div className="flex flex-col">
                     <span className="mb-0.5 font-medium">{member.name}</span>
@@ -80,7 +80,7 @@ const BehindMembers = ({
                   </div>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-gray-500 hidden xl:inline">
+                  <span className="text-body-sm font-medium text-secondary hidden xl:inline">
                     {member.last_payment &&
                       `Last paid $${member.last_payment.amount / 100.0} on ${Utilities.displayDate(Utilities.dateWithTZ(member.last_payment.date_paid))}`
                     }
@@ -93,8 +93,8 @@ const BehindMembers = ({
 
         <div className="pt-4 flex flex-col items-center">
           <div className="flex flex-row">
-            <ChevronLeftIcon className="mr-2 h-6 w-6 cursor-pointer text-gray-500 hover:text-white dark:hover:text-black transition" onClick={() => handleLeftClick()} />
-            <span className="mb-0.5 text-primary dark:text-white">
+            <ChevronLeftIcon className="mr-2 h-6 w-6 cursor-pointer text-secondary hover:text-primary transition" onClick={() => handleLeftClick()} />
+            <span className="mb-0.5 text-primary">
               {
                 displayedMembers.length > 0 ?
                   `${Math.max(cursor + 1, 0)} - ${Math.min(members.length, cursor + 5)} of ${members.length}`
@@ -102,7 +102,7 @@ const BehindMembers = ({
                   "0 of 0"
               }
             </span>
-            <ChevronRightIcon className="ml-2 h-6 w-6 cursor-pointer text-gray-500 hover:text-white dark:hover:text-black transition" onClick={() => handleRightClick()} />
+            <ChevronRightIcon className="ml-2 h-6 w-6 cursor-pointer text-secondary hover:text-primary transition" onClick={() => handleRightClick()} />
           </div>
         </div>
       </div>

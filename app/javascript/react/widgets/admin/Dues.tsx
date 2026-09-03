@@ -18,18 +18,18 @@ const Dues = ({ expectedDues, actualDues }: DuesProps) => {
       <div className="flex flex-row">
         <div className="flex flex-col">
           <div className="flex flex-col md:h-1/2 justify-center">
-            <span className="card-title text-gray-500 group-hover:text-green-200 transition">
+            <span className="card-title">
               DUES OWED
             </span>
-            <span className="text-3xl group-hover:text-white font-extrabold font-mono transition">
+            <span className="text-metric font-mono text-primary">
               {currencyFormatter.format(expectedDues)}
             </span>
           </div>
           <div className="flex flex-col md:h-1/2 justify-center">
-            <span className="card-title text-gray-500 group-hover:text-green-200 transition">
+            <span className="card-title text-success-fg">
               DUES COLLECTED
             </span>
-            <span className="text-3xl group-hover:text-white font-extrabold font-mono transition">
+            <span className="text-metric font-mono text-success-fg">
               {currencyFormatter.format(actualDues)}
             </span>
           </div>

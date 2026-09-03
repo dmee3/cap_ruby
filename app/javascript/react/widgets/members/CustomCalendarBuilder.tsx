@@ -138,7 +138,7 @@ const CustomCalendarBuilder = ({ imageSrc, onClose, donations }: CustomCalendarB
   }, [lightOverlayChosen])
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-75 z-50 flex justify-center items-center" onClick={onClose}>
+    <div className="fixed top-0 left-0 w-full h-full bg-black/75 z-50 flex justify-center items-center" onClick={onClose}>
       <div className="bg-white p-4 rounded-md relative" onClick={e => e.stopPropagation()}>
         <div id="canvas-container" className="relative">
           <img src={overlaySrc} id="img-reference" width="500" height="500" alt="Calendar" style={{ zIndex: -1 }} />
