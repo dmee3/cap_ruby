@@ -1,22 +1,17 @@
-.card {
-  @apply
-    p-5
-    rounded-lg
-    shadow-md
-  ;
-}
+@layer components {
+  /* Flat card — 1px border, no resting shadow (design-system doc §3.5) */
+  .card {
+    @apply bg-surface border border-border-default rounded-md p-5;
+  }
 
-.card-flat {
-  @apply
-    p-5
-    rounded-lg
-    border
-  ;
-}
+  /* `.card-flat` was a separate style; collapse the distinction */
+  .card-flat { @apply card; }
 
-.card-title {
-  @apply
-    text-sm
-    font-medium
-  ;
+  /* Kicker label, e.g. "DUES PROGRESS" */
+  .card-title { @apply text-label uppercase text-secondary; }
+
+  /* Tone accents — 3px left strip */
+  .card--success { @apply border-l-[3px] border-l-[color:rgb(var(--status-success-fg))]; }
+  .card--danger  { @apply border-l-[3px] border-l-[color:rgb(var(--status-danger-fg))]; }
+  .card--warning { @apply border-l-[3px] border-l-[color:rgb(var(--status-warning-fg))]; }
 }

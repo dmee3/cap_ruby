@@ -1,57 +1,19 @@
-.flash-bar {
-  @apply
-    absolute
-    z-50
-    bottom-0
-    right-0
-    w-full
-    md:w-1/3
-  ;
-}
+@layer components {
+  .flash-bar {
+    @apply fixed z-50 bottom-0 right-0 w-full md:w-1/3 flex flex-col gap-2 p-2 md:p-4;
+  }
 
-.flash-base {
-  @apply
-    flex
-    flex-row
-    items-center
-    md:rounded-lg
-    md:m-4
-    p-4
-    md:p-2
-    bg-gradient-to-br
-    text-white
-    shadow-md
-  ;
-}
+  /* Both `.flash` (ERB) and JS-built markup carry `.flash`; `.flash-base` is
+     applied via @apply by the variants below. Keep both selectors styled. */
+  .flash,
+  .flash-base {
+    @apply flex flex-row items-center rounded-md p-4 md:p-3 text-on-brand shadow-e3;
+  }
 
-.flash-success {
-  @apply
-    flash-base
-    from-lime-500
-    to-teal-600
-  ;
-}
+  .flash-success { @apply flash-base bg-moss; }
+  .flash-error   { @apply flash-base bg-raspberry; }
+  .flash-info    { @apply flash-base bg-ocean; }
+  .flash-default { @apply flash-base bg-[color:rgb(var(--status-neutral-fg))]; }
 
-.flash-error {
-  @apply
-    flash-base
-    from-red-400
-    to-rose-600
-  ;
-}
-
-.flash-info {
-  @apply
-    flash-base
-    from-cyan-400
-    to-violet-500
-  ;
-}
-
-.flash-default {
-  @apply
-    flash-base
-    from-blue-gray-400
-    to-warm-gray-700
-  ;
+  .flash-close { @apply cursor-pointer h-6 w-6 ml-2 shrink-0; }
 }

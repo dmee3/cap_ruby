@@ -1,11 +1,60 @@
-#sidebar {
-  @apply text-flash w-40 flex bg-jet dark:bg-jet flex-col p-2 fixed inset-y-0 left-0 md:relative transition z-40 overflow-hidden;
+@layer components {
+  /* ------------------------------------------------------------------
+   * New app shell (phase D markup). Sidebar is `bg-nav` (jet) in both
+   * themes as the brand anchor.
+   * ------------------------------------------------------------------ */
+  .app-sidebar {
+    @apply hidden md:flex flex-col w-[220px] shrink-0 bg-nav text-flash
+           h-screen sticky top-0 p-2 overflow-y-auto;
+  }
+
+  .sidebar-logo { @apply flex items-center justify-center py-3 px-4; }
+
+  .sidebar-link {
+    @apply flex flex-row items-center gap-3 h-10 px-3 rounded-sm transition
+           text-flash/80 hover:bg-white/5 hover:text-flash;
+  }
+  .sidebar-link--active {
+    @apply bg-[#26272a] text-ocean-lightest;
+    box-shadow: inset 3px 0 0 rgb(var(--color-ocean-light));
+  }
+  .sidebar-badge {
+    @apply ml-auto text-caption bg-white/10 rounded-full px-2 py-0.5;
+  }
+
+  /* Mobile slide-over — same nav list, wider rows */
+  .app-drawer {
+    @apply md:hidden fixed inset-y-0 left-0 z-50 w-[272px] bg-nav text-flash
+           p-2 overflow-y-auto shadow-e3 transition-transform -translate-x-full;
+  }
+  .app-drawer.is-open { @apply translate-x-0; }
+
+  .app-scrim { @apply md:hidden fixed inset-0 z-40 bg-black/40 hidden; }
+  .app-scrim.is-open { @apply block; }
+
+  .app-drawer-link {
+    @apply flex flex-row items-center gap-3 h-11 px-3 rounded-sm
+           text-flash/80 hover:bg-white/5 hover:text-flash;
+  }
+
+  /* Page content well.
+     Carries `bg-surface` for now so it stays readable under BOTH the legacy
+     jet-body layouts and the new bg-page shell. Phase D decides whether
+     dashboards sit directly on bg-page instead. */
+  #main-content {
+    @apply flex-1 min-w-0 w-full max-w-[1200px] mx-auto px-6 md:px-8 py-6
+           bg-surface text-primary md:rounded-t-2xl;
+  }
 }
 
-.sidebar-logo {
-  @apply hidden md:flex flex-col items-center py-2.5 px-4;
-}
-
-.sidebar-link {
-  @apply block py-2.5 px-4 flex flex-row space-x-2 items-center rounded transition hover:bg-gray-700;
+/* ------------------------------------------------------------------
+ * Legacy shell (old per-role layouts + _sidebar partials). Removed in
+ * phase G once the one-shell markup lands. Kept here so the app stays
+ * usable during the phase C -> D window.
+ * ------------------------------------------------------------------ */
+@layer components {
+  #sidebar {
+    @apply text-flash w-40 flex bg-nav flex-col p-2 fixed inset-y-0 left-0
+           md:relative transition z-40 overflow-hidden;
+  }
 }

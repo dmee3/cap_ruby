@@ -1,0 +1,43 @@
+@layer base {
+  html {
+    font-family: theme("fontFamily.sans");
+    color: rgb(var(--text-primary));
+    background-color: rgb(var(--bg-page));
+  }
+
+  body {
+    min-height: 100%;
+  }
+
+  h1 { @apply text-h1 mt-4 mb-2; }
+  h2 { @apply text-h2 mt-2 mb-2; }
+  h3 { @apply text-h3 mt-2 mb-2; }
+}
+
+@layer components {
+  /* Text helpers (kept as class aliases — ~31 + ~1 call sites) */
+  .text-secondary { color: rgb(var(--text-secondary)); }
+  .text-primary   { color: rgb(var(--text-primary)); }
+
+  .link {
+    color: rgb(var(--accent-primary));
+    @apply transition hover:opacity-80;
+  }
+}
+
+/* FullCalendar dark-mode fixes.
+   The old rules keyed off `body.bg-jet`; the shell no longer sets that, so
+   drive them off the media query instead. When dark mode moves to a class
+   strategy, add a `:root[data-theme="dark"]` variant here too. */
+@media (prefers-color-scheme: dark) {
+  .fc .fc-list-sticky .fc-list-day,
+  .fc .fc-list-day-cushion {
+    background-color: rgb(var(--bg-surface)) !important;
+    background: rgb(var(--bg-surface)) !important;
+  }
+
+  .fc .fc-list-event:hover td {
+    background-color: rgb(var(--bg-sunken)) !important;
+    background: rgb(var(--bg-sunken)) !important;
+  }
+}

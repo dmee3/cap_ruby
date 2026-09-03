@@ -4,40 +4,40 @@
 
   <div class="order-2 md:order-1 grid grid-cols-1 lg:grid-cols-5 lg:col-span-2 gap-4">
     <!-- PAYMENTS -->
-    <div class="card green-gradient lg:col-span-3">
+    <div class="card card--success lg:col-span-3">
       <div class="flex flex-col">
-        <span class="card-title text-green-200">DUES PROGRESS</span>
-        <span class="text-2xl text-white font-extrabold font-mono mb-0.5">
+        <span class="card-title text-success-fg">DUES PROGRESS</span>
+        <span class="text-metric font-mono text-success-fg mb-0.5">
           <%= number_to_currency(@paid, precision: (@paid % 1.0 == 0 ? 0 : 2)) %>
           /
           <%= number_to_currency(@total_dues, precision: (@total_dues % 1.0 == 0 ? 0 : 2)) %>
         </span>
         <% if @paid >= @total_dues %>
-          <span class="text-green-200 text-sm font-medium">You're all done paying. Thanks!</span>
+          <span class="text-secondary text-body-sm font-medium">You're all done paying. Thanks!</span>
         <% elsif @next_payment_amount > 0 %>
-          <span class="text-green-200 text-sm font-medium">Next payment: <span class="font-bold text-white">
+          <span class="text-secondary text-body-sm font-medium">Next payment: <span class="font-bold text-primary">
             <%= number_to_currency(@next_payment_amount, precision: (@next_payment_amount % 1.0 == 0 ? 0 : 2)) %>
-          </span> on <span class="font-bold text-white"><%= @next_payment_date.pay_date.strftime('%a, %-m/%-d') %></span></span>
+          </span> on <span class="font-bold text-primary"><%= @next_payment_date.pay_date.strftime('%a, %-m/%-d') %></span></span>
         <% end %>
 
         <% if @payments.present? %>
           <div class="flex flex-col mt-4">
-            <span class="card-title text-green-200">PAYMENTS</span>
-            <ul class="divide-y divide-green-200">
+            <span class="card-title">PAYMENTS</span>
+            <ul class="divide-y divide-border-default">
               <% @payments.each do |payment| %>
                 <li class="py-2">
                   <div class="flex justify-between items-center">
                     <div class="flex items-center">
-                      <span class="text-green-200 mr-1">
+                      <span class="text-secondary mr-1">
                         <%= render 'payment_type_icon', name: payment.payment_type.name %>
                       </span>
-                      <span class="text-white"><%= number_to_currency(payment.amount / 100.0, precision: (payment.amount / 100.0 % 1.0 == 0 ? 0 : 2)) %></span>
+                      <span class="text-primary"><%= number_to_currency(payment.amount / 100.0, precision: (payment.amount / 100.0 % 1.0 == 0 ? 0 : 2)) %></span>
                     </div>
-                    <span class="text-sm font-light text-green-200"><%= payment.date_paid.strftime('%-m/%-d/%-y') %></span>
+                    <span class="text-body-sm font-light text-secondary"><%= payment.date_paid.strftime('%-m/%-d/%-y') %></span>
                   </div>
 
                   <% unless payment.notes.blank? %>
-                    <div class="mx-6 my-2 text-sm text-green-200">
+                    <div class="mx-6 my-2 text-body-sm text-secondary">
                       <span><%= payment.notes %></span>
                     </div>
                   <% end %>
@@ -50,9 +50,9 @@
     </div>
 
     <!-- PAYMENT SCHEDULE -->
-    <div class="card-flat border-green-500 flex flex-col lg:col-span-2 justify-self-stretch items-stretch">
-      <span class="card-title text-green-500">PAYMENT SCHEDULE</span>
-      <ul class="divide-y divide-gray-300 dark:divide-gray-600">
+    <div class="card-flat card--success flex flex-col lg:col-span-2 justify-self-stretch items-stretch">
+      <span class="card-title text-success-fg">PAYMENT SCHEDULE</span>
+      <ul class="divide-y divide-border-default">
         <% @entries.each do |entry| %>
           <li class="flex justify-between py-2">
             <span><%= number_to_currency(entry.amount / 100.0, precision: (entry.amount / 100.0 % 1.0 == 0 ? 0 : 2)) %></span>
@@ -65,11 +65,11 @@
 
   <div class="flex flex-col order-3 justify-items-stretch grid grid-cols-1 gap-4">
     <!-- CONFLICTS -->
-    <div class="card-flat border-red-500">
+    <div class="card-flat card--danger">
       <div class="flex flex-col">
-        <div class="card-title text-red-500">CONFLICTS</div>
+        <div class="card-title text-danger-fg">CONFLICTS</div>
         <% if @conflicts.present? %>
-          <ul class="divide-y divide-gray-300 dark:divide-gray-600">
+          <ul class="divide-y divide-border-default">
             <% @conflicts.for_season(current_season['id']).each do |c| %>
               <li class="flex flex-col py-2">
                 <div class="flex justify-between items-center">
