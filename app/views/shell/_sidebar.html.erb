@@ -1,0 +1,28 @@
+<%#
+  Desktop sidebar (>= md). Hidden below md — see _drawer for mobile.
+%>
+<aside class="app-sidebar">
+  <div class="sidebar-logo">
+    <%= image_tag vite_asset_path('images/full_logo_small.png'), alt: 'Cap City Percussion', class: 'max-h-10 w-auto' %>
+  </div>
+
+  <div class="px-1 pb-3">
+    <%= render 'shell/season_switcher', menu_id: 'season-menu' %>
+  </div>
+
+  <nav class="flex-1 flex flex-col gap-0.5">
+    <% shell_nav_for(current_user_role).each do |item| %>
+      <%= render 'shell/nav_item', item: item, variant: :sidebar %>
+    <% end %>
+  </nav>
+
+  <div class="pt-2 mt-2 border-t border-white/10 flex flex-col gap-0.5">
+    <% shell_utility_nav.each do |item| %>
+      <%= render 'shell/nav_item', item: item, variant: :sidebar %>
+    <% end %>
+    <%= form_with url: destroy_user_session_path, method: :delete, class: 'sidebar-link w-full', data: { logout_form: true } do %>
+      <%= render 'shell/icon', name: :logout %>
+      <span class="text-body-sm">Log Out</span>
+    <% end %>
+  </div>
+</aside>

@@ -1,0 +1,33 @@
+<%#
+  Mobile slide-over nav (< md). Same nav list as the desktop sidebar.
+%>
+<div class="app-scrim" data-drawer-scrim></div>
+
+<aside class="app-drawer" id="app-drawer">
+  <div class="flex items-center gap-2 px-2 py-2 border-b border-white/10">
+    <%= image_tag vite_asset_path('images/full_logo_small.png'), alt: 'Cap City Percussion', class: 'max-h-8 w-auto flex-1' %>
+    <button type="button" id="app-drawer-close" class="h-8 w-8 flex items-center justify-center rounded-sm text-flash/70 hover:bg-white/5 hover:text-flash cursor-pointer" aria-label="Close menu">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+    </button>
+  </div>
+
+  <div class="px-1 py-3">
+    <%= render 'shell/season_switcher', menu_id: 'season-menu-mobile' %>
+  </div>
+
+  <nav class="flex flex-col gap-0.5">
+    <% shell_nav_for(current_user_role).each do |item| %>
+      <%= render 'shell/nav_item', item: item, variant: :drawer %>
+    <% end %>
+  </nav>
+
+  <div class="pt-2 mt-2 border-t border-white/10 flex flex-col gap-0.5">
+    <% shell_utility_nav.each do |item| %>
+      <%= render 'shell/nav_item', item: item, variant: :drawer %>
+    <% end %>
+    <%= form_with url: destroy_user_session_path, method: :delete, class: 'app-drawer-link w-full', data: { logout_form: true } do %>
+      <%= render 'shell/icon', name: :logout %>
+      <span class="text-body-sm">Log Out</span>
+    <% end %>
+  </div>
+</aside>

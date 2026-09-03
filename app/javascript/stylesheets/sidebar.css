@@ -37,13 +37,9 @@
            text-flash/80 hover:bg-white/5 hover:text-flash;
   }
 
-  /* Page content well.
-     Carries `bg-surface` for now so it stays readable under BOTH the legacy
-     jet-body layouts and the new bg-page shell. Phase D decides whether
-     dashboards sit directly on bg-page instead. */
+  /* Page content well — dashboards are card grids directly on bg-page */
   #main-content {
-    @apply flex-1 min-w-0 w-full max-w-[1200px] mx-auto px-6 md:px-8 py-6
-           bg-surface text-primary md:rounded-t-2xl;
+    @apply flex-1 min-w-0 w-full max-w-[1200px] mx-auto px-6 md:px-8 py-6 text-primary;
   }
 }
 

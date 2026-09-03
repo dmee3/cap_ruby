@@ -1,35 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Cap City Percussion</title>
+    <title><%= content_for?(:page_title) ? "#{strip_tags(yield(:page_title))} · Cap City Percussion" : 'Cap City Percussion' %></title>
     <%= csrf_meta_tags %>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
 
     <%= vite_client_tag %>
     <%= vite_javascript_tag 'application' %>
-    <!--
-      If using a TypeScript entrypoint file:
-        vite_typescript_tag 'application'
-
-      If using a .jsx or .tsx entrypoint, add the extension:
-        vite_javascript_tag 'application.jsx'
-
-      Visit the guide for more information: https://vite-ruby.netlify.app/guide/rails
-    -->
-
   </head>
 
-  <body class="bg-sound-wave">
-    <% if flash.present? %>
-      <%= render 'flashes' %>
-    <% end %>
+  <body class="bg-page text-primary min-h-screen">
+    <div class="flex min-h-screen">
+      <%= render 'shell/sidebar' %>
 
-    <div class="flex items-center justify-center h-screen pt-2">
-      <main class="bg-white dark:bg-gray-900 dark:text-white rounded-md shadow-lg p-4">
-        <%= yield %>
-      </main>
+      <div class="flex-1 min-w-0 flex flex-col">
+        <%= render 'shell/topbar' %>
+
+        <main id="main-content">
+          <% if flash.present? %>
+            <%= render 'flashes' %>
+          <% end %>
+          <%= yield %>
+        </main>
+      </div>
     </div>
+
+    <%= render 'shell/drawer' %>
 
     <%= yield :scripts %>
   </body>

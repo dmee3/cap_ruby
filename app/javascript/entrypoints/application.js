@@ -5,64 +5,48 @@ import '~/stylesheets/application.css'
 import flatpickr from 'flatpickr'
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Navigation bar responsiveness
-  const mobileNavBtn = document.querySelector('#mobile-menu-btn')
-  if (mobileNavBtn) {
-    mobileNavBtn.addEventListener('click', () => {
-      document.getElementById('sidebar').classList.toggle('-translate-x-full')
-    })
+  // ---- Mobile nav drawer ----
+  const drawer = document.querySelector('.app-drawer')
+  const scrim = document.querySelector('.app-scrim')
+  const openDrawer = () => {
+    drawer?.classList.add('is-open')
+    scrim?.classList.add('is-open')
   }
-
-  // Mobile menu logout
-  const mobileLogOut = document.querySelector('#mobile-log-out')
-  if (mobileLogOut) {
-    mobileLogOut.addEventListener('click', () => { mobileLogOut.submit() })
+  const closeDrawer = () => {
+    drawer?.classList.remove('is-open')
+    scrim?.classList.remove('is-open')
   }
+  document.querySelector('#app-menu-btn')?.addEventListener('click', openDrawer)
+  document.querySelector('#app-menu-btn-season')?.addEventListener('click', openDrawer)
+  document.querySelector('#app-drawer-close')?.addEventListener('click', closeDrawer)
+  scrim?.addEventListener('click', closeDrawer)
 
-  // Season changing
-  const seasonTrigger = document.getElementById('season-dropdown-trigger')
-  if (seasonTrigger) {
-    const seasonDropdown = document.getElementById('season-dropdown-menu')
-    seasonTrigger.addEventListener('click', () => {
-      seasonDropdown.classList.toggle('hidden')
+  // ---- Generic dropdown: [data-dropdown-trigger] toggles `hidden` on aria-controls target ----
+  document.querySelectorAll('[data-dropdown-trigger]').forEach(trigger => {
+    const menu = document.getElementById(trigger.getAttribute('aria-controls'))
+    if (!menu) return
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation()
+      menu.classList.toggle('hidden')
     })
     document.addEventListener('click', (e) => {
-      if (!seasonTrigger.contains(e.target)) {
-        seasonDropdown.classList.add('hidden')
+      if (!trigger.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.add('hidden')
       }
-    })
-  }
-  const mobileSeasonTrigger = document.getElementById('mobile-season-dropdown-trigger')
-  if (mobileSeasonTrigger) {
-    const mobileSeasonDropdown = document.getElementById('mobile-season-dropdown-menu')
-    mobileSeasonTrigger.addEventListener('click', () => { mobileSeasonDropdown.classList.remove('hidden') })
-    document.addEventListener('click', (e) => {
-      if (!mobileSeasonTrigger.contains(e.target)) {
-        mobileSeasonDropdown.classList.add('hidden')
-      }
-    })
-  }
-
-  // User menu dropdown
-  const userMenuTrigger = document.getElementById('user-menu-trigger')
-  if (userMenuTrigger) {
-    const userMenu = document.getElementById('user-menu')
-    userMenuTrigger.addEventListener('click', () => { userMenu.classList.remove('hidden') })
-    document.addEventListener('click', (e) => {
-      if (!userMenuTrigger.contains(e.target)) {
-        userMenu.classList.add('hidden')
-      }
-    })
-  }
-
-  const flashes = document.querySelectorAll('.flash')
-  flashes.forEach(flash => {
-    const close = flash.querySelector('.flash-close')
-    close.addEventListener('click', () => {
-      flash.parentNode.removeChild(flash)
     })
   })
 
+  // ---- Forms that submit on click of the whole element (sidebar / drawer log out) ----
+  document.querySelectorAll('[data-logout-form]').forEach(form => {
+    form.addEventListener('click', () => form.submit())
+  })
+
+  // ---- Flash close ----
+  document.querySelectorAll('.flash').forEach(flash => {
+    flash.querySelector('.flash-close')?.addEventListener('click', () => flash.remove())
+  })
+
+  // ---- flatpickr ----
   flatpickr('.flatpickr', {
     altInput: true,
     altFormat: 'F j, Y',

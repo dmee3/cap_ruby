@@ -1,0 +1,45 @@
+<%#
+  Season switcher — a scope control, not a settings menu. locals: menu_id
+%>
+<% seasons = current_user.seasons.order(:year).reverse %>
+<% menu_id ||= 'season-menu' %>
+<div class="relative">
+  <button type="button"
+          data-dropdown-trigger
+          aria-controls="<%= menu_id %>"
+          aria-haspopup="true"
+          class="w-full bg-surface-raised border border-border-default rounded-md px-3 py-2 flex items-center justify-between gap-2 cursor-pointer hover:border-ocean-light transition">
+    <span class="flex flex-col text-left">
+      <span class="text-label uppercase text-secondary">Season</span>
+      <span class="font-bold text-primary leading-tight"><%= current_season ? "#{current_season['year']} Season" : '—' %></span>
+    </span>
+    <svg class="h-4 w-4 text-secondary shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+      <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+    </svg>
+  </button>
+
+  <div id="<%= menu_id %>" class="hidden absolute left-0 mt-2 w-72 max-w-[calc(100vw-2rem)] z-50 bg-surface-raised text-primary rounded-md shadow-e2 border border-border-default p-1.5">
+    <% seasons.each_with_index do |season, i| %>
+      <% if i.zero? %>
+        <div class="px-2.5 pt-2 pb-1 text-label uppercase text-secondary">Current</div>
+      <% elsif i == 1 %>
+        <div class="px-2.5 pt-2 pb-1 text-label uppercase text-secondary">Past</div>
+      <% end %>
+      <% selected = current_season && current_season['id'] == season.id %>
+      <%= form_with url: change_season_path, method: :post do |f| %>
+        <%= f.hidden_field :season_id, value: season.id, id: nil %>
+        <button type="submit"
+                class="w-full flex items-center gap-2 p-2.5 rounded-sm text-left cursor-pointer transition <%= selected ? 'bg-[color:rgb(var(--accent-primary)/0.12)]' : 'hover:bg-sunken' %>">
+          <span class="flex-1">
+            <span class="block font-<%= selected ? 'bold' : 'semibold' %> <%= 'text-ocean-dark' if selected %>"><%= season.year %> Season</span>
+          </span>
+          <% if selected %>
+            <svg class="h-4 w-4 text-ocean shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+            </svg>
+          <% end %>
+        </button>
+      <% end %>
+    <% end %>
+  </div>
+</div>
