@@ -1,0 +1,103 @@
+/*
+ * Design tokens — Cap City Percussion (UX overhaul Flow 1)
+ *
+ * Semantic tokens are CSS custom properties: `:root` holds the light values,
+ * `@media (prefers-color-scheme: dark)` overrides them. Tailwind's color config
+ * maps token names to `rgb(var(--token) / <alpha-value>)`, so an element writes
+ * `bg-surface` once and it resolves correctly in both themes — no `dark:` prefix.
+ *
+ * Values are space-separated RGB channels so the `/ <alpha-value>` opacity
+ * syntax works (`bg-surface/50`, `ring-black/5`, etc.).
+ *
+ * To switch dark mode from `media` to a manual toggle later:
+ *   1. tailwind.config.js: darkMode: ['class', '[data-theme="dark"]']
+ *   2. duplicate the `@media (prefers-color-scheme: dark)` block below as
+ *      `:root[data-theme="dark"] { ... }` (keep both).
+ * No component markup changes — every element already reads the variable.
+ */
+
+:root {
+  /* --- Brand foundation (static, from the old windi.config.ts) --- */
+  --color-raspberry-dark: 150 34 49;
+  --color-raspberry: 204 47 68;
+  --color-raspberry-light: 217 89 106;
+  --color-raspberry-lightest: 232 155 134;
+
+  --color-ocean-dark: 33 59 69;
+  --color-ocean: 56 99 116;
+  --color-ocean-light: 73 129 151;
+  --color-ocean-lightest: 104 160 182;
+
+  --color-moss-dark: 96 104 60;
+  --color-moss: 139 149 86;
+  --color-moss-light: 163 173 113;
+  --color-moss-lightest: 196 203 164;
+
+  --color-jet: 29 30 32;
+  --color-flash: 233 235 236;
+
+  /* --- Semantic — LIGHT (design-system doc §3.2) --- */
+  --bg-page: 233 235 236;          /* flash */
+  --bg-surface: 255 255 255;
+  --bg-surface-raised: 255 255 255;
+  --bg-sunken: 241 242 243;
+  --bg-nav: 29 30 32;              /* jet — dark in both themes */
+
+  --text-primary: 29 30 32;
+  --text-secondary: 91 97 102;
+  --text-on-brand: 255 255 255;
+
+  --border-default: 215 218 222;
+  --border-strong: 185 190 196;
+
+  --focus-ring: 56 99 116;         /* ocean */
+  --accent-primary: 56 99 116;     /* ocean */
+
+  --status-success-fg: 96 104 60;  /* moss.dark */
+  --status-success-bg: 238 241 228;
+  --status-danger-fg: 150 34 49;   /* raspberry.dark */
+  --status-danger-bg: 251 233 236;
+  --status-warning-fg: 138 109 31;
+  --status-warning-bg: 250 241 220;
+  --status-neutral-fg: 91 97 102;
+  --status-neutral-bg: 236 238 240;
+
+  /* --- Data-viz (doc §3.3) --- */
+  --viz-scheduled: 73 129 151;     /* ocean.light */
+  --viz-actual: 139 149 86;        /* moss */
+  --viz-gap: 217 89 106;           /* raspberry.light */
+
+  /* --- Elevation (doc §3.5) --- */
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 0.06), 0 1px 3px rgb(0 0 0 / 0.10);
+  --elevation-2: 0 4px 12px rgb(0 0 0 / 0.12);
+  --elevation-3: 0 12px 32px rgb(0 0 0 / 0.20);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-page: 29 30 32;            /* jet */
+    --bg-surface: 38 39 42;
+    --bg-surface-raised: 47 48 51;
+    --bg-sunken: 26 27 29;
+    --bg-nav: 29 30 32;
+
+    --text-primary: 233 235 236;
+    --text-secondary: 154 160 166;
+    --text-on-brand: 255 255 255;
+
+    --border-default: 58 60 64;
+    --border-strong: 76 79 84;
+
+    --focus-ring: 73 129 151;       /* ocean.light */
+    --accent-primary: 73 129 151;
+
+    --status-success-fg: 163 173 113; /* moss.light */
+    --status-success-bg: 58 63 40;
+    --status-danger-fg: 217 89 106;   /* raspberry.light */
+    --status-danger-bg: 66 34 42;
+    --status-warning-fg: 216 180 90;
+    --status-warning-bg: 58 51 32;
+    --status-neutral-fg: 154 160 166;
+    --status-neutral-bg: 51 53 58;
+  }
+}

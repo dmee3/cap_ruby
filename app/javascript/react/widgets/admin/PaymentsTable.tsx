@@ -2,7 +2,7 @@ import { PlusSmallIcon } from '@heroicons/react/24/outline'
 import Utilities from '../../../utilities/utilities'
 import fuzzysort from 'fuzzysort'
 import React, { useState, useEffect } from 'react'
-import Badge from '../../components/Badge'
+import StatusPill from '../../components/StatusPill'
 
 type PaymentsTableProps = {}
 
@@ -142,7 +142,7 @@ const PaymentsTable = ({
           {displayedList.map(member => {
             return <tr
               key={member.id}
-              className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="cursor-pointer hover:bg-sunken"
               onClick={() => handleMemberClick(member.id)}
             >
               <td className="table-cell">
@@ -157,15 +157,9 @@ const PaymentsTable = ({
               </td>
               <td className="px-6 py-4 text-center whitespace-nowrap">
                 {member.status ?
-                  <Badge
-                    text='Current'
-                    color='green'
-                  />
+                  <StatusPill status='Current' />
                   :
-                  <Badge
-                    text='Behind'
-                    color='red'
-                  />
+                  <StatusPill status='Behind' />
                 }
               </td>
               <td className="px-6 py-4 text-left whitespace-nowrap">

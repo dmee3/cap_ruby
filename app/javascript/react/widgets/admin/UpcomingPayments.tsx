@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Utilities from '../../../utilities/utilities'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 
-import Badge from '../../components/Badge'
+import Pill from '../../components/Pill'
 
 type UpcomingPaymentProps = {
 }
@@ -75,17 +75,17 @@ const UpcomingPayment = ({
   }
 
   return (
-    <div className="h-full p-5 shadow-md row-span-2 green-gradient rounded-lg flex flex-col">
+    <div className="h-full card card--success row-span-2 flex flex-col">
       <div className="flex flex-col">
-        <span className="card-title text-green-200">UPCOMING PAYMENTS</span>
-        <span className="text-3xl text-white font-extrabold font-mono">
+        <span className="card-title text-success-fg">UPCOMING PAYMENTS</span>
+        <span className="text-metric font-mono text-success-fg">
           {Utilities.formatMoney(total)}
         </span>
-        <span className="text-sm text-green-200">
+        <span className="text-body-sm text-secondary">
           Next&nbsp;
           <input
             type="text"
-            className="inline bg-transparent border-0 border-b-1 border-white p-0 text-white text-center font-medium w-8 focus:ring-0 focus:border-white"
+            className="inline bg-transparent border-0 border-b border-border-strong p-0 text-primary text-center font-medium w-8 focus:ring-0"
             value={days}
             onChange={(e) => handleEndChange(e.target.value)}
           />
@@ -94,26 +94,23 @@ const UpcomingPayment = ({
       </div>
 
       <div className="flex flex-col flex-1 justify-between">
-        <ul className="divide-y divide-green-500">
+        <ul className="divide-y divide-border-default">
           {displayedPayments.map(payment => (
             <li key={payment.id}>
-              <a href={`/admin/users/${payment.user_id}`} className="px-5 py-4 -mx-5 flex flex-col hover:bg-green-500 transition">
+              <a href={`/admin/users/${payment.user_id}`} className="px-5 py-4 -mx-5 flex flex-col hover:bg-sunken transition">
                 <div className="flex justify-between">
                   <div className="flex flex-col">
-                    <span className="mb-0.5 text-white font-medium">{payment.name}</span>
-                    <span className="text-sm text-green-200 hidden xl:inline">
+                    <span className="mb-0.5 text-primary font-medium">{payment.name}</span>
+                    <span className="text-body-sm text-secondary hidden xl:inline">
                       {Utilities.displayDate(payment.date)}
                     </span>
                   </div>
                   <div>
-                    <Badge
-                      text={Utilities.formatMoney(payment.owed)}
-                      color='green'
-                    />
+                    <Pill tone="success">{Utilities.formatMoney(payment.owed)}</Pill>
                   </div>
                 </div>
                 <div>
-                  <span className="text-green-200 font-medium text-xs">
+                  <span className="text-secondary font-medium text-xs">
                     {
                       payment.owed > payment.current_amount &&
                       `${Utilities.formatMoney(payment.current_amount)} + ${Utilities.formatMoney(payment.owed - payment.current_amount)} past due`
@@ -127,8 +124,8 @@ const UpcomingPayment = ({
 
         <div className="pt-4 flex flex-col items-center">
           <div className="flex flex-row">
-            <ChevronLeftIcon className="mr-2 h-6 w-6 cursor-pointer text-green-200 hover:text-white transition" onClick={() => handleLeftClick()} />
-            <span className="mb-0.5 text-white">
+            <ChevronLeftIcon className="mr-2 h-6 w-6 cursor-pointer text-secondary hover:text-primary transition" onClick={() => handleLeftClick()} />
+            <span className="mb-0.5 text-primary">
               {
                 displayedPayments.length > 0 ?
                   `${Math.max(cursor + 1, 0)} - ${Math.min(payments.length, cursor + 5)} of ${payments.length}`
@@ -136,7 +133,7 @@ const UpcomingPayment = ({
                   "0 of 0"
               }
             </span>
-            <ChevronRightIcon className="ml-2 h-6 w-6 cursor-pointer text-green-200 hover:text-white transition" onClick={() => handleRightClick()} />
+            <ChevronRightIcon className="ml-2 h-6 w-6 cursor-pointer text-secondary hover:text-primary transition" onClick={() => handleRightClick()} />
           </div>
         </div>
       </div>

@@ -3,7 +3,7 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
-  layout :choose_layout
+  layout :app_or_auth_layout
 
   def current_season
     return nil unless current_user
@@ -25,8 +25,11 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user_role
+    return nil unless current_user
+
     current_user.role_for(current_season['id'])
   end
+  helper_method :current_user_role
 
   def set_stripe_public_key
     if Rails.env.production? && !ENV['STAGING']
@@ -46,20 +49,10 @@ class ApplicationController < ActionController::Base
 
   private
 
-  # rubocop:disable Style/HashLikeCase
-  def choose_layout
-    return nil unless current_user
-
-    case current_user_role
-    when 'admin'
-      'admin'
-    when 'member'
-      'members'
-    when 'coordinator'
-      'coordinators'
-    when 'staff'
-      'staff'
-    end
+  # One shell for every authenticated screen; a minimal centered card for
+  # Devise (login / password). The `calendar` layout is set explicitly on
+  # CalendarsController and is unaffected.
+  def app_or_auth_layout
+    devise_controller? ? 'auth' : 'application'
   end
-  # rubocop:enable Style/HashLikeCase
 end

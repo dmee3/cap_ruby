@@ -1,51 +1,36 @@
-.btn-base {
-  @apply cursor-pointer flex font-medium items-center justify-center rounded-md text-white transition w-full sm:w-auto;
-}
+@layer components {
+  .btn-base {
+    @apply cursor-pointer inline-flex font-medium items-center justify-center rounded-sm
+           text-on-brand transition w-full sm:w-auto
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+  }
 
-.btn-primary {
-  @apply bg-ocean btn-base hover:enabled:bg-ocean-light;
-}
+  /* primary */
+  .btn-primary { @apply btn-base bg-ocean hover:enabled:bg-ocean-light active:enabled:bg-ocean-dark; }
+  /* success — route through moss, not generic green */
+  .btn-green   { @apply btn-base bg-moss hover:enabled:bg-moss-light active:enabled:bg-moss-dark; }
+  /* danger — route through raspberry */
+  .btn-red     { @apply btn-base bg-raspberry hover:enabled:bg-raspberry-light active:enabled:bg-raspberry-dark; }
+  /* secondary */
+  .btn-gray {
+    @apply btn-base bg-surface text-primary border border-border-strong
+           hover:enabled:bg-sunken;
+  }
 
-.btn-primary:disabled {
-  opacity: 0.2;
-}
+  .btn-primary:disabled,
+  .btn-green:disabled,
+  .btn-red:disabled,
+  .btn-gray:disabled,
+  .btn-disabled {
+    @apply opacity-40 pointer-events-none;
+  }
 
-.btn-green {
-  @apply bg-green-600 btn-base hover:enabled:bg-green-500;
-}
+  .btn-link {
+    @apply cursor-pointer inline-flex font-medium items-center transition
+           text-[color:rgb(var(--accent-primary))] hover:enabled:opacity-80;
+  }
 
-.btn-green:disabled {
-  opacity: 0.2;
-}
-
-.btn-red {
-  @apply bg-red-600 btn-base hover:enabled:bg-red-500;
-}
-
-.btn-red:disabled {
-  opacity: 0.2;
-}
-
-.btn-gray {
-  @apply bg-gray-600 btn-base hover:enabled:bg-gray-500;
-}
-
-.btn-gray:disabled {
-  opacity: 0.2;
-}
-
-.btn-link {
-  @apply cursor-pointer flex font-medium hover:enabled:text-gray-500 items-center justify-center text-gray-900 transition;
-}
-
-.btn-lg {
-  @apply px-4 py-2 text-lg;
-}
-
-.btn-md {
-  @apply px-2 py-1 text-md;
-}
-
-.btn-sm {
-  @apply px-1 py-1 text-sm;
+  .btn-lg { @apply px-4 h-11 text-body; }      /* 44px */
+  .btn-md { @apply px-3 h-9  text-body-sm; }   /* 36px */
+  .btn-sm { @apply px-2 h-7  text-body-sm; }   /* 28px */
 }

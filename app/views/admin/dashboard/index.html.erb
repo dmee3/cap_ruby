@@ -4,7 +4,7 @@
 
   <!-- DUES EXPECTED -->
   <div class="order-1 h-48 md:h-96 xl:h-48 flex flex-col col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
-    <%= link_to admin_payments_path, class: 'card-flat flex-grow border-gray-300 group hover:shadow-md hover:border-transparent hover:bg-gradient-to-br hover:from-green-500 hover:to-green-700 flex flex-col sm:flex-row md:flex-col justify-between place-content-stretch transition' do %>
+    <%= link_to admin_payments_path, class: 'card-flat flex-grow group hover:border-moss hover:shadow-e1 flex flex-col sm:flex-row md:flex-col justify-between place-content-stretch transition' do %>
       <div id="dues" data-expected-dues="<%= @expected_dues / 100.0 %>" data-actual-dues="<%= @actual_dues / 100.0 %>"></div>
     <% end %>
   </div>
@@ -25,8 +25,8 @@
 
   <!-- UPCOMING CONFLICTS -->
   <div class="order-5 row-span-2 col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
-    <div class="card-flat border-gray-300">
-      <span class="card-title text-gray-500">UPCOMING CONFLICTS</span>
+    <div class="card-flat">
+      <span class="card-title">UPCOMING CONFLICTS</span>
       <div id="upcoming-conflicts"></div>
     </div>
   </div>

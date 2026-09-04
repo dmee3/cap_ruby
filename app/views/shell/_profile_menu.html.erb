@@ -1,0 +1,26 @@
+<%#
+  Profile menu — avatar + dropdown (Settings / Whistleblower / Log out).
+%>
+<div class="relative">
+  <button type="button"
+          data-dropdown-trigger
+          aria-controls="profile-menu"
+          aria-haspopup="true"
+          class="flex items-center gap-2 cursor-pointer rounded-sm px-1 py-1 hover:bg-sunken transition">
+    <span class="h-7 w-7 rounded-full bg-ocean text-on-brand flex items-center justify-center text-xs font-semibold">
+      <%= user_initials(current_user) %>
+    </span>
+    <span class="hidden sm:inline text-body-sm font-medium text-primary"><%= current_user.full_name %></span>
+    <svg class="h-4 w-4 text-secondary" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+      <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+    </svg>
+  </button>
+
+  <div id="profile-menu" class="hidden absolute right-0 mt-2 w-44 z-50 bg-surface-raised text-primary rounded-md shadow-e2 border border-border-default p-1.5">
+    <%= link_to 'Settings', settings_path, class: 'block p-2 -mx-0 rounded-sm text-body-sm hover:bg-sunken' %>
+    <%= link_to 'Whistleblower', whistleblowers_path, class: 'block p-2 rounded-sm text-body-sm hover:bg-sunken' %>
+    <%= form_with url: destroy_user_session_path, method: :delete do %>
+      <button type="submit" class="w-full text-left p-2 rounded-sm text-body-sm hover:bg-sunken cursor-pointer">Log Out</button>
+    <% end %>
+  </div>
+</div>

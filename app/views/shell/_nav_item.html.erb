@@ -1,0 +1,11 @@
+<%#
+  One nav row. locals: item (NavItem), variant (:sidebar | :drawer)
+%>
+<% base = variant == :drawer ? 'app-drawer-link' : 'sidebar-link' %>
+<%= link_to item.path, class: [base, ('sidebar-link--active' if active_nav?(item))].compact.join(' ') do %>
+  <%= render 'shell/icon', name: item.icon %>
+  <span class="text-body-sm"><%= item.label %></span>
+  <% if item.badge.present? %>
+    <span class="sidebar-badge"><%= item.badge %></span>
+  <% end %>
+<% end %>

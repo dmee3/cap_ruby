@@ -1,90 +1,86 @@
 /*
- * Default form elements
+ * Form elements. `.input-*` classes opt into @tailwindcss/forms via the
+ * form-input / form-select / form-checkbox base classes (class strategy).
+ * Dark styling comes free from the CSS-variable tokens — no `dark:` here.
  */
 
-.input-label {
-  @apply block text-gray-500 text-sm font-medium;
+@layer components {
+  .input-label { @apply block text-label uppercase text-secondary; }
+
+  .input-text {
+    @apply form-input mt-1 block w-full rounded-sm border-2 border-transparent
+           bg-sunken text-primary
+           hover:enabled:border-border-strong
+           focus:border-[color:rgb(var(--focus-ring))] focus:bg-surface focus:ring-0
+           disabled:text-secondary disabled:bg-sunken;
+  }
+
+  .input-select {
+    @apply form-select mt-1 block w-full rounded-sm border-2 border-transparent
+           bg-sunken text-primary
+           hover:enabled:border-border-strong
+           focus:border-[color:rgb(var(--focus-ring))] focus:bg-surface focus:ring-0
+           disabled:text-secondary;
+  }
+
+  .input-checkbox {
+    @apply form-checkbox rounded-sm border-2 border-border-strong bg-sunken text-ocean
+           focus:ring-2 focus:ring-offset-2 focus:ring-[color:rgb(var(--focus-ring))];
+  }
+
+  .input-file-upload {
+    @apply form-input block w-full rounded-sm border-2 border-border-strong
+           bg-sunken text-primary disabled:pointer-events-none
+           file:bg-ocean file:border-0 file:text-on-brand file:me-4 file:py-3 file:px-4 file:mr-4;
+  }
+
+  /* Search field + suggestion list */
+  .input-search {
+    @apply form-input mt-1 block w-full rounded-sm border-2 border-transparent
+           bg-sunken text-primary
+           hover:enabled:border-border-strong
+           focus:border-[color:rgb(var(--focus-ring))] focus:bg-surface focus:ring-0;
+  }
+  .input-search-suggestions-container {
+    @apply bg-surface-raised text-primary rounded-sm absolute z-50 mt-3
+           border-2 border-[color:rgb(var(--focus-ring))] shadow-e2;
+  }
+  /* fixed: was `@apply first: rounded-t-sm ...` (bare `first:` with a space) */
+  .input-search-suggestion { @apply first:rounded-t-sm last:rounded-b-sm p-2; }
+  .input-search-suggestion.active { @apply bg-sunken; }
+
+  /* Shell dropdowns — season switcher + profile menu */
+  .dropdown {
+    @apply flex flex-row w-full items-center gap-2 pl-2 h-8 text-body-sm
+           text-primary rounded-sm bg-sunken border-transparent
+           focus:ring-0 cursor-pointer;
+  }
+  .dropdown-menu {
+    @apply absolute z-50 mt-2 rounded-md shadow-e2 px-2 py-1
+           bg-surface-raised text-primary ring-1 ring-black/5 focus:outline-none;
+  }
+  /* fixed: were `@apply ... hover: bg-gray-300 ...` (bare `hover:` with a space) */
+  .dropdown-menu-form-background,
+  .dropdown-menu-link-item {
+    @apply block p-2 -mx-2 text-body-sm rounded-sm cursor-pointer hover:bg-sunken;
+  }
+  .dropdown-menu-form-item { @apply cursor-pointer bg-transparent w-full text-left; }
+
+  /* Toggle */
+  .input-toggle-wrapper { @apply flex items-center cursor-pointer relative; }
+  .input-toggle { @apply sr-only; }
+  .input-toggle-dot { @apply absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition; }
+  .input-toggle:checked ~ .input-toggle-dot { transform: translateX(100%); }
+  .input-toggle:checked ~ .input-toggle-bg { @apply bg-ocean; }
+  .input-toggle-bg { @apply block bg-border-strong w-10 h-6 rounded-full transition; }
+
+  /* Bootstrap leftovers still referenced in a handful of ERB views */
+  .form-control { @apply input-text; }
+  .w-100 { @apply w-full; }
 }
 
-.input-text {
-  @apply bg-gray-100 dark:bg-gray-800 block border-transparent hover:enabled:border-gray-300 dark:hover:enabled:border-gray-600 hover:focus:border-ocean focus:border-ocean focus:bg-white dark:focus:bg-gray-900 focus:ring-0 mt-1 rounded-md disabled:text-gray-300 !dark:disabled:text-gray-600 w-full border-2 text-gray-900 dark:text-white px-3 py-2;
-}
-
-.input-search {
-  @apply bg-gray-100 dark:bg-gray-800 block border-transparent hover:enabled:border-gray-300 dark:hover:enabled:border-gray-600 hover:focus:border-ocean focus:border-ocean focus:bg-white dark:focus:bg-gray-900 focus:ring-0 mt-1 rounded-md disabled:text-gray-300 !dark:disabled:text-gray-600 w-full border-2 text-gray-900 dark:text-white;
-}
-
-.input-search-suggestions-container {
-  @apply bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-md absolute border-2 border-ocean mt-3 z-50;
-}
-
-.input-search-suggestion {
-  @apply first: rounded-t-sm last:rounded-b-sm p-2;
-}
-
-.input-search-suggestion.active {
-  @apply bg-gray-500;
-}
-
-.input-checkbox {
-  @apply bg-gray-100 dark:bg-gray-800 border-transparent border-2 focus:border-transparent focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 focus:ring-ocean hover:border-gray-300 dark:hover:border-gray-600 rounded text-ocean;
-}
-
-.input-select {
-  @apply mt-1 block w-full rounded-md bg-gray-100 dark:bg-gray-800 border-transparent border-2 disabled:hover:border-transparent hover:border-gray-300 dark:hover:border-gray-600 hover:focus:border-ocean focus:border-ocean focus:bg-white dark:focus:bg-gray-900 disabled:text-gray-300 !dark:disabled:text-gray-600 focus:ring-0 px-3 py-2 text-gray-900 dark:text-white;
-}
-
-.input-file-upload {
-  @apply block w-full border-2 border-gray-300 dark:border-gray-600 hover:focus:border-ocean focus:border-ocean focus:ring-0 focus:ring-ocean rounded-md text-gray-900 dark:text-white disabled:pointer-events-none bg-gray-100 dark:bg-gray-800 file:bg-ocean file:border-0 file:me-4 file:py-3 file:px-4 file:mr-4 file:text-white;
-}
-
-/*
- * Custom form elements
- */
-
-/* Season Dropdown */
-.dropdown {
-  @apply flex flex-row w-full pl-2 h-8 py-0 text-sm text-gray-900 dark:text-white rounded-md bg-gray-100 dark:bg-gray-900 border-transparent focus:bg-white dark:focus:bg-gray-900 focus:ring-0 cursor-pointer;
-}
-
-.dropdown-menu {
-  @apply absolute z-50 mt-2 rounded-md shadow-lg px-2 py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white ring-1 ring-black ring-opacity-5 focus:outline-none;
-}
-
-.dropdown-menu-form-background {
-  @apply block p-2 -mx-2 text-sm hover: bg-gray-300 dark:hover:bg-gray-600 cursor-pointer;
-}
-
-.dropdown-menu-form-item {
-  @apply cursor-pointer bg-transparent;
-}
-
-.dropdown-menu-link-item {
-  @apply block p-2 -mx-2 text-sm hover: bg-gray-300 dark:hover:bg-gray-600 cursor-pointer;
-}
-
-/* Input Toggle */
-.input-toggle-wrapper {
-  @apply flex items-center cursor-pointer relative;
-}
-
-.input-toggle,
-.inverse-input-toggle {
-  @apply sr-only;
-}
-
-.input-toggle-dot {
-  @apply absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition;
-}
-
-.input-toggle:checked~.input-toggle-dot {
-  transform: translateX(100%);
-}
-
-.input-toggle:checked~.input-toggle-bg {
-  @apply bg-ocean dark:bg-cyan-500;
-}
-
-.input-toggle-bg {
-  @apply block bg-gray-300 dark:bg-gray-600 w-10 h-6 rounded-full transition;
+/* flatpickr renders a read-only alt input; keep its background transparent */
+.form-control.flatpickr:read-only,
+.form-control.flatpickr-dt:read-only {
+  background-color: transparent;
 }

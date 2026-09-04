@@ -1,51 +1,19 @@
-.custom-table {
-  @apply
-    min-w-full
-    divide-y
-    divide-gray-300
-    dark:divide-gray-600
-  ;
-}
+@layer components {
+  .custom-table {
+    @apply min-w-full divide-y divide-[color:rgb(var(--border-default))];
+  }
 
-.table-header {
-  @apply
-    px-6
-    py-3
-    text-left
-    text-xs
-    font-medium
-    text-gray-500
-    uppercase
-    tracking-wider
-  ;
-}
+  .table-header {
+    @apply px-4 py-3 text-left text-label uppercase text-secondary;
+  }
+  /* fixed: was plain `text-align: right !important` */
+  .table-header-right { @apply table-header text-right; }
 
-.table-header-right {
-  @apply table-header;
-  text-align: right !important;
-}
+  .table-body {
+    @apply divide-y divide-[color:rgb(var(--border-default))] text-body-sm;
+  }
 
-.table-body {
-  @apply
-    divide-y
-    divide-gray-300
-    dark:divide-gray-600
-    text-sm
-  ;
-}
+  .table-row-hover { @apply hover:bg-sunken cursor-pointer; }
 
-.table-row-hover {
-  @apply
-    hover:bg-gray-100
-    dark:hover:bg-gray-800
-    cursor-pointer
-  ;
-}
-
-.table-cell {
-  @apply
-    px-6
-    py-4
-    whitespace-nowrap
-  ;
+  .table-cell { @apply px-4 py-3 whitespace-nowrap; }
 }

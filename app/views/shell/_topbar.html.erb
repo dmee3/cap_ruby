@@ -1,0 +1,26 @@
+<%#
+  Top bar. Desktop: page title + profile menu. Mobile: hamburger + logo + season chip
+  (the chip opens the drawer, which holds the real season switcher).
+%>
+<header class="h-14 shrink-0 bg-surface border-b border-border-default flex items-center justify-between px-4 md:px-8">
+  <div class="flex items-center gap-3 min-w-0">
+    <button type="button" id="app-menu-btn" class="md:hidden h-9 w-9 -ml-2 flex items-center justify-center rounded-sm text-primary hover:bg-sunken cursor-pointer" aria-label="Open menu">
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+    </button>
+    <%= image_tag vite_asset_path('images/full_logo_small.png'), alt: 'Cap City', class: 'md:hidden max-h-7 w-auto' %>
+    <span class="hidden md:block text-h3 font-semibold text-primary truncate">
+      <%= content_for?(:page_title) ? yield(:page_title) : controller_name.titleize %>
+    </span>
+  </div>
+
+  <div class="flex items-center gap-3">
+    <button type="button" id="app-menu-btn-season"
+            class="md:hidden inline-flex items-center gap-1.5 bg-sunken border border-border-default rounded-full px-3 py-1 text-body-sm font-semibold text-primary cursor-pointer">
+      <%= current_season ? current_season['year'] : '—' %>
+      <svg class="h-3.5 w-3.5 text-secondary" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+      </svg>
+    </button>
+    <%= render 'shell/profile_menu' %>
+  </div>
+</header>
