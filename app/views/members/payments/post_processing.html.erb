@@ -21,14 +21,9 @@
            data-committed="<%= @dues[:past_due] %>"
            data-committed-kind="past-due"
            data-state="<%= @dues[:state].to_s.dasherize %>"></div>
-      <% remaining = [@dues[:total] - @dues[:paid], 0].max %>
-      <p class="text-body-sm text-secondary">
-        <% if remaining.zero? %>
-          You're all paid up for the season. Thanks!
-        <% else %>
-          <%= number_to_currency(remaining / 100.0) %> left this season.
-        <% end %>
-      </p>
+      <% if [@dues[:total] - @dues[:paid], 0].max.zero? %>
+        <p class="text-body-sm text-success-fg font-medium">You're all paid up for the season. Thanks!</p>
+      <% end %>
     </div>
 
     <%= link_to 'Back to dashboard', members_home_path, class: 'btn-primary btn-lg self-start' %>

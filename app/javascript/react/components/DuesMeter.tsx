@@ -56,6 +56,7 @@ const DuesMeter = ({
   const paidPct = clampPct((paidCents / total) * 100)
   const expectedPct = clampPct((expectedCents / total) * 100)
   const committedPct = clampPct((committedCents / total) * 100)
+  const remainingCents = Math.max(totalCents - paidCents, 0)
 
   const hatch =
     committedKind === 'pending'
@@ -63,39 +64,50 @@ const DuesMeter = ({
       : 'repeating-linear-gradient(135deg, rgb(var(--status-danger-bg)) 0 5px, rgb(var(--status-danger-fg) / 0.4) 5px 10px)'
 
   return (
-    <div className={`flex flex-col gap-2 ${className}`.trim()}>
+    <div className={`flex flex-col gap-3 ${className}`.trim()}>
       {showLabel && (
-        <div className="flex items-baseline justify-between gap-2 text-body-sm">
-          <span className={`font-mono tabular-nums ${STATE_METRIC_TONE[state]}`}>
-            {money(paidCents)} <span className="text-secondary">/ {money(totalCents)}</span>
+        <div className="flex items-baseline gap-2">
+          <span className={`font-mono tabular-nums text-metric ${STATE_METRIC_TONE[state]}`}>
+            {money(paidCents)}
           </span>
+          <span className="text-body-sm text-secondary">of {money(totalCents)} dues</span>
+        </div>
+      )}
+
+      <div className="flex flex-col gap-2">
+        <div className="relative h-3.5 rounded-full bg-sunken border border-border-default overflow-hidden">
+          <div
+            className="absolute inset-y-0 left-0 bg-moss rounded-full"
+            style={{ width: `${paidPct}%` }}
+          />
+          {committedPct > 0 && (
+            <div
+              className="absolute inset-y-0"
+              data-committed={committedKind}
+              style={{ left: `${paidPct}%`, width: `${committedPct}%`, background: hatch }}
+            />
+          )}
+          {expectedPct > 0 && state !== 'paid-in-full' && (
+            <div
+              className="absolute -inset-y-1 w-0.5 bg-primary"
+              style={{ left: `${expectedPct}%` }}
+              aria-hidden="true"
+            />
+          )}
+        </div>
+
+        <div className="flex items-baseline justify-between gap-2 text-body-sm text-secondary">
+          {committedKind === 'past-due' && committedCents > 0 ? (
+            <span className="text-danger-fg font-semibold">{money(committedCents)} past due</span>
+          ) : (
+            <span>{money(remainingCents)} left this season</span>
+          )}
           {expectedCents > 0 && state !== 'paid-in-full' && (
-            <span className="text-secondary whitespace-nowrap">
+            <span className="whitespace-nowrap">
               Expected by today: <span className="font-mono">{money(expectedCents)}</span>
             </span>
           )}
         </div>
-      )}
-
-      <div className="relative h-3.5 rounded-full bg-sunken border border-border-default overflow-hidden">
-        <div
-          className="absolute inset-y-0 left-0 bg-moss rounded-full"
-          style={{ width: `${paidPct}%` }}
-        />
-        {committedPct > 0 && (
-          <div
-            className="absolute inset-y-0"
-            data-committed={committedKind}
-            style={{ left: `${paidPct}%`, width: `${committedPct}%`, background: hatch }}
-          />
-        )}
-        {expectedPct > 0 && state !== 'paid-in-full' && (
-          <div
-            className="absolute -inset-y-1 w-0.5 bg-primary"
-            style={{ left: `${expectedPct}%` }}
-            aria-hidden="true"
-          />
-        )}
       </div>
     </div>
   )

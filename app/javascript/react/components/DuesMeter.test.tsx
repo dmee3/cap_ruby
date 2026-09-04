@@ -10,10 +10,24 @@ const base = {
 }
 
 describe('DuesMeter', () => {
-  it('renders the paid / total label', () => {
-    const { container } = render(<DuesMeter {...base} />)
-    expect(container.textContent).toContain('$360.00')
-    expect(container.textContent).toContain('$600.00')
+  it('renders a hero paid figure with the total alongside it', () => {
+    render(<DuesMeter {...base} paidCents={20_000} expectedCents={40_000} />)
+    expect(screen.getByText('$200.00')).toHaveClass('text-metric')
+    expect(screen.getByText('of $600.00 dues')).toBeInTheDocument()
+  })
+
+  it('shows what is left this season, and the expected-by-today figure', () => {
+    render(<DuesMeter {...base} />)
+    expect(screen.getByText('$240.00 left this season')).toBeInTheDocument()
+    expect(screen.getByText('Expected by today:')).toBeInTheDocument()
+  })
+
+  it('swaps the left caption for a past-due amount when behind', () => {
+    render(
+      <DuesMeter {...base} state="behind" paidCents={24_000} committedCents={12_000} committedKind="past-due" />
+    )
+    expect(screen.getByText('$120.00 past due')).toHaveClass('text-danger-fg')
+    expect(screen.queryByText(/left this season/)).not.toBeInTheDocument()
   })
 
   it('sizes the fill to paid / total', () => {
