@@ -6,6 +6,11 @@ module Members
 
     def new
       set_stripe_public_key
+      @dues = PaymentService.member_dues_summary(current_user, current_season['id'])
+      next_installment = @dues[:remaining_installments]&.first
+      @owed_cents = @dues[:past_due].to_i.positive? ? @dues[:past_due] : next_installment&.dig(:amount).to_i
+      @owed_due_on = next_installment&.dig(:pay_date)
+      @remaining_cents = [@dues[:total] - @dues[:paid], 0].max
       render('members/payments/new')
     end
 

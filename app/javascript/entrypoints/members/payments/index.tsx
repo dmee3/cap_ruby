@@ -3,20 +3,18 @@ import { loadStripe } from '@stripe/stripe-js'
 import { render } from 'react-dom'
 import PaymentForm from '../../../react/widgets/members/PaymentForm'
 
-const stripePromise = loadStripe(stripePublicKey)
+const cfg = window.duesPayment
+const stripePromise = loadStripe(cfg.stripePublicKey)
 
-const MembersPayments = () => {
-  
-  render(
-    <div className="flex flex-col">
-      <h1>New Payment</h1>
-      <PaymentForm
-        stripePromise={stripePromise}
-        returnUrl={returnUrl}
-      />
-    </div>,
-    document.getElementById('payments')
-  )
-}
-
-MembersPayments()
+render(
+  <PaymentForm
+    stripePromise={stripePromise}
+    returnUrl={cfg.returnUrl}
+    owedCents={cfg.owedCents}
+    owedDueOn={cfg.owedDueOn}
+    pastDueCents={cfg.pastDueCents}
+    remainingCents={cfg.remainingCents}
+    prefillCents={cfg.prefillCents}
+  />,
+  document.getElementById('payments')
+)

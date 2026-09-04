@@ -1,104 +1,64 @@
-import React, { useEffect, useState } from 'react'
-import {
-  PaymentElement,
-  useStripe,
-  useElements
-} from '@stripe/react-stripe-js'
+import React, { useState } from 'react'
+import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 
 type PaymentCheckoutProps = {
   returnUrl: string
 }
 
-const PaymentCheckout = ({
-  returnUrl
-} : PaymentCheckoutProps) => {
+const PaymentCheckout = ({ returnUrl }: PaymentCheckoutProps) => {
   const stripe = useStripe()
   const elements = useElements()
 
-  const [message, setMessage] = useState(null)
+  const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-    if (!stripe) {
-      return
-    }
-
-    const clientSecret = new URLSearchParams(window.location.search).get(
-      'payment_intent_client_secret'
-    )
-
-    if (!clientSecret) {
-      return
-    }
-
-    stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
-      switch (paymentIntent.status) {
-        case 'succeeded':
-          setMessage('Payment succeeded!')
-          break
-        case 'processing':
-          setMessage('Your payment is processing.')
-          break
-        case 'requires_payment_method':
-          setMessage('Your payment was not successful, please try again.')
-          break
-        default:
-          setMessage('Something went wrong.')
-          break
-      }
-    })
-  }, [stripe])
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!stripe || !elements) {
-      // Stripe.js has not yet loaded.
-      // Make sure to disable form submission until Stripe.js has loaded.
-      return
-    }
+    if (!stripe || !elements) return
 
     setIsLoading(true)
+    setError(null)
 
-    const { error } = await stripe.confirmPayment({
+    // Only an immediate confirmation error returns here — otherwise Stripe
+    // redirects to return_url. A declined card lands here, PaymentElement stays
+    // mounted, and the member can retry in place.
+    const { error: stripeError } = await stripe.confirmPayment({
       elements,
-      confirmParams: {
-        return_url: returnUrl
-      },
+      confirmParams: { return_url: returnUrl },
     })
 
-    // This point will only be reached if there is an immediate error when
-    // confirming the payment. Otherwise, they'll be redirected to the return url
-    if (error.type === 'card_error' || error.type === 'validation_error') {
-      setMessage(error.message)
+    if (stripeError.type === 'card_error' || stripeError.type === 'validation_error') {
+      setError(stripeError.message ?? 'Your card could not be charged.')
     } else {
-      setMessage('An unexpected error occured.')
+      setError('Something went wrong. Nothing was charged — please try again.')
     }
-
     setIsLoading(false)
   }
 
   return (
-    <form id="payment-form" onSubmit={handleSubmit}>
+    <form id="payment-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
       <PaymentElement id="payment-element" />
-      <div className="flex flex-col">
-        {message && <div className="text-red-700">{message}</div>}
-        <div className="mt-4 flex justify-end">
-          <button className={`btn-primary btn-lg ${(isLoading || !stripe || !elements) && `opacity-50 cursor-default`}`} disabled={isLoading || !stripe || !elements} id="submit">
-            {isLoading ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Processing
-              </>
-              ) : 
-              "Pay Now"
-            }
-          </button>
+
+      {error && (
+        <div className="rounded-sm bg-danger-bg text-danger-fg text-body-sm p-3">
+          {error} Nothing was charged — check the details above and try again.
         </div>
-      </div>
+      )}
+
+      <button
+        type="submit"
+        disabled={isLoading || !stripe || !elements}
+        className="btn-primary btn-lg disabled:opacity-40 disabled:pointer-events-none"
+      >
+        {isLoading ? (
+          <span className="inline-flex items-center gap-2">
+            <span className="h-4 w-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
+            Processing…
+          </span>
+        ) : (
+          'Pay now'
+        )}
+      </button>
     </form>
   )
 }
