@@ -1,0 +1,80 @@
+<% content_for :page_title, 'Payment' %>
+
+<div class="mx-auto w-full max-w-[640px] flex flex-col gap-4">
+  <% if @status == 'succeeded' && @payment.present? %>
+    <%# ---- confirmed: the webhook has written the Payment ---- %>
+    <div class="card card--success flex flex-col gap-3">
+      <span class="flex h-10 w-10 items-center justify-center rounded-full bg-success-bg text-success-fg text-xl font-bold">&checkmark;</span>
+      <h1 class="mb-0">Payment received</h1>
+      <p class="text-body text-secondary">
+        <strong class="text-primary"><%= number_to_currency(@payment.amount / 100.0) %></strong>
+        went toward your dues on <%= @payment.date_paid.strftime('%A, %-m/%-d') %>.
+      </p>
+    </div>
+
+    <div class="card flex flex-col gap-3">
+      <span class="card-title">Where you stand now</span>
+      <div id="dues-meter"
+           data-paid="<%= @dues[:paid] %>"
+           data-total="<%= @dues[:total] %>"
+           data-expected="<%= @dues[:expected] %>"
+           data-committed="<%= @dues[:past_due] %>"
+           data-committed-kind="past-due"
+           data-state="<%= @dues[:state].to_s.dasherize %>"></div>
+      <% remaining = [@dues[:total] - @dues[:paid], 0].max %>
+      <p class="text-body-sm text-secondary">
+        <% if remaining.zero? %>
+          You're all paid up for the season. Thanks!
+        <% else %>
+          <%= number_to_currency(remaining / 100.0) %> left this season.
+        <% end %>
+      </p>
+    </div>
+
+    <%= link_to 'Back to dashboard', members_home_path, class: 'btn-primary btn-lg self-start' %>
+    <%= vite_typescript_tag 'entrypoints/members/index.tsx' %>
+
+  <% elsif @status == 'succeeded' %>
+    <%# ---- charge went through, webhook not landed yet ---- %>
+    <% tries = params[:t].to_i %>
+    <div class="card flex flex-col gap-3">
+      <span class="h-10 w-10 rounded-full border-2 border-accent-primary border-t-transparent animate-spin"></span>
+      <h1 class="mb-0">Payment confirmed</h1>
+      <% if tries < 5 %>
+        <p class="text-body text-secondary">
+          Your card went through. We're updating your dues now — this usually takes a few seconds.
+          This page refreshes on its own.
+        </p>
+        <% refresh_params = request.query_parameters.merge(t: tries + 1).to_query %>
+        <meta http-equiv="refresh" content="4; url=<%= "#{request.path}?#{refresh_params}" %>">
+      <% else %>
+        <p class="text-body text-secondary">
+          Your card went through. Your dues will update shortly — check your dashboard in a
+          minute, or reach out to a director if it doesn't.
+        </p>
+      <% end %>
+    </div>
+    <%= link_to 'Back to dashboard', members_home_path, class: 'btn-gray btn-lg self-start' %>
+
+  <% else %>
+    <%# ---- failed / cancelled ---- %>
+    <div class="card card--danger flex flex-col gap-3">
+      <span class="flex h-10 w-10 items-center justify-center rounded-full bg-danger-bg text-danger-fg text-xl font-bold">!</span>
+      <h1 class="mb-0">Your payment didn't go through</h1>
+      <p class="text-body text-secondary">
+        <strong class="text-primary">Nothing was charged</strong> and your dues are unchanged.
+      </p>
+    </div>
+
+    <div class="card flex flex-col gap-2">
+      <span class="card-title">What usually works</span>
+      <ul class="list-disc list-inside text-body-sm text-secondary space-y-1">
+        <li>Try again with the same or a different card.</li>
+        <li>Contact your bank if it keeps getting declined.</li>
+        <li>Bring Venmo, cash, or a check to rehearsal — no fee, and a director handles it.</li>
+      </ul>
+    </div>
+
+    <%= link_to 'Try again', new_members_payment_path, class: 'btn-primary btn-lg self-start' %>
+  <% end %>
+</div>
