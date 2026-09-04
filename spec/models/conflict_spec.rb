@@ -120,6 +120,52 @@ RSpec.describe Conflict, type: :model do
         expect(conflict).to be_valid
       end
     end
+
+    context 'date order validation' do
+      let(:user) { create(:user) }
+      let(:season) { create(:season) }
+      let(:status) { create(:conflict_status) }
+
+      it 'rejects an end date before the start date' do
+        conflict = Conflict.new(
+          user: user,
+          season: season,
+          conflict_status: status,
+          start_date: 2.days.from_now,
+          end_date: 1.day.from_now,
+          reason: 'Test reason'
+        )
+        expect(conflict).to_not be_valid
+        expect(conflict.errors[:end_date]).to include('must be on or after the start date')
+      end
+
+      it 'allows an end date equal to the start date' do
+        same_time = 1.day.from_now
+        conflict = Conflict.new(
+          user: user,
+          season: season,
+          conflict_status: status,
+          start_date: same_time,
+          end_date: same_time,
+          reason: 'Test reason'
+        )
+        expect(conflict).to be_valid
+      end
+
+      it 'rejects an end date before the start date even when skipping future date validation' do
+        conflict = Conflict.new(
+          user: user,
+          season: season,
+          conflict_status: status,
+          start_date: 2.days.ago,
+          end_date: 3.days.ago,
+          reason: 'Test reason'
+        )
+        conflict.skip_future_date_validation = true
+        expect(conflict).to_not be_valid
+        expect(conflict.errors[:end_date]).to include('must be on or after the start date')
+      end
+    end
   end
 
   context 'scopes' do
@@ -132,6 +178,7 @@ RSpec.describe Conflict, type: :model do
     let!(:old_conflict) do
       create(
         :conflict,
+        start_date: DateTime.yesterday - 1.year - 1.day,
         end_date: DateTime.yesterday - 1.year,
         conflict_status: denied_status,
         season: last_season,
