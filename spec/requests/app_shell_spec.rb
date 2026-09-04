@@ -57,6 +57,13 @@ RSpec.describe 'App shell', type: :request do
     end
 
     include_examples 'renders the shell', '/members'
+
+    it 'shows the member nav items' do
+      get '/members'
+      ['Home', 'Pay Dues', 'Conflict', 'Files', 'My Fundraisers'].each do |label|
+        expect(response.body).to include(">#{label}<")
+      end
+    end
   end
 
   describe 'Devise pages use the auth layout, not the shell' do

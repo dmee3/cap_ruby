@@ -102,5 +102,41 @@ class PaymentService
     def current_dues_period
       DUES_PERIODS.filter { |p| Date.parse(p[:end]) >= Date.today }.first
     end
+
+    # Everything the member dashboard's DuesMeter + timeline need, in one call.
+    # All money values are integer cents. `state` is one of:
+    #   :no_schedule :paid_in_full :behind :ahead :on_track
+    sig { params(user: User, season_id: Integer).returns(T::Hash[Symbol, T.untyped]) }
+    def member_dues_summary(user, season_id)
+      schedule = user.payment_schedule_for(season_id)
+      paid = user.amount_paid_for(season_id)
+
+      return { state: :no_schedule, paid: paid, total: 0, expected: 0, past_due: 0, timeline: [] } if
+        schedule.nil? || schedule.entries.empty?
+
+      total = schedule.entries.sum(&:amount)
+      expected = schedule.scheduled_to_date(Date.current)
+      past_due = [expected - paid, 0].max
+
+      {
+        state: dues_state(paid: paid, total: total, expected: expected, past_due: past_due),
+        paid: paid,
+        total: total,
+        expected: expected,
+        past_due: past_due,
+        remaining_installments: user.remaining_payments_for(season_id).reject { |e| e[:amount].zero? }
+      }
+    end
+
+    sig do
+      params(paid: Integer, total: Integer, expected: Integer, past_due: Integer).returns(Symbol)
+    end
+    def dues_state(paid:, total:, expected:, past_due:)
+      return :paid_in_full if paid >= total
+      return :behind if past_due.positive?
+      return :ahead if paid > expected
+
+      :on_track
+    end
   end
 end

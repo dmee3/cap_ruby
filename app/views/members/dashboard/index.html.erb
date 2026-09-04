@@ -1,94 +1,115 @@
-<h1 class="mb-0"><%= current_user.full_name %></h1>
-<h2 class="text-secondary mt-0"><%= current_user.ensemble_for(current_season['id']) %> <%= current_user.section_for(current_season['id']) %></h2>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<% content_for :page_title, 'Dashboard' %>
+<%= vite_typescript_tag 'entrypoints/members/index.tsx' %>
 
-  <div class="order-2 md:order-1 grid grid-cols-1 lg:grid-cols-5 lg:col-span-2 gap-4">
-    <!-- PAYMENTS -->
-    <div class="card card--success lg:col-span-3">
-      <div class="flex flex-col">
-        <span class="card-title text-success-fg">DUES PROGRESS</span>
-        <span class="text-metric font-mono text-success-fg mb-0.5">
-          <%= number_to_currency(@paid, precision: (@paid % 1.0 == 0 ? 0 : 2)) %>
-          /
-          <%= number_to_currency(@total_dues, precision: (@total_dues % 1.0 == 0 ? 0 : 2)) %>
-        </span>
-        <% if @paid >= @total_dues %>
-          <span class="text-secondary text-body-sm font-medium">You're all done paying. Thanks!</span>
-        <% elsif @next_payment_amount > 0 %>
-          <span class="text-secondary text-body-sm font-medium">Next payment: <span class="font-bold text-primary">
-            <%= number_to_currency(@next_payment_amount, precision: (@next_payment_amount % 1.0 == 0 ? 0 : 2)) %>
-          </span> on <span class="font-bold text-primary"><%= @next_payment_date.pay_date.strftime('%a, %-m/%-d') %></span></span>
-        <% end %>
+<%
+  next_installment = @dues[:remaining_installments]&.first
+  owed_cents = @dues[:past_due].to_i.positive? ? @dues[:past_due] : next_installment&.dig(:amount)
+%>
 
-        <% if @payments.present? %>
-          <div class="flex flex-col mt-4">
-            <span class="card-title">PAYMENTS</span>
-            <ul class="divide-y divide-border-default">
-              <% @payments.each do |payment| %>
-                <li class="py-2">
-                  <div class="flex justify-between items-center">
-                    <div class="flex items-center">
-                      <span class="text-secondary mr-1">
-                        <%= render 'payment_type_icon', name: payment.payment_type.name %>
-                      </span>
-                      <span class="text-primary"><%= number_to_currency(payment.amount / 100.0, precision: (payment.amount / 100.0 % 1.0 == 0 ? 0 : 2)) %></span>
-                    </div>
-                    <span class="text-body-sm font-light text-secondary"><%= payment.date_paid.strftime('%-m/%-d/%-y') %></span>
-                  </div>
+<div class="flex flex-col gap-1 mb-5">
+  <h1 class="mb-0"><%= current_user.full_name %></h1>
+  <p class="text-body-sm text-secondary"><%= [@ensemble, @section].compact.join(' · ') %></p>
+</div>
 
-                  <% unless payment.notes.blank? %>
-                    <div class="mx-6 my-2 text-body-sm text-secondary">
-                      <span><%= payment.notes %></span>
-                    </div>
-                  <% end %>
-                </li>
-              <% end %>
-            </ul>
-          </div>
-        <% end %>
-      </div>
+<div class="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-4 lg:gap-5">
+
+  <!-- WHERE YOU STAND -->
+  <div class="card flex flex-col gap-3 <%= 'card--danger' if @dues[:state] == :behind %><%= 'card--success' if @dues[:state] == :paid_in_full %>">
+    <div class="flex items-baseline justify-between gap-2">
+      <span class="card-title">Dues progress</span>
+      <% case @dues[:state] %>
+      <% when :behind %>
+        <span class="inline-flex items-center rounded-full bg-danger-bg text-danger-fg px-2 py-0.5 text-label uppercase">Behind</span>
+      <% when :ahead %>
+        <span class="inline-flex items-center rounded-full bg-success-bg text-success-fg px-2 py-0.5 text-label uppercase">Ahead</span>
+      <% when :paid_in_full %>
+        <span class="inline-flex items-center rounded-full bg-success-bg text-success-fg px-2 py-0.5 text-label uppercase">Paid in full</span>
+      <% when :on_track %>
+        <span class="inline-flex items-center rounded-full bg-success-bg text-success-fg px-2 py-0.5 text-label uppercase">On track</span>
+      <% end %>
     </div>
 
-    <!-- PAYMENT SCHEDULE -->
-    <div class="card-flat card--success flex flex-col lg:col-span-2 justify-self-stretch items-stretch">
-      <span class="card-title text-success-fg">PAYMENT SCHEDULE</span>
+    <div id="dues-meter"
+         data-paid="<%= @dues[:paid] %>"
+         data-total="<%= @dues[:total] %>"
+         data-expected="<%= @dues[:expected] %>"
+         data-committed="<%= @dues[:past_due] %>"
+         data-committed-kind="past-due"
+         data-state="<%= @dues[:state].to_s.dasherize %>"></div>
+
+    <% if @dues[:state] == :no_schedule %>
+      <p class="text-body border-t border-border-default pt-3">
+        Your dues schedule hasn't been set up yet. A director will add it soon — check back, or reach out if you have questions.
+      </p>
+    <% elsif @dues[:state] == :paid_in_full %>
+      <p class="text-body border-t border-border-default pt-3">
+        You're all paid up for the season — <strong><%= number_to_currency(@dues[:total] / 100.0) %></strong>. Thanks!
+      </p>
+    <% elsif owed_cents.to_i.positive? %>
+      <p class="text-body border-t border-border-default pt-3">
+        <% if @dues[:past_due].to_i.positive? %>
+          You're <strong><%= number_to_currency(@dues[:past_due] / 100.0) %></strong> behind.
+        <% else %>
+          You owe <strong><%= number_to_currency(owed_cents / 100.0) %></strong><% if next_installment %>, due <strong><%= next_installment[:pay_date].strftime('%a %-m/%-d') %></strong><% end %>.
+        <% end %>
+        That's <strong><%= number_to_currency(StripeFees.total_cents(owed_cents) / 100.0) %></strong> total on a card.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-2">
+        <%= link_to "Pay #{number_to_currency(owed_cents / 100.0)}", new_members_payment_path(amount: format('%.2f', owed_cents / 100.0)), class: 'btn-primary btn-lg' %>
+        <%= link_to 'Pay another amount', new_members_payment_path, class: 'btn-gray btn-lg' %>
+      </div>
+    <% else %>
+      <p class="text-body border-t border-border-default pt-3">
+        Nothing due right now. Next installment is <strong><%= next_installment[:pay_date].strftime('%a %-m/%-d') %></strong>.
+      </p>
+      <%= link_to 'Make a payment', new_members_payment_path, class: 'btn-gray btn-lg self-start' %>
+    <% end %>
+  </div>
+
+  <!-- CONFLICTS SUMMARY -->
+  <div class="card flex flex-col gap-3">
+    <div class="flex items-baseline justify-between gap-2">
+      <span class="card-title">Your conflicts</span>
+      <%= link_to 'New', new_members_conflict_path, class: 'btn-gray btn-sm' %>
+    </div>
+    <% pending = @conflicts.select { |c| c.status.name == 'Pending' } %>
+    <% if @conflicts.empty? %>
+      <p class="text-body-sm text-secondary">No conflicts submitted — you're clear for every rehearsal.</p>
+    <% else %>
+      <div class="flex flex-wrap gap-2">
+        <% @conflicts.group_by { |c| c.status.name }.each do |status, list| %>
+          <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-label uppercase
+            <%= { 'Pending' => 'bg-warning-bg text-warning-fg', 'Approved' => 'bg-success-bg text-success-fg', 'Denied' => 'bg-danger-bg text-danger-fg' }.fetch(status, 'bg-neutral-bg text-neutral-fg') %>">
+            <%= list.count %> <%= status %>
+          </span>
+        <% end %>
+      </div>
       <ul class="divide-y divide-border-default">
-        <% @entries.each do |entry| %>
-          <li class="flex justify-between py-2">
-            <span><%= number_to_currency(entry.amount / 100.0, precision: (entry.amount / 100.0 % 1.0 == 0 ? 0 : 2)) %></span>
-            <span class="text-secondary"><%= entry.pay_date.strftime('%a, %-m/%-d') %></span>
+        <% @conflicts.first(4).each do |c| %>
+          <li class="flex items-center justify-between gap-2 py-2">
+            <span class="text-body-sm">
+              <%= c.start_date.strftime('%a %-m/%-d') %><% unless c.start_date.to_date == c.end_date.to_date %>&ndash;<%= c.end_date.strftime('%-m/%-d') %><% end %>
+            </span>
+            <span class="text-caption text-secondary"><%= time_ago_in_words(c.created_at) %> ago</span>
           </li>
         <% end %>
       </ul>
-    </div>
+    <% end %>
   </div>
 
-  <div class="flex flex-col order-3 justify-items-stretch grid grid-cols-1 gap-4">
-    <!-- CONFLICTS -->
-    <div class="card-flat card--danger">
-      <div class="flex flex-col">
-        <div class="card-title text-danger-fg">CONFLICTS</div>
-        <% if @conflicts.present? %>
-          <ul class="divide-y divide-border-default">
-            <% @conflicts.for_season(current_season['id']).each do |c| %>
-              <li class="flex flex-col py-2">
-                <div class="flex justify-between items-center">
-                  <% if c.start_date.day == c.end_date.day %>
-                    <%= c.start_date.strftime('%a, %-m/%-d %l:%M %p') %> to <%= c.end_date.strftime('%l:%M %p') %>
-                  <% else %>
-                    <%= c.start_date.strftime('%a, %-m/%-d %l:%M %p') %> to<br /><%= c.end_date.strftime('%a, %-m/%-d %l:%M %p') %>
-                  <% end %>
-                  <%= render 'conflict_status_icon', status: c.status %>
-                </div>
-                <div class="mx-6 mt-0 mb-2 text-sm flex flex-col text-secondary">
-                  Submitted: <%= c.created_at.strftime('%a, %-m/%-d') %>
-                </div>
-              </li>
-            <% end %>
-          </ul>
-        <% else %>
-          <span class="text-3xl font-extrabold font-mono mb-0.5">None</span>
-        <% end %>
+  <!-- DUES TIMELINE -->
+  <div class="lg:col-span-2 card p-0 overflow-hidden">
+    <div class="flex items-baseline justify-between gap-2 px-4 py-3 border-b border-border-default">
+      <span class="text-h3 font-semibold">Dues timeline</span>
+      <% if @dues[:state] != :no_schedule %>
+        <span class="text-caption text-secondary">
+          <%= @timeline[:paid].count %> paid · <%= @timeline[:upcoming].count %> to go
+        </span>
+      <% end %>
+    </div>
+    <div id="dues-timeline" data-timeline="<%= @timeline.to_json %>">
+      <div class="p-4 flex flex-col gap-3">
+        <% 3.times do %><div class="h-3.5 rounded-sm bg-sunken animate-pulse" style="width: <%= [60, 90, 75].sample %>%"></div><% end %>
       </div>
     </div>
   </div>

@@ -160,8 +160,9 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       get '/members'
 
       expect(response).to have_http_status(:success)
-      # Verify conflict is present by checking the date
-      expect(response.body).to include(member_conflict.start_date.strftime('%a, %-m/%-d'))
+      expect(response.body).to include('Your conflicts')
+      # The summary lists the conflict by its start date
+      expect(response.body).to include(member_conflict.start_date.strftime('%a %-m/%-d'))
     end
   end
 

@@ -50,13 +50,18 @@ class StripeController < ApplicationController
   end
 
   def process_calendar(payment_intent)
+    pi_id = payment_intent['id']
     metadata = payment_intent['metadata']
+
+    # Stripe can redeliver an event; skip if this payment intent is already recorded.
+    return if Calendar::Donation.exists?(notes: "Stripe: #{pi_id}")
+
     fundraiser = Calendar::Fundraiser.find_or_create_incomplete_for_user(metadata.member_id)
     metadata.dates.split(',').each do |date|
       Calendar::Donation.create(
         user_id: metadata.member_id,
         amount: date.to_i * 100,
-        notes: "Stripe: #{payment_intent['id']}",
+        notes: "Stripe: #{pi_id}",
         donation_date: date.to_i,
         donor_name: metadata.donor_name,
         season_id: Season.last.id,
@@ -84,14 +89,16 @@ class StripeController < ApplicationController
       return
     end
 
-    payment = Payment.create!(
+    # Stripe can redeliver an event; the "Stripe: <pi_id>" note is our idempotency key.
+    payment = Payment.create_with(
       amount: intent_record.amount,
       user_id: intent_record.user_id,
-      date_paid: Date.today,
+      date_paid: Date.current,
       season_id: intent_record.season_id,
-      notes: "Stripe: #{pi_id}",
       payment_type: PaymentType.stripe
-    )
+    ).find_or_create_by!(notes: "Stripe: #{pi_id}")
+    return unless payment.previously_new_record?
+
     user = User.find(intent_record.user_id)
     ActivityLogger.log_payment(payment, user)
     EmailService.send_payment_submitted_email(payment, user)
