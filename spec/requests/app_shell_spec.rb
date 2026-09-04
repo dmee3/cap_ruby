@@ -60,7 +60,7 @@ RSpec.describe 'App shell', type: :request do
 
     it 'shows the member nav items' do
       get '/members'
-      %w[Home Pay\ Dues Conflict Files My\ Fundraisers].each do |label|
+      ['Home', 'Pay Dues', 'Conflict', 'Files', 'My Fundraisers'].each do |label|
         expect(response.body).to include(">#{label}<")
       end
     end

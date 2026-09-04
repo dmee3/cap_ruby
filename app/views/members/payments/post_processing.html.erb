@@ -4,7 +4,7 @@
   <% if @status == 'succeeded' && @payment.present? %>
     <%# ---- confirmed: the webhook has written the Payment ---- %>
     <div class="card card--success flex flex-col gap-3">
-      <span class="flex h-10 w-10 items-center justify-center rounded-full bg-success-bg text-success-fg text-xl font-bold">&checkmark;</span>
+      <span class="flex h-10 w-10 items-center justify-center rounded-full bg-success-bg text-success-fg text-xl font-bold" aria-hidden="true">&check;</span>
       <h1 class="mb-0">Payment received</h1>
       <p class="text-body text-secondary">
         <strong class="text-primary"><%= number_to_currency(@payment.amount / 100.0) %></strong>
@@ -38,7 +38,7 @@
     <%# ---- charge went through, webhook not landed yet ---- %>
     <% tries = params[:t].to_i %>
     <div class="card flex flex-col gap-3">
-      <span class="h-10 w-10 rounded-full border-2 border-accent-primary border-t-transparent animate-spin"></span>
+      <span class="inline-block h-10 w-10 rounded-full border-2 border-accent-primary border-t-transparent animate-spin" aria-hidden="true"></span>
       <h1 class="mb-0">Payment confirmed</h1>
       <% if tries < 5 %>
         <p class="text-body text-secondary">
