@@ -141,8 +141,8 @@ const PaymentForm = ({
             {paying
               ? 'Setting up…'
               : amountCents
-                ? `Continue — pay ${money(totalCents(amountCents))}`
-                : 'Continue'}
+                ? `Pay ${money(totalCents(amountCents))}`
+                : 'Enter an amount'}
           </button>
         </div>
       )}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { feeCents, totalCents } from '../../utilities/stripe_fees'
 
 const money = (cents: number) =>
@@ -43,6 +43,17 @@ const MoneyField = ({
   const [text, setText] = useState(
     valueCents == null ? '' : (valueCents / 100).toFixed(2)
   )
+  // Track the cents value this field last emitted, so an external change to
+  // `valueCents` (a quick-fill button, a reset) re-syncs the displayed text
+  // without clobbering an in-progress edit like "12.".
+  const lastEmitted = useRef(valueCents)
+
+  useEffect(() => {
+    if (valueCents !== lastEmitted.current) {
+      setText(valueCents == null ? '' : (valueCents / 100).toFixed(2))
+      lastEmitted.current = valueCents
+    }
+  }, [valueCents])
 
   const overMax =
     maxCents != null && valueCents != null && valueCents > maxCents
@@ -54,7 +65,9 @@ const MoneyField = ({
 
   const handleChange = (raw: string) => {
     setText(raw)
-    onChangeCents(parseToCents(raw))
+    const cents = parseToCents(raw)
+    lastEmitted.current = cents
+    onChangeCents(cents)
   }
 
   return (
