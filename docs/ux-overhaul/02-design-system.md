@@ -341,6 +341,45 @@ Each component below is what to build as reusable elements in Claude Design.
   installment) and `All $Y` (everything left this season). Partial payments apply
   **oldest-installment-first**.
 
+### 4.17 DateTimeField pair *(added — Flow 3)*
+- Two adjacent controls per boundary (`Starts` / `Ends`): a date box (1.3fr) +
+  time box (1fr) in one row, `border.strong` at rest, `raspberry` border + a
+  `danger.fg` helper line in the error state (e.g. "Start date must be in the
+  future. That was 2 days ago.").
+- A quiet computed subline under the pair when both ends are known — e.g.
+  "Friday evening, 3 hours." — confirms what was just entered without the member
+  doing the math themselves.
+- Underlying control is unstyled-opinion: implementation picks the actual
+  date/time picker (native inputs or a restyled flatpickr); the field pair is
+  just the layout + state contract.
+- Reason field pairs with it: textarea, `border.strong`, a live character count
+  top-right, same error treatment.
+
+### 4.18 Validation summary card *(added — Flow 3)*
+- Appears above the form on failed submit (mobile: replaces where the form
+  starts; desktop: can stay inline per-field instead — use judgment per screen).
+- 3px `raspberry` left accent, `danger.fg` heading ("Three things to fix"),
+  each error as an anchor-link jump to its field.
+- Pairs with a reassurance line under the submit button on re-render: "Nothing
+  you typed was lost" — names the fix for the current app's real bug (failed
+  validation resets the form to blank).
+
+### 4.19 Conflict context row *(added — Flow 3)*
+- The shape used both for "your existing conflicts" on the submit form and the
+  dashboard "Your conflicts" card, so the two reconcile visually — and so a
+  future triage queue (Flow 5) can reuse the same row grouped by member.
+- Row: date range (single day → one date; multi-day → `Sat 4/4 – Mon 4/6`) +
+  time range where known, status pill (§4.8 vocabulary) top-right, a relative
+  subline (`In 4 days · submitted 3 days ago`), and — only on Denied and the
+  next upcoming row — a truncated `reason` subline. Other rows omit `reason` to
+  keep the list scannable.
+- Dashboard card adds a pill-summary header line (`2 Pending` / `1 Approved` /
+  `1 Denied`, counts only) plus one computed nudge sentence when something's
+  waiting: "Next one is Fri 3/14, still pending after 3 days."
+- A transient "just submitted" variant: a dismissible `success` band above the
+  list ("Sent. Your coordinators see it now. Approval isn't automatic.") rather
+  than a separate toast, so the confirmation and the new row are read together.
+
 ---
 
 ## 5. Accessibility baseline
