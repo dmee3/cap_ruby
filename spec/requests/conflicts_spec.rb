@@ -147,7 +147,8 @@ RSpec.describe 'Conflicts Workflow', type: :request do
         user: member,
         season: season,
         conflict_status: approved_status,
-        start_date: 1.week.from_now
+        start_date: 1.week.from_now,
+        end_date: 8.days.from_now
       )
     end
     let!(:other_conflict) do

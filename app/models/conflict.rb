@@ -36,6 +36,7 @@ class Conflict < ApplicationRecord
   validates :status_id, presence: true
   validates :user_id, presence: true
   validate :future_dates_only, on: :create
+  validate :end_date_after_start_date
 
   attr_accessor :skip_future_date_validation
 
@@ -57,5 +58,12 @@ class Conflict < ApplicationRecord
     return unless end_date.present? && end_date < now
 
     errors.add(:end_date, 'must be in the future')
+  end
+
+  def end_date_after_start_date
+    return unless start_date.present? && end_date.present?
+    return unless end_date < start_date
+
+    errors.add(:end_date, 'must be on or after the start date')
   end
 end
