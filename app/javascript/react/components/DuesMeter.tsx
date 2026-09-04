@@ -70,7 +70,9 @@ const DuesMeter = ({
             {money(paidCents)} <span className="text-secondary">/ {money(totalCents)}</span>
           </span>
           {expectedCents > 0 && state !== 'paid-in-full' && (
-            <span className="font-mono text-secondary">exp {money(expectedCents)}</span>
+            <span className="text-secondary whitespace-nowrap">
+              Expected by today: <span className="font-mono">{money(expectedCents)}</span>
+            </span>
           )}
         </div>
       )}

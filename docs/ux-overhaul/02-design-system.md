@@ -303,7 +303,8 @@ Each component below is what to build as reusable elements in Claude Design.
 - **Tone comes from paid vs. expected, never the raw percentage** — a prop, same
   pattern as StatBlock (§4.4): `on-track` / `ahead` / `behind` / `pending` /
   `paid-in-full` / `no-schedule`.
-- Label line above: `$paid / $total · exp $expected` (Roboto Mono, tabular).
+- Label line above: `$paid / $total` on the left, `Expected by today: $expected`
+  on the right (Roboto Mono for the figures, tabular).
 - Empty-schedule state (`no-schedule`): no bar, a neutral line "No dues schedule
   set yet — a director will add one."
 - Reuses `status.*` tokens; no new colors.
