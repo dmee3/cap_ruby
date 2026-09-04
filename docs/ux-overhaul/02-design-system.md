@@ -294,6 +294,52 @@ Each component below is what to build as reusable elements in Claude Design.
   Stripe payment element, one plain-language fee line.
 - **Confirmation** — receipt, "donate to someone else", social share.
 
+### 4.14 DuesMeter *(added — Flow 2)*
+- Horizontal bar. **Fill = paid ÷ total** in `moss`. A **jet tick** (flips to
+  `flash` in dark) marks "expected by today" (`PaymentSchedule#scheduled_to_date`).
+- A **striped segment** = money committed but not counted toward `paid`: past-due
+  (raspberry hatch) or a pending charge (warning hatch). Sits between the fill and
+  the tick.
+- **Tone comes from paid vs. expected, never the raw percentage** — a prop, same
+  pattern as StatBlock (§4.4): `on-track` / `ahead` / `behind` / `pending` /
+  `paid-in-full` / `no-schedule`.
+- Label line above: `$paid / $total · exp $expected` (Roboto Mono, tabular).
+- Empty-schedule state (`no-schedule`): no bar, a neutral line "No dues schedule
+  set yet — a director will add one."
+- Reuses `status.*` tokens; no new colors.
+
+### 4.15 PaymentRow *(added — Flow 2)*
+- One row shape for both halves of the "Dues timeline" (paid history + upcoming
+  schedule), so the two reconcile visually into one column.
+- Left: a 26px rounded square — a method badge (`CD`/`VE`/`CA`/`CK` for
+  Card/Venmo/Cash/Check) on paid rows, a day-number chip on schedule rows.
+- Middle: date (M/D/YY, weekday added within 14 days) + a subline
+  (`Card · $4.01 fee on top` / `no fee` on paid; `Due in 4 days · installment 4
+  of 5` on upcoming).
+- Right: amount in Roboto Mono — `moss` on paid, `text.secondary` on future,
+  `danger.fg` on past-due.
+- **Past-due** is the only variant with a fill: 3px `raspberry` left accent +
+  tinted body.
+- **Pending** row: spinner in the badge slot, warning subline.
+- All four `payment_type` values share the row shape — method differs by badge +
+  subline only.
+
+### 4.16 MoneyField + fee breakdown *(added — Flow 2)*
+- **MoneyField**: sunken `$` prefix, Roboto Mono value, 48px tall (thumb-clear).
+  States: default (placeholder `0.00` in `border.default`), focused-valid (2px
+  `focus.ring` + a `success.fg` helper line), error (raspberry border + raspberry
+  helper, e.g. "That's more than the $240.00 left this season").
+- **Fee breakdown**: always three lines in the same order — `Toward dues`,
+  `Card fee (3% + 30¢)`, `Total charged` (bold, dashed top rule). Renders `–`
+  dashes, not `$0.00`, before an amount is entered.
+- The fee math is the real formula: `total = amount / 0.97 + 0.30` (see the
+  implementation notes — this PR extracts it to a shared constant, recomputes it
+  server-side, and fixes a cents-truncation bug). Copy says "3% + 30¢" because
+  that's what members recognize.
+- "Toward dues" quick-fill buttons above the field: `Pay $X owed` (the current
+  installment) and `All $Y` (everything left this season). Partial payments apply
+  **oldest-installment-first**.
+
 ---
 
 ## 5. Accessibility baseline
