@@ -72,6 +72,52 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       expect(response).to have_http_status(:success)
       expect(response.body).to include('End date must be in the future')
     end
+
+    it 'repopulates the form with the submitted values on validation failure' do
+      sign_in_as_member(season: season)
+      pending_status
+
+      post '/members/conflicts', params: {
+        conflict: {
+          start_date: 1.week.ago,
+          end_date: 2.weeks.from_now,
+          reason: 'A very distinctive reason for missing rehearsal'
+        }
+      }
+
+      expect(response.body).to include('A very distinctive reason for missing rehearsal')
+    end
+  end
+
+  describe 'Conflict submission is closed for the season' do
+    let(:closed_season) { create(:season, year: Date.today.year, conflict_submission_open: false) }
+
+    it 'shows the closed state instead of the form' do
+      sign_in_as_member(season: closed_season)
+
+      get '/members/conflicts/new'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Conflicts aren't open right now")
+    end
+
+    it 'rejects a create via direct POST even when closed' do
+      sign_in_as_member(season: closed_season)
+      pending_status
+
+      expect do
+        post '/members/conflicts', params: {
+          conflict: {
+            start_date: 1.week.from_now,
+            end_date: 2.weeks.from_now,
+            reason: 'Family vacation'
+          }
+        }
+      end.not_to change(Conflict, :count)
+
+      expect(response).to redirect_to(new_members_conflict_path)
+      expect(flash[:error]).to match(/currently closed/)
+    end
   end
 
   describe 'Coordinator approves a conflict' do

@@ -15,6 +15,7 @@ FactoryBot.define do
 
   factory :season do
     year { Date.today.year }
+    conflict_submission_open { true }
   end
 
   factory :event do

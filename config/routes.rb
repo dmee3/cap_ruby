@@ -69,6 +69,8 @@ Rails.application.routes.draw do
     resources :users
 
     resources :payment_schedules, only: %i[edit]
+
+    resource :season, only: %i[edit update], controller: 'seasons'
   end
 
   namespace :coordinators do

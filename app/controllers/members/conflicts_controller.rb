@@ -5,16 +5,22 @@ module Members
     before_action :authenticate_user!
 
     def new
-      # Comment out to enable conflict submission
-      flash[:error] = 'Conflict submission is currently disabled'
-      redirect_to(root_url)
-
-      # Uncomment to enable conflict submission
-      # @conflict = Conflict.new
-      # render('members/conflicts/new')
+      @conflict = Conflict.new
+      @existing_conflicts = member_conflicts
+      if current_season.conflict_submission_open?
+        render('members/conflicts/new')
+      else
+        render('members/conflicts/closed')
+      end
     end
 
     def create
+      unless current_season.conflict_submission_open?
+        flash[:error] = 'Conflict submission is currently closed.'
+        redirect_to(new_members_conflict_path)
+        return
+      end
+
       @conflict = Conflict.new(conflict_params)
       if @conflict.save
         flash[:success] = 'Conflict submitted for review.'
@@ -24,12 +30,16 @@ module Members
       else
         Rollbar.info('Conflict could not be submitted.', errors: @conflict.errors.full_messages)
         flash.now[:error] = @conflict.errors.full_messages.to_sentence
-        @conflict = Conflict.new
+        @existing_conflicts = member_conflicts
         render('members/conflicts/new')
       end
     end
 
     private
+
+    def member_conflicts
+      current_user.conflicts.includes(:conflict_status).for_season(current_season['id']).order(:start_date)
+    end
 
     def conflict_params
       params.require(:conflict)
