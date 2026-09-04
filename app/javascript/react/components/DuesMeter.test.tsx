@@ -13,7 +13,7 @@ describe('DuesMeter', () => {
   it('renders a hero paid figure with the total alongside it', () => {
     render(<DuesMeter {...base} paidCents={20_000} expectedCents={40_000} />)
     expect(screen.getByText('$200.00')).toHaveClass('text-metric')
-    expect(screen.getByText('of $600.00 dues')).toBeInTheDocument()
+    expect(screen.getByText('of $600.00')).toBeInTheDocument()
   })
 
   it('shows what is left this season, and the expected-by-today figure', () => {

@@ -70,7 +70,7 @@ const DuesMeter = ({
           <span className={`font-mono tabular-nums text-metric ${STATE_METRIC_TONE[state]}`}>
             {money(paidCents)}
           </span>
-          <span className="text-body-sm text-secondary">of {money(totalCents)} dues</span>
+          <span className="text-body-sm text-secondary">of {money(totalCents)}</span>
         </div>
       )}
 
