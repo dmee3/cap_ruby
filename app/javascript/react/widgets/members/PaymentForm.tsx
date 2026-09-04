@@ -41,9 +41,9 @@ const PaymentForm = ({
   remainingCents,
   prefillCents,
 }: PaymentFormProps) => {
-  const [amountCents, setAmountCents] = useState<number | null>(
-    prefillCents ?? (owedCents > 0 ? owedCents : null)
-  )
+  // Only prefill when the dashboard "Pay $X" link asked for it (?amount=).
+  // "Pay another amount" links here with no amount, so the field starts empty.
+  const [amountCents, setAmountCents] = useState<number | null>(prefillCents)
   const [clientSecret, setClientSecret] = useState('')
   const [paying, setPaying] = useState(false)
 
