@@ -103,9 +103,7 @@ const DuesMeter = ({
             <span>{money(remainingCents)} left this season</span>
           )}
           {expectedCents > 0 && state !== 'paid-in-full' && (
-            <span className="whitespace-nowrap">
-              Expected by today: <span className="font-mono">{money(expectedCents)}</span>
-            </span>
+            <span className="whitespace-nowrap">Expected by today: {money(expectedCents)}</span>
           )}
         </div>
       </div>

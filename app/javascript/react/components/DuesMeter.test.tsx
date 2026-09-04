@@ -19,7 +19,7 @@ describe('DuesMeter', () => {
   it('shows what is left this season, and the expected-by-today figure', () => {
     render(<DuesMeter {...base} />)
     expect(screen.getByText('$240.00 left this season')).toBeInTheDocument()
-    expect(screen.getByText('Expected by today:')).toBeInTheDocument()
+    expect(screen.getByText('Expected by today: $360.00')).toBeInTheDocument()
   })
 
   it('swaps the left caption for a past-due amount when behind', () => {
