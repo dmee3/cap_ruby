@@ -148,6 +148,62 @@ RSpec.describe PaymentService do
     end
   end
 
+  describe '.member_dues_summary' do
+    let(:user) { create(:user) }
+
+    before { create(:seasons_user, user: user, season: season, role: 'member') }
+
+    it 'reports no_schedule when the member has no schedule' do
+      summary = PaymentService.member_dues_summary(user, season.id)
+      expect(summary[:state]).to eq(:no_schedule)
+      expect(summary[:total]).to eq(0)
+      expect(summary[:timeline]).to eq([])
+    end
+
+    it 'reports no_schedule when the schedule exists but has no entries' do
+      create(:payment_schedule, user: user, season: season)
+      expect(PaymentService.member_dues_summary(user, season.id)[:state]).to eq(:no_schedule)
+    end
+
+    context 'with a populated schedule' do
+      let!(:schedule) { create(:payment_schedule, user: user, season: season) }
+
+      before do
+        create(:payment_schedule_entry, payment_schedule: schedule, amount: 30_000, pay_date: 2.weeks.ago)
+        create(:payment_schedule_entry, payment_schedule: schedule, amount: 30_000, pay_date: 2.weeks.from_now)
+      end
+
+      it 'is behind when paid is under the amount scheduled to date' do
+        summary = PaymentService.member_dues_summary(user, season.id)
+        expect(summary[:state]).to eq(:behind)
+        expect(summary[:total]).to eq(60_000)
+        expect(summary[:expected]).to eq(30_000)
+        expect(summary[:past_due]).to eq(30_000)
+      end
+
+      it 'is on_track when paid covers the amount scheduled to date' do
+        create(:payment, user: user, season: season, amount: 30_000, payment_type: payment_type, date_paid: 1.week.ago)
+        expect(PaymentService.member_dues_summary(user, season.id)[:state]).to eq(:on_track)
+      end
+
+      it 'is ahead when paid exceeds the amount scheduled to date' do
+        create(:payment, user: user, season: season, amount: 45_000, payment_type: payment_type, date_paid: 1.week.ago)
+        expect(PaymentService.member_dues_summary(user, season.id)[:state]).to eq(:ahead)
+      end
+
+      it 'is paid_in_full when paid covers the whole schedule' do
+        create(:payment, user: user, season: season, amount: 60_000, payment_type: payment_type, date_paid: 1.week.ago)
+        expect(PaymentService.member_dues_summary(user, season.id)[:state]).to eq(:paid_in_full)
+      end
+
+      it 'drops fully-covered installments from remaining_installments' do
+        create(:payment, user: user, season: season, amount: 30_000, payment_type: payment_type, date_paid: 1.week.ago)
+        summary = PaymentService.member_dues_summary(user, season.id)
+        expect(summary[:remaining_installments].sum { |e| e[:amount] }).to eq(30_000)
+      end
+    end
+  end
+
   describe '.upcoming_payments' do
     let(:user1) { create(:user) }
     let(:user2) { create(:user) }

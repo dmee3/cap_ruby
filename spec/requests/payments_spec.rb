@@ -67,17 +67,14 @@ RSpec.describe 'Payments Workflow', type: :request do
 
     it 'creates payment intent successfully' do
       expect do
-        post '/api/members/payment_intents', params: {
-          total: 100.00,
-          amount: 100.00
-        }, as: :json
+        post '/api/members/payment_intents', params: { amount: 100.00 }, as: :json
       end.to change(PaymentIntent, :count).by(1)
 
       payment_intent = PaymentIntent.last
       expect(payment_intent.user).to eq(member)
       expect(payment_intent.season_id).to eq(season.id)
       expect(payment_intent.stripe_pi_id).to eq('pi_test_123')
-      expect(payment_intent.amount).to eq(10000) # $100 in cents
+      expect(payment_intent.amount).to eq(10000) # $100 toward dues, in cents
 
       json_response = JSON.parse(response.body)
       expect(json_response['clientSecret']).to eq('pi_test_123_secret_abc')
@@ -129,6 +126,16 @@ RSpec.describe 'Payments Workflow', type: :request do
       expect(payment.amount).to eq(15000)
       expect(payment.payment_type.name).to eq('Stripe')
       expect(payment.notes).to include('pi_test_456')
+
+      expect(response).to have_http_status(:success)
+    end
+
+    it 'is idempotent when Stripe redelivers the same event' do
+      post '/stripe/webhook', params: {}, as: :json
+
+      expect do
+        post '/stripe/webhook', params: {}, as: :json
+      end.not_to change(Payment, :count)
 
       expect(response).to have_http_status(:success)
     end
