@@ -53,36 +53,50 @@ RSpec.describe 'Dashboard Data Accuracy', type: :request do
       )
     end
 
-    it 'shows correct payment totals' do
+    it 'shows the dues meter with real totals' do
       get '/members'
 
       expect(response).to have_http_status(:success)
-      # Verify dashboard loads with payment information
-      expect(response.body).to include('DUES PROGRESS')
+      expect(response.body).to include('Dues progress')
+      # $250 paid of $700 scheduled -> meter island carries the cents
+      expect(response.body).to include('id="dues-meter"')
+      expect(response.body).to include('data-paid="25000"')
+      expect(response.body).to include('data-total="70000"')
     end
 
-    it 'shows user conflicts' do
+    it 'shows the conflicts summary' do
       get '/members'
 
       expect(response).to have_http_status(:success)
-      # Verify conflicts section is present
-      expect(response.body).to include('CONFLICTS')
+      expect(response.body).to include('Your conflicts')
     end
 
-    it 'shows payment schedule entries' do
+    it 'reconciles the payment schedule and payments into one timeline' do
       get '/members'
 
       expect(response).to have_http_status(:success)
-      # Verify payment schedule section is present
-      expect(response.body).to include('PAYMENT SCHEDULE')
+      expect(response.body).to include('Dues timeline')
+      expect(response.body).to include('id="dues-timeline"')
+      expect(response.body).to include('data-timeline')
     end
 
-    it 'shows past payments' do
+    it 'includes past payments in the timeline data' do
       get '/members'
 
       expect(response).to have_http_status(:success)
-      # Verify page loads successfully (payments are in the same dashboard)
-      expect(response.body).to include('DUES PROGRESS')
+      expect(response.body).to include('&quot;amount_cents&quot;:25000')
+    end
+
+    it 'does not 500 for a member with no payment schedule' do
+      schedule_less = create(:user)
+      create(:seasons_user, user: schedule_less, season: season, role: 'member')
+      sign_in schedule_less
+      cookies[:cap_season_id] = season.id
+
+      get '/members'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("hasn't been set up yet")
     end
   end
 

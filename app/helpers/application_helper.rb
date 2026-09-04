@@ -88,8 +88,8 @@ module ApplicationHelper
       NavItem.new(label: 'Home',      path: members_home_path,         icon: :home, match: %r{\A/members\z}),
       NavItem.new(label: 'Pay Dues',  path: new_members_payment_path,  icon: :cash),
       NavItem.new(label: 'Conflict',  path: new_members_conflict_path, icon: :calendar),
-      NavItem.new(label: 'Files',     path: files_path,                icon: :folder),
-      NavItem.new(label: 'Calendars', path: members_calendars_path,    icon: :calendar_days)
+      NavItem.new(label: 'Files',           path: files_path,             icon: :folder),
+      NavItem.new(label: 'My Fundraisers',  path: members_calendars_path, icon: :calendar_days)
     ]
     if current_user&.quartermaster?
       items << NavItem.new(label: 'Inventory', path: inventory_categories_path, icon: :cube,
