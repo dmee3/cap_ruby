@@ -1,34 +1,25 @@
-<h1>New Conflict</h1>
+<% content_for :page_title, 'New conflict' %>
 
-<%= form_for @conflict, url: members_conflicts_path do |c| %>
-  <div class="grid grid-cols-5 gap-x-6 gap-y-4">
-    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
-      <%= c.label :start_date, 'Start Date/Time', { class: 'input-label' } %>
-    </div>
-    <div class="col-span-5 sm:col-span-4 flex items-center">
-      <%= c.text_field :start_date, { class: 'flatpickr-dt-member-conflict input-text', required: true } %>
-    </div>
-
-    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
-      <%= c.label :end_date, 'End Date/Time', { class: 'input-label' } %>
-    </div>
-    <div class="col-span-5 sm:col-span-4 flex items-center">
-      <%= c.text_field :end_date, { class: 'flatpickr-dt-member-conflict input-text', required: true } %>
-    </div>
-
-    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
-      <%= c.label :reason, 'Reason', { class: 'input-label' } %>
-    </div>
-    <div class="col-span-5 sm:col-span-4 flex flex-col items-center">
-      <%= c.text_area :reason, { class: 'input-text', placeholder: 'Why do you need to miss?' } %>
-    </div>
-
-    <div class="col-span-5 sm:col-span-4 sm:col-start-2">
-      <p class="text-secondary">Submitting this conflict <span class="italic font-normal">does not</span> mean it's approved.<br />Please get in touch with your section coordinator as soon as possible to discuss it.</p>
-    </div>
-  </div>
-
-  <div class="mt-4 flex flex-row justify-end">
-    <%= c.submit 'Submit', class: 'btn-primary btn-lg' %>
-  </div>
+<%= javascript_tag do %>
+  window.conflictForm = <%== {
+    formAction: members_conflicts_path,
+    authenticityToken: form_authenticity_token,
+    defaults: conflict_form_defaults(@conflict),
+    errors: conflict_field_errors(@conflict)
+  }.to_json %>;
+  window.conflictList = <%== conflict_row_data(@existing_conflicts).to_json %>;
 <% end %>
+
+<%= vite_typescript_tag 'entrypoints/members/conflicts/index.tsx' %>
+
+<div class="mx-auto w-full max-w-[640px] flex flex-col gap-4">
+  <a href="<%= members_home_path %>" class="link text-body-sm">&lsaquo; Conflicts</a>
+  <h1>New conflict</h1>
+
+  <div id="conflict-form"></div>
+
+  <div class="card flex flex-col gap-3">
+    <span class="card-title">Already submitted</span>
+    <div id="conflict-list"></div>
+  </div>
+</div>
