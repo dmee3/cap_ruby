@@ -5,6 +5,7 @@ import ConflictForm from './ConflictForm'
 const baseProps = {
   formAction: '/members/conflicts',
   authenticityToken: 'test-token',
+  minDate: '2026-09-05',
   defaults: {},
   errors: [],
 }
@@ -19,6 +20,12 @@ describe('ConflictForm', () => {
     expect(container.querySelector('input[name="authenticity_token"]')).toHaveValue('test-token')
   })
 
+  it('renders native date + time inputs for both boundaries', () => {
+    const { container } = render(<ConflictForm {...baseProps} />)
+    expect(container.querySelectorAll('input[type="date"]').length).toBe(2)
+    expect(container.querySelectorAll('input[type="time"]').length).toBe(2)
+  })
+
   it('shows a live character count on the reason field', () => {
     render(<ConflictForm {...baseProps} />)
     const textarea = screen.getByPlaceholderText(/Work, travel, school, family/)
@@ -27,8 +34,22 @@ describe('ConflictForm', () => {
     expect(screen.getByText('15')).toBeInTheDocument()
   })
 
-  it('repopulates the reason field from defaults', () => {
-    render(<ConflictForm {...baseProps} defaults={{ reason: 'Family vacation' }} />)
+  it('repopulates all fields from defaults', () => {
+    const { container } = render(
+      <ConflictForm
+        {...baseProps}
+        defaults={{
+          startDate: '2026-03-13',
+          startTime: '18:30',
+          endDate: '2026-03-13',
+          endTime: '21:30',
+          reason: 'Family vacation',
+        }}
+      />
+    )
+    const dates = container.querySelectorAll('input[type="date"]')
+    expect((dates[0] as HTMLInputElement).value).toBe('2026-03-13')
+    expect((dates[1] as HTMLInputElement).value).toBe('2026-03-13')
     expect(screen.getByDisplayValue('Family vacation')).toBeInTheDocument()
   })
 
@@ -54,18 +75,23 @@ describe('ConflictForm', () => {
     expect(screen.getAllByText('Start date must be in the future').length).toBeGreaterThan(0)
   })
 
-  it('flags an advisory end-before-start error client-side when both dates are known', () => {
+  it('flags an advisory end-before-start error client-side once all four values are set', () => {
     render(
       <ConflictForm
         {...baseProps}
         defaults={{
-          startDate: '3/13/26',
-          startTime: '9:00 PM',
-          endDate: '3/13/26',
-          endTime: '6:00 PM',
+          startDate: '2026-03-13',
+          startTime: '21:00',
+          endDate: '2026-03-13',
+          endTime: '18:00',
         }}
       />
     )
-    expect(screen.getAllByText(/must be on or after the start date/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/must be on or after the start/).length).toBeGreaterThan(0)
+  })
+
+  it('does not flag end-before-start while the fields are still incomplete', () => {
+    render(<ConflictForm {...baseProps} defaults={{ startDate: '2026-03-13', startTime: '21:00' }} />)
+    expect(screen.queryByText(/must be on or after the start/)).not.toBeInTheDocument()
   })
 })

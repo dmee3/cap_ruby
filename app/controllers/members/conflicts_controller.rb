@@ -47,13 +47,28 @@ module Members
     end
 
     def conflict_params
-      params.require(:conflict)
-            .permit(:start_date, :end_date, :reason)
-            .merge(
-              conflict_status: ConflictStatus.find_by_name('Pending'),
-              season_id: current_season['id'],
-              user_id: current_user.id
-            )
+      permitted = params.require(:conflict)
+                        .permit(:reason, :start_date_date, :start_date_time, :end_date_date, :end_date_time)
+
+      {
+        start_date: combine_date_time(permitted[:start_date_date], permitted[:start_date_time]),
+        end_date: combine_date_time(permitted[:end_date_date], permitted[:end_date_time]),
+        reason: permitted[:reason],
+        conflict_status: ConflictStatus.find_by_name('Pending'),
+        season_id: current_season['id'],
+        user_id: current_user.id
+      }
+    end
+
+    # The form's native date + time inputs post separately; recombine them into
+    # the single datetime the model stores. Returns nil (→ presence error) when
+    # either half is blank or the pair doesn't parse.
+    def combine_date_time(date_str, time_str)
+      return nil if date_str.blank? || time_str.blank?
+
+      Time.zone.parse("#{date_str} #{time_str}")
+    rescue ArgumentError
+      nil
     end
 
     def conflict_row_data(conflicts)
@@ -67,14 +82,16 @@ module Members
       conflict.errors.map { |error| { field: error.attribute, message: error.full_message } }
     end
 
-    # Preformatted date/time strings ConflictForm needs to repopulate its
-    # (otherwise uncontrolled, flatpickr-bound) fields after a failed submit.
+    # ISO date/time strings ConflictForm's native inputs need to repopulate
+    # after a failed submit. Falls back to the raw submitted params when the
+    # value didn't parse into a Time (so a typo'd date isn't silently dropped).
     def conflict_form_defaults(conflict)
+      submitted = params.fetch(:conflict, {})
       {
-        startDate: conflict.start_date&.strftime('%-m/%-d/%y'),
-        startTime: conflict.start_date&.strftime('%-I:%M %p'),
-        endDate: conflict.end_date&.strftime('%-m/%-d/%y'),
-        endTime: conflict.end_date&.strftime('%-I:%M %p'),
+        startDate: conflict.start_date&.strftime('%Y-%m-%d') || submitted[:start_date_date],
+        startTime: conflict.start_date&.strftime('%H:%M') || submitted[:start_date_time],
+        endDate: conflict.end_date&.strftime('%Y-%m-%d') || submitted[:end_date_date],
+        endTime: conflict.end_date&.strftime('%H:%M') || submitted[:end_date_time],
         reason: conflict.reason
       }
     end

@@ -13,19 +13,28 @@ RSpec.describe 'Conflicts Workflow', type: :request do
     allow(EmailService).to receive(:send_conflict_submitted_email)
   end
 
+  # The member form posts two native inputs per boundary — build that shape.
+  def conflict_form_params(start_at:, end_at:, reason: 'Family vacation')
+    {
+      conflict: {
+        start_date_date: start_at.strftime('%Y-%m-%d'),
+        start_date_time: start_at.strftime('%H:%M'),
+        end_date_date: end_at.strftime('%Y-%m-%d'),
+        end_date_time: end_at.strftime('%H:%M'),
+        reason: reason
+      }
+    }
+  end
+
   describe 'Member submits a new conflict' do
     it 'creates a conflict in pending state' do
       member = sign_in_as_member(season: season)
       pending_status # Ensure pending status exists
 
       expect do
-        post '/members/conflicts', params: {
-          conflict: {
-            start_date: 1.week.from_now,
-            end_date: 2.weeks.from_now,
-            reason: 'Family vacation'
-          }
-        }
+        post '/members/conflicts', params: conflict_form_params(
+          start_at: 1.week.from_now, end_at: 2.weeks.from_now
+        )
       end.to change(Conflict, :count).by(1)
 
       conflict = Conflict.last
@@ -42,13 +51,9 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       pending_status
 
       expect do
-        post '/members/conflicts', params: {
-          conflict: {
-            start_date: 1.week.ago,
-            end_date: 2.weeks.from_now,
-            reason: 'Family vacation'
-          }
-        }
+        post '/members/conflicts', params: conflict_form_params(
+          start_at: 1.week.ago, end_at: 2.weeks.from_now
+        )
       end.not_to change(Conflict, :count)
 
       expect(response).to have_http_status(:success)
@@ -60,13 +65,9 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       pending_status
 
       expect do
-        post '/members/conflicts', params: {
-          conflict: {
-            start_date: 1.week.from_now,
-            end_date: 1.day.ago,
-            reason: 'Family vacation'
-          }
-        }
+        post '/members/conflicts', params: conflict_form_params(
+          start_at: 1.week.from_now, end_at: 1.day.ago
+        )
       end.not_to change(Conflict, :count)
 
       expect(response).to have_http_status(:success)
@@ -77,13 +78,11 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       sign_in_as_member(season: season)
       pending_status
 
-      post '/members/conflicts', params: {
-        conflict: {
-          start_date: 1.week.ago,
-          end_date: 2.weeks.from_now,
-          reason: 'A very distinctive reason for missing rehearsal'
-        }
-      }
+      post '/members/conflicts', params: conflict_form_params(
+        start_at: 1.week.ago,
+        end_at: 2.weeks.from_now,
+        reason: 'A very distinctive reason for missing rehearsal'
+      )
 
       expect(response.body).to include('A very distinctive reason for missing rehearsal')
     end
@@ -106,13 +105,9 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       pending_status
 
       expect do
-        post '/members/conflicts', params: {
-          conflict: {
-            start_date: 1.week.from_now,
-            end_date: 2.weeks.from_now,
-            reason: 'Family vacation'
-          }
-        }
+        post '/members/conflicts', params: conflict_form_params(
+          start_at: 1.week.from_now, end_at: 2.weeks.from_now
+        )
       end.not_to change(Conflict, :count)
 
       expect(response).to redirect_to(new_members_conflict_path)

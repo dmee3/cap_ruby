@@ -8,6 +8,7 @@ declare global {
     | {
         formAction: string
         authenticityToken: string
+        minDate: string
         defaults: Record<string, string | undefined>
         errors: { field: 'start_date' | 'end_date' | 'reason'; message: string }[]
       }
@@ -22,6 +23,7 @@ if (formEl && window.conflictForm) {
     <ConflictForm
       formAction={cfg.formAction}
       authenticityToken={cfg.authenticityToken}
+      minDate={cfg.minDate}
       defaults={cfg.defaults}
       errors={cfg.errors}
     />,

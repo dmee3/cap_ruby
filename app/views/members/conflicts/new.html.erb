@@ -4,6 +4,7 @@
   window.conflictForm = <%== {
     formAction: members_conflicts_path,
     authenticityToken: form_authenticity_token,
+    minDate: Date.current.iso8601,
     defaults: conflict_form_defaults(@conflict),
     errors: conflict_field_errors(@conflict)
   }.to_json %>;

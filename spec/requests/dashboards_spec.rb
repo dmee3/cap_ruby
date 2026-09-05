@@ -99,13 +99,16 @@ RSpec.describe 'Dashboard Data Accuracy', type: :request do
     end
 
     it 'shows the just-submitted band right after a successful submission' do
-      current_season = season
-      current_season.update!(conflict_submission_open: true)
+      season.update!(conflict_submission_open: true)
+      start_at = 3.weeks.from_now
+      end_at = start_at + 2.hours
 
       post '/members/conflicts', params: {
         conflict: {
-          start_date: 3.weeks.from_now,
-          end_date: 3.weeks.from_now + 2.hours,
+          start_date_date: start_at.strftime('%Y-%m-%d'),
+          start_date_time: start_at.strftime('%H:%M'),
+          end_date_date: end_at.strftime('%Y-%m-%d'),
+          end_date_time: end_at.strftime('%H:%M'),
           reason: 'Another conflict'
         }
       }

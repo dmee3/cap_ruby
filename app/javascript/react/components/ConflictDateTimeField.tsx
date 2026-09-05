@@ -2,32 +2,41 @@ import React from 'react'
 
 type ConflictDateTimeFieldProps = {
   label: 'Starts' | 'Ends'
-  /** Base name for both inputs — rendered as `${name}` (date) and a matching time input. */
-  name: string
+  /** Field-name stem — inputs post as `${namePrefix}_date` / `${namePrefix}_time`. */
+  namePrefix: string
   /** Anchor target used by ValidationSummaryCard's jump links. */
   id: string
-  defaultDateValue?: string
-  defaultTimeValue?: string
+  /** ISO `YYYY-MM-DD`, for repopulation after a failed submit. */
+  dateValue: string
+  /** 24h `HH:MM`, for repopulation after a failed submit. */
+  timeValue: string
+  onDateChange: (value: string) => void
+  onTimeChange: (value: string) => void
+  /** Earliest selectable date (ISO `YYYY-MM-DD`) — the native picker enforces it. */
+  minDate?: string
   /** e.g. "Start date must be in the future. That was 2 days ago." */
   error?: string
   className?: string
 }
 
-// Purely presentational: renders two adjacent inputs (date + time). Actual
-// date/time picking is bound externally (flatpickr, by class name, same as
-// today) — this component just owns the layout + error-state contract.
+// Native date + time inputs — the OS picker on mobile, the browser's own
+// calendar on desktop. No library, accessible for free.
 const ConflictDateTimeField = ({
   label,
-  name,
+  namePrefix,
   id,
-  defaultDateValue,
-  defaultTimeValue,
+  dateValue,
+  timeValue,
+  onDateChange,
+  onTimeChange,
+  minDate,
   error,
   className = '',
 }: ConflictDateTimeFieldProps) => {
   const borderClass = error
     ? 'border-danger-fg'
     : 'border-border-strong focus-within:border-[color:rgb(var(--focus-ring))]'
+  const inputClass = `h-12 rounded-sm border bg-surface px-3 font-mono text-body-sm text-primary ${borderClass}`
 
   return (
     <div className={`flex flex-col gap-2 ${className}`.trim()}>
@@ -35,18 +44,19 @@ const ConflictDateTimeField = ({
       <div className="grid grid-cols-[1.35fr_1fr] gap-2">
         <input
           id={id}
-          name={`${name}_date`}
-          type="text"
-          className={`conflict-datetime-date h-12 rounded-sm border bg-surface px-3 font-mono text-body-sm text-primary ${borderClass}`}
-          defaultValue={defaultDateValue}
-          placeholder="mm/dd/yy"
+          name={`${namePrefix}_date`}
+          type="date"
+          min={minDate}
+          value={dateValue}
+          onChange={(e) => onDateChange(e.target.value)}
+          className={inputClass}
         />
         <input
-          name={`${name}_time`}
-          type="text"
-          className={`conflict-datetime-time h-12 rounded-sm border bg-surface px-3 font-mono text-body-sm text-primary ${borderClass}`}
-          defaultValue={defaultTimeValue}
-          placeholder="--:-- --"
+          name={`${namePrefix}_time`}
+          type="time"
+          value={timeValue}
+          onChange={(e) => onTimeChange(e.target.value)}
+          className={inputClass}
         />
       </div>
       {error && <span className="text-caption text-danger-fg">{error}</span>}

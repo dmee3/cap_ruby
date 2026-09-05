@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import ConflictDateTimeField from '../../components/ConflictDateTimeField'
 import ValidationSummaryCard, { ValidationError } from '../../components/ValidationSummaryCard'
 
@@ -15,6 +15,8 @@ type ServerError = { field: 'start_date' | 'end_date' | 'reason'; message: strin
 type ConflictFormProps = {
   formAction: string
   authenticityToken: string
+  /** ISO `YYYY-MM-DD` — today; the native date pickers won't offer anything earlier. */
+  minDate: string
   defaults: FieldDefaults
   errors: ServerError[]
 }
@@ -22,31 +24,32 @@ type ConflictFormProps = {
 const REASON_MAX = 500
 
 // Advisory only — the real gate is Conflict#end_date_after_start_date on the
-// server. This just gives faster feedback and merges into the same error
-// slot a server error would occupy.
-const clientSideEndBeforeStart = (defaults: FieldDefaults): string | null => {
-  if (!defaults.startDate || !defaults.startTime || !defaults.endDate || !defaults.endTime) return null
-  const start = new Date(`${defaults.startDate} ${defaults.startTime}`)
-  const end = new Date(`${defaults.endDate} ${defaults.endTime}`)
-  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null
-  return end < start ? 'must be on or after the start date' : null
+// server. Native inputs give ISO values, so a lexicographic compare of
+// `${date}T${time}` is a correct chronological compare.
+const endBeforeStart = (startDate: string, startTime: string, endDate: string, endTime: string): boolean => {
+  if (!startDate || !startTime || !endDate || !endTime) return false
+  return `${endDate}T${endTime}` < `${startDate}T${startTime}`
 }
 
 // A real <form method="post"> posting to the existing Rails create action —
-// not a fetch/JSON flow. There's no Stripe-style reason to need something
-// from the server before rendering, so a classic form preserves create's
-// existing redirect/re-render contract and keeps server-rendered response
-// assertions working unmodified.
-const ConflictForm = ({ formAction, authenticityToken, defaults, errors }: ConflictFormProps) => {
+// not a fetch/JSON flow. Fields are controlled; the two native inputs per
+// boundary post as conflict[start_date_date] / conflict[start_date_time],
+// which the controller combines back into a datetime.
+const ConflictForm = ({ formAction, authenticityToken, minDate, defaults, errors }: ConflictFormProps) => {
+  const [startDate, setStartDate] = useState(defaults.startDate ?? '')
+  const [startTime, setStartTime] = useState(defaults.startTime ?? '')
+  const [endDate, setEndDate] = useState(defaults.endDate ?? '')
+  const [endTime, setEndTime] = useState(defaults.endTime ?? '')
   const [reason, setReason] = useState(defaults.reason ?? '')
-  const [fields, setFields] = useState(defaults)
-
-  const clientEndError = useMemo(() => clientSideEndBeforeStart(fields), [fields])
 
   const serverErrorFor = (field: ServerError['field']) => errors.find((e) => e.field === field)?.message
 
+  const clientEndError = endBeforeStart(startDate, startTime, endDate, endTime)
+    ? 'End date and time must be on or after the start.'
+    : undefined
+
   const startError = serverErrorFor('start_date')
-  const endError = serverErrorFor('end_date') ?? (clientEndError ? `End date ${clientEndError}.` : undefined)
+  const endError = serverErrorFor('end_date') ?? clientEndError
   const reasonError = serverErrorFor('reason')
 
   const summaryErrors: ValidationError[] = [
@@ -57,20 +60,8 @@ const ConflictForm = ({ formAction, authenticityToken, defaults, errors }: Confl
 
   const hadErrors = errors.length > 0
 
-  // ConflictDateTimeField's inputs are uncontrolled (flatpickr binds to them
-  // directly by class name). Delegated onChange keeps this component's
-  // `fields` state — used only for the advisory end-before-start check — in
-  // sync without fighting flatpickr for control of the inputs.
-  const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    if (name === 'conflict[start_date]_date') setFields((f) => ({ ...f, startDate: value }))
-    else if (name === 'conflict[start_date]_time') setFields((f) => ({ ...f, startTime: value }))
-    else if (name === 'conflict[end_date]_date') setFields((f) => ({ ...f, endDate: value }))
-    else if (name === 'conflict[end_date]_time') setFields((f) => ({ ...f, endTime: value }))
-  }
-
   return (
-    <form method="post" action={formAction} className="flex flex-col gap-4" onChange={handleFieldChange}>
+    <form method="post" action={formAction} className="flex flex-col gap-4">
       <input type="hidden" name="authenticity_token" value={authenticityToken} />
 
       <ValidationSummaryCard errors={summaryErrors} />
@@ -78,18 +69,24 @@ const ConflictForm = ({ formAction, authenticityToken, defaults, errors }: Confl
       <div className="card flex flex-col gap-4">
         <ConflictDateTimeField
           label="Starts"
-          name="conflict[start_date]"
+          namePrefix="conflict[start_date]"
           id="conflict-start-date"
-          defaultDateValue={fields.startDate}
-          defaultTimeValue={fields.startTime}
+          dateValue={startDate}
+          timeValue={startTime}
+          onDateChange={setStartDate}
+          onTimeChange={setStartTime}
+          minDate={minDate}
           error={startError}
         />
         <ConflictDateTimeField
           label="Ends"
-          name="conflict[end_date]"
+          namePrefix="conflict[end_date]"
           id="conflict-end-date"
-          defaultDateValue={fields.endDate}
-          defaultTimeValue={fields.endTime}
+          dateValue={endDate}
+          timeValue={endTime}
+          onDateChange={setEndDate}
+          onTimeChange={setEndTime}
+          minDate={startDate || minDate}
           error={endError}
         />
 
