@@ -87,6 +87,53 @@ RSpec.describe 'Dashboard Data Accuracy', type: :request do
       expect(response.body).to include('&quot;amount_cents&quot;:25000')
     end
 
+    it 'shows a nudge sentence for the next still-pending conflict' do
+      conflict.update!(created_at: 3.days.ago)
+
+      get '/members'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include(
+        "Next one is #{conflict.start_date.strftime('%a %-m/%-d')}, still pending after 3 days."
+      )
+    end
+
+    it 'shows the just-submitted band right after a successful submission' do
+      current_season = season
+      current_season.update!(conflict_submission_open: true)
+
+      post '/members/conflicts', params: {
+        conflict: {
+          start_date: 3.weeks.from_now,
+          end_date: 3.weeks.from_now + 2.hours,
+          reason: 'Another conflict'
+        }
+      }
+      follow_redirect!
+      follow_redirect!
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Sent. Your coordinators see it now. Approval isn't automatic.")
+    end
+
+    it 'links to all conflicts once there are more than 4' do
+      4.times do |i|
+        create(
+          :conflict,
+          user: member,
+          season: season,
+          conflict_status: create(:conflict_status, name: "Status#{i}"),
+          start_date: (i + 2).weeks.from_now,
+          end_date: (i + 2).weeks.from_now + 1.hour
+        )
+      end
+
+      get '/members'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('All 5 conflicts')
+    end
+
     it 'does not 500 for a member with no payment schedule' do
       schedule_less = create(:user)
       create(:seasons_user, user: schedule_less, season: season, role: 'member')

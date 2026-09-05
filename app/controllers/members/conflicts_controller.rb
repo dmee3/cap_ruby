@@ -2,9 +2,11 @@
 
 module Members
   class ConflictsController < ApplicationController
-    include ActionView::Helpers::DateHelper
-
     before_action :authenticate_user!
+
+    def index
+      render(locals: { conflicts: member_conflicts })
+    end
 
     def new
       @conflict = Conflict.new
@@ -26,6 +28,7 @@ module Members
       @conflict = Conflict.new(conflict_params)
       if @conflict.save
         flash[:success] = 'Conflict submitted for review.'
+        flash[:conflict_submitted] = true
         ActivityLogger.log_conflict(@conflict, current_user)
         EmailService.send_conflict_submitted_email(@conflict, current_user, current_season['id'])
         redirect_to(root_url)
@@ -53,47 +56,8 @@ module Members
             )
     end
 
-    # Maps a list of conflicts to the row JSON MemberConflictList renders,
-    # deciding once which rows include `reason` (Denied, or the single
-    # next-upcoming Pending conflict) so both the submit-form context list
-    # and the dashboard card (Members::DashboardController) show it the same way.
     def conflict_row_data(conflicts)
-      conflicts = conflicts.to_a
-      next_upcoming_id = conflicts.select { |c| c.status.name == 'Pending' && c.start_date.future? }
-                                  .min_by(&:start_date)&.id
-
-      conflicts.map do |c|
-        {
-          id: c.id,
-          date_range_label: format_date_range(c),
-          time_range_label: format_time_range(c),
-          status: c.status.name,
-          relative_subline: relative_subline_for(c),
-          reason: c.status.name == 'Denied' || c.id == next_upcoming_id ? c.reason.to_s.truncate(80) : nil
-        }.compact
-      end
-    end
-
-    def format_date_range(conflict)
-      start_label = conflict.start_date.strftime('%a %-m/%-d')
-      return start_label if conflict.start_date.to_date == conflict.end_date.to_date
-
-      "#{start_label} – #{conflict.end_date.strftime('%-m/%-d')}"
-    end
-
-    def format_time_range(conflict)
-      return nil unless conflict.start_date.to_date == conflict.end_date.to_date
-
-      "#{conflict.start_date.strftime('%-I:%M %p')}–#{conflict.end_date.strftime('%-I:%M %p')}"
-    end
-
-    def relative_subline_for(conflict)
-      submitted = "submitted #{time_ago_in_words(conflict.created_at)} ago"
-      return submitted if conflict.start_date.past?
-
-      days = (conflict.start_date.to_date - Date.current).to_i
-      when_label = days.zero? ? 'today' : "in #{days} #{'day'.pluralize(days)}"
-      "#{when_label} · #{submitted}"
+      ConflictPresenter.rows_for(conflicts)
     end
 
     # Field-level errors for ConflictForm's ValidationSummaryCard: maps

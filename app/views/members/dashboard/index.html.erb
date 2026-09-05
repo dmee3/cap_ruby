@@ -70,12 +70,21 @@
   <div class="card flex flex-col gap-3">
     <div class="flex items-baseline justify-between gap-2">
       <span class="card-title">Your conflicts</span>
-      <%= link_to 'New', new_members_conflict_path, class: 'btn-gray btn-sm' %>
+      <%= link_to 'New', new_members_conflict_path, class: 'btn-primary btn-sm' %>
     </div>
-    <% pending = @conflicts.select { |c| c.status.name == 'Pending' } %>
-    <% if @conflicts.empty? %>
-      <p class="text-body-sm text-secondary">No conflicts submitted — you're clear for every rehearsal.</p>
-    <% else %>
+
+    <% if @just_submitted %>
+      <div class="flash flex items-center gap-2 rounded-sm bg-success-bg px-3 py-2">
+        <span class="block flex-1 text-body-sm font-semibold text-success-fg">
+          Sent. Your coordinators see it now. Approval isn't automatic.
+        </span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="flash-close h-5 w-5 flex-none cursor-pointer text-success-fg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </div>
+    <% end %>
+
+    <% if @conflicts.any? %>
       <div class="flex flex-wrap gap-2">
         <% @conflicts.group_by { |c| c.status.name }.each do |status, list| %>
           <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-label uppercase
@@ -84,16 +93,15 @@
           </span>
         <% end %>
       </div>
-      <ul class="divide-y divide-border-default">
-        <% @conflicts.first(4).each do |c| %>
-          <li class="flex items-center justify-between gap-2 py-2">
-            <span class="text-body-sm">
-              <%= c.start_date.strftime('%a %-m/%-d') %><% unless c.start_date.to_date == c.end_date.to_date %>&ndash;<%= c.end_date.strftime('%-m/%-d') %><% end %>
-            </span>
-            <span class="text-caption text-secondary"><%= time_ago_in_words(c.created_at) %> ago</span>
-          </li>
-        <% end %>
-      </ul>
+      <% if @conflict_nudge %>
+        <p class="text-body-sm text-secondary"><%= @conflict_nudge %></p>
+      <% end %>
+    <% end %>
+
+    <div id="conflict-list" data-conflicts="<%= @conflict_rows.to_json %>"></div>
+
+    <% if @conflicts.count > 4 %>
+      <%= link_to "All #{@conflicts.count} conflicts", members_conflicts_path, class: 'self-center text-body-sm font-semibold text-accent-primary' %>
     <% end %>
   </div>
 

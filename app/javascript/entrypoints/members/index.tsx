@@ -2,6 +2,7 @@ import React from 'react'
 import { render } from 'react-dom'
 import DuesMeter, { DuesState } from '../../react/components/DuesMeter'
 import DuesTimeline, { TimelineRow } from '../../react/widgets/members/DuesTimeline'
+import MemberConflictList, { ConflictListItem } from '../../react/widgets/members/MemberConflictList'
 
 const meterEl = document.getElementById('dues-meter')
 if (meterEl) {
@@ -26,4 +27,10 @@ if (timelineEl) {
     upcoming: TimelineRow[]
   }
   render(<DuesTimeline paid={data.paid} upcoming={data.upcoming} />, timelineEl)
+}
+
+const conflictListEl = document.getElementById('conflict-list')
+if (conflictListEl && conflictListEl.dataset.conflicts) {
+  const conflicts = JSON.parse(conflictListEl.dataset.conflicts) as ConflictListItem[]
+  render(<MemberConflictList conflicts={conflicts} />, conflictListEl)
 }

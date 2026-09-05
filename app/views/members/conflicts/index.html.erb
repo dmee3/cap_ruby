@@ -1,0 +1,20 @@
+<% content_for :page_title, 'Conflicts' %>
+
+<%= javascript_tag do %>
+  window.conflictList = <%== conflict_row_data(conflicts).to_json %>;
+<% end %>
+
+<%= vite_typescript_tag 'entrypoints/members/conflicts/index.tsx' %>
+
+<div class="mx-auto w-full max-w-[640px] flex flex-col gap-4">
+  <a href="<%= members_home_path %>" class="link text-body-sm">&lsaquo; Where you stand</a>
+  <h1>Your conflicts</h1>
+
+  <div class="card flex flex-col gap-3">
+    <div class="flex items-baseline justify-between gap-2">
+      <span class="card-title">All conflicts</span>
+      <%= link_to 'New', new_members_conflict_path, class: 'btn-primary btn-sm' %>
+    </div>
+    <div id="conflict-list"></div>
+  </div>
+</div>

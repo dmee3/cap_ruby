@@ -211,6 +211,13 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       # The summary lists the conflict by its start date
       expect(response.body).to include(member_conflict.start_date.strftime('%a %-m/%-d'))
     end
+
+    it 'shows only the current member conflicts on the index page' do
+      get '/members/conflicts'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include(member_conflict.start_date.strftime('%a %-m/%-d'))
+    end
   end
 
   describe 'Admin can view and edit conflicts' do
