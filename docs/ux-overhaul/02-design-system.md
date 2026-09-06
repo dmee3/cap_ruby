@@ -1,14 +1,20 @@
-# Design System — Cap City Percussion (Proposed)
+# Design System — Cap City Percussion
 
-A fresh design system for the app overhaul. This is **not** an extraction of the
-current styling — it's a proposal to load into Claude Design as the project's
-design system before designing any screens. It reuses the one genuinely good
-asset the app already has (the `raspberry / ocean / moss / jet / flash` brand
-palette) and discards the rest.
+The design system for the app overhaul. Started as a proposal; now the living
+reference — components below are updated as each flow builds them, and the
+`*(added — Flow N)*` tags on §4.14+ mark what shipped when. It reuses the one
+genuinely good asset the app already had (the `raspberry / ocean / moss / jet /
+flash` brand palette) and replaced the rest.
 
-Paste the **Tokens** and **Components** sections into Claude Design's
-*"Set up your design system"* flow. The **Principles** and **Voice** sections are
-guidance for how screens should feel.
+The **Tokens** and **Components** sections are the Claude Design project's design
+system. The **Principles** and **Voice** sections are guidance for how screens
+should feel.
+
+**Status:** Flows 1–3 merged (shell/tokens #221, member dues #226, member
+conflicts #230). Layout set is now three — `application` / `auth` / `public`
+(#229), + `calendar` until Flow 7 folds it in. Flow 4 (admin financial command
+center) is next; not yet designed in Claude Design. Full flow list and progress:
+`01-screen-audit.md`.
 
 ---
 
@@ -44,8 +50,9 @@ guidance for how screens should feel.
   mostly college-age members and volunteer staff — not a bank.
 - Plain language for money and deadlines. "You owe $120, due Fri 3/14." not
   "Outstanding balance."
-- Empty states are encouraging, not blank: "No conflicts submitted — you're clear
-  for every rehearsal." not "None."
+- Empty states are encouraging, not blank: "Nothing on the books — you haven't
+  told anyone you'll miss a rehearsal this season. When you know, say so early."
+  not "None."
 - Errors take responsibility and give a next step: "We couldn't load your
   payments. Refresh, or try again in a minute."
 
@@ -170,8 +177,11 @@ For the dues burndown chart and any fundraiser charts. Keep it small and on-bran
 
 ## 4. Components
 
-Each component below is what to build as reusable elements in Claude Design.
-"Replaces" points at the current implementation it supersedes.
+The reusable elements. §4.1–4.13 were the Flow 1 spec; §4.14+ carry an
+`*(added — Flow N)*` tag and describe what actually shipped in that flow (so
+where the built component diverged from its canvas, this is the source of
+truth, not the canvas). "Replaces" points at the pre-overhaul implementation
+each one superseded.
 
 ### 4.1 App shell
 - **Sidebar** (`bg.nav`, always dark). Logo at top. Nav items = icon + label, 40px
@@ -357,12 +367,14 @@ Each component below is what to build as reusable elements in Claude Design.
   time box (1fr) in one row, `border.strong` at rest, `raspberry` border + a
   `danger.fg` helper line in the error state (e.g. "Start date must be in the
   future. That was 2 days ago.").
-- A quiet computed subline under the pair when both ends are known — e.g.
-  "Friday evening, 3 hours." — confirms what was just entered without the member
-  doing the math themselves.
-- Underlying control is unstyled-opinion: implementation picks the actual
-  date/time picker (native inputs or a restyled flatpickr); the field pair is
-  just the layout + state contract.
+- *(The canvas's "Friday evening, 3 hours." computed-duration subline was cut —
+  it read as clutter next to native pickers that already show the values.)*
+- **Native `<input type="date">` + `<input type="time">`** — the OS wheel
+  picker on mobile, the browser's own calendar on desktop, accessible for free,
+  no library. `min` is enforced on both (today for the start, the chosen start
+  for the end). The picker's dropdown appearance (e.g. red weekends in Chrome)
+  is the browser's and not styleable — an accepted trade for the mobile/a11y
+  wins.
 - Reason field pairs with it: textarea, `border.strong`, a live character count
   top-right, same error treatment.
 
@@ -381,11 +393,15 @@ Each component below is what to build as reusable elements in Claude Design.
 - The shape used both for "your existing conflicts" on the submit form and the
   dashboard "Your conflicts" card, so the two reconcile visually — and so a
   future triage queue (Flow 5) can reuse the same row grouped by member.
-- Row: date range (single day → one date; multi-day → `Sat 4/4 – Mon 4/6`) +
-  time range where known, status pill (§4.8 vocabulary) top-right, a relative
-  subline (`In 4 days · submitted 3 days ago`), and — only on Denied and the
-  next upcoming row — a truncated `reason` subline. Other rows omit `reason` to
-  keep the list scannable.
+- Row: date range + time range where known, status pill (§4.8 vocabulary)
+  top-right, a relative subline (`In 4 days · submitted 3 days ago`), and — only
+  on Denied and the next upcoming row — a truncated `reason` subline. Other rows
+  omit `reason` to keep the list scannable.
+- Date-range formatting (`ConflictPresenter`, shared with the dashboard):
+  same-day timed → `Fri 3/14 · 6:30–9:30 PM`; same-day full day → `Sat 3/22 ·
+  all day`; spans days → `Sat 4/4 – Mon 4/6`; more than 14 days out → bare
+  `10/5/26 · 6:00 PM` (no weekday — the same rule Flow 2 uses for due dates).
+  Relative age always accompanies an absolute date, never replaces it.
 - Dashboard card adds a pill-summary header line (`2 Pending` / `1 Approved` /
   `1 Denied`, counts only) plus one computed nudge sentence when something's
   waiting: "Next one is Fri 3/14, still pending after 3 days."
@@ -409,14 +425,26 @@ Each component below is what to build as reusable elements in Claude Design.
 
 ---
 
-## 6. What to hand Claude Design
+## 6. Per-flow process (what's worked so far)
 
-1. This document → *Set up your design system* (tokens + components).
-2. `01-screen-audit.md` → reference for what each screen does.
-3. Per flow, ask me for the **real data shape** of those screens (actual field
-   names and types the controllers pass), so mockups use real content.
-4. Design **Flow 1 (design system + shell)** first and get it right — it's the
-   foundation every other flow builds on.
+1. This document is the Claude Design project's design system (tokens +
+   components). `01-screen-audit.md` is the reference for what each screen does
+   and the priority-ordered flow list.
+2. Per flow: write a Claude Design prompt referencing the **real data shape** of
+   those screens — actual field names and types the controllers pass — so
+   mockups use real content, not lorem.
+3. Pull the canvas via `DesignSync`, review it, and sync any new components back
+   into §4 here (with an `*(added — Flow N)*` tag).
+4. Where the design makes assumptions about app behaviour (fee math, data model,
+   latent bugs), verify against the codebase **before** planning the build —
+   this caught 4 real bugs in Flow 2 and the "no `Event` listing" constraint in
+   Flow 3.
+5. Implementation plan → `~/.claude/plans/`, one phase per layer (backend →
+   primitives → screen → screen → polish), one commit per phase, green gate
+   (`rspec` / `vitest` / `vite build` / `rubocop`) at each.
+6. One PR per flow, off fresh `main`, with a "needs a human visual pass"
+   callout. Expect a round or two of tweaks from the visual pass after the PR
+   opens.
 
 ---
 

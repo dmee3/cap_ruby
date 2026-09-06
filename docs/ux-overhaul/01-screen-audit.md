@@ -124,7 +124,9 @@ Admin inherits coordinator + staff, plus:
 Design in **flows**, not isolated screens — shared components carry across a flow so
 each one is faster than the last.
 
-**Progress:** Flow 1 (PR #221), Flow 2 (PR #226), and Flow 3 (in review) shipped.
+**Progress:** Flows 1–3 merged (PR #221 shell/tokens, #226 member dues,
+#230 member conflicts). Flow 4 is next.
+
 Along the way, the layout set collapsed to three — `application` / `auth` /
 `public`, with public controllers inheriting `PublicController` (PR #229) — which
 is the groundwork Flow 7 builds on (see `02-design-system.md` §4.1). The
