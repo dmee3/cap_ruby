@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AuditionsController < ApplicationController
+class AuditionsController < PublicController
   def index; end
 
   def update

@@ -1,6 +1,8 @@
 <%#
   Mobile slide-over nav (< md). Same nav list as the desktop sidebar.
+  Guarded like _sidebar — renders nothing without an authenticated user.
 %>
+<% return unless current_user %>
 <div class="app-scrim" data-drawer-scrim></div>
 
 <aside class="app-drawer" id="app-drawer">
