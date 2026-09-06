@@ -53,6 +53,13 @@ RSpec.describe 'Dashboard Data Accuracy', type: :request do
       )
     end
 
+    it 'titles the page "Where you stand" with the member details as a subline' do
+      get '/members'
+
+      expect(response.body).to include('<h1 class="mb-0">Where you stand</h1>')
+      expect(response.body).to include(member.full_name)
+    end
+
     it 'shows the dues meter with real totals' do
       get '/members'
 
