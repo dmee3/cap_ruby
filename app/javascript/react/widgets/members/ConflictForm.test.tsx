@@ -65,19 +65,13 @@ describe('ConflictForm', () => {
     expect(screen.getByText("Sending this isn't approval")).toBeInTheDocument()
   })
 
-  it('does not show the reassurance line when there are no errors', () => {
-    render(<ConflictForm {...baseProps} />)
-    expect(screen.queryByText('Nothing you typed was lost.')).not.toBeInTheDocument()
-  })
-
-  it('shows the reassurance line and validation summary when re-rendered with errors', () => {
+  it('shows the validation summary when re-rendered with errors', () => {
     render(
       <ConflictForm
         {...baseProps}
         errors={[{ field: 'start_date', message: 'Start date must be in the future' }]}
       />
     )
-    expect(screen.getByText('Nothing you typed was lost.')).toBeInTheDocument()
     expect(screen.getByText('One thing to fix')).toBeInTheDocument()
     expect(screen.getAllByText('Start date must be in the future').length).toBeGreaterThan(0)
   })

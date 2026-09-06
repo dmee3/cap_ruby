@@ -358,11 +358,13 @@ Each component below is what to build as reusable elements in Claude Design.
 ### 4.18 Validation summary card *(added — Flow 3)*
 - Appears above the form on failed submit (mobile: replaces where the form
   starts; desktop: can stay inline per-field instead — use judgment per screen).
-- 3px `raspberry` left accent, `danger.fg` heading ("Three things to fix"),
-  each error as an anchor-link jump to its field.
-- Pairs with a reassurance line under the submit button on re-render: "Nothing
-  you typed was lost" — names the fix for the current app's real bug (failed
-  validation resets the form to blank).
+- 3px `raspberry` left accent, `danger.fg` heading pluralized to the error
+  count ("One thing to fix" / "3 things to fix" — never hardcoded), then each
+  error as plain `danger.fg` text (no links — the same message also renders
+  inline under its field).
+- The form repopulates on a failed submit (fixing the current app's bug where
+  validation resets it to blank) — but that's expected behaviour now, not
+  something to call out with a reassurance line.
 
 ### 4.19 Conflict context row *(added — Flow 3)*
 - The shape used both for "your existing conflicts" on the submit form and the

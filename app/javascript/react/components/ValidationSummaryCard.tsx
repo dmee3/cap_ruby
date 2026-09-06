@@ -1,6 +1,7 @@
 import React from 'react'
 import Card from './Card'
 
+// `fieldId` is the offending field's DOM id — used as a stable React key.
 export type ValidationError = { fieldId: string; message: string }
 
 type ValidationSummaryCardProps = {
@@ -25,10 +26,8 @@ const ValidationSummaryCard = ({ errors, className = '' }: ValidationSummaryCard
         <span className="text-body-sm font-semibold text-danger-fg">{heading(errors.length)}</span>
         <ul className="flex flex-col gap-1.5">
           {errors.map((error) => (
-            <li key={error.fieldId}>
-              <a href={`#${error.fieldId}`} className="text-body-sm text-danger-fg underline">
-                {error.message}
-              </a>
+            <li key={error.fieldId} className="text-body-sm text-danger-fg">
+              {error.message}
             </li>
           ))}
         </ul>

@@ -38,9 +38,13 @@ describe('ValidationSummaryCard', () => {
     expect(screen.getByText('3 things to fix')).toBeInTheDocument()
   })
 
-  it('renders each error as a jump link to its field id', () => {
-    render(<ValidationSummaryCard errors={[{ fieldId: 'start', message: 'Start date must be in the future' }]} />)
-    const link = screen.getByText('Start date must be in the future')
-    expect(link.closest('a')).toHaveAttribute('href', '#start')
+  it('renders errors as plain red text — no links', () => {
+    const { container } = render(
+      <ValidationSummaryCard errors={[{ fieldId: 'start', message: 'Start date must be in the future' }]} />
+    )
+    const item = screen.getByText('Start date must be in the future')
+    expect(item.closest('a')).toBeNull()
+    expect(item).toHaveClass('text-danger-fg')
+    expect(container.querySelector('a')).toBeNull()
   })
 })

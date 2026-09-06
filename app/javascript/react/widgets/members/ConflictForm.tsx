@@ -58,8 +58,6 @@ const ConflictForm = ({ formAction, authenticityToken, minDate, defaults, errors
     reasonError && { fieldId: 'conflict-reason', message: reasonError },
   ].filter((e): e is ValidationError => Boolean(e))
 
-  const hadErrors = errors.length > 0
-
   return (
     <form method="post" action={formAction} className="flex flex-col gap-4">
       <input type="hidden" name="authenticity_token" value={authenticityToken} />
@@ -125,14 +123,9 @@ const ConflictForm = ({ formAction, authenticityToken, minDate, defaults, errors
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <button type="submit" className="btn-primary btn-lg">
-          Submit conflict
-        </button>
-        {hadErrors && (
-          <span className="text-center text-caption text-secondary">Nothing you typed was lost.</span>
-        )}
-      </div>
+      <button type="submit" className="btn-primary btn-lg">
+        Submit conflict
+      </button>
     </form>
   )
 }
