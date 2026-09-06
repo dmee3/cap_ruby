@@ -3,9 +3,7 @@
 require 'rails_helper'
 
 # Public (unauthenticated) routes inherit from ApplicationController but must
-# not render the app shell — its partials assume `current_user`. Regression
-# guard for the Rollbar crash "undefined method `seasons' for nil:NilClass"
-# after PR1 phase D collapsed the layouts.
+# not render the app shell — its partials assume `current_user`
 RSpec.describe 'Public pages', type: :request do
   shared_examples 'a shell-free public page' do |path|
     it "renders #{path} without the app shell for logged-out visitors" do
