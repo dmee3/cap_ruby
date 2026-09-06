@@ -23,12 +23,13 @@ describe('MemberConflictList', () => {
 
   it('shows the default empty state when there are no conflicts', () => {
     render(<MemberConflictList conflicts={[]} />)
-    expect(screen.getByText("You're clear for every rehearsal.", { exact: false })).toBeInTheDocument()
+    expect(screen.getByText('Nothing on the books')).toBeInTheDocument()
+    expect(screen.getByText(/say so early/)).toBeInTheDocument()
   })
 
   it('accepts custom empty-state copy per screen', () => {
-    render(<MemberConflictList conflicts={[]} emptyTitle="Nothing on the books" emptyBody="Custom copy here" />)
-    expect(screen.getByText('Nothing on the books')).toBeInTheDocument()
+    render(<MemberConflictList conflicts={[]} emptyTitle="Nothing submitted yet" emptyBody="Custom copy here" />)
+    expect(screen.getByText('Nothing submitted yet')).toBeInTheDocument()
     expect(screen.getByText('Custom copy here')).toBeInTheDocument()
   })
 

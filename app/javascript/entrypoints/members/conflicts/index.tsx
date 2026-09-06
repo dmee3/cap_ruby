@@ -33,5 +33,12 @@ if (formEl && window.conflictForm) {
 
 const listEl = document.getElementById('conflict-list')
 if (listEl) {
-  render(<MemberConflictList conflicts={window.conflictList || []} />, listEl)
+  render(
+    <MemberConflictList
+      conflicts={window.conflictList || []}
+      emptyTitle="Nothing submitted yet"
+      emptyBody="This is where the conflicts you send will show up."
+    />,
+    listEl
+  )
 }

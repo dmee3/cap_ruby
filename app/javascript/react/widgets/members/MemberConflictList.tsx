@@ -24,8 +24,8 @@ type MemberConflictListProps = {
 // "Your conflicts" card, with different empty-state copy per screen.
 const MemberConflictList = ({
   conflicts,
-  emptyTitle = "You're clear",
-  emptyBody = "No conflicts submitted — you're clear for every rehearsal.",
+  emptyTitle = 'Nothing on the books',
+  emptyBody = "You haven't told anyone you'll miss a rehearsal this season. When you know, say so early.",
 }: MemberConflictListProps) => {
   if (conflicts.length === 0) {
     return <EmptyState title={emptyTitle} body={emptyBody} />

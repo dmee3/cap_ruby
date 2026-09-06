@@ -45,17 +45,41 @@ class ConflictPresenter
 
     sig { params(conflict: Conflict).returns(String) }
     def date_range_label(conflict)
-      start_label = conflict.start_date.strftime('%a %-m/%-d')
-      return start_label if conflict.start_date.to_date == conflict.end_date.to_date
+      return multi_day_label(conflict) unless single_day?(conflict)
 
-      "#{start_label} – #{conflict.end_date.strftime('%-m/%-d')}"
+      # Same rule Flow 2 uses for due dates: weekday inside 14 days, bare
+      # M/D/YY beyond it.
+      format = within_two_weeks?(conflict.start_date) ? '%a %-m/%-d' : '%-m/%-d/%y'
+      conflict.start_date.strftime(format)
+    end
+
+    sig { params(conflict: Conflict).returns(String) }
+    def multi_day_label(conflict)
+      "#{conflict.start_date.strftime('%a %-m/%-d')} – #{conflict.end_date.strftime('%-m/%-d')}"
     end
 
     sig { params(conflict: Conflict).returns(T.nilable(String)) }
     def time_range_label(conflict)
-      return nil unless conflict.start_date.to_date == conflict.end_date.to_date
+      return nil unless single_day?(conflict)
+      return 'all day' if all_day?(conflict)
 
       "#{conflict.start_date.strftime('%-I:%M %p')}–#{conflict.end_date.strftime('%-I:%M %p')}"
+    end
+
+    sig { params(conflict: Conflict).returns(T::Boolean) }
+    def single_day?(conflict)
+      conflict.start_date.to_date == conflict.end_date.to_date
+    end
+
+    sig { params(conflict: Conflict).returns(T::Boolean) }
+    def all_day?(conflict)
+      conflict.start_date.seconds_since_midnight.zero? &&
+        conflict.end_date.seconds_since_midnight >= 86_340 # 23:59:00 or later
+    end
+
+    sig { params(time: T.any(Time, ActiveSupport::TimeWithZone)).returns(T::Boolean) }
+    def within_two_weeks?(time)
+      (time.to_date - Date.current).abs <= 14
     end
 
     sig { params(conflict: Conflict).returns(String) }
