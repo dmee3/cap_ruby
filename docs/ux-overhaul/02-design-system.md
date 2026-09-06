@@ -13,8 +13,8 @@ should feel.
 **Status:** Flows 1–3 merged (shell/tokens #221, member dues #226, member
 conflicts #230). Layout set is now three — `application` / `auth` / `public`
 (#229), + `calendar` until Flow 7 folds it in. Flow 4 (admin financial command
-center) is next; not yet designed in Claude Design. Full flow list and progress:
-`01-screen-audit.md`.
+center) is next; not yet designed in Claude Design. Full flow list:
+`01-screen-audit.md`. Live task status: **beads** — `bd show cap_ruby-b3a`.
 
 ---
 
