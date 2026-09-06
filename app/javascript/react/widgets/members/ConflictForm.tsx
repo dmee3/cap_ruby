@@ -69,7 +69,8 @@ const ConflictForm = ({ formAction, authenticityToken, minDate, defaults, errors
       <div className="card flex flex-col gap-4">
         <ConflictDateTimeField
           label="Starts"
-          namePrefix="conflict[start_date]"
+          dateName="conflict[start_date_date]"
+          timeName="conflict[start_date_time]"
           id="conflict-start-date"
           dateValue={startDate}
           timeValue={startTime}
@@ -80,7 +81,8 @@ const ConflictForm = ({ formAction, authenticityToken, minDate, defaults, errors
         />
         <ConflictDateTimeField
           label="Ends"
-          namePrefix="conflict[end_date]"
+          dateName="conflict[end_date_date]"
+          timeName="conflict[end_date_time]"
           id="conflict-end-date"
           dateValue={endDate}
           timeValue={endTime}

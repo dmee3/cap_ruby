@@ -86,6 +86,30 @@ RSpec.describe 'Conflicts Workflow', type: :request do
 
       expect(response.body).to include('A very distinctive reason for missing rehearsal')
     end
+
+    # Regression: ConflictDateTimeField once rendered name="conflict[start_date]_date",
+    # which Rails parses as a NESTED hash (conflict.start_date._date) — the
+    # controller read conflict[:start_date_date] and saw blank, rejecting a
+    # fully-filled form. Exercise the literal query string a browser sends.
+    it 'accepts the flat conflict[start_date_date] param names a browser posts' do
+      member = sign_in_as_member(season: season)
+      pending_status
+      d1 = 10.days.from_now.strftime('%Y-%m-%d')
+      d2 = 11.days.from_now.strftime('%Y-%m-%d')
+      body = "authenticity_token=x&conflict%5Bstart_date_date%5D=#{d1}" \
+             '&conflict%5Bstart_date_time%5D=18%3A30' \
+             "&conflict%5Bend_date_date%5D=#{d2}" \
+             '&conflict%5Bend_date_time%5D=21%3A30&conflict%5Breason%5D=Closing+shift'
+
+      expect do
+        post '/members/conflicts', params: body,
+                                   headers: { 'CONTENT_TYPE' => 'application/x-www-form-urlencoded' }
+      end.to change(Conflict, :count).by(1)
+
+      conflict = member.conflicts.last
+      expect(conflict.start_date.strftime('%Y-%m-%d %H:%M')).to eq("#{d1} 18:30")
+      expect(conflict.end_date.strftime('%Y-%m-%d %H:%M')).to eq("#{d2} 21:30")
+    end
   end
 
   describe 'Conflict submission is closed for the season' do

@@ -4,7 +4,8 @@ import ConflictDateTimeField from './ConflictDateTimeField'
 
 const baseProps = {
   label: 'Starts' as const,
-  namePrefix: 'conflict[start_date]',
+  dateName: 'conflict[start_date_date]',
+  timeName: 'conflict[start_date_time]',
   id: 'conflict-start-date',
   dateValue: '',
   timeValue: '',
@@ -20,10 +21,13 @@ describe('ConflictDateTimeField', () => {
     expect(screen.getByText('Starts')).toBeInTheDocument()
   })
 
-  it('posts the two halves under the namePrefix', () => {
+  it('names the inputs so Rails parses them as conflict[start_date_date] / _time', () => {
+    // Regression: name="conflict[start_date]_date" parses to a NESTED hash
+    // (conflict.start_date._date), not conflict.start_date_date — the whole
+    // key must live inside the brackets.
     const { container } = render(<ConflictDateTimeField {...baseProps} />)
-    expect(container.querySelector('input[name="conflict[start_date]_date"]')).not.toBeNull()
-    expect(container.querySelector('input[name="conflict[start_date]_time"]')).not.toBeNull()
+    expect(container.querySelector('input[name="conflict[start_date_date]"]')).not.toBeNull()
+    expect(container.querySelector('input[name="conflict[start_date_time]"]')).not.toBeNull()
   })
 
   it('shows the current values (repopulation after a failed submit)', () => {

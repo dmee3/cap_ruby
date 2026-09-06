@@ -2,8 +2,10 @@ import React from 'react'
 
 type ConflictDateTimeFieldProps = {
   label: 'Starts' | 'Ends'
-  /** Field-name stem — inputs post as `${namePrefix}_date` / `${namePrefix}_time`. */
-  namePrefix: string
+  /** Full `name` for the date input, e.g. `conflict[start_date_date]`. */
+  dateName: string
+  /** Full `name` for the time input, e.g. `conflict[start_date_time]`. */
+  timeName: string
   /** Anchor target used by ValidationSummaryCard's jump links. */
   id: string
   /** ISO `YYYY-MM-DD`, for repopulation after a failed submit. */
@@ -23,7 +25,8 @@ type ConflictDateTimeFieldProps = {
 // calendar on desktop. No library, accessible for free.
 const ConflictDateTimeField = ({
   label,
-  namePrefix,
+  dateName,
+  timeName,
   id,
   dateValue,
   timeValue,
@@ -44,7 +47,7 @@ const ConflictDateTimeField = ({
       <div className="grid grid-cols-[1.35fr_1fr] gap-2">
         <input
           id={id}
-          name={`${namePrefix}_date`}
+          name={dateName}
           type="date"
           min={minDate}
           value={dateValue}
@@ -52,7 +55,7 @@ const ConflictDateTimeField = ({
           className={inputClass}
         />
         <input
-          name={`${namePrefix}_time`}
+          name={timeName}
           type="time"
           value={timeValue}
           onChange={(e) => onTimeChange(e.target.value)}

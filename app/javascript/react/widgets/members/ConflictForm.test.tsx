@@ -26,6 +26,13 @@ describe('ConflictForm', () => {
     expect(container.querySelectorAll('input[type="time"]').length).toBe(2)
   })
 
+  it('names the four date/time inputs so Rails parses them flat under conflict[...]', () => {
+    const { container } = render(<ConflictForm {...baseProps} />)
+    ;['start_date_date', 'start_date_time', 'end_date_date', 'end_date_time'].forEach((key) => {
+      expect(container.querySelector(`input[name="conflict[${key}]"]`)).not.toBeNull()
+    })
+  })
+
   it('shows a live character count on the reason field', () => {
     render(<ConflictForm {...baseProps} />)
     const textarea = screen.getByPlaceholderText(/Work, travel, school, family/)
