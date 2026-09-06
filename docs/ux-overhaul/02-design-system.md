@@ -186,6 +186,17 @@ Each component below is what to build as reusable elements in Claude Design.
 - **Mobile nav** — the *same* nav list in a slide-over sheet. One source of truth,
   not a separate markup block.
 - Replaces: all 5 ERB layouts + both `_sidebar` partials + duplicated mobile menus.
+- **Layout set (post-overhaul target): three.** `application` — the shell, every
+  authenticated screen. `auth` — Devise (login / password recovery), a centered
+  card. `public` — the shell-free layout for pages with an external,
+  unauthenticated audience (auditions spreadsheet, standalone tools, and — after
+  Flow 7 — the calendar fundraiser, folding today's one-off `calendar` layout in).
+  Public controllers inherit from `PublicController` (`layout 'public'`) so the
+  category is *declared*, not inferred from whether someone's signed in. The
+  shell partials (`_sidebar`, `_topbar`, `_drawer`, `_season_switcher`) carry a
+  `return unless current_user` guard as defense-in-depth — a stray shell render
+  degrades to no-chrome, never a 500. *(Established in the PublicController PR;
+  see `01-screen-audit.md` "How the app is built today".)*
 
 ### 4.2 Button
 - Variants: `primary` (ocean fill), `success` (moss fill), `danger` (raspberry

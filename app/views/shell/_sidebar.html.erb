@@ -1,6 +1,10 @@
 <%#
   Desktop sidebar (>= md). Hidden below md — see _drawer for mobile.
+  Assumes an authenticated user; renders nothing without one (public pages
+  use the shell-free `public` layout, but guard anyway — a stray shell
+  render should degrade to no chrome, not a 500).
 %>
+<% return unless current_user %>
 <aside class="app-sidebar">
   <div class="sidebar-logo">
     <%= image_tag vite_asset_path('images/full_logo_small.png'), alt: 'Cap City Percussion', class: 'max-h-10 w-auto' %>
