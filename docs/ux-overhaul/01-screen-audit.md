@@ -9,6 +9,11 @@ frontend framework. This audit describes *what exists* and *what job each screen
 does*, so the redesign can start from the underlying user needs rather than the
 current implementation.
 
+**Task tracking:** live status for the overhaul lives in **beads** (`bd show cap_ruby-b3a`
+for the epic; `bd ready` for the next flow). This doc is the reference for *what each
+screen does* and the priority-ordered flow list — not a status board. The ✅/next
+markers below are kept only as a rough at-a-glance; beads is authoritative.
+
 ---
 
 ## How the app is built today (context for the redesign)
@@ -125,7 +130,7 @@ Design in **flows**, not isolated screens — shared components carry across a f
 each one is faster than the last.
 
 **Progress:** Flows 1–3 merged (PR #221 shell/tokens, #226 member dues,
-#230 member conflicts). Flow 4 is next.
+#230 member conflicts). Flow 4 is next. (Authoritative status: `bd ready`.)
 
 Along the way, the layout set collapsed to three — `application` / `auth` /
 `public`, with public controllers inheriting `PublicController` (PR #229) — which
