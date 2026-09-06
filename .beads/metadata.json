@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "cap_ruby",
+  "project_id": "c7a96d75-a4a2-4bdc-88e7-d5172896e939"
+}
