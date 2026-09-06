@@ -49,15 +49,11 @@ class ApplicationController < ActionController::Base
 
   private
 
-  # One shell for every authenticated screen; a minimal centered card for
-  # Devise (login / password); a bare page for logged-out visitors hitting a
-  # public route (auditions, tools). The shell partials all assume
-  # `current_user`, so they must never render without one. The `calendar`
-  # layout is set explicitly on CalendarsController and is unaffected.
+  # The app shell for every authenticated screen; a minimal centered card for
+  # Devise (login / password). Public, unauthenticated routes opt out by
+  # inheriting from PublicController (layout 'public'); CalendarsController
+  # sets 'calendar' explicitly. Both bypass this method entirely.
   def app_or_auth_layout
-    return 'auth' if devise_controller?
-    return 'public' unless current_user
-
-    'application'
+    devise_controller? ? 'auth' : 'application'
   end
 end

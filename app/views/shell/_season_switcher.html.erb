@@ -1,6 +1,7 @@
 <%#
   Season switcher — a scope control, not a settings menu. locals: menu_id
 %>
+<% return unless current_user %>
 <% seasons = current_user.seasons.order(:year).reverse %>
 <% menu_id ||= 'season-menu' %>
 <div class="relative">

@@ -1,7 +1,9 @@
 <%#
   Top bar. Desktop: page title + profile menu. Mobile: hamburger + logo + season chip
   (the chip opens the drawer, which holds the real season switcher).
+  Guarded like _sidebar — renders nothing without an authenticated user.
 %>
+<% return unless current_user %>
 <header class="h-14 shrink-0 bg-surface border-b border-border-default flex items-center justify-between px-4 md:px-8">
   <div class="flex items-center gap-3 min-w-0">
     <button type="button" id="app-menu-btn" class="md:hidden h-9 w-9 -ml-2 flex items-center justify-center rounded-sm text-primary hover:bg-sunken cursor-pointer" aria-label="Open menu">
