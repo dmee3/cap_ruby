@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= content_for?(:page_title) ? "#{strip_tags(yield(:page_title))} · Cap City Percussion" : 'Cap City Percussion' %></title>
+    <%= csrf_meta_tags %>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+
+    <%= vite_client_tag %>
+    <%= vite_javascript_tag 'application' %>
+  </head>
+
+  <body class="bg-page text-primary min-h-screen">
+    <main id="main-content" class="p-4">
+      <% if flash.present? %>
+        <%= render 'flashes' %>
+      <% end %>
+      <%= yield %>
+    </main>
+
+    <%= yield :scripts %>
+  </body>
+</html>
