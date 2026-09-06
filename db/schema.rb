@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_14_230602) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_04_230318) do
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
     t.string "description"
@@ -178,6 +178,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_14_230602) do
     t.string "year"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.boolean "conflict_submission_open", default: false
   end
 
   create_table "seasons_users", force: :cascade do |t|

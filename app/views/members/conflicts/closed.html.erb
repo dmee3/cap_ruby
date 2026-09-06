@@ -1,0 +1,22 @@
+<% content_for :page_title, 'Conflicts' %>
+
+<%= javascript_tag do %>
+  window.conflictList = <%== conflict_row_data(@existing_conflicts).to_json %>;
+<% end %>
+
+<%= vite_typescript_tag 'entrypoints/members/conflicts/index.tsx' %>
+
+<div class="mx-auto w-full max-w-[640px] flex flex-col gap-4">
+  <div class="card flex flex-col gap-3 items-start">
+    <span class="inline-flex items-center rounded-full bg-neutral-bg px-2.5 py-0.5 text-caption font-semibold uppercase tracking-wide text-neutral-fg">Closed</span>
+    <h1 class="mb-0">Conflicts aren't open right now</h1>
+    <p class="text-body text-secondary">We'll let everyone know when conflict submission opens.</p>
+    <div class="w-full border-t border-border-default"></div>
+    <p class="text-body">Have an urgent conflict? Reach out to your coordinator.</p>
+  </div>
+
+  <div class="card flex flex-col gap-3">
+    <span class="card-title">Your conflicts</span>
+    <div id="conflict-list"></div>
+  </div>
+</div>

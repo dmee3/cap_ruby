@@ -1,0 +1,29 @@
+<div class="flex flex-col gap-4 max-w-[640px]">
+  <h1>Season</h1>
+
+  <div class="card flex flex-col gap-4">
+    <span class="card-title">Conflict submission</span>
+
+    <%= form_for @season, url: admin_season_path, method: :patch do |f| %>
+      <% if flash.now[:error] %>
+        <p class="text-danger-fg text-body-sm"><%= flash.now[:error] %></p>
+      <% end %>
+
+      <label class="input-toggle-wrapper gap-3">
+        <%= f.check_box :conflict_submission_open, class: 'input-toggle' %>
+        <span class="input-toggle-bg"><span class="input-toggle-dot"></span></span>
+        <span class="text-body">
+          Members can submit conflicts
+          <span class="block text-body-sm text-secondary">
+            Off by default each season. Turn this on once rehearsals are underway,
+            off again once the season wraps.
+          </span>
+        </span>
+      </label>
+
+      <div class="mt-4">
+        <%= f.submit 'Save', class: 'btn-primary btn-lg' %>
+      </div>
+    <% end %>
+  </div>
+</div>

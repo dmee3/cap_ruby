@@ -184,6 +184,11 @@ RSpec.describe 'Role-Based Access Control', type: :request do
       get '/admin/payments'
       expect(response).to redirect_to(root_url)
     end
+
+    it 'cannot access the season edit page' do
+      get '/admin/season/edit'
+      expect(response).to redirect_to(root_url)
+    end
   end
 
   describe 'Admin access control' do

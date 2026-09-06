@@ -10,6 +10,9 @@ module Members
                    .includes(:conflict_status)
                    .for_season(season_id)
                    .order(:start_date)
+      @conflict_rows = ConflictPresenter.rows_for(@conflicts.first(4))
+      @conflict_nudge = conflict_nudge_sentence(@conflicts)
+      @just_submitted = flash[:conflict_submitted].present?
 
       @dues = PaymentService.member_dues_summary(current_user, season_id)
       @timeline = build_timeline(season_id)
@@ -20,6 +23,20 @@ module Members
     end
 
     private
+
+    # e.g. "Next one is Fri 3/14, still pending after 3 days." — nil when
+    # nothing's waiting on a decision.
+    def conflict_nudge_sentence(conflicts)
+      next_pending = conflicts.select { |c| c.status.name == 'Pending' && c.start_date.future? }
+                              .min_by(&:start_date)
+      return nil unless next_pending
+
+      days_waiting = (Date.current - next_pending.created_at.to_date).to_i
+      return nil if days_waiting.negative?
+
+      "Next one is #{next_pending.start_date.strftime('%a %-m/%-d')}, still pending after " \
+        "#{days_waiting} #{'day'.pluralize(days_waiting)}."
+    end
 
     # Reconciles paid history and remaining installments into one chronological
     # list the DuesTimeline widget renders. All amounts in integer cents.

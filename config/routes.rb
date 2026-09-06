@@ -69,6 +69,8 @@ Rails.application.routes.draw do
     resources :users
 
     resources :payment_schedules, only: %i[edit]
+
+    resource :season, only: %i[edit update], controller: 'seasons'
   end
 
   namespace :coordinators do
@@ -86,7 +88,7 @@ Rails.application.routes.draw do
     resources :calendars, only: %i[index]
     get 'calendars/download', to: 'calendars#download'
 
-    resources :conflicts, only: %i[new create]
+    resources :conflicts, only: %i[index new create]
 
     resources :payments, only: %i[new]
     get 'payments/post_processing', to: 'payments#post_processing'

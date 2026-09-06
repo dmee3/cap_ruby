@@ -53,6 +53,13 @@ RSpec.describe 'Dashboard Data Accuracy', type: :request do
       )
     end
 
+    it 'titles the page "Where you stand" with the member details as a subline' do
+      get '/members'
+
+      expect(response.body).to include('<h1 class="mb-0">Where you stand</h1>')
+      expect(response.body).to include(member.full_name)
+    end
+
     it 'shows the dues meter with real totals' do
       get '/members'
 
@@ -85,6 +92,56 @@ RSpec.describe 'Dashboard Data Accuracy', type: :request do
 
       expect(response).to have_http_status(:success)
       expect(response.body).to include('&quot;amount_cents&quot;:25000')
+    end
+
+    it 'shows a nudge sentence for the next still-pending conflict' do
+      conflict.update!(created_at: 3.days.ago)
+
+      get '/members'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include(
+        "Next one is #{conflict.start_date.strftime('%a %-m/%-d')}, still pending after 3 days."
+      )
+    end
+
+    it 'shows the just-submitted band right after a successful submission' do
+      season.update!(conflict_submission_open: true)
+      start_at = 3.weeks.from_now
+      end_at = start_at + 2.hours
+
+      post '/members/conflicts', params: {
+        conflict: {
+          start_date_date: start_at.strftime('%Y-%m-%d'),
+          start_date_time: start_at.strftime('%H:%M'),
+          end_date_date: end_at.strftime('%Y-%m-%d'),
+          end_date_time: end_at.strftime('%H:%M'),
+          reason: 'Another conflict'
+        }
+      }
+      follow_redirect!
+      follow_redirect!
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Sent. Your coordinators see it now. Approval isn't automatic.")
+    end
+
+    it 'links to all conflicts once there are more than 4' do
+      4.times do |i|
+        create(
+          :conflict,
+          user: member,
+          season: season,
+          conflict_status: create(:conflict_status, name: "Status#{i}"),
+          start_date: (i + 2).weeks.from_now,
+          end_date: (i + 2).weeks.from_now + 1.hour
+        )
+      end
+
+      get '/members'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('All 5 conflicts')
     end
 
     it 'does not 500 for a member with no payment schedule' do

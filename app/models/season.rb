@@ -4,10 +4,11 @@
 #
 # Table name: seasons
 #
-#  id         :integer          not null, primary key
-#  year       :string
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id                       :integer          not null, primary key
+#  conflict_submission_open :boolean          default(FALSE)
+#  year                     :string
+#  created_at               :datetime         not null
+#  updated_at               :datetime         not null
 #
 class Season < ApplicationRecord
   has_many :conflicts

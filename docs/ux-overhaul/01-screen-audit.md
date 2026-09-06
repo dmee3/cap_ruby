@@ -124,22 +124,33 @@ Admin inherits coordinator + staff, plus:
 Design in **flows**, not isolated screens — shared components carry across a flow so
 each one is faster than the last.
 
-### Flow 1 — Design system + app shell 🔴 *(do first, everything depends on it)*
+**Progress:** Flow 1 (PR #221), Flow 2 (PR #226), and Flow 3 (in review) shipped.
+Along the way, the layout set collapsed to three — `application` / `auth` /
+`public`, with public controllers inheriting `PublicController` (PR #229) — which
+is the groundwork Flow 7 builds on (see `02-design-system.md` §4.1). The
+conflict-submission toggle added in Flow 3 (`Season#conflict_submission_open`,
+editable at `/admin/season/edit`) is the seasonal on/off switch coordinators use.
+
+### Flow 1 — Design system + app shell 🔴 *(do first, everything depends on it)* ✅ shipped
 - Token set (color, type, spacing, radius, elevation, dark mode)
 - The one unified app shell: sidebar/nav, season switcher as a first-class control, profile menu, mobile pattern
 - Core components: button, card, stat/metric block, table (with a real mobile pattern), form row, badge/status pill, empty state, loading state, flash/toast
 - Artboards: shell (desktop + mobile), component sheet, light + dark
 
-### Flow 2 — Member core: dues & payments 🔴
+### Flow 2 — Member core: dues & payments 🔴 ✅ shipped
 - Member dashboard (redesigned around "where do I stand")
 - Pay dues (with owed amount in context, clearer fee explanation)
 - Payment confirmation states
 - Member "my fundraiser" (optional stretch in this flow)
 
-### Flow 3 — Member core: conflicts 🔴
-- Submit a conflict (with calendar context)
-- Conflict status on the dashboard
-- (pairs with Flow 5)
+### Flow 3 — Member core: conflicts 🔴 ✅ shipped
+- Submit a conflict — native date/time pickers, own-conflicts context list,
+  a real "submissions closed" page state (not a flash), inline + summary
+  validation. *(The rehearsal-calendar context the original scope imagined was
+  dropped — no `Event` listing exists; own-conflicts context only.)*
+- Conflict status on the dashboard — status-pill summary, a "next one is still
+  pending after N days" nudge, the shared `ConflictContextRow` shape
+- (row shape + status vocabulary built to be reused by Flow 5)
 
 ### Flow 4 — Admin financial command center 🔴
 - Admin dashboard (insight-focused: dues burndown as the hero, not two numbers)

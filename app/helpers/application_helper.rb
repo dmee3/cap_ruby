@@ -60,7 +60,9 @@ module ApplicationHelper
       NavItem.new(label: 'Inventory', path: inventory_categories_path,  icon: :cube,
                   match: %r{\A/inventory/categor}),
       NavItem.new(label: 'Emails',    path: inventory_email_rules_path, icon: :mail),
-      NavItem.new(label: 'Calendars', path: admin_calendars_path,       icon: :calendar_days)
+      NavItem.new(label: 'Calendars', path: admin_calendars_path,       icon: :calendar_days),
+      NavItem.new(label: 'Season',    path: edit_admin_season_path,     icon: :cog,
+                  match: %r{\A/admin/season})
     ]
   end
 

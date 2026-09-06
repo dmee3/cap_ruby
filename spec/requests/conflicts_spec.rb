@@ -13,19 +13,28 @@ RSpec.describe 'Conflicts Workflow', type: :request do
     allow(EmailService).to receive(:send_conflict_submitted_email)
   end
 
+  # The member form posts two native inputs per boundary — build that shape.
+  def conflict_form_params(start_at:, end_at:, reason: 'Family vacation')
+    {
+      conflict: {
+        start_date_date: start_at.strftime('%Y-%m-%d'),
+        start_date_time: start_at.strftime('%H:%M'),
+        end_date_date: end_at.strftime('%Y-%m-%d'),
+        end_date_time: end_at.strftime('%H:%M'),
+        reason: reason
+      }
+    }
+  end
+
   describe 'Member submits a new conflict' do
     it 'creates a conflict in pending state' do
       member = sign_in_as_member(season: season)
       pending_status # Ensure pending status exists
 
       expect do
-        post '/members/conflicts', params: {
-          conflict: {
-            start_date: 1.week.from_now,
-            end_date: 2.weeks.from_now,
-            reason: 'Family vacation'
-          }
-        }
+        post '/members/conflicts', params: conflict_form_params(
+          start_at: 1.week.from_now, end_at: 2.weeks.from_now
+        )
       end.to change(Conflict, :count).by(1)
 
       conflict = Conflict.last
@@ -42,13 +51,9 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       pending_status
 
       expect do
-        post '/members/conflicts', params: {
-          conflict: {
-            start_date: 1.week.ago,
-            end_date: 2.weeks.from_now,
-            reason: 'Family vacation'
-          }
-        }
+        post '/members/conflicts', params: conflict_form_params(
+          start_at: 1.week.ago, end_at: 2.weeks.from_now
+        )
       end.not_to change(Conflict, :count)
 
       expect(response).to have_http_status(:success)
@@ -60,17 +65,77 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       pending_status
 
       expect do
-        post '/members/conflicts', params: {
-          conflict: {
-            start_date: 1.week.from_now,
-            end_date: 1.day.ago,
-            reason: 'Family vacation'
-          }
-        }
+        post '/members/conflicts', params: conflict_form_params(
+          start_at: 1.week.from_now, end_at: 1.day.ago
+        )
       end.not_to change(Conflict, :count)
 
       expect(response).to have_http_status(:success)
       expect(response.body).to include('End date must be in the future')
+    end
+
+    it 'repopulates the form with the submitted values on validation failure' do
+      sign_in_as_member(season: season)
+      pending_status
+
+      post '/members/conflicts', params: conflict_form_params(
+        start_at: 1.week.ago,
+        end_at: 2.weeks.from_now,
+        reason: 'A very distinctive reason for missing rehearsal'
+      )
+
+      expect(response.body).to include('A very distinctive reason for missing rehearsal')
+    end
+
+    # Regression: ConflictDateTimeField once rendered name="conflict[start_date]_date",
+    # which Rails parses as a NESTED hash (conflict.start_date._date) — the
+    # controller read conflict[:start_date_date] and saw blank, rejecting a
+    # fully-filled form. Exercise the literal query string a browser sends.
+    it 'accepts the flat conflict[start_date_date] param names a browser posts' do
+      member = sign_in_as_member(season: season)
+      pending_status
+      d1 = 10.days.from_now.strftime('%Y-%m-%d')
+      d2 = 11.days.from_now.strftime('%Y-%m-%d')
+      body = "authenticity_token=x&conflict%5Bstart_date_date%5D=#{d1}" \
+             '&conflict%5Bstart_date_time%5D=18%3A30' \
+             "&conflict%5Bend_date_date%5D=#{d2}" \
+             '&conflict%5Bend_date_time%5D=21%3A30&conflict%5Breason%5D=Closing+shift'
+
+      expect do
+        post '/members/conflicts', params: body,
+                                   headers: { 'CONTENT_TYPE' => 'application/x-www-form-urlencoded' }
+      end.to change(Conflict, :count).by(1)
+
+      conflict = member.conflicts.last
+      expect(conflict.start_date.strftime('%Y-%m-%d %H:%M')).to eq("#{d1} 18:30")
+      expect(conflict.end_date.strftime('%Y-%m-%d %H:%M')).to eq("#{d2} 21:30")
+    end
+  end
+
+  describe 'Conflict submission is closed for the season' do
+    let(:closed_season) { create(:season, year: Date.today.year, conflict_submission_open: false) }
+
+    it 'shows the closed state instead of the form' do
+      sign_in_as_member(season: closed_season)
+
+      get '/members/conflicts/new'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Conflicts aren't open right now")
+    end
+
+    it 'rejects a create via direct POST even when closed' do
+      sign_in_as_member(season: closed_season)
+      pending_status
+
+      expect do
+        post '/members/conflicts', params: conflict_form_params(
+          start_at: 1.week.from_now, end_at: 2.weeks.from_now
+        )
+      end.not_to change(Conflict, :count)
+
+      expect(response).to redirect_to(new_members_conflict_path)
+      expect(flash[:error]).to match(/currently closed/)
     end
   end
 
@@ -163,6 +228,13 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       expect(response).to have_http_status(:success)
       expect(response.body).to include('Your conflicts')
       # The summary lists the conflict by its start date
+      expect(response.body).to include(member_conflict.start_date.strftime('%a %-m/%-d'))
+    end
+
+    it 'shows only the current member conflicts on the index page' do
+      get '/members/conflicts'
+
+      expect(response).to have_http_status(:success)
       expect(response.body).to include(member_conflict.start_date.strftime('%a %-m/%-d'))
     end
   end
