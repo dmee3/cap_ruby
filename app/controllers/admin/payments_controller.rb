@@ -6,12 +6,7 @@ module Admin
       respond_to do |format|
         format.html { render('admin/payments/index') }
         format.json do
-          @payments = Payment
-                      .with_deleted
-                      .includes(:payment_type)
-                      .joins(:payment_type)
-                      .for_season(current_season['id'])
-          render json: { payments: @payments }, include: [:payment_type]
+          render json: Admin::PaymentsQuery.new(current_season['id'], payments_query_params).call
         end
       end
     end
@@ -32,9 +27,18 @@ module Admin
       @payment = Payment.new(payment_params)
       @payment.amount *= 100 if @payment.amount
       @payment.season_id = current_season['id']
-      if @payment.save
+
+      saved = Payment.transaction do
+        if @payment.save
+          ActivityLogger.log_payment(@payment, current_user)
+          true
+        else
+          false
+        end
+      end
+
+      if saved
         flash[:success] = 'Payment created'
-        ActivityLogger.log_payment(@payment, current_user)
         redirect_to(admin_payments_path)
       else
         @members = User.members_for_season(current_season['id']).order(:first_name)
@@ -51,7 +55,6 @@ module Admin
     end
 
     def update
-      sleep 5 # TODO: Remove this - temporary delay for testing duplicate submission prevention
       @payment = Payment.find(params[:id])
       if @payment.update(update_params.reject { |_k, v| v.blank? }) # only update non-empty fields
         flash[:success] = 'Payment updated'
@@ -118,15 +121,22 @@ module Admin
     end
 
     def burndown_chart
+      season_id = current_season['id']
       render(
         json: {
-          scheduled: DashboardUtilities.biweekly_scheduled,
-          actual: DashboardUtilities.biweekly_actual
+          scheduled: DashboardUtilities.season_scheduled_series(season_id),
+          actual: DashboardUtilities.season_actual_series(season_id),
+          today: Date.current.iso8601,
+          currency: 'USD'
         }
       )
     end
 
     private
+
+    def payments_query_params
+      params.permit(:sort, :dir, :q, :type_id, :start_date, :end_date, :scope, :limit, :offset)
+    end
 
     def payment_params
       params.require(:payment).permit(:user_id, :payment_type_id, :amount, :date_paid, :notes)

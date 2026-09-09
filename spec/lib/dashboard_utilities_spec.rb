@@ -80,12 +80,16 @@ RSpec.describe DashboardUtilities do
       create(:seasons_user, user: user, season: season, role: 'member')
       schedule = create(:payment_schedule, season: season, user: user)
       create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.today - 1.day, amount: 10_000)
+      create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.today + 1.month, amount: 5000)
       create(:payment, user: user, season: season, amount: 4000, date_paid: Date.today)
 
       results = described_class.behind_members(season.id)
 
       expect(results).to contain_exactly(
-        hash_including(id: user.id, name: 'Dana Evers', paid: 40.0, owed: 100.0)
+        hash_including(
+          id: user.id, name: 'Dana Evers',
+          paid_cents: 4000, past_due_cents: 6000, season_total_cents: 15_000
+        )
       )
     end
 
@@ -110,6 +114,97 @@ RSpec.describe DashboardUtilities do
       results = described_class.behind_members(season.id)
 
       expect(results).to be_empty
+    end
+  end
+
+  describe 'burndown series' do
+    let(:user) { create(:user) }
+    let(:schedule) { create(:payment_schedule, season: season, user: user) }
+
+    # Anchor to fixed Sundays so the weekly sampling is deterministic.
+    let(:week1) { Date.new(2026, 1, 4) }  # Sunday
+    let(:week3) { Date.new(2026, 1, 18) } # Sunday
+
+    before do
+      create(:seasons_user, user: user, season: season, role: 'member')
+      create(:payment_schedule_entry, payment_schedule: schedule, pay_date: week1 + 1.day, amount: 30_000)
+      create(:payment_schedule_entry, payment_schedule: schedule, pay_date: week3 + 1.day, amount: 20_000)
+    end
+
+    describe '.season_scheduled_series' do
+      it 'samples cumulative scheduled dues weekly on Sundays' do
+        series = described_class.season_scheduled_series(season.id)
+
+        expect(series.map(&:first)).to include('2026-01-04', '2026-01-11', '2026-01-18')
+        expect(series.first).to eq(['2026-01-04', 0.0])
+        expect(series.find { |d, _| d == '2026-01-11' }.last).to eq(300.0)
+        expect(series.last.last).to eq(500.0)
+      end
+
+      it 'scopes to the season passed in, not Season.last' do
+        other = create(:season, year: '2099')
+        other_user = create(:user)
+        create(:seasons_user, user: other_user, season: other, role: 'member')
+        other_schedule = create(:payment_schedule, season: other, user: other_user)
+        create(:payment_schedule_entry, payment_schedule: other_schedule, pay_date: week1 + 1.day, amount: 99_999)
+
+        series = described_class.season_scheduled_series(season.id)
+
+        expect(series.map(&:last)).not_to include(999.99)
+      end
+
+      it 'is empty for a season with no schedule entries' do
+        expect(described_class.season_scheduled_series(create(:season, year: '2088').id)).to eq([])
+      end
+    end
+
+    describe '.season_actual_series' do
+      it 'is empty when every scheduled Sunday is still in the future' do
+        future = create(:season, year: '2099')
+        fu = create(:user)
+        create(:seasons_user, user: fu, season: future, role: 'member')
+        fs = create(:payment_schedule, season: future, user: fu)
+        create(:payment_schedule_entry, payment_schedule: fs, pay_date: Date.new(2099, 1, 4), amount: 10_000)
+
+        expect(described_class.season_actual_series(future.id)).to eq([])
+      end
+
+      it 'accumulates non-deleted payments and stops at today' do
+        create(:payment, user: user, season: season, amount: 10_000, date_paid: week1 + 2.days)
+        deleted = create(:payment, user: user, season: season, amount: 5000, date_paid: week1 + 2.days)
+        deleted.destroy
+
+        series = described_class.season_actual_series(season.id)
+
+        expect(series.map(&:first).max).to be <= Date.current.iso8601
+        expect(series.find { |d, _| d == '2026-01-11' }&.last).to eq(100.0)
+      end
+    end
+  end
+
+  describe '.average_days_late' do
+    let(:user) { create(:user) }
+    let(:schedule) { create(:payment_schedule, season: season, user: user) }
+
+    before { create(:seasons_user, user: user, season: season, role: 'member') }
+
+    it 'averages the lag between a past-due entry and the payment that covered it' do
+      create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.current - 20.days, amount: 10_000)
+      create(:payment, user: user, season: season, amount: 10_000, date_paid: Date.current - 10.days)
+
+      expect(described_class.average_days_late(season.id)).to eq(10)
+    end
+
+    it 'counts an uncovered past-due entry as late through today' do
+      create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.current - 8.days, amount: 10_000)
+
+      expect(described_class.average_days_late(season.id)).to eq(8)
+    end
+
+    it 'returns nil when nothing is past due' do
+      create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.current + 10.days, amount: 10_000)
+
+      expect(described_class.average_days_late(season.id)).to be_nil
     end
   end
 end
