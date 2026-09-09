@@ -243,9 +243,39 @@ each one superseded.
 ### 4.5 Progress / burndown
 - **Linear progress** — for "dues paid vs total" on the member dashboard. Track +
   fill (moss), a marker for "expected by today", label shows `$paid / $total`.
-- **Burndown chart** — for admin dashboard. Two lines (scheduled vs actual) over
-  the season, gap shaded raspberry when behind. This becomes the *hero* of the
-  admin dashboard.
+  *(Shipped as DuesMeter §4.14 in Flow 2.)*
+- **Burndown chart** — the *hero* of the admin dashboard. *(Detailed — Flow 4.)*
+  - Two cumulative series over the season, plotted as an inline `<svg>` (no chart
+    lib): **Scheduled** — `ocean.light` (`#498197` light / `#68a0b6` dark), **dashed**
+    2.5px, "it's a plan"; **Collected** — `moss` (`#8b9556` / `#a3ad71`), **solid**
+    3px with a dot at the last point, and the line **stops at today**, it does not
+    return to zero.
+  - **Behind-schedule area**: the region between the two lines, filled
+    `raspberry.light` at ~30–36% opacity, shown **only when collected trails
+    scheduled**. When ahead of plan, no fill.
+  - A dashed vertical **"Today"** rule (jet in light, `text.secondary` in dark)
+    with a "Today" label; y-axis `$0…$90k` in Roboto Mono, x-axis 3–4 month ticks.
+  - **Caption line below** the chart: `$X behind schedule` in `danger.fg` + a plain
+    sentence ("as of Tue 3/10. Collections have trailed the plan since
+    mid-February.").
+  - Card chrome on the dashboard: title **"Dues collected against plan"**, a
+    subtitle naming the season + sampling ("every member's own schedule, summed
+    weekly · through <today>"), and a **segmented range control**
+    (Season to date / Full season / Last 30 days) that **filters the chart only,
+    not the lists below it**.
+  - **Data model.** The scheduled line is the sum of *every member's own*
+    `PaymentSchedule` entries, cumulative — it ramps in many small steps, not 5–6
+    org-wide dates. Sampled **weekly** (a Sunday point is accurate to the dollar
+    for anything due earlier that week). This is a **cadence change** from the
+    current `DashboardUtilities.biweekly_scheduled` / `biweekly_actual`, which
+    sample every Sunday (already weekly despite the name) but hardcode
+    `Season.last.id` — Flow 4 scopes them to the season in context.
+  - `series`, `today`, `currency` props. States: **data** / **no-data** — the
+    empty state is a dashed-border panel, "No dues scheduled for this season yet
+    / The burndown appears once members have payment schedules." + a "Set up
+    payment schedules" link. No loading state was drawn — reuse §4.10 skeleton.
+  - Min height 280px. `role="img"` + `aria-label` on the `<svg>`; **the
+    behind-schedule area still needs a non-color cue** (a11y gap — see §5).
 
 ### 4.6 Table
 - Desktop: standard rows, `text.body-sm`, `border.default` row rules, sticky
@@ -298,10 +328,33 @@ each one superseded.
 - Replaces: `.flash-success/.flash-error/.flash-info/.flash-default` gradient bars.
 
 ### 4.12 Member 360 header
-- Reusable header block for `/admin/users/:id`: name, ensemble + section,
-  member-type (vet/new), current-season role, and a row of stat blocks (dues
-  status, conflicts count, fundraiser total). Used as the anchor for the detail
-  page that payments and behind-members link into.
+- Reusable header block for `/admin/users/:id`, the landing target of every money
+  link on the admin side. *(Detailed — Flow 4.)*
+- **Layout**: a Card, `grid-template-columns: minmax(0,1fr) 380px`, the right
+  column separated by a `border.default` left rule. Stacks under 900px.
+- **Left (identity)**: circular avatar with initials (56px; `accent.primary`
+  fill, `border.strong` for the "nothing on file" variant), name (`800 26px`),
+  `@username` in Roboto Mono, then a **pill row** — section (`Front Ensemble /
+  Vibes`), member-type (`Vet · 3rd season` on the page, bare `Vet` / `New member`
+  on the component sheet), current-season role (`Section leader` / `Member`) —
+  then contact lines (email · "<Season> season").
+- **Right (money)**: a **DuesMeter (§4.14)** — `$X of $Y collected` headline, the
+  bar with the expected-by-today tick, caption lines ("Expected by today: $X" /
+  "$Y due later this season" — or "Striped = past due" on the past-due variant),
+  a status pill (`On track` / `$X past due`), and a **Conflicts count** block
+  ("2 this season" / "None this season").
+- **Data bound**: name, username, email, current-season ensemble/section,
+  member type, role, dues collected, season total, expected-by-today, past-due
+  amount, season conflicts count.
+- **Variants**: on-track; past-due (split bar — solid paid + `raspberry` hatch
+  past-due); **minimal / no-schedule** — the meter is replaced by "No schedule
+  yet / $0 collected. The meter waits for a payment schedule rather than showing
+  a full bar." + a "Set up schedule" link.
+- **Roles by season** (below the header, not part of it): one row per season the
+  user was a **member** (`seasons_users` filtered to `role = 'member'` — a member
+  who later became staff should not have their staff seasons listed here), the
+  current season tagged with a `Current` pill, each showing that season's
+  ensemble / section.
 
 ### 4.13 Public fundraiser components
 - The donor flow gets its own lightweight theme layer (still on-brand: `ocean` /
@@ -409,6 +462,87 @@ each one superseded.
   list ("Sent. Your coordinators see it now. Approval isn't automatic.") rather
   than a separate toast, so the confirmation and the new row are read together.
 
+### 4.20 Alert banner with action list *(added — Flow 4)*
+- Replaces the admin dashboard's `flash[:error]` array ("Member found with blank
+  payment schedule: …") and the equivalent on Member 360.
+- 3px `status.warning` left accent, a headline (`2 members have no payment
+  schedule`), one plain explanatory line ("They're missing from the burndown and
+  won't be flagged as behind."), a **`Dismiss` control**, and an **embedded
+  mini-list** — one row per affected member (name · section) with a "Set up
+  schedule" link straight to that member's schedule editor.
+- On Member 360 it's the single-member form ("Marcus has no payment schedule /
+  His $1,200 has been credited against the default new-member schedule. Set a
+  real one so the due dates and the burndown include him.").
+
+### 4.21 Filter bar *(added — Flow 4)*
+- For `/admin/payments` (and reusable by any admin table). A horizontal row:
+  search field (`Search member name`), a type dropdown (`All types` +
+  Card/Venmo/Cash/Check/Other), a **date-range** dropdown, a **status-scope**
+  dropdown (`Active only` / `Active + deleted` / `Deleted only`), a **live result
+  summary** (`18 payments · $9,420`, and `· 1 deleted` when the scope includes
+  them), and a `Clear filters` link.
+- The scope dropdown carries a fixed note: **"Deleted payments are excluded from
+  every total on this page."** — the totals shown are always of non-deleted rows
+  regardless of scope (see verification note below; the canvas mock has one
+  number that contradicts this — the doc wins).
+- All four controls are server-side params; the eventual controller must
+  allowlist sort/filter columns (no interpolation).
+- Mobile: collapses to a `Filters` button with a count badge that opens a sheet;
+  active filters also show as removable chips above the list.
+
+### 4.22 Sortable table header + "load more" pager *(added — Flow 4)*
+- **Sort**: column headers carry a sort affordance (`↕` idle, `▲`/`▼` active),
+  `aria-sort` on the active one. Sortable columns on the payments table: date
+  paid, member, type, amount.
+- **Pager**: one pattern app-wide — a `Load N more` button under the list
+  (`Load 10 more`, `Load 20 more`), disabled with `Showing all N` when exhausted.
+  This is the §4.6 "one consistent pattern" decision, resolved to load-more.
+  **Replaces all four chevron pagers** on the current admin dashboard widgets.
+
+### 4.23 Deleted-row treatment *(added — Flow 4)*
+- How a soft-deleted `Payment` (paranoia gem) renders in a table row, a mobile
+  card, and the Member 360 payments list: every cell struck through, an uppercase
+  `Deleted` status pill (neutral), a faint body tint, and the row actions
+  collapsed to a single **`Restore`** (maps to `PUT /api/admin/payments/restore/:id`
+  → paranoia `restore`).
+- Deleted rows appear only when the §4.21 scope includes them; they never count
+  toward any total, meter, or burndown point.
+
+### 4.24 "Where this leaves them" projection panel *(added — Flow 4)*
+- Side panel on `/admin/payments/new`, updates live as the form changes. A
+  **DuesMeter (§4.14)** for the selected member plus a three-row ledger:
+  `Paid before $X` / `This payment +$Y` / `Still owed $Z`, and a one-line verdict
+  ("Fully paid up for the season after this."), then a deep link to that member's
+  Member 360.
+- Paired with a read-only **"Applies to"** field on the form itself: `Oldest
+  unpaid due date first: 3/15, then 4/15` — helper "Not editable: payments credit
+  against the schedule in order." Manual payments are **not** earmarked to a
+  specific `PaymentScheduleEntry`; a single payment can satisfy several entries.
+- No-member-selected state: placeholder copy + a flat grey bar.
+
+### 4.25 Plan-vs-reality timeline + schedule-diff panel *(added — Flow 4)*
+- For `/admin/payment_schedules/:id/edit`. Distinct from the §4.5 burndown — this
+  is **per-member and node-based**, not a line chart.
+- **Timeline**: a horizontal track with a node dot per `PaymentScheduleEntry`
+  positioned by date, each labelled with date + amount + a derived status color
+  (covered by a payment / due next / not due yet / **late**), a dashed "Today"
+  marker, a legend, and a `$X paid of $Y planned` headline. A caption appears
+  when dates were moved past due ("Two due dates went by unpaid. Moving them
+  forward doesn't erase them. It just changes when they're counted as late.").
+- **Editable rows** below: date + amount (§4.16 MoneyField) per entry, add/remove,
+  a per-row derived status pill (`Paid 11/10`, `Due in 5 days`, `54 days late`,
+  `Moved from 3/15` — all derived, none stored; "Moved from" is tracked
+  client-side against the entry's original date), an `Unsaved changes` indicator.
+- **Diff panel**: `Differs from the vet default` / `Reset to default?` — a keyed
+  `old → new` / `+ added` / `unchanged` list with an `Apply default` / `Keep
+  mine` action and the caveat **"Resetting only rewrites future due dates. The
+  ones already covered by payments stay as they are."** — a behaviour change from
+  today's `PaymentScheduleService` default path (verify: it may currently replace
+  all entries).
+- Statuses (`Paid`, `Due in N days`, `N days late`, `Upcoming`, `Not due yet`)
+  are all derived from schedule entries vs. the running payment total —
+  confirm none become DB columns.
+
 ---
 
 ## 5. Accessibility baseline
@@ -417,8 +551,15 @@ each one superseded.
   `moss` and `raspberry` fills against white text — may need the `.dark`
   variants for text-on-fill.)
 - Every interactive element has a visible `focus.ring`.
-- Status is never color-only — always paired with text and/or icon.
-- Tables use real `<th scope>`; the mobile card fallback keeps label/value pairing.
+- Status is never color-only — always paired with text and/or icon. (Flow 4
+  gap to close in the build: the burndown's behind-schedule area is color-only —
+  add a pattern fill or an explicit label; the mock's caption "Striped = past
+  due" is the right instinct, apply the same to the chart.)
+- Tables use real `<th scope>` — the Flow 4 canvas mocks the payments and
+  schedule tables as CSS-grid `<div>`s with fake form controls; the build must
+  use real `<table>` / `<input>` / `<select>` / `<button>`, not carry the mock's
+  markup over.
+- The mobile card fallback keeps label/value pairing.
 - Forms: label tied to field, errors announced, `required` marked in text not
   just color.
 - Hit targets ≥ 44px on member-facing (mobile) screens.
