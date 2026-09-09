@@ -4,7 +4,10 @@ module Admin
   class PaymentsController < AdminController
     def index
       respond_to do |format|
-        format.html { render('admin/payments/index') }
+        format.html do
+          @payment_types = manual_payment_types
+          render('admin/payments/index')
+        end
         format.json do
           render json: Admin::PaymentsQuery.new(current_season['id'], payments_query_params).call
         end
@@ -17,15 +20,20 @@ module Admin
     end
 
     def new
-      @members = User.members_for_season(current_season['id']).order(:first_name)
       @payment = Payment.new
       @payment.user_id = params[:user_id] if params[:user_id]
+      @payment_types = manual_payment_types
+      @members = add_payment_member_models
+      @undo_payment_id = params[:undo].presence
       render('admin/payments/new')
     end
 
     def create
-      @payment = Payment.new(payment_params)
-      @payment.amount *= 100 if @payment.amount
+      attrs = payment_params.to_h
+      # The form field is dollars; store cents. `.to_f` first so "32.30" doesn't
+      # truncate to 32 via the integer column before the ×100.
+      attrs[:amount] = (attrs[:amount].to_f * 100).round if attrs[:amount].present?
+      @payment = Payment.new(attrs)
       @payment.season_id = current_season['id']
 
       saved = Payment.transaction do
@@ -38,12 +46,16 @@ module Admin
       end
 
       if saved
-        flash[:success] = 'Payment created'
+        flash[:success] = "#{ActiveSupport::NumberHelper.number_to_currency(@payment.amount / 100.0)} " \
+                          "recorded for #{@payment.user.full_name}"
+        flash[:undo_payment_id] = @payment.id
         redirect_to(admin_payments_path)
       else
-        @members = User.members_for_season(current_season['id']).order(:first_name)
+        @payment_types = manual_payment_types
+        @members = add_payment_member_models
+        # Keep @payment.amount in cents — new.html.erb reads it as cents for the
+        # sticky MoneyField value; no lossy /100 round-trip.
         flash.now[:error] = @payment.errors.full_messages.to_sentence
-        @payment.amount /= 100
         render('admin/payments/new')
       end
     end
@@ -136,6 +148,29 @@ module Admin
 
     def payments_query_params
       params.permit(:sort, :dir, :q, :type_id, :start_date, :end_date, :scope, :limit, :offset)
+    end
+
+    # Payment types an admin can pick when recording a payment made outside the
+    # system — Stripe rows are created by the checkout flow, never entered here.
+    def manual_payment_types
+      PaymentType.where.not(name: 'Stripe').order(:name).map { |t| { id: t.id, name: t.name } }
+    end
+
+    # Per-member view-model for the add-payment form + its projection panel.
+    # Everything the panel needs so a member switch doesn't refetch.
+    def add_payment_member_models
+      season_id = current_season['id']
+      User.members_for_season(season_id).with_payments.order(:last_name, :first_name).map do |member|
+        summary = PaymentService.member_dues_summary(member, season_id)
+        {
+          id: member.id,
+          name: member.full_name,
+          paid_before_cents: summary[:paid],
+          season_total_cents: summary[:total],
+          expected_cents: summary[:expected],
+          applies_to: (summary[:remaining_installments] || []).first(2).map { |e| e[:pay_date].iso8601 }
+        }
+      end
     end
 
     def payment_params

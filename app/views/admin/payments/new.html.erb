@@ -1,9 +1,21 @@
-<script type="text/javascript">
-  var members = <%= raw @members.to_json(only: [:id, :first_name, :last_name], methods: [:full_name]) %>;
-  var paymentTypes = <%= raw PaymentType.all.to_json(only: [:id, :name]) %>;
-  var preselectedUserId = <%= @payment.user_id || 'null' %>;
-</script>
-
+<% content_for :page_title, 'Add manual payment' %>
 <%= vite_typescript_tag 'entrypoints/admin/payments/new.tsx' %>
 
-<div id="root"></div>
+<div class="flex flex-col gap-1 mb-5">
+  <h1 class="mb-0">Add manual payment</h1>
+  <p class="text-body-sm text-secondary">
+    Record a payment made outside the system — cash, Venmo, a check.
+  </p>
+</div>
+
+<div
+  id="add-payment"
+  data-members="<%= @members.to_json %>"
+  data-payment-types="<%= @payment_types.to_json %>"
+  data-preselected-user-id="<%= @payment.user_id %>"
+  data-server-errors="<%= (@payment.errors.any? ? @payment.errors.full_messages : []).to_json %>"
+  data-initial="<%= { paymentTypeId: @payment.payment_type_id,
+                      amountCents: @payment.amount,
+                      datePaid: @payment.date_paid&.iso8601,
+                      notes: @payment.notes }.to_json %>"
+></div>

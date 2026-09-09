@@ -41,6 +41,35 @@ RSpec.describe 'Admin::Payments', type: :request do
     end
   end
 
+  describe 'GET /admin/payments (HTML)' do
+    it 'mounts the payments-list island with the manual payment types' do
+      create(:payment_type, name: 'Venmo')
+      create(:payment_type, name: 'Stripe')
+
+      get '/admin/payments'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('id="admin-payments"')
+      expect(response.body).to include('Venmo')
+      # Stripe is never a manual type
+      expect(response.body).not_to match(/data-payment-types="[^"]*Stripe/)
+    end
+  end
+
+  describe 'GET /admin/payments/new' do
+    it 'passes each member their projection numbers and the applies-to dates' do
+      schedule = create(:payment_schedule, season: season, user: member)
+      create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.new(2026, 2, 6), amount: 30_000)
+
+      get '/admin/payments/new'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('id="add-payment"')
+      expect(response.body).to include('Rae Quinn')
+      expect(response.body).to include('season_total_cents')
+    end
+  end
+
   describe 'POST /admin/payments' do
     let(:params) do
       { payment: { user_id: member.id, payment_type_id: cash.id, amount: 50, date_paid: '2026-01-15' } }
@@ -56,6 +85,19 @@ RSpec.describe 'Admin::Payments', type: :request do
       expect(Payment.last.amount).to eq(5000)
     end
 
+    it 'stores a decimal dollar amount as exact cents (no truncation)' do
+      post '/admin/payments', params: { payment: params[:payment].merge(amount: '32.30') }
+
+      expect(Payment.last.amount).to eq(3230)
+    end
+
+    it 'sets a flash with the undo id so the list can offer an Undo' do
+      post '/admin/payments', params: params
+
+      expect(flash[:undo_payment_id]).to eq(Payment.last.id)
+      expect(flash[:success]).to include('Rae Quinn')
+    end
+
     it 'does not persist a payment or the activity log when the payment is invalid' do
       allow_any_instance_of(Payment).to receive(:save).and_return(false)
 
@@ -64,6 +106,7 @@ RSpec.describe 'Admin::Payments', type: :request do
       end.not_to change(Activity, :count)
 
       expect(response).to have_http_status(:success) # re-renders the form
+      expect(response.body).to include('id="add-payment"')
     end
   end
 
