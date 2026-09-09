@@ -130,7 +130,8 @@ Design in **flows**, not isolated screens — shared components carry across a f
 each one is faster than the last.
 
 **Progress:** Flows 1–3 merged (PR #221 shell/tokens, #226 member dues,
-#230 member conflicts). Flow 4 is next. (Authoritative status: `bd ready`.)
+#230 member conflicts). Flow 4 designed and synced into the design system; build
+not started. (Authoritative status: `bd ready`.)
 
 Along the way, the layout set collapsed to three — `application` / `auth` /
 `public`, with public controllers inheriting `PublicController` (PR #229) — which
@@ -159,12 +160,17 @@ editable at `/admin/season/edit`) is the seasonal on/off switch coordinators use
   pending after N days" nudge, the shared `ConflictContextRow` shape
 - (row shape + status vocabulary built to be reused by Flow 5)
 
-### Flow 4 — Admin financial command center 🔴
+### Flow 4 — Admin financial command center 🔴 *(designed — canvas synced, build not started)*
 - Admin dashboard (insight-focused: dues burndown as the hero, not two numbers)
 - Payments list (filter/sort/status, mobile-friendly rows)
 - Add manual payment
 - Member 360 (`/admin/users/:id`) — the shared detail view
-- Payment schedule editor
+- Payment schedule editor (`/admin/payment_schedules/:id/edit` — the canvas
+  labels it `/admin/users/:id/payment_schedule/edit`; the route above is real)
+- New components in `02-design-system.md`: §4.5 burndown + §4.12 Member 360 header
+  (both fleshed out), §4.20–4.25 (alert-with-action-list, filter bar, sortable
+  header + load-more, deleted-row treatment, projection panel, plan-vs-reality
+  timeline + schedule diff).
 
 ### Flow 5 — Conflict triage (coordinator/admin) 🔴
 - Conflict queue ("pending, needs a decision") + calendar as two views of one dataset
