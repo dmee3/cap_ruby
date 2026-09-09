@@ -41,7 +41,7 @@ const isDirty = (f: PaymentFilters) =>
   f.q !== '' || f.typeId !== '' || f.startDate !== '' || f.endDate !== '' || f.scope !== 'active'
 
 const field =
-  'h-9 rounded-sm border border-border-strong bg-surface px-2 text-body-sm text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1'
+  'h-11 rounded-sm border border-border-strong bg-surface px-2 text-body-sm text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1'
 
 // For /admin/payments (reusable by any admin table). Every control is a
 // server-side param; the controller allowlists them (no interpolation).

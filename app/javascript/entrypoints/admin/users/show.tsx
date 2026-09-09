@@ -10,7 +10,9 @@ if (el && el.dataset.member360) {
     const data = JSON.parse(el.dataset.member360) as Member360Data
     render(<Member360 data={data} csrfToken={Utilities.getAuthToken()} />, el)
   } catch (e) {
-    // Leave the skeleton in place; the page is still navigable.
     console.error('Member 360 failed to parse', e)
+    el.innerHTML =
+      '<p class="rounded-md border border-border-default bg-surface p-5 text-body-sm text-secondary">' +
+      "We couldn't load this member's details. Refresh, or try again in a minute.</p>"
   }
 }
