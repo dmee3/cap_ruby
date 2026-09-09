@@ -53,15 +53,17 @@ const StatBlock = ({
   const effectiveTone = threshold === undefined ? tone : bandFor(threshold)
 
   return (
-    <div className={`flex flex-col gap-1 ${className}`.trim()}>
+    <div className={`flex flex-col gap-1.5 ${className}`.trim()}>
       <span className={`text-label uppercase ${KICKER_TONE[effectiveTone]}`}>{kicker}</span>
       <div className="flex items-baseline gap-2">
-        <span className={`font-mono tabular-nums text-metric ${METRIC_TONE[effectiveTone]}`}>
+        <span
+          className={`text-metric font-extrabold tabular-nums tracking-tight ${METRIC_TONE[effectiveTone]}`}
+        >
           {metric}
         </span>
         {trend && <span className="text-body-sm text-secondary">{trend}</span>}
       </div>
-      {context && <span className="text-body-sm text-secondary">{context}</span>}
+      {context && <span className="text-caption text-secondary">{context}</span>}
     </div>
   )
 }

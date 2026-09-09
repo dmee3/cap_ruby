@@ -8,7 +8,8 @@ module Admin
       @stats = {
         expected_cents: PaymentService.total_dues_owed_to_date(season_id),
         collected_cents: PaymentService.total_dues_paid_to_date(season_id),
-        average_days_late: DashboardUtilities.average_days_late(season_id)
+        average_days_late: DashboardUtilities.average_days_late(season_id),
+        member_count: User.members_for_season(season_id).count
       }
       @behind_members = DashboardUtilities.behind_members(season_id)
       @stats[:behind_count] = @behind_members.length
@@ -53,7 +54,11 @@ module Admin
 
         {
           name: member.full_name,
-          section: member.section_for(season_id),
+          # "New member · Battery / Snare" — type leads, per the canvas.
+          meta: [
+            member.vet_in?(season_id) ? 'Vet' : 'New member',
+            [member.ensemble_for(season_id), member.section_for(season_id)].compact.join(' / ').presence
+          ].compact.join(' · '),
           schedule_edit_path: schedule && edit_admin_payment_schedule_path(schedule)
         }
       end

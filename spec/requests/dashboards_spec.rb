@@ -252,9 +252,11 @@ RSpec.describe 'Dashboard Data Accuracy', type: :request do
       expect(response.body).to include('data-stats=')
     end
 
-    it 'renders the redesigned heading' do
+    it 'renders the heading with the season / member / needs-attention summary' do
       get '/admin'
-      expect(response.body).to include('Are we on track?')
+
+      expect(response.body).to include('Dashboard')
+      expect(response.body).to match(/#{season.year} season · \d+ members? · \d+ behind, \d+ conflicts? to review/)
     end
   end
 end

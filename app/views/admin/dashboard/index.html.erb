@@ -1,15 +1,24 @@
 <% content_for :page_title, 'Dashboard' %>
 <%= vite_typescript_tag 'entrypoints/admin/index.tsx' %>
 
-<div class="flex flex-col gap-1 mb-5">
-  <h1 class="mb-0">Are we on track?</h1>
-  <p class="text-body-sm text-secondary">
-    Dues collected against the plan for the <%= current_season['year'] %> season.
-  </p>
+<%
+  season_label = "#{current_season['year']} season"
+  summary = [
+    season_label,
+    "#{@stats[:member_count]} #{'member'.pluralize(@stats[:member_count])}",
+    "#{@stats[:behind_count]} behind, #{@conflicts_to_review.length} " \
+      "#{'conflict'.pluralize(@conflicts_to_review.length)} to review"
+  ].join(' · ')
+%>
+
+<div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-5">
+  <h1 class="m-0 text-h3 text-primary">Dashboard</h1>
+  <span class="text-body-sm text-secondary"><%= summary %></span>
 </div>
 
 <div
   id="admin-dashboard"
+  data-season-label="<%= season_label %>"
   data-stats="<%= @stats.to_json %>"
   data-burndown="<%= @burndown.to_json %>"
   data-behind-members="<%= @behind_members.to_json %>"
@@ -17,10 +26,15 @@
   data-blank-schedule-members="<%= @blank_schedule_members.to_json %>"
   data-conflicts-to-review="<%= @conflicts_to_review.to_json %>"
 >
-  <div class="grid gap-4 lg:grid-cols-3">
-    <div class="lg:col-span-3 rounded-md border border-border-default bg-surface p-5">
-      <div class="mb-3 h-6 w-48 rounded-sm bg-sunken animate-pulse"></div>
+  <div class="flex flex-col gap-5">
+    <div class="rounded-md border border-border-default bg-surface p-5">
+      <div class="mb-3 h-6 w-64 rounded-sm bg-sunken animate-pulse"></div>
       <div class="h-[280px] rounded-sm bg-sunken animate-pulse"></div>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <% 4.times do %>
+        <div class="h-24 rounded-md border border-border-default bg-surface"></div>
+      <% end %>
     </div>
   </div>
 </div>

@@ -44,6 +44,25 @@ RSpec.describe 'Admin::Dashboard', type: :request do
     expect(body).not_to include('Approved trip')
   end
 
+  it 'counts the season roster for the header summary' do
+    3.times { member }
+    create(:user).tap { |u| create(:seasons_user, user: u, season: season, role: 'staff') }
+
+    get '/admin'
+
+    expect(response.body).to include('3 members')
+  end
+
+  it 'leads the blank-schedule meta with the member type, then the section' do
+    m = create(:user, first_name: 'Marcus', last_name: 'Vale')
+    create(:seasons_user, user: m, season: season, role: 'member', ensemble: 'World', section: 'Snare')
+    create(:payment_schedule, season: season, user: m) # no entries — blank
+
+    get '/admin'
+
+    expect(response.body).to include('New member · World / Snare')
+  end
+
   it 'excludes soft-deleted payments from the recent-payments island' do
     m = member(first_name: 'Paid', last_name: 'Pat')
     create(:payment, user: m, season: season, amount: 12_300, date_paid: Date.current - 1.day)

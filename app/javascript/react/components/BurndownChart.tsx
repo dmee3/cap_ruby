@@ -15,6 +15,12 @@ type BurndownChartProps = {
   currency?: string
   /** Optional href for the no-data state's "set up schedules" link. */
   setupHref?: string
+  /**
+   * The "$X short of the plan" line below the chart. Off on the admin
+   * dashboard, where the shortfall is already a stat block and the as-of date
+   * is already the card subtitle — it only reads as duplication there.
+   */
+  showCaption?: boolean
   className?: string
 }
 
@@ -44,6 +50,7 @@ const BurndownChart = ({
   today,
   currency = 'USD',
   setupHref = '/admin/users',
+  showCaption = true,
   className = '',
 }: BurndownChartProps) => {
   const hatchId = useRef(`burndown-hatch-${(instanceSeq += 1)}`).current
@@ -97,7 +104,12 @@ const BurndownChart = ({
   return (
     <div className={`flex flex-col gap-3 ${className}`.trim()}>
       <div className="flex flex-wrap items-center gap-4 text-body-sm">
-        <LegendSwatch className="h-[3px] w-4 rounded-sm bg-viz-scheduled" label="Scheduled" />
+        {/* Dashed swatch mirrors the dashed plan line — the legend carries the
+            same solid/dashed distinction the chart does. */}
+        <LegendSwatch
+          className="h-0 w-4 border-t-[3px] border-dashed border-viz-scheduled"
+          label="Scheduled"
+        />
         <LegendSwatch className="h-[3px] w-4 rounded-sm bg-viz-actual" label="Collected" />
         <LegendSwatch
           className="h-2.5 w-4 rounded-sm bg-viz-gap opacity-40"
@@ -208,11 +220,11 @@ const BurndownChart = ({
         </text>
       </svg>
 
-      <p className="flex flex-wrap items-baseline gap-2">
+      <p className={`flex flex-wrap items-baseline gap-2 ${showCaption ? '' : 'hidden'}`}>
         {behindCents > 0 ? (
           <>
             <span className="text-body font-semibold text-danger-fg">
-              {fmtMoney(behindCents, currency)} behind schedule
+              {fmtMoney(behindCents, currency)} short of the plan
             </span>
             <span className="text-body-sm text-secondary">as of {fmtLong(today)}.</span>
           </>

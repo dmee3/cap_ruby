@@ -22,10 +22,12 @@ if (el) {
 
   render(
     <AdminDashboard
+      seasonLabel={d.seasonLabel || ''}
       stats={parse(d.stats, {
         expected_cents: 0,
         collected_cents: 0,
         behind_count: 0,
+        member_count: 0,
         average_days_late: null,
       })}
       burndown={parse<{

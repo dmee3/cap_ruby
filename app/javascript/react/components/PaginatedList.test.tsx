@@ -37,19 +37,51 @@ describe('PaginatedList', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Load 2 more' }))
     expect(screen.getByText('Row 11')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Showing all 12' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Load more' })).toBeDisabled()
   })
 
-  it('shows no pager when everything fits in one page', () => {
+  it('can page in a bigger step than it shows initially', async () => {
+    render(
+      <PaginatedList
+        items={items}
+        pageSize={5}
+        loadIncrement={10}
+        keyFor={(x) => x.id}
+        renderItem={(x) => <span>{x.label}</span>}
+        emptyTitle="x"
+      />,
+    )
+    expect(screen.getByRole('button', { name: 'Load 7 more' })).toBeInTheDocument()
+  })
+
+  it('keeps the footer caption even when everything fits in one page', () => {
     render(
       <PaginatedList
         items={items.slice(0, 3)}
         pageSize={5}
         keyFor={(x) => x.id}
         renderItem={(x) => <span>{x.label}</span>}
+        caption={(shown, total) => `Showing all ${total}`}
         emptyTitle="x"
       />,
     )
+    expect(screen.getByText('Showing all 3')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Load more' })).toBeDisabled()
+  })
+
+  it('can show the caption with no pager button at all', () => {
+    render(
+      <PaginatedList
+        items={items.slice(0, 3)}
+        pageSize={5}
+        captionOnly
+        keyFor={(x) => x.id}
+        renderItem={(x) => <span>{x.label}</span>}
+        caption={(shown, total) => `Soonest first · ${shown} of ${total}`}
+        emptyTitle="x"
+      />,
+    )
+    expect(screen.getByText('Soonest first · 3 of 3')).toBeInTheDocument()
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 })

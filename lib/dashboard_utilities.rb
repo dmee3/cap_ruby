@@ -74,6 +74,7 @@ class DashboardUtilities
         {
           id: m.id,
           name: m.full_name,
+          section: [m.ensemble_for(season_id), m.section_for(season_id)].compact.join(' / '),
           paid_cents: m.amount_paid_for(season_id),
           season_total_cents: schedule&.entries&.sum(&:amount).to_i,
           past_due_cents: (past_due * 100).round

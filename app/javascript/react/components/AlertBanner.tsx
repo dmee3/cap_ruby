@@ -1,7 +1,10 @@
 import React from 'react'
 
 export type AlertAction = {
+  /** Primary label — the member's name. */
   label: string
+  /** Muted second column — "New member · Battery / Snare". */
+  meta?: string
   href: string
   /** Text of the link at the end of the row (defaults to "Set up schedule"). */
   linkLabel?: string
@@ -12,7 +15,7 @@ type AlertTone = 'warning' | 'danger' | 'neutral'
 type AlertBannerProps = {
   tone?: AlertTone
   headline: string
-  /** One plain explanatory line. */
+  /** One plain explanatory line, set on the headline's baseline. */
   body?: string
   onDismiss?: () => void
   /** Embedded mini-list — one row per affected member. */
@@ -26,14 +29,9 @@ const ACCENT: Record<AlertTone, string> = {
   neutral: 'border-l-border-strong',
 }
 
-const HEADLINE_TONE: Record<AlertTone, string> = {
-  warning: 'text-warning-fg',
-  danger: 'text-danger-fg',
-  neutral: 'text-primary',
-}
-
 // Replaces the admin dashboard's flash[:error] array ("Member found with blank
 // payment schedule: …") and the single-member equivalent on Member 360.
+// The headline is NOT tone-coloured — the 3px rail carries the tone.
 const AlertBanner = ({
   tone = 'warning',
   headline,
@@ -43,31 +41,33 @@ const AlertBanner = ({
   className = '',
 }: AlertBannerProps) => (
   <div
-    className={`rounded-md border border-border-default border-l-[3px] bg-surface p-4 ${ACCENT[tone]} ${className}`.trim()}
+    className={`overflow-hidden rounded-md border border-border-default border-l-[3px] bg-surface px-4 py-3.5 ${ACCENT[tone]} ${className}`.trim()}
     role="status"
   >
-    <div className="flex items-start justify-between gap-3">
-      <div className="flex flex-col gap-1">
-        <span className={`text-h3 ${HEADLINE_TONE[tone]}`}>{headline}</span>
-        {body && <span className="text-body-sm text-secondary">{body}</span>}
-      </div>
+    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <span className="text-body-sm font-semibold text-primary">{headline}</span>
+      {body && <span className="text-body-sm text-secondary">{body}</span>}
       {onDismiss && (
         <button
           type="button"
           onClick={onDismiss}
-          className="shrink-0 rounded-sm px-2 py-1 text-body-sm text-secondary hover:bg-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          className="ml-auto shrink-0 text-body-sm font-medium text-secondary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
         >
-          Dismiss
+          Dismiss ✕
         </button>
       )}
     </div>
 
     {actions.length > 0 && (
-      <ul className="mt-3 flex flex-col divide-y divide-border-default border-t border-border-default">
+      <ul className="mt-2.5 flex flex-col gap-px overflow-hidden rounded-sm border border-border-default bg-sunken">
         {actions.map((action) => (
-          <li key={action.href} className="flex items-center justify-between gap-3 py-2">
-            <span className="text-body-sm text-primary">{action.label}</span>
-            <a href={action.href} className="shrink-0 text-body-sm font-semibold text-accent-primary">
+          <li key={action.href} className="flex items-center gap-3 bg-surface px-3 py-2.5">
+            <span className="flex-1 text-body-sm font-semibold text-primary">{action.label}</span>
+            {action.meta && <span className="text-caption text-secondary">{action.meta}</span>}
+            <a
+              href={action.href}
+              className="shrink-0 text-body-sm font-semibold text-accent-primary no-underline hover:underline"
+            >
               {action.linkLabel ?? 'Set up schedule'}
             </a>
           </li>

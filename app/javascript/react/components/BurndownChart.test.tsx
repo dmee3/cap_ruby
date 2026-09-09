@@ -32,10 +32,18 @@ describe('BurndownChart', () => {
     expect(container.querySelector('circle')).toBeInTheDocument()
   })
 
-  it('names the behind-schedule amount in the caption and the aria-label', () => {
+  it('names the shortfall in the caption and the aria-label', () => {
     render(<BurndownChart scheduled={scheduled} actual={actual} today="2026-01-18" />)
-    // scheduled at 1/18 is $500, collected $300 → $200 behind
-    expect(screen.getByText('$200 behind schedule')).toBeInTheDocument()
+    // scheduled at 1/18 is $500, collected $300 → $200 short
+    expect(screen.getByText('$200 short of the plan')).toBeInTheDocument()
+    expect(screen.getByRole('img').getAttribute('aria-label')).toMatch(/\$200 behind schedule/)
+  })
+
+  it('can hide the caption while keeping it available to screen readers', () => {
+    render(
+      <BurndownChart scheduled={scheduled} actual={actual} today="2026-01-18" showCaption={false} />,
+    )
+    expect(screen.getByText('$200 short of the plan').closest('p')).toHaveClass('hidden')
     expect(screen.getByRole('img').getAttribute('aria-label')).toMatch(/\$200 behind schedule/)
   })
 
