@@ -15,6 +15,7 @@ module Admin
         schedule = user.payment_schedule_for(season_id)
 
         {
+          season_label: season['year'],
           identity: identity(user, season_id),
           dues: PaymentService.member_dues_summary(user, season_id),
           roles_by_season: roles_by_season(user, season_id),

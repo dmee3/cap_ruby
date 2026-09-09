@@ -3,18 +3,8 @@
 module Admin
   class PaymentSchedulesController < AdminController
     def edit
-      @schedule = PaymentSchedule.find(params[:id])
-      @user = User.find(@schedule.user_id)
-      @default_schedule = PaymentScheduleService.default_schedule_for(@user, current_season)
-      set_ensemble_membership
-    end
-
-    private
-
-    def set_ensemble_membership
-      @vet = @user.vet_in?(current_season['id'])
-      @ensemble = @user.ensemble_for(current_season['id'])
-      @section = @user.section_for(current_season['id'])
+      @schedule = PaymentSchedule.includes(:payment_schedule_entries, user: :payments).find(params[:id])
+      @editor = Admin::ScheduleEditorPresenter.call(@schedule, current_season)
     end
   end
 end

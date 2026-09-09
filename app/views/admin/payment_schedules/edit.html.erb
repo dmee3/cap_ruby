@@ -1,13 +1,17 @@
-<script>
-  var fullName = "<%= @user.full_name %>";
-  var userId = <%= @user.id %>;
-  var scheduleId = <%= @schedule.id %>;
-  var defaultSchedule = '<%= @default_schedule.to_json.html_safe %>';
-  var ensemble = "<%= @ensemble %>";
-  var section = "<%= @section %>";
-  var vet = <%= @vet %>;
-</script>
-
+<% content_for :page_title, "#{@editor[:member][:name]} — payment schedule" %>
 <%= vite_typescript_tag 'entrypoints/admin/payment_schedules/edit.tsx' %>
 
-<div id="root"></div>
+<div class="flex flex-col gap-1 mb-5">
+  <h1 class="mb-0"><%= @editor[:member][:name] %>'s payment schedule</h1>
+  <p class="text-body-sm text-secondary">
+    <%= [@editor[:member][:ensemble], @editor[:member][:section]].compact.join(' · ') %>
+    · <%= @editor[:member][:vet] ? 'Vet' : 'New member' %>
+  </p>
+</div>
+
+<div id="schedule-editor" data-editor="<%= @editor.to_json %>">
+  <div class="flex flex-col gap-4">
+    <div class="h-24 rounded-md bg-sunken animate-pulse"></div>
+    <div class="h-64 rounded-md bg-sunken animate-pulse"></div>
+  </div>
+</div>

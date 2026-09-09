@@ -15,8 +15,10 @@ RSpec.describe Admin::Member360Presenter do
     described_class.call(user.reload, season)
   end
 
-  it 'builds the identity block from the season in context' do
-    expect(present[:identity]).to include(
+  it 'builds the identity block and season label from the season in context' do
+    result = present
+    expect(result[:season_label]).to eq('2026')
+    expect(result[:identity]).to include(
       name: 'Nina Park', username: 'ninap', ensemble: 'World', section: 'Snare', role: 'member'
     )
   end

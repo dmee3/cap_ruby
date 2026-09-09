@@ -1,108 +1,17 @@
-<div class="flex flex-col">
-  <div class="flex flex-row items-center justify-between mt-4 mb-2">
-    <div>
-      <h1 class="my-0"><%= @user.full_name %></h1>
-      <span class="text-secondary"><%= @user.ensemble_for(current_season['id']) %> <%= @user.section_for(current_season['id']) %></span>
-    </div>
-    <div>
-      <%= link_to edit_admin_user_path(@user), class: 'btn-primary btn-lg' do %>
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-        </svg>
-        Edit
-      <% end %>
-    </div>
-  </div>
-  <div class="flex items-center text-gray-500">
-    @<%= @user.username %>
-      <div class="mx-2">·</div>
-    <%= @user.email %>
-    <% if @user.phone.present? %>
-      <div class="mx-2">·</div>
-      <%= @user.phone %>
-    <% end %>
+<% content_for :page_title, @user.full_name %>
+<%= vite_typescript_tag 'entrypoints/admin/users/show.tsx' %>
+
+<div class="flex items-center justify-between gap-3 mb-4">
+  <h1 class="mb-0"><%= @user.full_name %></h1>
+  <div class="flex gap-2">
+    <%= link_to 'Add payment', new_admin_payment_path(user_id: @user.id), class: 'btn-green btn-lg' %>
+    <%= link_to 'Edit user', edit_admin_user_path(@user), class: 'btn-primary btn-lg' %>
   </div>
 </div>
 
-<% if @user.conflicts.for_season(current_season['id']).any? %>
-  <div class="mt-4">
-    <h2>Conflicts</h2>
-    <ul class="divide-y divide-gray-300 -mt-2">
-      <% @user.conflicts.for_season(current_season['id']).sort_by(&:start_date).each do |c| %>
-        <li class="flex flex-col">
-          <div class="flex justify-between mt-2">
-            <span><%= c.start_date.strftime('%a, %-m/%-d %l:%M %p') %> - <%= c.end_date.strftime('%a, %-m/%-d %l:%M %p') %></span>
-            <%= render 'conflict_status_icon', status: c.status %>
-          </div>
-          <div class="mx-6 my-2 text-sm flex flex-col">
-            <span class="text-gray-500"><%= c.reason %></span>
-            <span class="text-secondary">(Submitted: <%= c.created_at.strftime('%a, %-m/%-d %l:%M %p') %>)</span>
-          </div>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-<% end %>
-
-<div class="mt-4 grid grid-cols-2 gap-x-8 gap-y-4">
-  <div class="col-span-2 md:col-span-1">
-    <div class="flex flex-row items-center justify-between mt-2 mb-0">
-      <h2 class="m-0">Payment Schedule</h2>
-      <%= link_to edit_admin_payment_schedule_path(@user.payment_schedule_for(current_season['id'])), class: 'btn-primary btn-md' do %>
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-        </svg>
-        Edit
-      <% end %>
-    </div>
-    <div class="text-secondary mb-2">
-      Total: $<%= '%.2f' % ((@user.payment_schedule_for(current_season['id'])&.entries.sum(&:amount) || 0) / 100.0) %>
-    </div>
-    <ul class="divide-y divide-gray-300">
-      <% @user.payment_schedule_for(current_season['id']).entries.order(:pay_date).each do |entry| %>
-        <li class="mb-2">
-          <div class="mt-2 flex justify-between">
-            <span class="<%= 'text-gray-500' if entry.pay_date < Date.today %>">$<%= '%.2f' % (entry.amount / 100.0) %></span>
-            <span class="text-sm text-gray-500"><%= entry.pay_date.strftime('%-m/%-d/%-y') %></span>
-          </div>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-
-  <div class="col-span-2 md:col-span-1">
-    <div class="flex flex-row items-center justify-between mt-2 mb-0">
-      <h2 class="m-0">Payments Made</h2>
-      <%= link_to new_admin_payment_path(user_id: @user.id), class: 'btn-green btn-md' do %>
-        <svg class="mr-1 h-4 w-4" width="16" height="16" fill="currentColor">
-          <path fillRule="evenodd" clipRule="evenodd" d="M6 5a1 1 0 011 1v3h3a1 1 0 110 2H7v3a1 1 0 11-2 0v-3H2a1 1 0 110-2h3V6a1 1 0 011-1z"/>
-        </svg>
-        New
-      <% end %>
-    </div>
-    <div class="text-secondary mb-2">
-      Total: $<%= '%.2f' % (@user.payments_for(current_season['id']).sum(&:amount) / 100.0) %>
-    </div>
-    <ul class="divide-y divide-gray-300">
-      <% @user.payments_for(current_season['id']).sort_by(&:date_paid).each do |payment| %>
-        <li>
-          <div class="flex justify-between items-center">
-            <div class="flex items-center">
-              <span class="text-gray-500 mr-1">
-                <%= render 'payment_type_icon', name: payment.payment_type.name %>
-              </span>
-              $<%= '%.2f' % (payment.amount / 100.0) %>
-            </div>
-            <span class="text-sm text-gray-500"><%= payment.date_paid.strftime('%-m/%-d/%-y') %></span>
-          </div>
-
-          <% unless payment.notes.blank? %>
-            <div class="mx-6 my-2 text-sm text-gray-500">
-              <span><%= payment.notes %></span>
-            </div>
-          <% end %>
-        </li>
-      <% end %>
-    </ul>
+<div id="member-360" data-member-360="<%= @member360.to_json %>">
+  <div class="flex flex-col gap-4">
+    <div class="h-40 rounded-md bg-sunken animate-pulse"></div>
+    <div class="h-64 rounded-md bg-sunken animate-pulse"></div>
   </div>
 </div>
