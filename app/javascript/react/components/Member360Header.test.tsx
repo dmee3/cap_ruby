@@ -9,9 +9,9 @@ const base = {
   seasonLabel: '2026',
   tags: ['Front Ensemble / Vibes', 'Vet · 3rd season', 'Section leader'],
   dues: {
-    paidCents: 36_000,
-    totalCents: 60_000,
-    expectedCents: 36_000,
+    paidCents: 240_000,
+    totalCents: 360_000,
+    expectedCents: 240_000,
     pastDueCents: 0,
     state: 'on-track' as const,
   },
@@ -28,11 +28,17 @@ describe('Member360Header', () => {
     expect(screen.getByText('Front Ensemble / Vibes')).toBeInTheDocument()
   })
 
-  it('shows the dues meter and the conflicts count on the on-track variant', () => {
+  it('sets tags in sentence case — they carry content, not a status', () => {
     render(<Member360Header {...base} />)
-    expect(screen.getByText('Conflicts this season')).toBeInTheDocument()
-    expect(screen.getByText('2')).toBeInTheDocument()
-    expect(screen.getByText('Expected by today: $360.00')).toBeInTheDocument()
+    expect(screen.getByText('Vet · 3rd season').className).not.toMatch(/uppercase/)
+  })
+
+  it('shows the dues meter in whole dollars and the conflicts block', () => {
+    render(<Member360Header {...base} />)
+    expect(screen.getByText('Conflicts')).toBeInTheDocument()
+    expect(screen.getByText('2 this season')).toBeInTheDocument()
+    expect(screen.getByText('Expected by today: $2,400')).toBeInTheDocument()
+    expect(screen.queryByText(/\$2,400\.00/)).not.toBeInTheDocument()
   })
 
   it('keeps the "Expected by today" caption on the past-due variant', () => {
@@ -40,11 +46,21 @@ describe('Member360Header', () => {
       <Member360Header
         {...base}
         variant="past-due"
-        dues={{ ...base.dues, paidCents: 24_000, pastDueCents: 12_000, state: 'behind' }}
+        dues={{ ...base.dues, paidCents: 120_000, pastDueCents: 120_000, state: 'behind' }}
       />,
     )
-    expect(screen.getByText('Expected by today: $360.00')).toBeInTheDocument()
-    expect(screen.getByText('$120.00 past due')).toBeInTheDocument()
+    expect(screen.getByText('Expected by today: $2,400')).toBeInTheDocument()
+    expect(screen.getByText('$1,200 past due')).toBeInTheDocument()
+  })
+
+  it('keeps the caption even when the member is paid in full', () => {
+    render(
+      <Member360Header
+        {...base}
+        dues={{ ...base.dues, paidCents: 360_000, expectedCents: 360_000, state: 'paid-in-full' }}
+      />,
+    )
+    expect(screen.getByText('Expected by today: $3,600')).toBeInTheDocument()
   })
 
   it('replaces the meter with a set-up link on the no-schedule variant', () => {
@@ -56,8 +72,8 @@ describe('Member360Header', () => {
     )
   })
 
-  it('shows "None" when there are no conflicts', () => {
+  it('says "None this season" when there are no conflicts', () => {
     render(<Member360Header {...base} conflictsCount={0} />)
-    expect(screen.getByText('None')).toBeInTheDocument()
+    expect(screen.getByText('None this season')).toBeInTheDocument()
   })
 })

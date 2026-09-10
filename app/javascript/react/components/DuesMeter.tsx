@@ -18,11 +18,18 @@ type DuesMeterProps = {
   committedKind?: 'past-due' | 'pending'
   state: DuesState
   showLabel?: boolean
+  /**
+   * Whole dollars for admin headline contexts; the member dashboard (Flow 2)
+   * keeps cents, where the exact figure is the member's own money.
+   */
+  wholeDollars?: boolean
   className?: string
 }
 
 const money = (cents: number) =>
   `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+
+const wholeMoney = (cents: number) => `$${Math.round(cents / 100).toLocaleString('en-US')}`
 
 const STATE_METRIC_TONE: Record<Exclude<DuesState, 'no-schedule'>, string> = {
   'on-track': 'text-primary',
@@ -42,8 +49,10 @@ const DuesMeter = ({
   committedKind = 'past-due',
   state,
   showLabel = true,
+  wholeDollars = false,
   className = '',
 }: DuesMeterProps) => {
+  const fmt = wholeDollars ? wholeMoney : money
   if (state === 'no-schedule') {
     return (
       <p className={`text-body-sm text-secondary ${className}`.trim()}>
@@ -68,9 +77,9 @@ const DuesMeter = ({
       {showLabel && (
         <div className="flex items-baseline gap-2">
           <span className={`font-mono tabular-nums text-metric ${STATE_METRIC_TONE[state]}`}>
-            {money(paidCents)}
+            {fmt(paidCents)}
           </span>
-          <span className="text-body-sm text-secondary">of {money(totalCents)}</span>
+          <span className="text-body-sm text-secondary">of {fmt(totalCents)}</span>
         </div>
       )}
 
@@ -98,12 +107,14 @@ const DuesMeter = ({
 
         <div className="flex items-baseline justify-between gap-2 text-body-sm text-secondary">
           {committedKind === 'past-due' && committedCents > 0 ? (
-            <span className="text-danger-fg font-semibold">{money(committedCents)} past due</span>
+            <span className="text-danger-fg font-semibold">{fmt(committedCents)} past due</span>
           ) : (
-            <span>{money(remainingCents)} left this season</span>
+            <span>{fmt(remainingCents)} left this season</span>
           )}
-          {expectedCents > 0 && state !== 'paid-in-full' && (
-            <span className="whitespace-nowrap">Expected by today: {money(expectedCents)}</span>
+          {/* The expected-by-today caption survives every variant — it's what
+              the tick on the bar refers to (§4.12). */}
+          {totalCents > 0 && (
+            <span className="whitespace-nowrap">Expected by today: {fmt(expectedCents)}</span>
           )}
         </div>
       </div>

@@ -1,11 +1,18 @@
 <% content_for :page_title, @user.full_name %>
 <%= vite_typescript_tag 'entrypoints/admin/users/show.tsx' %>
 
-<div class="flex items-center justify-between gap-3 mb-4">
-  <h1 class="mb-0"><%= @user.full_name %></h1>
-  <div class="flex gap-2">
-    <%= link_to 'Add payment', new_admin_payment_path(user_id: @user.id), class: 'btn-green btn-lg' %>
-    <%= link_to 'Edit user', edit_admin_user_path(@user), class: 'btn-primary btn-lg' %>
+<div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-4">
+  <%= link_to '‹ Members', admin_users_path,
+              class: 'basis-full text-body-sm font-medium text-accent-primary no-underline hover:underline' %>
+  <h1 class="m-0">Member detail</h1>
+  <span class="text-body-sm text-secondary"><%= current_season['year'] %> season</span>
+  <div class="ml-auto flex gap-2">
+    <%= link_to 'Edit user', edit_admin_user_path(@user),
+                class: 'inline-flex h-9 items-center rounded-sm border border-border-strong bg-surface ' \
+                       'px-3.5 text-body-sm font-semibold text-primary no-underline' %>
+    <%= link_to 'Add payment', new_admin_payment_path(user_id: @user.id),
+                class: 'inline-flex h-9 items-center rounded-sm bg-accent-primary px-3.5 ' \
+                       'text-body-sm font-semibold text-on-brand no-underline' %>
   </div>
 </div>
 

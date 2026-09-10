@@ -47,12 +47,12 @@ const Member360Header = ({
   className = '',
 }: Member360HeaderProps) => (
   <div
-    className={`grid grid-cols-1 gap-6 rounded-md border border-border-default bg-surface p-5 min-[900px]:grid-cols-[minmax(0,1fr)_380px] ${className}`.trim()}
+    className={`grid grid-cols-1 gap-6 rounded-md border border-border-default bg-surface p-5 min-[900px]:grid-cols-[minmax(0,1fr)_320px] ${className}`.trim()}
   >
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-[7px]">
       <div className="flex items-center gap-3">
         <span
-          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-h3 font-semibold ${
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-[17px] font-bold ${
             variant === 'no-schedule'
               ? 'border border-border-strong text-secondary'
               : 'bg-accent-primary text-on-brand'
@@ -61,8 +61,10 @@ const Member360Header = ({
         >
           {initials(name) || '—'}
         </span>
-        <div className="flex flex-col">
-          <span className="text-h1 text-primary">{name}</span>
+        <div className="flex flex-wrap items-baseline gap-2.5">
+          <span className="text-[22px] font-extrabold leading-[26px] tracking-tight text-primary">
+            {name}
+          </span>
           <span className="font-mono text-body-sm text-secondary">@{username}</span>
         </div>
       </div>
@@ -70,15 +72,14 @@ const Member360Header = ({
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {tags.map((tag) => (
-            <Pill key={tag}>{tag}</Pill>
+            <Pill key={tag} casing="sentence">
+              {tag}
+            </Pill>
           ))}
         </div>
       )}
 
-      <div className="flex flex-col text-body-sm text-secondary">
-        <span>{email}</span>
-        <span>{seasonLabel} season</span>
-      </div>
+      <span className="text-caption text-secondary">{email}</span>
     </div>
 
     <div className="flex flex-col gap-3 min-[900px]:border-l min-[900px]:border-border-default min-[900px]:pl-6">
@@ -100,13 +101,14 @@ const Member360Header = ({
           committedCents={dues.pastDueCents}
           committedKind="past-due"
           state={dues.state}
+          wholeDollars
         />
       )}
 
-      <div className="flex items-baseline justify-between border-t border-border-default pt-2 text-body-sm">
-        <span className="text-secondary">Conflicts this season</span>
-        <span className="font-mono tabular-nums font-semibold text-primary">
-          {conflictsCount === 0 ? 'None' : conflictsCount}
+      <div className="flex flex-col gap-0.5 border-t border-border-default pt-3.5">
+        <span className="text-label uppercase text-secondary">Conflicts</span>
+        <span className="text-h3 font-bold text-primary">
+          {conflictsCount === 0 ? 'None this season' : `${conflictsCount} this season`}
         </span>
       </div>
     </div>
