@@ -20,7 +20,9 @@ Rails.application.routes.draw do
       get 'payments/latest_venmo', to: 'payments#latest_venmo'
 
       resources :payment_schedules, only: %i[show update]
-      post 'payment_schedules/create-default', to: 'payment_schedules#create_default'
+      get 'payment_schedules/:payment_schedule_id/default-preview', to: 'payment_schedules#default_preview'
+      post 'payment_schedules/apply-default', to: 'payment_schedules#apply_default'
+      post 'payment_schedules/create-default', to: 'payment_schedules#apply_default'
       delete 'payment_schedules/remove-entry', to: 'payment_schedules#remove_entry'
       post 'payment_schedules/add-entry', to: 'payment_schedules#add_entry'
 

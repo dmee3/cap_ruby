@@ -37,21 +37,37 @@ module Api
         end
       end
 
-      def create_default
-        @schedule = PaymentSchedule.find params[:payment_schedule_id]
-        default_schedule = PaymentScheduleService.default_schedule_for(@schedule.user,
-                                                                       current_season)
-        @schedule.entries.destroy_all
-        default_schedule.each do |day, amount|
-          @schedule.entries.create(pay_date: Date.strptime(day, '%m/%d/%y'), amount: amount * 100)
+      # The default schedule + a per-row diff against the schedule's current
+      # entries. Rows already covered by a payment come back `locked`.
+      def default_preview
+        preview = ::Admin::ScheduleDefault.preview(scheduled_from_params, current_season)
+        if preview.nil?
+          render json: { errors: 'No default schedule for this member' }, status: 422
+        else
+          render json: preview
         end
-        flash[:success] = 'Default payment schedule created!'
-        head 200
+      end
+
+      # Reset to the default, preserving entries already covered by a payment:
+      # only future / uncovered due dates are rewritten.
+      def apply_default
+        if ::Admin::ScheduleDefault.apply(scheduled_from_params, current_season).nil?
+          render json: { errors: 'No default schedule for this member' }, status: 422
+        else
+          flash[:success] = 'Default payment schedule applied'
+          head 200
+        end
       rescue StandardError => e
         render json: { errors: e.message }, status: 500
       end
 
       private
+
+      def scheduled_from_params
+        PaymentSchedule
+          .includes(:payment_schedule_entries, user: :payments)
+          .find(params[:payment_schedule_id])
+      end
 
       def update_params
         params.require(:payment_schedule).permit(

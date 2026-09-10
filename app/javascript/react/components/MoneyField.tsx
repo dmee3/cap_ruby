@@ -19,6 +19,8 @@ type MoneyFieldProps = {
   id?: string
   autoFocus?: boolean
   name?: string
+  /** 40px instead of 48px, for table rows rather than standalone form fields. */
+  compact?: boolean
 }
 
 const parseToCents = (raw: string): number | null => {
@@ -39,6 +41,7 @@ const MoneyField = ({
   id = 'money-field',
   autoFocus = false,
   name,
+  compact = false,
 }: MoneyFieldProps) => {
   const [text, setText] = useState(
     valueCents == null ? '' : (valueCents / 100).toFixed(2)
@@ -79,7 +82,9 @@ const MoneyField = ({
       )}
       <div
         className={`flex items-stretch overflow-hidden rounded-sm border bg-surface ${
-          shownError ? 'border-raspberry' : 'border-border-strong focus-within:border-[color:rgb(var(--focus-ring))] focus-within:ring-2 focus-within:ring-[color:rgb(var(--focus-ring))] focus-within:ring-offset-0'
+          shownError
+            ? 'border-raspberry'
+            : 'border-border-strong focus-within:border-[color:rgb(var(--focus-ring))] focus-within:ring-2 focus-within:ring-[color:rgb(var(--focus-ring))] focus-within:ring-offset-0'
         }`}
       >
         <span className="flex items-center border-r border-border-default bg-sunken px-3 font-mono text-secondary">
@@ -94,7 +99,7 @@ const MoneyField = ({
           value={text}
           placeholder="0.00"
           onChange={(e) => handleChange(e.target.value)}
-          className="h-12 flex-1 bg-transparent px-3 font-mono text-primary outline-none placeholder:text-border-strong"
+          className={`${compact ? 'h-10 text-body-sm' : 'h-12'} flex-1 bg-transparent px-3 font-mono text-primary outline-none placeholder:text-border-strong`}
         />
       </div>
       {shownError ? (

@@ -83,6 +83,20 @@ module.exports = {
         secondary: withAlpha('--text-secondary'),
         'on-brand': withAlpha('--text-on-brand'),
       },
+      // SVG text/shapes need the ink tokens too. `primary`/`secondary` live
+      // under textColor, so `fill-primary` isn't generated from it — declare
+      // them here or in-chart labels silently fall back to black in dark mode.
+      // Extending `fill` replaces the scale it inherits, so the viz tokens the
+      // burndown fills with have to be repeated.
+      fill: {
+        primary: withAlpha('--text-primary'),
+        secondary: withAlpha('--text-secondary'),
+        'viz-scheduled': withAlpha('--viz-scheduled'),
+        'viz-actual': withAlpha('--viz-actual'),
+        'viz-gap': withAlpha('--viz-gap'),
+        none: 'none',
+        current: 'currentColor',
+      },
       borderColor: {
         DEFAULT: withAlpha('--border-default'),
       },

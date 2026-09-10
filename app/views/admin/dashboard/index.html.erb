@@ -1,33 +1,40 @@
+<% content_for :page_title, 'Dashboard' %>
 <%= vite_typescript_tag 'entrypoints/admin/index.tsx' %>
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+<%
+  season_label = "#{current_season['year']} season"
+  summary = [
+    season_label,
+    "#{@stats[:member_count]} #{'member'.pluralize(@stats[:member_count])}",
+    "#{@stats[:behind_count]} behind, #{@conflicts_to_review.length} " \
+      "#{'conflict'.pluralize(@conflicts_to_review.length)} to review"
+  ].join(' · ')
+%>
 
-  <!-- DUES EXPECTED -->
-  <div class="order-1 h-48 md:h-96 xl:h-48 flex flex-col col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
-    <%= link_to admin_payments_path, class: 'card-flat flex-grow group hover:border-moss hover:shadow-e1 flex flex-col sm:flex-row md:flex-col justify-between place-content-stretch transition' do %>
-      <div id="dues" data-expected-dues="<%= @expected_dues / 100.0 %>" data-actual-dues="<%= @actual_dues / 100.0 %>"></div>
-    <% end %>
-  </div>
+<div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-5">
+  <h1 class="m-0 text-h3 text-primary">Dashboard</h1>
+  <span class="text-body-sm text-secondary"><%= summary %></span>
+</div>
 
-  <!-- UPCOMING PAYMENTS -->
-  <div class="order-2 md:col-span-2 overflow-hidden">
-    <div id="upcoming-payments" class="h-full">
+<div
+  id="admin-dashboard"
+  data-season-label="<%= season_label %>"
+  data-stats="<%= @stats.to_json %>"
+  data-burndown="<%= @burndown.to_json %>"
+  data-behind-members="<%= @behind_members.to_json %>"
+  data-recent-payments="<%= @recent_payments.to_json %>"
+  data-blank-schedule-members="<%= @blank_schedule_members.to_json %>"
+  data-conflicts-to-review="<%= @conflicts_to_review.to_json %>"
+>
+  <div class="flex flex-col gap-5">
+    <div class="rounded-md border border-border-default bg-surface p-5">
+      <div class="mb-3 h-6 w-64 rounded-sm bg-sunken animate-pulse"></div>
+      <div class="h-[280px] rounded-sm bg-sunken animate-pulse"></div>
     </div>
-  </div>
-
-
-  <!-- BEHIND MEMBERS -->
-  <div class="order-2 md:order-3 lg:order-2 col-span-1 md:col-span-2 lg:col-span-1 xl:col-span-2 overflow-hidden">
-    <div id="behind-members" class="h-full">
-    </div>
-  </div>
-
-
-  <!-- UPCOMING CONFLICTS -->
-  <div class="order-5 row-span-2 col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
-    <div class="card-flat">
-      <span class="card-title">UPCOMING CONFLICTS</span>
-      <div id="upcoming-conflicts"></div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <% 4.times do %>
+        <div class="h-24 rounded-md border border-border-default bg-surface"></div>
+      <% end %>
     </div>
   </div>
 </div>

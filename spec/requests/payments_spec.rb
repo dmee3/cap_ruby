@@ -174,7 +174,8 @@ RSpec.describe 'Payments Workflow', type: :request do
       expect(payment.notes).to eq('Cash payment at rehearsal')
 
       expect(response).to redirect_to(admin_payments_path)
-      expect(flash[:success]).to match(/created/)
+      expect(flash[:success]).to match(/\$200\.00 recorded for #{member.full_name}/)
+      expect(flash[:undo_payment_id]).to eq(Payment.last.id)
     end
 
     it 'can view all payments for season' do

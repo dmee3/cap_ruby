@@ -231,8 +231,8 @@ RSpec.describe 'Dashboard Data Accuracy', type: :request do
       expect(PaymentService).to have_received(:total_dues_paid_to_date).with(season.id)
     end
 
-    it 'warns about members with empty payment schedules' do
-      member_without_schedule = create(:user)
+    it 'flags members with empty payment schedules in the blank-schedule island' do
+      member_without_schedule = create(:user, first_name: 'Blank', last_name: 'Schedule')
       create(:seasons_user, user: member_without_schedule, season: season, role: 'member')
       create(:payment_schedule, user: member_without_schedule, season: season)
       # No entries created for this schedule
@@ -240,8 +240,23 @@ RSpec.describe 'Dashboard Data Accuracy', type: :request do
       get '/admin'
 
       expect(response).to have_http_status(:success)
-      expect(flash.now[:error]).to be_present
-      expect(flash.now[:error].join).to include(member_without_schedule.full_name)
+      expect(response.body).to include('data-blank-schedule-members=')
+      expect(response.body).to include('Blank Schedule')
+    end
+
+    it 'passes burndown series and the stat island to the dashboard widget' do
+      get '/admin'
+
+      expect(response.body).to include('id="admin-dashboard"')
+      expect(response.body).to include('data-burndown=')
+      expect(response.body).to include('data-stats=')
+    end
+
+    it 'renders the heading with the season / member / needs-attention summary' do
+      get '/admin'
+
+      expect(response.body).to include('Dashboard')
+      expect(response.body).to match(/#{season.year} season · \d+ members? · \d+ behind, \d+ conflicts? to review/)
     end
   end
 end

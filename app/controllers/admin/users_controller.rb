@@ -5,7 +5,12 @@ module Admin
     def index; end
 
     def show
-      @user = User.find(params[:id])
+      @user = User.includes(
+        :seasons_users, :conflicts,
+        payments: :payment_type,
+        payment_schedules: :payment_schedule_entries
+      ).find(params[:id])
+      @member360 = Admin::Member360Presenter.call(@user, current_season)
     end
 
     def new; end

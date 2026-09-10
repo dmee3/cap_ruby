@@ -4,14 +4,13 @@ module Admin
   class PaymentsController < AdminController
     def index
       respond_to do |format|
-        format.html { render('admin/payments/index') }
+        format.html do
+          @payment_types = manual_payment_types
+          @season_payment_count = Payment.for_season(current_season['id']).count
+          render('admin/payments/index')
+        end
         format.json do
-          @payments = Payment
-                      .with_deleted
-                      .includes(:payment_type)
-                      .joins(:payment_type)
-                      .for_season(current_season['id'])
-          render json: { payments: @payments }, include: [:payment_type]
+          render json: Admin::PaymentsQuery.new(current_season['id'], payments_query_params).call
         end
       end
     end
@@ -22,44 +21,71 @@ module Admin
     end
 
     def new
-      @members = User.members_for_season(current_season['id']).order(:first_name)
       @payment = Payment.new
       @payment.user_id = params[:user_id] if params[:user_id]
+      @payment_types = manual_payment_types
+      @members = add_payment_member_models
+      @undo_payment_id = params[:undo].presence
       render('admin/payments/new')
     end
 
     def create
-      @payment = Payment.new(payment_params)
-      @payment.amount *= 100 if @payment.amount
+      @payment = Payment.new(payment_attrs(payment_params))
       @payment.season_id = current_season['id']
-      if @payment.save
-        flash[:success] = 'Payment created'
-        ActivityLogger.log_payment(@payment, current_user)
+
+      saved = Payment.transaction do
+        if @payment.save
+          ActivityLogger.log_payment(@payment, current_user)
+          true
+        else
+          false
+        end
+      end
+
+      if saved
+        flash[:success] = "#{ActiveSupport::NumberHelper.number_to_currency(@payment.amount / 100.0)} " \
+                          "recorded for #{@payment.user.full_name}"
+        flash[:undo_payment_id] = @payment.id
         redirect_to(admin_payments_path)
       else
-        @members = User.members_for_season(current_season['id']).order(:first_name)
+        @payment_types = manual_payment_types
+        @members = add_payment_member_models
+        # Keep @payment.amount in cents — new.html.erb reads it as cents for the
+        # sticky MoneyField value; no lossy /100 round-trip.
         flash.now[:error] = @payment.errors.full_messages.to_sentence
-        @payment.amount /= 100
         render('admin/payments/new')
       end
     end
 
     def edit
+      # Amount stays in cents — the view hands it to MoneyField, which takes
+      # cents. (It used to be divided here, truncating $32.30 to $32.)
       @payment = Payment.find(params[:id])
-      @payment.amount /= 100
+      @payment_types = manual_payment_types
+      @members = add_payment_member_models
       render('admin/payments/edit')
     end
 
     def update
-      sleep 5 # TODO: Remove this - temporary delay for testing duplicate submission prevention
       @payment = Payment.find(params[:id])
-      if @payment.update(update_params.reject { |_k, v| v.blank? }) # only update non-empty fields
-        flash[:success] = 'Payment updated'
-        redirect_to('/admin/payments')
+
+      # Strong params would drop a stray user_id silently. An attempt to move
+      # a payment between members is worth refusing out loud, not absorbing.
+      if reassignment_attempted?
+        Rollbar.info('Rejected an attempt to reassign a payment', payment_id: @payment.id)
+        return head(:unprocessable_entity)
+      end
+
+      if @payment.update(payment_attrs(update_params))
+        flash[:success] = "#{ActiveSupport::NumberHelper.number_to_currency(@payment.amount / 100.0)} " \
+                          "updated for #{@payment.user.full_name}"
+        redirect_to(admin_payments_path)
       else
         Rollbar.info('Payment could not be updated.', errors: @payment.errors.full_messages)
-        flash[:error] = 'Unable to update payment'
-        redirect_to("/admin/payments/edit/#{@payment.id}")
+        @payment_types = manual_payment_types
+        @members = add_payment_member_models
+        flash.now[:error] = @payment.errors.full_messages.to_sentence
+        render('admin/payments/edit')
       end
     end
 
@@ -118,24 +144,61 @@ module Admin
     end
 
     def burndown_chart
+      season_id = current_season['id']
       render(
         json: {
-          scheduled: DashboardUtilities.biweekly_scheduled,
-          actual: DashboardUtilities.biweekly_actual
+          scheduled: DashboardUtilities.season_scheduled_series(season_id),
+          actual: DashboardUtilities.season_actual_series(season_id),
+          today: Date.current.iso8601,
+          currency: 'USD'
         }
       )
     end
 
     private
 
+    def payments_query_params
+      params.permit(:sort, :dir, :q, :type_id, :start_date, :end_date, :scope, :limit, :offset)
+    end
+
+    # The amount field is dollars; the column is integer cents. `.to_f` first,
+    # so "32.30" doesn't truncate to 32 on the way through. Shared by create
+    # and update — they drifted apart once already.
+    def payment_attrs(permitted)
+      attrs = permitted.to_h
+      attrs[:amount] = (attrs[:amount].to_f * 100).round if attrs[:amount].present?
+      attrs
+    end
+
+    # Payment types an admin can pick when recording a payment made outside the
+    # system — Stripe rows are created by the checkout flow, never entered here.
+    def manual_payment_types
+      PaymentType.where.not(name: 'Stripe').order(:name).map { |t| { id: t.id, name: t.name } }
+    end
+
+    def add_payment_member_models
+      Admin::AddPaymentPresenter.members_for(current_season)
+    end
+
     def payment_params
       params.require(:payment).permit(:user_id, :payment_type_id, :amount, :date_paid, :notes)
     end
 
+    # A user_id that differs from the record's own is a reassignment attempt.
+    # One matching the current owner is harmless — the form may echo it back.
+    def reassignment_attempted?
+      submitted = params.dig(:payment, :user_id)
+      submitted.present? && submitted.to_s != @payment.user_id.to_s
+    end
+
+    # Deliberately NO `:user_id` — a payment can't be moved between members.
+    # Reassigning one silently rewrites two members' dues histories, so the
+    # supported path is delete-and-re-record, which leaves an audit trail.
+    # This is enforced here rather than only in the form: a permitted param is
+    # reachable by anyone who can craft a request.
+    # Conversion to cents happens in `payment_attrs`, not here.
     def update_params
-      params.require(:payment).permit(:payment_type_id, :amount, :date_paid, :notes).tap do |p|
-        p[:amount] = p[:amount].to_i * 100 if p[:amount] # Convert to cents
-      end
+      params.require(:payment).permit(:payment_type_id, :amount, :date_paid, :notes)
     end
   end
 end

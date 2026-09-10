@@ -1,6 +1,6 @@
 <div id="flash-bar" class="flash-bar">
   <% flash.each do |type, messages| %>
-  <% next if type.to_sym == :conflict_submitted %>
+  <% next if %i[conflict_submitted undo_payment_id].include?(type.to_sym) %>
   <% Array.wrap(messages).each do |message| %>
       <% if message.length > 0 %>
         <div class="flash <%= flash_color(type) %>">

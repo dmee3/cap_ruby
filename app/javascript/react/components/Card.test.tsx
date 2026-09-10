@@ -30,4 +30,92 @@ describe('Card', () => {
     const { container } = render(<Card as="section">x</Card>)
     expect(container.firstElementChild?.tagName).toBe('SECTION')
   })
+
+  describe('variant="list"', () => {
+    it('is edge-to-edge so rows can run full-bleed', () => {
+      const { container } = render(
+        <Card variant="list" title="Behind on payments">
+          x
+        </Card>,
+      )
+      const card = container.firstElementChild
+      expect(card).toHaveClass('overflow-hidden')
+      expect(card?.className).not.toMatch(/\bp-4\b/)
+    })
+
+    it('renders a sentence-case heading in a bordered header strip', () => {
+      render(
+        <Card variant="list" title="Behind on payments">
+          x
+        </Card>,
+      )
+      const title = screen.getByText('Behind on payments')
+      expect(title).toHaveClass('text-h3', 'text-primary')
+      expect(title.className).not.toMatch(/uppercase/)
+      expect(title.parentElement).toHaveClass('border-b')
+    })
+
+    it('renders a secondary count beside the title and a right-aligned action', () => {
+      render(
+        <Card variant="list" title="Behind on payments" count="3 members" action={<a href="#">View all members</a>}>
+          x
+        </Card>,
+      )
+      expect(screen.getByText('3 members')).toHaveClass('text-secondary')
+      expect(screen.getByRole('link', { name: 'View all members' }).parentElement).toHaveClass('ml-auto')
+    })
+
+    it('renders a subtitle on its own row', () => {
+      render(
+        <Card variant="list" title="Dues collected against plan" subtitle="summed weekly">
+          x
+        </Card>,
+      )
+      expect(screen.getByText('summed weekly')).toHaveClass('basis-full')
+    })
+  })
+
+  describe('variant="section"', () => {
+    it('renders the title as a real heading, not an uppercase kicker', () => {
+      render(
+        <Card variant="section" title="How this schedule is going">
+          x
+        </Card>,
+      )
+      const title = screen.getByText('How this schedule is going')
+      expect(title).toHaveClass('text-h3', 'text-primary')
+      expect(title.className).not.toMatch(/uppercase/)
+    })
+
+    it('baseline-aligns the action beside the title', () => {
+      render(
+        <Card variant="section" title="Heading" action={<span>$500 paid</span>}>
+          x
+        </Card>,
+      )
+      const header = screen.getByText('Heading').parentElement
+      expect(header).toHaveClass('items-baseline')
+      expect(screen.getByText('$500 paid').parentElement).toHaveClass('ml-auto')
+    })
+
+    it('keeps its body padded, unlike the list variant', () => {
+      const { container } = render(
+        <Card variant="section" title="Heading">
+          x
+        </Card>,
+      )
+      expect(container.firstElementChild?.className).toMatch(/px-6/)
+    })
+  })
+
+  it('can draw the tone on the whole border instead of a left rail', () => {
+    const { container } = render(
+      <Card tone="warning" borderTone>
+        x
+      </Card>,
+    )
+    const card = container.firstElementChild
+    expect(card).toHaveClass('border-warning-fg')
+    expect(card?.className).not.toMatch(/border-l-/)
+  })
 })

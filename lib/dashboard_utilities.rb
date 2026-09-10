@@ -60,33 +60,128 @@ class DashboardUtilities
       end
     end
 
+    # Members whose payments haven't caught up to what their schedule says is
+    # owed by today. `past_due_cents` and the "members behind" count both key off
+    # PaymentService.amount_owed_on_date so the dashboard, the list, and each
+    # member's Member 360 figure agree.
     def behind_members(season_id)
       members = User.for_season(season_id).with_payments.with_role_for_season('member', season_id).to_a
-      members.reject! { |m| m.dues_status_okay?(season_id) }
-      members.map do |m|
+      members.filter_map do |m|
+        past_due = PaymentService.amount_owed_on_date(m, Date.current, season_id)
+        next if past_due <= 0
+
+        schedule = m.payment_schedule_for(season_id)
         {
           id: m.id,
           name: m.full_name,
-          paid: m.amount_paid_for(season_id).to_f / 100.0,
-          owed: m.payment_schedule_for(season_id).scheduled_to_date.to_f / 100.0
+          section: [m.ensemble_for(season_id), m.section_for(season_id)].compact.join(' / '),
+          paid_cents: m.amount_paid_for(season_id),
+          season_total_cents: schedule&.entries&.sum(&:amount).to_i,
+          past_due_cents: (past_due * 100).round
         }
       end
     end
 
-    def biweekly_scheduled
-      season_id = Season.last.id
-      entries = PaymentScheduleEntry.for_season(season_id).order(:pay_date)
-      dates = (entries.first.pay_date..entries.last.pay_date).select { |d| d.wday.zero? }
-      dates.map { |d| [d, entries.where('pay_date <= ?', d).sum(:amount).to_f / 100.0] }
+    # Cumulative "dues owed by date" (sum of every member's own schedule
+    # entries) vs. "dues collected by date" (sum of non-deleted payments),
+    # sampled weekly on Sundays from the first scheduled due date to the last.
+    # The collected series stops at today — it never returns to zero.
+    def season_scheduled_series(season_id)
+      sundays, entries, = burndown_frame(season_id)
+      return [] if sundays.empty?
+
+      # Carry an exact point at today (when it's inside the season) so the
+      # chart's as-of-today shortfall reads the real scheduled total rather
+      # than last Sunday's.
+      cumulative_series(with_today(sundays), entries, :pay_date)
     end
 
-    def biweekly_actual
-      season_id = Season.last.id
-      entries = PaymentScheduleEntry.for_season(season_id).order(:pay_date)
-      dates = (entries.first.pay_date..entries.last.pay_date).select { |d| d.wday.zero? }
-      dates.map do |d|
-        [d, Payment.for_season(season_id).where('date_paid <= ?', d).sum(:amount).to_f / 100.0]
+    def season_actual_series(season_id)
+      sundays, _entries, payments = burndown_frame(season_id)
+      return [] if sundays.empty?
+
+      # Weekly samples up to today, then today itself as the final point — so
+      # the line ends where "today" actually is rather than at the last Sunday,
+      # and so its last value matches the "expected by today" stat card. The
+      # frame's trailing last-due-date point is scheduled-only; including it
+      # here would read payments past today.
+      today = Date.current
+      samples = sundays.select { |d| d <= today }
+      samples << today if samples.any? && samples.last != today
+      cumulative_series(samples, payments, :date_paid)
+    end
+
+    # For the dashboard stat: average number of days a past-due schedule entry
+    # went uncovered, across the season. Returns nil when nothing is past due.
+    def average_days_late(season_id)
+      schedules = PaymentSchedule.for_season(season_id)
+                                 .includes(:payment_schedule_entries, user: :payments)
+      lags = schedules.flat_map { |sched| entry_lags(sched, season_id) }
+      return nil if lags.empty?
+
+      (lags.sum.to_f / lags.length).round
+    end
+
+    private
+
+    # Load everything once; the burndown then buckets in Ruby.
+    def burndown_frame(season_id)
+      entries = PaymentScheduleEntry.for_season(season_id).to_a.sort_by(&:pay_date)
+      payments = Payment.for_season(season_id).to_a.sort_by(&:date_paid)
+      return [[], entries, payments] if entries.empty?
+
+      # Floor the start to the Sunday on/before the first due date so the chart
+      # has a $0 baseline; cap the end at the last due date.
+      first = entries.first.pay_date
+      last = entries.last.pay_date
+      start = first - first.wday
+      sundays = (start..last).select { |d| d.wday.zero? }
+      sundays << last unless sundays.last == last
+      [sundays, entries, payments]
+    end
+
+    # Splice today into the weekly grid, in order, when it falls inside it.
+    def with_today(sundays)
+      today = Date.current
+      return sundays unless today.between?(sundays.first, sundays.last)
+      return sundays if sundays.include?(today)
+
+      (sundays + [today]).sort
+    end
+
+    def cumulative_series(sample_dates, records, date_attr)
+      sample_dates.map do |d|
+        cents = records.take_while { |r| r.public_send(date_attr) <= d }.sum(&:amount)
+        [d.iso8601, (cents.to_f / 100).round(2)]
       end
+    end
+
+    # For one member's schedule: for each past-due entry, how many days passed
+    # between the entry's due date and the day the member's running payment
+    # total first covered the cumulative amount scheduled through that entry.
+    # An entry never covered as of today counts its lag through today.
+    def entry_lags(schedule, season_id)
+      today = Date.current
+      due_entries = schedule.entries.select { |e| e.pay_date < today }.sort_by(&:pay_date)
+      return [] if due_entries.empty?
+
+      payments = schedule.user.payments_for(season_id).sort_by(&:date_paid)
+      running_scheduled = 0
+      due_entries.map do |entry|
+        running_scheduled += entry.amount
+        covered_on = date_running_total_reaches(payments, running_scheduled)
+        effective = covered_on && covered_on <= today ? covered_on : today
+        [(effective - entry.pay_date).to_i, 0].max
+      end
+    end
+
+    def date_running_total_reaches(payments, target_cents)
+      running = 0
+      payments.each do |payment|
+        running += payment.amount
+        return payment.date_paid if running >= target_cents
+      end
+      nil
     end
   end
 end

@@ -6,28 +6,35 @@ export type ValidationError = { fieldId: string; message: string }
 
 type ValidationSummaryCardProps = {
   errors: ValidationError[]
+  /** Leads the heading, e.g. "This payment wasn't saved." */
+  lead?: string
   className?: string
 }
 
-const heading = (count: number) => {
-  if (count === 1) return 'One thing to fix'
-  if (count === 2) return 'Two things to fix'
-  return `${count} things to fix`
+// Spelled out through two, numeric beyond — past that the word is harder to
+// scan than the digit (a Flow 3 decision, kept).
+const countWord = (count: number) => (count === 1 ? 'One' : count === 2 ? 'Two' : String(count))
+
+const heading = (count: number, lead?: string) => {
+  const thing = count === 1 ? 'thing' : 'things'
+  return lead
+    ? `${lead} ${countWord(count)} ${thing} need fixing`
+    : `${countWord(count)} ${thing} to fix`
 }
 
 // Appears above the form on a failed submit. Built on Card's `tone="danger"`
 // (3px raspberry left accent) rather than reinventing that styling.
-const ValidationSummaryCard = ({ errors, className = '' }: ValidationSummaryCardProps) => {
+const ValidationSummaryCard = ({ errors, lead, className = '' }: ValidationSummaryCardProps) => {
   if (errors.length === 0) return null
 
   return (
-    <Card tone="danger" className={className}>
+    <Card tone="danger" borderTone className={`bg-danger-bg ${className}`.trim()}>
       <div className="flex flex-col gap-2">
-        <span className="text-body-sm font-semibold text-danger-fg">{heading(errors.length)}</span>
+        <span className="text-body font-bold text-danger-fg">{heading(errors.length, lead)}</span>
         <ul className="flex flex-col gap-1.5">
           {errors.map((error) => (
-            <li key={error.fieldId} className="text-body-sm text-danger-fg">
-              {error.message}
+            <li key={error.fieldId} className="text-body-sm font-medium text-primary">
+              · {error.message}
             </li>
           ))}
         </ul>

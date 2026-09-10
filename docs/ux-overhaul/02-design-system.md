@@ -13,8 +13,9 @@ should feel.
 **Status:** Flows 1–3 merged (shell/tokens #221, member dues #226, member
 conflicts #230). Layout set is now three — `application` / `auth` / `public`
 (#229), + `calendar` until Flow 7 folds it in. Flow 4 (admin financial command
-center) is next; not yet designed in Claude Design. Full flow list:
-`01-screen-audit.md`. Live task status: **beads** — `bd show cap_ruby-b3a`.
+center) built — PR open, visual pass pending; §4.4 + §4.5 + §4.12 + §4.20–4.25
+all shipped this flow. Full flow list: `01-screen-audit.md`. Live task status:
+**beads** — `bd show cap_ruby-b3a`.
 
 ---
 
@@ -148,6 +149,20 @@ For the dues burndown chart and any fundraiser charts. Keep it small and on-bran
 > (tabular numeric emphasis) but standardize on the `text.metric` token so every
 > stat looks the same.
 
+**Money formatting** *(established — Flow 4, `app/javascript/utilities/money.ts`)*.
+Two formats, one rule, one module — eight hand-rolled copies of the same
+formatter had drifted before this was extracted:
+
+| Helper | Format | Use |
+|---|---|---|
+| `dollars(cents)` | `$57,600` | **Headline figures** — stat metrics, table amounts, chart captions, list rows. A column of `.00` is noise when you're scanning. |
+| `exact(cents)` | `$325.30` | **Where the cents are the point** — an amount being entered or confirmed, a fee breakdown, a member's own payment history. |
+| `signedDollars(cents)` | `+$600` | A delta whose direction carries meaning. |
+
+`text.metric` is the **sans** stack at weight 800 with `tracking-tight`, not
+mono — mono is for figures sitting in a column that needs to align (table
+cells, schedule rows), not for the one big number on a card.
+
 ### 3.5 Spacing, radius, elevation
 
 | Token | Value |
@@ -220,6 +235,17 @@ each one superseded.
 - Replaces: `.btn-primary/.btn-green/.btn-red/.btn-gray/.btn-link` + `.btn-lg/md/sm`.
 
 ### 4.3 Card
+- **Three variants** *(the last two added in Flow 4)*. Pick by what the title
+  is doing:
+  - `panel` (default) — padded box, 12px uppercase kicker title. For stat
+    blocks and small labelled boxes, where the title *labels a figure*.
+  - `section` — padded box, 16px sentence-case heading baseline-aligned with
+    its action. For a card that *leads a piece of content*.
+  - `list` — edge-to-edge body under a bordered header strip, so rows run
+    full-bleed and supply their own padding; supports `count` and `subtitle`.
+  A heading-weight title on a `panel` is the most common mistake here — it
+  renders as a grey kicker and the card reads as a stat box.
+- `borderTone` draws the tone on the whole border instead of a left rail.
 - One card component. Props: `title` (uses `text.label` kicker), optional
   `action` (link/button top-right), `tone` (`neutral` default, or `success` /
   `danger` / `warning` — sets a subtle left accent + tinted title, not a full
@@ -229,30 +255,40 @@ each one superseded.
 - Replaces: `.card`, `.card-flat`, gradient cards, and the ad-hoc
   `border-green-500` / `border-red-500` domain coloring.
 
-### 4.4 Stat block (metric)
+### 4.4 Stat block (metric) *(built — Flow 4)*
 - The single most-used dashboard element. Structure:
   `kicker` (label) → `metric` (big tabular number, `text.metric`) →
   `context` (one line: "of $600" / "3 behind" / "due Fri 3/14") →
-  optional `trend` (sparkline or delta chip) → optional `detail list` below.
+  optional `trend` (a delta chip).
 - Semantic color comes from `tone`, applied to the metric and kicker only.
-- Threshold coloring (e.g. behind-members 0=success, 1–4=warning, 5+=danger) is a
-  **prop on the component**, not hand-coded per screen.
+- Threshold coloring (behind-members 0=success, 1–4=warning, 5+=danger) is the
+  `threshold` **prop** — pass the count, not a tone; it bands and overrides `tone`.
+- Was a Flow 1 spec that never shipped (Flow 2 used inline ERB pills). Built as
+  `StatBlock.tsx` in Flow 4. The canvas's sparkline/detail-list ideas were cut —
+  a chip covers the only trend Flow 4 has, and no screen needed a detail list.
 - Replaces: the copy-pasted `text-3xl font-extrabold font-mono` blocks and
-  `BehindMembers`' inline color logic.
+  `BehindMembers`' inline color logic (both deleted in Flow 4).
 
 ### 4.5 Progress / burndown
 - **Linear progress** — for "dues paid vs total" on the member dashboard. Track +
   fill (moss), a marker for "expected by today", label shows `$paid / $total`.
   *(Shipped as DuesMeter §4.14 in Flow 2.)*
-- **Burndown chart** — the *hero* of the admin dashboard. *(Detailed — Flow 4.)*
+- **Burndown chart** — the *hero* of the admin dashboard. *(Built — Flow 4, as
+  `BurndownChart.tsx`.)*
   - Two cumulative series over the season, plotted as an inline `<svg>` (no chart
-    lib): **Scheduled** — `ocean.light` (`#498197` light / `#68a0b6` dark), **dashed**
-    2.5px, "it's a plan"; **Collected** — `moss` (`#8b9556` / `#a3ad71`), **solid**
-    3px with a dot at the last point, and the line **stops at today**, it does not
-    return to zero.
-  - **Behind-schedule area**: the region between the two lines, filled
-    `raspberry.light` at ~30–36% opacity, shown **only when collected trails
-    scheduled**. When ahead of plan, no fill.
+    lib): **Scheduled** — the `--viz-scheduled` token (`#498197` light /
+    `#68a0b6` dark), **dashed** 2.5px, "it's a plan"; **Collected** — `--viz-actual`
+    (`#8b9556` / `#a3ad71`), **solid** 3px with a dot at the last point, and the
+    line **stops at today**, it does not return to zero.
+  - *Colour-safety note (Flow 4 build):* the scheduled/collected pair is normal-
+    vision ΔE 14.6 — just under the categorical floor. Kept because it is the
+    documented token pair and the chart carries **four** non-colour cues (dash
+    pattern, terminal dot, legend, hatched behind-schedule fill). Not a blocker;
+    recorded here so a future flow doesn't "discover" it.
+  - **Behind-schedule area**: the region between the two lines, filled with a
+    **45° hatch pattern** in `--viz-gap` (not a flat tint — this closes the §5
+    colour-only gap), shown **only when collected trails scheduled**. When ahead
+    of plan, no fill.
   - A dashed vertical **"Today"** rule (jet in light, `text.secondary` in dark)
     with a "Today" label; y-axis `$0…$90k` in Roboto Mono, x-axis 3–4 month ticks.
   - **Caption line below** the chart: `$X behind schedule` in `danger.fg` + a plain
@@ -270,12 +306,17 @@ each one superseded.
     current `DashboardUtilities.biweekly_scheduled` / `biweekly_actual`, which
     sample every Sunday (already weekly despite the name) but hardcode
     `Season.last.id` — Flow 4 scopes them to the season in context.
-  - `series`, `today`, `currency` props. States: **data** / **no-data** — the
-    empty state is a dashed-border panel, "No dues scheduled for this season yet
-    / The burndown appears once members have payment schedules." + a "Set up
-    payment schedules" link. No loading state was drawn — reuse §4.10 skeleton.
-  - Min height 280px. `role="img"` + `aria-label` on the `<svg>`; **the
-    behind-schedule area still needs a non-color cue** (a11y gap — see §5).
+  - `scheduled` / `actual` (`[iso, dollars][]`), `today`, `currency`, `setupHref`
+    props. States: **data** / **no-data** — the empty state is a dashed-border
+    panel, "No dues scheduled for this season yet / The burndown appears once
+    members have payment schedules." + a "Set up payment schedules" link. Loading
+    on the dashboard is the ERB skeleton (the data is inline, no fetch).
+  - Min height 280px. `role="img"` + `aria-label` (which names the behind-schedule
+    amount) on the `<svg>`. Non-colour cue for the behind-schedule area: the hatch
+    pattern above. *(a11y gap from the review — closed.)*
+  - `DashboardUtilities.biweekly_scheduled` / `biweekly_actual` were renamed to
+    `season_scheduled_series` / `season_actual_series` (season-scoped, not
+    `Season.last`); no callers besides the burndown action, no aliases kept.
 
 ### 4.6 Table
 - Desktop: standard rows, `text.body-sm`, `border.default` row rules, sticky
@@ -327,9 +368,9 @@ each one superseded.
   timer bar, manual close.
 - Replaces: `.flash-success/.flash-error/.flash-info/.flash-default` gradient bars.
 
-### 4.12 Member 360 header
+### 4.12 Member 360 header *(built — Flow 4, as `Member360Header.tsx`)*
 - Reusable header block for `/admin/users/:id`, the landing target of every money
-  link on the admin side. *(Detailed — Flow 4.)*
+  link on the admin side.
 - **Layout**: a Card, `grid-template-columns: minmax(0,1fr) 380px`, the right
   column separated by a `border.default` left rule. Stacks under 900px.
 - **Left (identity)**: circular avatar with initials (56px; `accent.primary`
@@ -462,7 +503,7 @@ each one superseded.
   list ("Sent. Your coordinators see it now. Approval isn't automatic.") rather
   than a separate toast, so the confirmation and the new row are read together.
 
-### 4.20 Alert banner with action list *(added — Flow 4)*
+### 4.20 Alert banner with action list *(built — Flow 4, as `AlertBanner.tsx`)*
 - Replaces the admin dashboard's `flash[:error]` array ("Member found with blank
   payment schedule: …") and the equivalent on Member 360.
 - 3px `status.warning` left accent, a headline (`2 members have no payment
@@ -474,7 +515,15 @@ each one superseded.
   His $1,200 has been credited against the default new-member schedule. Set a
   real one so the due dates and the burndown include him.").
 
-### 4.21 Filter bar *(added — Flow 4)*
+### 4.21 Filter bar *(built — Flow 4, as `FilterBar.tsx`)*
+- *Build note:* the mobile "Filters button + sheet + removable chips" was
+  simplified to a wrapping inline row of 44px controls — it holds at tablet
+  width and the sheet/chips can be a follow-up if a phone pass wants them.
+- *Divergence — the status scope is a native `<select>`, not the canvas's
+  checkbox popover.* A native control is keyboard- and screen-reader-
+  accessible for free; the popover is presentation with a custom focus trap
+  to maintain. The "excluded from every total" note sits under the bar rather
+  than inside the panel. Agreed in the Flow 4 visual pass.
 - For `/admin/payments` (and reusable by any admin table). A horizontal row:
   search field (`Search member name`), a type dropdown (`All types` +
   Card/Venmo/Cash/Check/Other), a **date-range** dropdown, a **status-scope**
@@ -490,7 +539,7 @@ each one superseded.
 - Mobile: collapses to a `Filters` button with a count badge that opens a sheet;
   active filters also show as removable chips above the list.
 
-### 4.22 Sortable table header + "load more" pager *(added — Flow 4)*
+### 4.22 Sortable table header + "load more" pager *(built — Flow 4, as `SortableTh.tsx` + `LoadMoreButton.tsx`; `PaginatedList.tsx` wraps the pager for client-side lists)*
 - **Sort**: column headers carry a sort affordance (`↕` idle, `▲`/`▼` active),
   `aria-sort` on the active one. Sortable columns on the payments table: date
   paid, member, type, amount.
@@ -499,7 +548,23 @@ each one superseded.
   This is the §4.6 "one consistent pattern" decision, resolved to load-more.
   **Replaces all four chevron pagers** on the current admin dashboard widgets.
 
-### 4.23 Deleted-row treatment *(added — Flow 4)*
+### 4.23 Deleted-row treatment *(built — Flow 4, as `deletedRow.tsx`: `deletedRowClass` + `DeletedPill` + `RestoreAction`)*
+- **Row actions and the destructive confirm** *(added — Flow 4 visual pass).*
+  A payment row carries `Edit` + `Delete`; a machine-recorded one
+  (Stripe / Square — created by a checkout flow, no manual edit path) carries
+  a plain source label instead; a deleted one carries `Restore`.
+  `utilities/payment_type` holds the tone map and that machine-recorded rule,
+  shared by the payments list and Member 360 so a Cash row looks the same in
+  both.
+- **Delete confirms in place**: the row's action slot swaps to
+  `Delete? Yes / No` rather than opening a modal, so the row you're about to
+  remove stays visible while you decide. Deletion is soft, so `Restore` is the
+  real safety net and the confirm is a speed bump.
+- Strike-through is **scoped to the identifying cells** (date, member, type,
+  amount), never the notes or the actions — the note is usually the reason the
+  deleted row is worth showing at all ("entered twice, this one voided"). Tint
+  the row rather than dropping its opacity, which pushes already-muted text
+  under AA.
 - How a soft-deleted `Payment` (paranoia gem) renders in a table row, a mobile
   card, and the Member 360 payments list: every cell struck through, an uppercase
   `Deleted` status pill (neutral), a faint body tint, and the row actions
@@ -508,7 +573,29 @@ each one superseded.
 - Deleted rows appear only when the §4.21 scope includes them; they never count
   toward any total, meter, or burndown point.
 
-### 4.24 "Where this leaves them" projection panel *(added — Flow 4)*
+### 4.24 "Where this leaves them" projection panel *(built — Flow 4, as `PaymentProjectionPanel.tsx`)*
+- *Build note:* the add-payment form passes every member's projection numbers
+  inline, so the panel updates on member-switch with no fetch.
+- **Member picker: `MemberCombobox` *(added — Flow 4 visual pass)*.** A real
+  type-ahead, not a `<select>`: an ARIA combobox (listbox, `aria-activedescendant`,
+  arrow/enter/escape, click-away, clear button) over a hidden input, so a plain
+  form POST still carries the id. Search runs on **name and section** through
+  `fuzzysort`, which matches across gaps — "esokol" and "vibes" both find Elena
+  Sokol — but is **not** typo tolerant: characters must appear in order.
+- Members display **First Last** everywhere (picker, projection link). The
+  roster still *sorts* by last name; only the display format is first-last.
+- **On the edit screen the member is fixed.** The combobox is replaced by a
+  read-only display, no `user_id` is submitted, and `Admin::PaymentsController`
+  **refuses** a `user_id` that differs from the record's own (422) rather than
+  letting strong params drop it silently. Moving a payment between members
+  rewrites two dues histories at once with no trace; the supported path is
+  delete-and-re-record, which leaves one. Enforce this server-side — a
+  permitted param is reachable by anyone who can craft a request, whatever
+  the form renders.
+- The add-payment form also carries a **member's-schedule panel**
+  (`MemberSchedulePanel`) under the projection: every installment, the paid
+  ones marked, and the rows the pending amount will cover highlighted
+  oldest-unpaid-first.
 - Side panel on `/admin/payments/new`, updates live as the form changes. A
   **DuesMeter (§4.14)** for the selected member plus a three-row ledger:
   `Paid before $X` / `This payment +$Y` / `Still owed $Z`, and a one-line verdict
@@ -520,7 +607,26 @@ each one superseded.
   specific `PaymentScheduleEntry`; a single payment can satisfy several entries.
 - No-member-selected state: placeholder copy + a flat grey bar.
 
-### 4.25 Plan-vs-reality timeline + schedule-diff panel *(added — Flow 4)*
+### 4.25 Plan-vs-reality timeline + schedule-diff panel *(built — Flow 4, as `ScheduleTimeline.tsx` + `ScheduleDiffPanel.tsx`)*
+- *Build note:* both are presentational; `ScheduleEditor.tsx` (the widget) owns
+  the editable rows, the client-side "Moved from" tracking, and wires the diff
+  panel to `#default_preview` / `#apply_default`.
+- *Copy revised in the visual pass:* the card is titled **"How this schedule is
+  going"**, not the canvas's "Plan against what's actually in" — that phrase
+  trails off, and the warmer question matches the voice of "Where you stand"
+  (Flow 2) and "Are we on track?" (the admin dashboard).
+- *Every row stays editable, paid ones included.* An earlier build locked
+  covered entries, reading "resetting preserves paid entries" as a general
+  prohibition. It isn't: preserving them is a property of the **reset**
+  action. Correcting a mistyped amount or a wrong due date on a covered
+  installment is ordinary work, and the API always allowed it. "Paid" is
+  information on the row, not a barrier.
+- *Today marker:* the dashed rule carries it with no caption — it's the only
+  vertical line on the chart, so the label was redundant.
+- *Layout note:* the node track is inset by a 2rem gutter and positioned with
+  `calc()` inside it. Nodes are three stacked lines centred on their date, so
+  without the gutter the first and last hang half their width off the card.
+  A single-entry schedule centres its lone node rather than pinning it left.
 - For `/admin/payment_schedules/:id/edit`. Distinct from the §4.5 burndown — this
   is **per-member and node-based**, not a line chart.
 - **Timeline**: a horizontal track with a node dot per `PaymentScheduleEntry`
@@ -551,14 +657,14 @@ each one superseded.
   `moss` and `raspberry` fills against white text — may need the `.dark`
   variants for text-on-fill.)
 - Every interactive element has a visible `focus.ring`.
-- Status is never color-only — always paired with text and/or icon. (Flow 4
-  gap to close in the build: the burndown's behind-schedule area is color-only —
-  add a pattern fill or an explicit label; the mock's caption "Striped = past
-  due" is the right instinct, apply the same to the chart.)
-- Tables use real `<th scope>` — the Flow 4 canvas mocks the payments and
-  schedule tables as CSS-grid `<div>`s with fake form controls; the build must
-  use real `<table>` / `<input>` / `<select>` / `<button>`, not carry the mock's
-  markup over.
+- Status is never color-only — always paired with text and/or icon. *(Flow 4:
+  the burndown's behind-schedule area is a 45° hatch pattern + the amount is
+  named in the `aria-label`; the deleted-row treatment is strike-through + a
+  "Deleted" pill; schedule-entry and timeline statuses all carry a text label.)*
+- Tables use real `<th scope>` — the Flow 4 canvas mocked the payments and
+  schedule tables as CSS-grid `<div>`s with fake form controls; the build uses
+  real `<table>` / `<input>` / `<select>` / `<button>`, sortable headers with
+  `aria-sort`, and a `<button>` in each sortable `<th>`.
 - The mobile card fallback keeps label/value pairing.
 - Forms: label tied to field, errors announced, `required` marked in text not
   just color.
@@ -583,9 +689,43 @@ each one superseded.
 5. Implementation plan → `~/.claude/plans/`, one phase per layer (backend →
    primitives → screen → screen → polish), one commit per phase, green gate
    (`rspec` / `vitest` / `vite build` / `rubocop`) at each.
-6. One PR per flow, off fresh `main`, with a "needs a human visual pass"
+6. **When building a screen, open its canvas artboard — not just §4.**
+   *(Learned the hard way in Flow 4.)* This document defines **components**:
+   props, states, variants, the tokens each one uses. The canvas defines
+   **composition**: the page grid and its column proportions, the gaps, the
+   type scale in context, the order of sections, row anatomy, and the
+   incidental elements §4 never enumerates (a "view all" link, a header
+   count, a column-header strip, a footer caption). Flow 4's dashboard was
+   built from §4 alone and needed a 13-item correction round — the list
+   cards were the wrong *shape*, a four-column table rendered as two fields,
+   and the page header was invented copy. Neither source is redundant:
+   §4 is authoritative for what a component **is**, the artboard for how the
+   screen is **assembled**. Read both, and diff your build against the
+   artboard before calling a screen done.
+7. One PR per flow, off fresh `main`, with a "needs a human visual pass"
    callout. Expect a round or two of tweaks from the visual pass after the PR
-   opens.
+   opens — and treat anything the pass finds that §4 *could* have specified
+   as a gap to fold back into §4.
+8. **Check what the flow's screens link *out* to.** A flow can improve five
+   screens and still make the product feel worse at the seams, if a polished
+   screen hands off to one nobody has touched. Flow 4 added Edit links into
+   `/admin/payments/:id/edit` from three new places — a screen still on
+   pre-overhaul Bootstrap, because the audit bundled it into one row with
+   `/new` and only `/new` made the flow's scope list (`cap_ruby-b3a.15`).
+   Two cheap habits: give each screen its **own** audit row so scope can't
+   silently cover two things, and before closing a flow, grep the new code
+   for outbound links and confirm each destination is either in-flow or
+   knowingly deferred.
+9. **A canvas is a point-in-time design, not a living spec. This document is
+   the record.** Once a flow ships, its artboards are frozen: they're
+   hand-authored HTML (hardcoded SVG paths, literal figures, mock markup),
+   not generated from the components, so keeping them current would mean
+   hand-editing static files that drift again on the next change — and
+   they can't express behaviour anyway. So when the build diverges from the
+   canvas, whether from a visual pass or a judgement call, **record it in §4
+   with the reasoning** rather than editing the artboard. Flow 4's §4.21,
+   §4.24 and §4.25 carry several of these. When reading an older flow's
+   canvas, check §4 for what actually shipped.
 
 ---
 
