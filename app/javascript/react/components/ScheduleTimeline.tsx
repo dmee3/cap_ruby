@@ -79,52 +79,77 @@ const ScheduleTimeline = ({
   return (
     <div className={`flex flex-col gap-4 ${className}`.trim()}>
       {/*
-        A node is three stacked lines centred on its date, so the outermost
-        two would hang half their width off each end. Inset the whole track
-        by a gutter and position within that, rather than letting them clip.
-        The container is sized to the node stack (18 + 12 + 16 + gaps), not to
-        the rail, so the amounts can't overrun whatever follows.
-      */}
-      <div className="relative h-[74px] px-8">
-        <div className="absolute inset-x-8 top-[30px] h-1 rounded-full bg-sunken" />
-        <div
-          className="absolute top-[30px] h-1 rounded-full bg-moss"
-          style={{ left: '2rem', width: `calc((100% - 4rem) * ${paidPct / 100})` }}
-        />
+        Three stacked bands rather than hand-computed offsets: a "Today"
+        caption row, then the rail row, then the amounts row. The rail lives
+        INSIDE the middle band and the dots are centred in that same band, so
+        they line up by construction — no magic top values to drift when the
+        type scale changes, and nothing can be struck through by the rail.
 
-        {todayInRange && (
-          <>
-            <div
-              className="absolute bottom-1 top-5 border-l border-dashed border-primary"
-              style={{ left: `calc(2rem + (100% - 4rem) * ${todayPct / 100})` }}
-              aria-hidden="true"
-            />
+        Horizontally the track is inset by a 2rem gutter, because each node is
+        centred on its date and the outermost two would otherwise hang half
+        their width off the card.
+      */}
+      <div className="px-8">
+        {/* Band 1 — the Today caption, above everything */}
+        <div className="relative h-4">
+          {todayInRange && (
             <span
-              className="absolute top-0 -translate-x-1/2 whitespace-nowrap text-caption font-semibold text-primary"
-              style={{ left: `calc(2rem + (100% - 4rem) * ${todayPct / 100})` }}
+              className="absolute -translate-x-1/2 whitespace-nowrap text-caption font-semibold text-primary"
+              style={{ left: `${todayPct}%` }}
             >
               Today
             </span>
-          </>
-        )}
+          )}
+        </div>
 
-        {sorted.map((node) => (
-          <span
-            key={node.id}
-            className="absolute top-[18px] flex -translate-x-1/2 flex-col items-center gap-1.5"
-            style={{
-              left: `calc(2rem + (100% - 4rem) * ${positionOf(node.payDate, first, last) / 100})`,
-            }}
-          >
-            <span className="whitespace-nowrap font-mono text-caption font-semibold text-secondary">
+        {/* Band 2 — dates, then the rail with the dots centred on it */}
+        <div className="relative h-9">
+          {sorted.map((node) => (
+            <span
+              key={`d-${node.id}`}
+              className="absolute top-0 -translate-x-1/2 whitespace-nowrap font-mono text-caption font-semibold text-secondary"
+              style={{ left: `${positionOf(node.payDate, first, last)}%` }}
+            >
               {fmt(node.payDate)}
             </span>
-            <span className={`h-3 w-3 rounded-full border-2 ${DOT[node.status]}`} aria-hidden="true" />
-            <span className={`whitespace-nowrap text-caption font-medium ${AMOUNT_TONE[node.status]}`}>
+          ))}
+
+          <div className="absolute inset-x-0 bottom-1.5 h-1 rounded-full bg-sunken" />
+          <div
+            className="absolute bottom-1.5 left-0 h-1 rounded-full bg-moss"
+            style={{ width: `${paidPct}%` }}
+          />
+
+          {todayInRange && (
+            <div
+              className="absolute -top-1 bottom-0 border-l border-dashed border-primary"
+              style={{ left: `${todayPct}%` }}
+              aria-hidden="true"
+            />
+          )}
+
+          {sorted.map((node) => (
+            <span
+              key={`n-${node.id}`}
+              className={`absolute bottom-0.5 h-3 w-3 -translate-x-1/2 rounded-full border-2 ${DOT[node.status]}`}
+              style={{ left: `${positionOf(node.payDate, first, last)}%` }}
+              aria-hidden="true"
+            />
+          ))}
+        </div>
+
+        {/* Band 3 — amounts, clear of the rail */}
+        <div className="relative h-5 pt-1.5">
+          {sorted.map((node) => (
+            <span
+              key={`a-${node.id}`}
+              className={`absolute -translate-x-1/2 whitespace-nowrap text-caption font-medium ${AMOUNT_TONE[node.status]}`}
+              style={{ left: `${positionOf(node.payDate, first, last)}%` }}
+            >
               {dollars(node.amountCents)}
             </span>
-          </span>
-        ))}
+          ))}
+        </div>
       </div>
 
       {movedPastDueCount > 0 ? (

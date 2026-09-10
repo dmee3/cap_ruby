@@ -37,6 +37,31 @@ describe('ScheduleTimeline', () => {
     })
   })
 
+  // The screenshot bug: the rail was drawn across the date labels, striking
+  // them through. Dates, rail+dots, and amounts must be in separate bands.
+  it('keeps the date labels out of the rail band', () => {
+    const { container } = render(
+      <ScheduleTimeline nodes={nodes} today="2026-01-20" paidCents={50_000} plannedCents={170_000} />,
+    )
+    const rail = container.querySelector('.bg-sunken.rounded-full')!
+    const railBand = rail.parentElement!
+    const dateLabel = screen.getByText('10/17')
+
+    // the rail's band contains the dots, and the dates sit above the rail
+    expect(railBand.contains(dateLabel)).toBe(true)
+    expect(dateLabel.className).toMatch(/top-0/)
+    expect(rail.className).toMatch(/bottom-/)
+  })
+
+  it('puts the amounts in a band below the rail entirely', () => {
+    const { container } = render(
+      <ScheduleTimeline nodes={nodes} today="2026-01-20" paidCents={50_000} plannedCents={170_000} />,
+    )
+    const rail = container.querySelector('.bg-sunken.rounded-full')!
+    const amount = screen.getAllByText('$400')[0]
+    expect(rail.parentElement!.contains(amount)).toBe(false)
+  })
+
   it('renders one node per entry, each with its date and amount', () => {
     render(<ScheduleTimeline nodes={nodes} today="2026-01-20" paidCents={50_000} plannedCents={170_000} />)
     // dates are unique per node, so they count the nodes without catching
