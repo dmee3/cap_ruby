@@ -607,9 +607,23 @@ each one superseded.
 5. Implementation plan → `~/.claude/plans/`, one phase per layer (backend →
    primitives → screen → screen → polish), one commit per phase, green gate
    (`rspec` / `vitest` / `vite build` / `rubocop`) at each.
-6. One PR per flow, off fresh `main`, with a "needs a human visual pass"
+6. **When building a screen, open its canvas artboard — not just §4.**
+   *(Learned the hard way in Flow 4.)* This document defines **components**:
+   props, states, variants, the tokens each one uses. The canvas defines
+   **composition**: the page grid and its column proportions, the gaps, the
+   type scale in context, the order of sections, row anatomy, and the
+   incidental elements §4 never enumerates (a "view all" link, a header
+   count, a column-header strip, a footer caption). Flow 4's dashboard was
+   built from §4 alone and needed a 13-item correction round — the list
+   cards were the wrong *shape*, a four-column table rendered as two fields,
+   and the page header was invented copy. Neither source is redundant:
+   §4 is authoritative for what a component **is**, the artboard for how the
+   screen is **assembled**. Read both, and diff your build against the
+   artboard before calling a screen done.
+7. One PR per flow, off fresh `main`, with a "needs a human visual pass"
    callout. Expect a round or two of tweaks from the visual pass after the PR
-   opens.
+   opens — and treat anything the pass finds that §4 *could* have specified
+   as a gap to fold back into §4.
 
 ---
 
