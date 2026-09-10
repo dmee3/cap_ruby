@@ -82,6 +82,17 @@ describe('AdminDashboard', () => {
     expect(screen.getByText('3')).toHaveClass('text-warning-fg')
   })
 
+  it('names the surplus when ahead, so "ahead" never reads against the collected figure', () => {
+    render(
+      <AdminDashboard
+        {...base}
+        stats={{ ...base.stats, expected_cents: 5_000_000, collected_cents: 5_132_000 }}
+      />,
+    )
+    expect(screen.getByText('$1,320 ahead of the plan')).toBeInTheDocument()
+    expect(screen.queryByText('Ahead of the plan')).not.toBeInTheDocument()
+  })
+
   it('shows whole-dollar figures, never cents', () => {
     render(<AdminDashboard {...base} />)
     expect(screen.getByText('$57,600')).toBeInTheDocument()

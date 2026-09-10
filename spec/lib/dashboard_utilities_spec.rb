@@ -159,6 +159,44 @@ RSpec.describe DashboardUtilities do
     end
 
     describe '.season_actual_series' do
+      # Regression: the frame appends the last due date so the SCHEDULED line
+      # reaches it. That point is not a Sunday and is often after today —
+      # letting it into the actual series put the collected line past today and
+      # made the chart's shortfall disagree with the "expected by today" stat.
+      it 'ends at today, never at the trailing last-due-date point' do
+        late = create(:season, year: '2031')
+        lu = create(:user)
+        create(:seasons_user, user: lu, season: late, role: 'member')
+        ls = create(:payment_schedule, season: late, user: lu)
+        create(:payment_schedule_entry, payment_schedule: ls, pay_date: Date.current - 20.days, amount: 10_000)
+        create(:payment_schedule_entry, payment_schedule: ls, pay_date: Date.current + 40.days, amount: 10_000)
+
+        series = described_class.season_actual_series(late.id)
+
+        expect(series.last.first).to eq(Date.current.iso8601)
+        expect(series.map(&:first)).to all(be <= Date.current.iso8601)
+      end
+
+      it 'agrees with total_dues_owed_to_date at today' do
+        agree = create(:season, year: '2032')
+        au = create(:user)
+        create(:seasons_user, user: au, season: agree, role: 'member')
+        as = create(:payment_schedule, season: agree, user: au)
+        # One installment before the last Sunday, one between it and today.
+        last_sunday = Date.current - Date.current.wday
+        create(:payment_schedule_entry, payment_schedule: as, pay_date: last_sunday - 14.days, amount: 30_000)
+        create(:payment_schedule_entry, payment_schedule: as, pay_date: last_sunday + 1.day, amount: 20_000) if
+          last_sunday + 1.day <= Date.current
+        create(:payment, user: au, season: agree, amount: 32_500, date_paid: last_sunday - 10.days)
+
+        sched = described_class.season_scheduled_series(agree.id)
+        actual = described_class.season_actual_series(agree.id)
+        at_today = ->(s) { s.select { |d, _| d <= Date.current.iso8601 }.last.last }
+
+        expect((at_today.call(sched) * 100).round).to eq(PaymentService.total_dues_owed_to_date(agree.id))
+        expect((at_today.call(actual) * 100).round).to eq(PaymentService.total_dues_paid_to_date(agree.id))
+      end
+
       it 'is empty when every scheduled Sunday is still in the future' do
         future = create(:season, year: '2099')
         fu = create(:user)

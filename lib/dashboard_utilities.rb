@@ -90,15 +90,25 @@ class DashboardUtilities
       sundays, entries, = burndown_frame(season_id)
       return [] if sundays.empty?
 
-      cumulative_series(sundays, entries, :pay_date)
+      # Carry an exact point at today (when it's inside the season) so the
+      # chart's as-of-today shortfall reads the real scheduled total rather
+      # than last Sunday's.
+      cumulative_series(with_today(sundays), entries, :pay_date)
     end
 
     def season_actual_series(season_id)
       sundays, _entries, payments = burndown_frame(season_id)
       return [] if sundays.empty?
 
+      # Weekly samples up to today, then today itself as the final point — so
+      # the line ends where "today" actually is rather than at the last Sunday,
+      # and so its last value matches the "expected by today" stat card. The
+      # frame's trailing last-due-date point is scheduled-only; including it
+      # here would read payments past today.
       today = Date.current
-      cumulative_series(sundays.select { |d| d <= today }, payments, :date_paid)
+      samples = sundays.select { |d| d <= today }
+      samples << today if samples.any? && samples.last != today
+      cumulative_series(samples, payments, :date_paid)
     end
 
     # For the dashboard stat: average number of days a past-due schedule entry
@@ -128,6 +138,15 @@ class DashboardUtilities
       sundays = (start..last).select { |d| d.wday.zero? }
       sundays << last unless sundays.last == last
       [sundays, entries, payments]
+    end
+
+    # Splice today into the weekly grid, in order, when it falls inside it.
+    def with_today(sundays)
+      today = Date.current
+      return sundays unless today.between?(sundays.first, sundays.last)
+      return sundays if sundays.include?(today)
+
+      (sundays + [today]).sort
     end
 
     def cumulative_series(sample_dates, records, date_attr)

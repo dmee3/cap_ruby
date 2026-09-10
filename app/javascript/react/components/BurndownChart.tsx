@@ -94,9 +94,11 @@ const BurndownChart = ({
   // Behind-schedule band: between the two lines, over the range the collected
   // line covers, only where collected trails scheduled.
   const behindArea = buildBehindArea(scheduled, actual, x, y)
-  const behindCents = lastActual
-    ? valueAt(scheduled, lastActual[0]) - lastActual[1]
-    : 0
+  // Measure the shortfall AS OF TODAY, not as of the last weekly sample —
+  // otherwise an installment falling between the last sample and today makes
+  // this disagree with the "expected by today" stat card, and can even flip
+  // its sign.
+  const behindCents = lastActual ? valueAt(scheduled, today) - valueAt(actual, today) : 0
 
   const todayX = x(clampIso(today, allDates[0], allDates[allDates.length - 1]))
   const gridValues = [0, axisMax / 3, (axisMax * 2) / 3, axisMax]

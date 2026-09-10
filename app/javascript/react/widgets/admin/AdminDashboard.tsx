@@ -107,7 +107,8 @@ const AdminDashboard = ({
 
   const scheduled = sliceRange(burndown.scheduled, range, burndown.today)
   const actual = sliceRange(burndown.actual, range, burndown.today)
-  const shortfall = Math.max(stats.expected_cents - stats.collected_cents, 0)
+  // Signed: positive = behind the plan, negative = ahead of it.
+  const shortfall = stats.expected_cents - stats.collected_cents
 
   return (
     <div className="flex flex-col gap-5">
@@ -182,10 +183,15 @@ const AdminDashboard = ({
           <StatBlock
             kicker="Collected so far"
             metric={money(stats.collected_cents)}
+            // Always name the gap against the plan — an unqualified "ahead"
+            // sitting under the collected figure reads as if that figure were
+            // the surplus.
             context={
-              shortfall > 0 ? `${money(shortfall)} short of the plan` : 'Ahead of the plan'
+              shortfall > 0
+                ? `${money(shortfall)} short of the plan`
+                : `${money(-shortfall)} ahead of the plan`
             }
-            tone="success"
+            tone={shortfall > 0 ? 'warning' : 'success'}
           />
         </Card>
         <Card tone={statTone(stats.behind_count)} borderTone={stats.behind_count > 0}>
