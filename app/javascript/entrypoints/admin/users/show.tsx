@@ -5,9 +5,9 @@ import Utilities from '../../../utilities/utilities'
 
 const el = document.getElementById('member-360')
 
-if (el && el.dataset.member360) {
+if (el && el.dataset.memberDetail) {
   try {
-    const data = JSON.parse(el.dataset.member360) as Member360Data
+    const data = JSON.parse(el.dataset.memberDetail) as Member360Data
     render(<Member360 data={data} csrfToken={Utilities.getAuthToken()} />, el)
   } catch (e) {
     console.error('Member 360 failed to parse', e)

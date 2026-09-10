@@ -16,7 +16,10 @@
   </div>
 </div>
 
-<div id="member-360" data-member-360="<%= @member360.to_json %>">
+<%# NB: no digits in the attribute name — `data-member-360` would only be
+    reachable as dataset['member-360'], never dataset.member360, which fails
+    silently. See app/javascript/utilities/dataset.test.ts. %>
+<div id="member-360" data-member-detail="<%= @member360.to_json %>">
   <div class="flex flex-col gap-4">
     <div class="h-40 rounded-md bg-sunken animate-pulse"></div>
     <div class="h-64 rounded-md bg-sunken animate-pulse"></div>

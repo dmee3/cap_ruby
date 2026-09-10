@@ -25,6 +25,16 @@ RSpec.describe 'Admin::Users Member 360', type: :request do
       expect(response.body).to include('roles_by_season')
     end
 
+    # `data-member-360` reads back as dataset['member-360'], never
+    # dataset.member360 — the entrypoint's guard silently failed and the page
+    # rendered its skeleton forever. Keep digits out of the attribute name.
+    it 'names the island attribute without a digit, so dataset dot-access works' do
+      get "/admin/users/#{member.id}"
+
+      expect(response.body).to include('data-member-detail=')
+      expect(response.body).not_to include('data-member-360=')
+    end
+
     it 'includes soft-deleted payments in the view-model, flagged' do
       gone = create(:payment, user: member, season: season, amount: 5000, date_paid: Date.current - 1.day)
       gone.destroy
