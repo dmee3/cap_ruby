@@ -37,6 +37,24 @@ RSpec.describe Admin::ScheduleDefault do
       expect(locked_row).to include(locked: true, kind: 'unchanged')
     end
 
+    it 'folds a moved date into one row rather than a removal plus an addition' do
+      # 11/14 at $400 is in the default; put the same amount on a nearby date.
+      create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.new(2025, 11, 20), amount: 40_000)
+
+      diff = described_class.preview(schedule.reload, season)[:diff]
+      moved = diff.find { |row| row[:kind] == 'moved' }
+
+      expect(moved).to include(from_date: '2025-11-20', to_date: '2025-11-14', to_cents: 40_000)
+      expect(diff.count { |row| row[:kind] == 'removed' }).to eq(0)
+    end
+
+    it 'reports how many entries the reset would leave alone' do
+      create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.new(2025, 10, 17), amount: 50_000)
+      create(:payment, user: user, season: season, amount: 50_000, date_paid: Date.new(2025, 10, 18))
+
+      expect(described_class.preview(schedule.reload, season)[:locked_count]).to eq(1)
+    end
+
     it 'returns nil when the member has no default schedule' do
       orphan = create(:payment_schedule, season: season, user: create(:user))
       expect(described_class.preview(orphan, season)).to be_nil

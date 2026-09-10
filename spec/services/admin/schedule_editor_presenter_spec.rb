@@ -26,6 +26,38 @@ RSpec.describe Admin::ScheduleEditorPresenter do
     expect(result[:planned_cents]).to eq(50_000)
   end
 
+  it 'carries the season label and a display member type' do
+    result = present
+    expect(result[:season_label]).to eq('2026')
+    expect(result[:member]).to include(member_type: 'New member')
+  end
+
+  it 'counts how many entries a reset would leave alone' do
+    create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.current - 30.days, amount: 20_000)
+    create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.current + 30.days, amount: 20_000)
+    create(:payment, user: user, season: season, amount: 20_000, date_paid: Date.current - 25.days)
+
+    expect(present[:locked_count]).to eq(1)
+  end
+
+  it 'reports whether the schedule is still the untouched per-year default' do
+    expect(present[:matches_default]).to be(false)
+
+    PaymentScheduleService.default_schedule_for(user, season).each do |day, dollars|
+      create(:payment_schedule_entry, payment_schedule: schedule,
+                                      pay_date: Date.strptime(day, '%m/%d/%y'), amount: dollars * 100)
+    end
+
+    expect(present[:matches_default]).to be(true)
+  end
+
+  it 'names the date a covered entry was actually paid' do
+    create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.new(2025, 10, 17), amount: 20_000)
+    create(:payment, user: user, season: season, amount: 20_000, date_paid: Date.new(2025, 10, 18))
+
+    expect(present[:entries].first[:covered_on]).to eq('10/18')
+  end
+
   it 'derives per-entry status from the running payment total' do
     create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.current - 30.days, amount: 20_000)
     create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.current - 3.days, amount: 20_000)

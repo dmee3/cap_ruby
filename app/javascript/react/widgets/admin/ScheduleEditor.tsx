@@ -1,25 +1,40 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import Card from '../../components/Card'
 import ScheduleTimeline, { TimelineNode } from '../../components/ScheduleTimeline'
 import ScheduleDiffPanel, { ScheduleDiffRow } from '../../components/ScheduleDiffPanel'
 import MoneyField from '../../components/MoneyField'
 import Button from '../../components/Button'
-import Pill from '../../components/Pill'
+import Pill, { PillTone } from '../../components/Pill'
 import { toast } from '../../components/Toast'
 import Utilities from '../../../utilities/utilities'
+import { dollars } from '../../../utilities/money'
+
+type EntryStatus = 'paid' | 'due-next' | 'not-due' | 'late'
 
 type ServerEntry = {
   id: number
   pay_date: string
   amount_cents: number
-  status: 'paid' | 'due-next' | 'not-due' | 'late'
+  status: EntryStatus
   days_late: number | null
+  covered_on: string | null
 }
 
 export type ScheduleEditorData = {
   schedule_id: number
-  member: { id: number; name: string; ensemble: string | null; section: string | null; vet: boolean }
+  season_label: string
+  member: {
+    id: number
+    name: string
+    ensemble: string | null
+    section: string | null
+    vet: boolean
+    member_type: string
+  }
   paid_cents: number
   planned_cents: number
+  locked_count: number
+  matches_default: boolean
   entries: ServerEntry[]
 }
 
@@ -29,12 +44,15 @@ type Row = {
   amountCents: number | null
   originalDate: string
   originalAmount: number
-  status: ServerEntry['status']
+  status: EntryStatus
   daysLate: number | null
+  coveredOn: string | null
 }
 
-const headers = { 'Content-Type': 'application/json', 'X-CSRF-Token': '' }
-const withToken = () => ({ ...headers, 'X-CSRF-Token': Utilities.getAuthToken() })
+const withToken = () => ({
+  'Content-Type': 'application/json',
+  'X-CSRF-Token': Utilities.getAuthToken(),
+})
 
 const toRow = (e: ServerEntry): Row => ({
   id: e.id,
@@ -44,29 +62,50 @@ const toRow = (e: ServerEntry): Row => ({
   originalAmount: e.amount_cents,
   status: e.status,
   daysLate: e.days_late,
+  coveredOn: e.covered_on,
 })
 
 const fmt = (iso: string) =>
   new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
 
-const statusPill = (row: Row) => {
-  if (row.payDate !== row.originalDate) return <Pill tone="warning">Moved from {fmt(row.originalDate)}</Pill>
-  switch (row.status) {
-    case 'paid':
-      return <Pill tone="success">Paid</Pill>
-    case 'late':
-      return <Pill tone="danger">{row.daysLate} days late</Pill>
-    case 'due-next':
-      return <Pill tone="warning">Due next</Pill>
-    default:
-      return <Pill tone="neutral">Not due yet</Pill>
-  }
+const STATUS_TONE: Record<EntryStatus, PillTone> = {
+  paid: 'success',
+  late: 'danger',
+  'due-next': 'warning',
+  'not-due': 'neutral',
 }
+
+const statusPill = (row: Row) => {
+  if (row.payDate !== row.originalDate) {
+    return (
+      <Pill tone="warning" casing="sentence">
+        Moved from {fmt(row.originalDate)}
+      </Pill>
+    )
+  }
+  const label =
+    row.status === 'paid'
+      ? `Paid${row.coveredOn ? ` ${row.coveredOn}` : ''}`
+      : row.status === 'late'
+        ? `${row.daysLate} days late`
+        : row.status === 'due-next'
+          ? 'Due next'
+          : 'Not due yet'
+  return (
+    <Pill tone={STATUS_TONE[row.status]} casing="sentence">
+      {label}
+    </Pill>
+  )
+}
+
+const GRID = 'grid grid-cols-[44px_1fr_1fr_130px_40px] items-center gap-3'
 
 const ScheduleEditor = ({ data }: { data: ScheduleEditorData }) => {
   const [rows, setRows] = useState<Row[]>(data.entries.map(toRow))
   const [saving, setSaving] = useState(false)
   const [diff, setDiff] = useState<ScheduleDiffRow[] | null>(null)
+  const [lockedCount, setLockedCount] = useState(data.locked_count)
+  const [resetMode, setResetMode] = useState<'resting' | 'confirming'>('resting')
   const [applying, setApplying] = useState(false)
 
   const scheduleId = data.schedule_id
@@ -74,6 +113,8 @@ const ScheduleEditor = ({ data }: { data: ScheduleEditorData }) => {
   useEffect(() => {
     type ServerDiffRow = {
       pay_date: string
+      from_date: string | null
+      to_date: string | null
       kind: ScheduleDiffRow['kind']
       from_cents: number | null
       to_cents: number | null
@@ -83,27 +124,30 @@ const ScheduleEditor = ({ data }: { data: ScheduleEditorData }) => {
       headers: { Accept: 'application/json' },
     })
       .then((r) => (r.ok ? r.json() : null))
-      .then((body: { diff: ServerDiffRow[] } | null) =>
+      .then((body: { diff: ServerDiffRow[]; locked_count: number } | null) => {
+        if (!body) return
+        setLockedCount(body.locked_count)
         setDiff(
-          body?.diff.map((row) => ({
+          body.diff.map((row) => ({
             payDate: row.pay_date,
+            fromDate: row.from_date,
+            toDate: row.to_date,
             kind: row.kind,
             fromCents: row.from_cents,
             toCents: row.to_cents,
             locked: row.locked,
-          })) ?? null,
-        ),
-      )
+          })),
+        )
+      })
       .catch(() => setDiff(null))
   }, [scheduleId])
 
   const dirty = useMemo(
-    () =>
-      rows.some(
-        (r) => r.payDate !== r.originalDate || r.amountCents !== r.originalAmount || r.id < 0,
-      ),
+    () => rows.some((r) => r.payDate !== r.originalDate || r.amountCents !== r.originalAmount),
     [rows],
   )
+
+  const plannedCents = rows.reduce((sum, r) => sum + (r.amountCents ?? 0), 0)
 
   const timelineNodes: TimelineNode[] = rows
     .filter((r) => r.amountCents != null)
@@ -111,12 +155,13 @@ const ScheduleEditor = ({ data }: { data: ScheduleEditorData }) => {
       id: r.id,
       payDate: r.payDate,
       amountCents: r.amountCents as number,
-      status: r.payDate !== r.originalDate && r.status !== 'paid' ? 'late' : r.status,
+      status: r.status,
     }))
 
-  const movedPastDue = rows.some(
-    (r) => r.payDate !== r.originalDate && r.originalDate < new Date().toISOString().slice(0, 10),
-  )
+  const today = new Date().toISOString().slice(0, 10)
+  const movedPastDueCount = rows.filter(
+    (r) => r.payDate !== r.originalDate && r.originalDate < today,
+  ).length
 
   const setRow = (id: number, patch: Partial<Row>) =>
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)))
@@ -139,6 +184,7 @@ const ScheduleEditor = ({ data }: { data: ScheduleEditorData }) => {
             originalAmount: entry.amount,
             status: 'not-due',
             daysLate: null,
+            coveredOn: null,
           },
         ]),
       )
@@ -180,7 +226,13 @@ const ScheduleEditor = ({ data }: { data: ScheduleEditorData }) => {
     })
       .then((r) => {
         if (!r.ok) throw r
-        window.location.href = `/admin/users/${data.member.id}`
+        toast(
+          `Schedule saved — ${rows.length} payments, ${dollars(plannedCents)} for ${data.member.name}`,
+          { variant: 'success' },
+        )
+        window.setTimeout(() => {
+          window.location.href = `/admin/users/${data.member.id}`
+        }, 600)
       })
       .catch(() => {
         setSaving(false)
@@ -201,91 +253,140 @@ const ScheduleEditor = ({ data }: { data: ScheduleEditorData }) => {
       })
       .catch(() => {
         setApplying(false)
+        setResetMode('resting')
         toast("Couldn't apply the default", { variant: 'error' })
       })
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-      <div className="flex flex-col gap-5">
-        <div className="rounded-md border border-border-default bg-surface p-5">
-          <ScheduleTimeline
-            nodes={timelineNodes}
-            today={new Date().toISOString().slice(0, 10)}
-            paidCents={data.paid_cents}
-            plannedCents={rows.reduce((sum, r) => sum + (r.amountCents ?? 0), 0)}
-            datesMovedPastDue={movedPastDue}
-          />
-        </div>
-
-        <div className="rounded-md border border-border-default bg-surface p-5">
-          <div className="mb-3 flex items-center justify-between">
-            <span className="text-h3 text-primary">Installments</span>
-            {dirty && <span className="text-caption font-semibold text-warning-fg">Unsaved changes</span>}
-          </div>
-
-          <ul className="flex flex-col gap-4">
-            {rows.map((row) => (
-              <li key={row.id} className="flex flex-wrap items-end gap-3">
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-body-sm font-semibold text-primary">Date</span>
-                  <input
-                    type="date"
-                    value={row.payDate}
-                    onChange={(e) => setRow(row.id, { payDate: e.target.value })}
-                    className="h-11 rounded-sm border border-border-strong bg-surface px-3 text-body text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
-                  />
-                </label>
-                <div className="w-40">
-                  <MoneyField
-                    id={`entry-${row.id}`}
-                    label="Amount"
-                    valueCents={row.amountCents}
-                    onChangeCents={(cents) => setRow(row.id, { amountCents: cents })}
-                  />
-                </div>
-                <div className="flex items-center gap-2 pb-2.5">
-                  {statusPill(row)}
-                  <button
-                    type="button"
-                    onClick={() => removeRow(row.id)}
-                    className="rounded-sm px-2 py-1 text-body-sm text-danger-fg hover:bg-sunken"
-                  >
-                    Remove
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-4 flex flex-wrap justify-between gap-2">
-            <Button variant="secondary" size="md" onClick={addRow} fullWidthBelow={false}>
-              Add installment
-            </Button>
-            <div className="flex gap-2">
-              <a
-                href={`/admin/users/${data.member.id}`}
-                className="inline-flex h-9 items-center rounded-sm px-3 text-body-sm font-medium text-secondary hover:bg-sunken"
-              >
-                Cancel
-              </a>
-              <Button variant="primary" size="md" loading={saving} onClick={save} fullWidthBelow={false}>
-                Save schedule
-              </Button>
-            </div>
-          </div>
-        </div>
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-center gap-3">
+        {dirty && <span className="text-caption text-secondary">Unsaved changes</span>}
+        <a
+          href={`/admin/users/${data.member.id}`}
+          className="ml-auto flex h-9 items-center px-3 text-body-sm font-medium text-secondary no-underline hover:text-primary"
+        >
+          Cancel
+        </a>
+        <Button variant="primary" size="md" loading={saving} onClick={save} fullWidthBelow={false}>
+          Save schedule
+        </Button>
       </div>
 
-      {diff && diff.length > 0 && (
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="flex flex-col gap-5">
+          <Card
+            title="Plan against what's actually in"
+            action={
+              <span className="text-body-sm text-secondary">
+                {dollars(data.paid_cents)} paid of {dollars(plannedCents)} planned
+              </span>
+            }
+          >
+            <ScheduleTimeline
+              nodes={timelineNodes}
+              today={today}
+              paidCents={data.paid_cents}
+              plannedCents={plannedCents}
+              movedPastDueCount={movedPastDueCount}
+            />
+          </Card>
+
+          <Card
+            variant="list"
+            title="Schedule rows"
+            count={
+              data.matches_default && !dirty
+                ? `Default ${data.member.member_type.toLowerCase()} schedule, unedited`
+                : `${rows.length} payments · ${dollars(plannedCents)}`
+            }
+          >
+            <div
+              className={`${GRID} border-b border-border-default bg-sunken px-4 py-2.5 text-label uppercase text-secondary`}
+            >
+              <span>#</span>
+              <span>Due date</span>
+              <span>Amount</span>
+              <span>Status</span>
+              <span className="sr-only">Remove</span>
+            </div>
+
+            <ul className="flex flex-col">
+              {rows.map((row, i) => {
+                const locked = row.status === 'paid'
+                return (
+                  <li key={row.id} className={`${GRID} border-b border-border-default px-4 py-2.5`}>
+                    <span
+                      className={`font-mono text-body-sm ${locked ? 'text-secondary' : 'font-bold text-primary'}`}
+                    >
+                      {i + 1}
+                    </span>
+
+                    <input
+                      type="date"
+                      aria-label={`Due date for payment ${i + 1}`}
+                      value={row.payDate}
+                      disabled={locked}
+                      onChange={(e) => setRow(row.id, { payDate: e.target.value })}
+                      className="h-10 rounded-sm border border-border-strong bg-surface px-2.5 text-body-sm text-primary disabled:border-border-default disabled:bg-sunken disabled:text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
+                    />
+
+                    <MoneyField
+                      id={`entry-${row.id}`}
+                      label=""
+                      valueCents={row.amountCents}
+                      onChangeCents={(cents) => setRow(row.id, { amountCents: cents })}
+                      disabled={locked}
+                      compact
+                    />
+
+                    {statusPill(row)}
+
+                    {locked ? (
+                      <span className="text-center text-border-strong" aria-hidden="true">
+                        –
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => removeRow(row.id)}
+                        aria-label={`Remove payment ${i + 1}`}
+                        className="text-body font-semibold text-danger-fg hover:opacity-70"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+
+            <div className="flex items-center gap-3 px-4 py-3">
+              <button
+                type="button"
+                onClick={addRow}
+                className="h-9 rounded-sm border border-dashed border-border-strong px-3.5 text-body-sm font-semibold text-accent-primary hover:border-accent-primary"
+              >
+                + Add a payment date
+              </button>
+              <span className="ml-auto text-body-sm font-semibold text-primary">
+                Total {dollars(plannedCents)}
+              </span>
+            </div>
+          </Card>
+        </div>
+
         <ScheduleDiffPanel
           defaultLabel={data.member.vet ? 'the vet default' : 'the new-member default'}
-          rows={diff}
+          rows={diff ?? []}
+          lockedCount={lockedCount}
+          mode={resetMode}
+          onAskReset={() => setResetMode('confirming')}
           onApply={applyDefault}
-          onKeep={() => setDiff(null)}
+          onKeep={() => setResetMode('resting')}
           applying={applying}
         />
-      )}
+      </div>
     </div>
   )
 }

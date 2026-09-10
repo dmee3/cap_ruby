@@ -40,7 +40,10 @@ module Admin
 
       {
         entries: default_entries.map { |e| { pay_date: e[:pay_date].iso8601, amount_cents: e[:amount_cents] } },
-        diff: build_diff
+        diff: build_diff,
+        # How many entries the reset will leave alone — the reassurance the
+        # confirm step leads with.
+        locked_count: current_entries.count { |e| covered?(e.pay_date) }
       }
     end
 
@@ -94,17 +97,40 @@ module Admin
       default_by_date = default_entries.index_by { |e| e[:pay_date] }
       dates = (current_by_date.keys + default_by_date.keys).uniq.sort
 
-      dates.map do |date|
+      rows = dates.map do |date|
         existing = current_by_date[date]
         incoming = default_by_date[date]
         {
           pay_date: date.iso8601,
+          from_date: existing && date.iso8601,
+          to_date: incoming && date.iso8601,
           kind: diff_kind(existing, incoming, covered?(date)),
           from_cents: existing&.amount,
           to_cents: incoming&.fetch(:amount_cents),
           locked: covered?(date)
         }
       end
+
+      pair_moves(rows)
+    end
+
+    # A date that simply moved reads as a removal plus an addition of the same
+    # amount. The canvas shows that as one "3/15 → 3/20" row, which is what it
+    # actually is, so fold the pair back together.
+    def pair_moves(rows)
+      removed = rows.select { |r| r[:kind] == 'removed' && !r[:locked] }
+      added = rows.select { |r| r[:kind] == 'added' }
+      merged = []
+
+      removed.each do |gone|
+        match = added.find { |a| a[:to_cents] == gone[:from_cents] && !merged.include?(a) }
+        next if match.nil?
+
+        merged << match
+        gone.merge!(kind: 'moved', to_date: match[:to_date], to_cents: match[:to_cents])
+      end
+
+      rows - merged
     end
 
     def diff_kind(existing, incoming, locked)
