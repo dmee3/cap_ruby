@@ -65,8 +65,11 @@ RSpec.describe 'Admin::Payments', type: :request do
 
       expect(response).to have_http_status(:success)
       expect(response.body).to include('id="add-payment"')
-      expect(response.body).to include('Rae Quinn')
+      # Last-name-first for the picker, with the installment rows the
+      # schedule panel needs.
+      expect(response.body).to include('Quinn, Rae')
       expect(response.body).to include('season_total_cents')
+      expect(response.body).to include('installments')
     end
   end
 

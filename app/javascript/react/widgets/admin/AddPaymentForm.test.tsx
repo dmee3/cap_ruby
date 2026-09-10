@@ -1,16 +1,23 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import AddPaymentForm, { AddPaymentMember, AddPaymentType } from './AddPaymentForm'
 
 const members: AddPaymentMember[] = [
   {
     id: 9,
-    name: 'Rae Quinn',
-    paid_before_cents: 20_000,
-    season_total_cents: 60_000,
-    expected_cents: 30_000,
-    applies_to: ['2026-02-06', '2026-03-06'],
+    name: 'Sokol, Elena',
+    section: 'Front Ensemble / Vibes',
+    paid_before_cents: 240_000,
+    season_total_cents: 360_000,
+    expected_cents: 240_000,
+    applies_to: ['2026-03-15', '2026-04-15'],
+    schedule_id: 4,
+    installments: [
+      { pay_date: '2025-10-17', amount_cents: 120_000, paid: true },
+      { pay_date: '2026-03-15', amount_cents: 60_000, paid: false },
+      { pay_date: '2026-04-15', amount_cents: 60_000, paid: false },
+    ],
   },
 ]
 
@@ -31,6 +38,9 @@ const setup = (props = {}) =>
     />,
   )
 
+const pickMember = async (container: HTMLElement) =>
+  userEvent.selectOptions(container.querySelector('[name="payment[user_id]"]')!, '9')
+
 describe('AddPaymentForm', () => {
   it('is a real POST form to /admin/payments with a CSRF token', () => {
     const { container } = setup()
@@ -48,37 +58,81 @@ describe('AddPaymentForm', () => {
     expect(container.querySelector('[name="payment[date_paid]"]')).toBeInTheDocument()
   })
 
-  it('blocks submit and shows a validation summary when required fields are missing', async () => {
+  it('lists members last-name-first with their section', () => {
+    setup()
+    expect(screen.getByRole('option', { name: 'Sokol, Elena · Front Ensemble / Vibes' })).toBeInTheDocument()
+  })
+
+  it('carries a helper line under every field', () => {
+    setup()
+    expect(screen.getByText(/Last name first, current-season members only/)).toBeInTheDocument()
+    expect(screen.getByText('Full amount received. No processing fee on manual payments.')).toBeInTheDocument()
+    expect(screen.getByText('Defaults to today. Back-date it if the cash sat in the box.')).toBeInTheDocument()
+    expect(screen.getByText('Members can see this on their payment history.')).toBeInTheDocument()
+  })
+
+  it('blocks submit and shows a led validation summary', async () => {
     const { container } = setup()
     const form = container.querySelector('form')!
-    const submitSpy = vi.fn((e: Event) => e.preventDefault())
-    form.addEventListener('submit', submitSpy)
+    form.addEventListener('submit', (e) => e.preventDefault())
 
     await userEvent.click(screen.getByRole('button', { name: 'Record payment' }))
 
-    expect(screen.getByText(/things to fix/)).toBeInTheDocument()
-    expect(screen.getByText('Pick the member this payment is for.')).toBeInTheDocument()
+    expect(screen.getByText("This payment wasn't saved. Two things need fixing")).toBeInTheDocument()
+    expect(screen.getAllByText(/Pick the member this payment is from\./)).not.toHaveLength(0)
+  })
+
+  it('marks the offending fields, not just the summary', async () => {
+    const { container } = setup()
+    container.querySelector('form')!.addEventListener('submit', (e) => e.preventDefault())
+
+    await userEvent.click(screen.getByRole('button', { name: 'Record payment' }))
+
+    const select = container.querySelector('[name="payment[user_id]"]')!
+    expect(select.className).toMatch(/border-danger-fg/)
   })
 
   it('shows server errors after a failed submit', () => {
     setup({ serverErrors: ['Amount must be greater than 0'] })
-    expect(screen.getByText('Amount must be greater than 0')).toBeInTheDocument()
+    expect(screen.getByText(/Amount must be greater than 0/)).toBeInTheDocument()
   })
 
   it('updates the projection panel as the member and amount change', async () => {
     const { container } = setup()
-    await userEvent.selectOptions(container.querySelector('[name="payment[user_id]"]')!, '9')
+    await pickMember(container)
+    await userEvent.type(screen.getByLabelText('Amount'), '1200')
 
-    await userEvent.type(screen.getByLabelText('Amount'), '100')
-
-    expect(screen.getByText('Paid before').nextSibling).toHaveTextContent('$200.00')
-    expect(screen.getByText('This payment').nextSibling).toHaveTextContent('+$100.00')
+    expect(screen.getByText('Paid before').nextSibling).toHaveTextContent('$2,400')
+    expect(screen.getByText('This payment').nextSibling).toHaveTextContent('+$1,200')
   })
 
   it('shows the read-only "Applies to" line for the selected member', async () => {
     const { container } = setup()
-    await userEvent.selectOptions(container.querySelector('[name="payment[user_id]"]')!, '9')
-    expect(screen.getByText(/oldest unpaid due date first/)).toBeInTheDocument()
+    await pickMember(container)
+    expect(screen.getByText(/Oldest unpaid due date first: 3\/15, then 4\/15/)).toBeInTheDocument()
+  })
+
+  it('prompts to pick a member before any due dates can be shown', () => {
+    setup()
+    expect(screen.getByText('Pick a member to see their due dates')).toBeInTheDocument()
+  })
+
+  it("renders the member's schedule and marks what this payment will cover", async () => {
+    const { container } = setup()
+    await pickMember(container)
+
+    expect(screen.getByText('Sokol’s schedule')).toBeInTheDocument()
+    expect(screen.getByText('Paid')).toBeInTheDocument()
+    expect(screen.getByText('Season total')).toBeInTheDocument()
+
+    await userEvent.type(screen.getByLabelText('Amount'), '600')
+    expect(screen.getByText('Covers this')).toBeInTheDocument()
+  })
+
+  it('offers Cancel and explains the submit lock', () => {
+    setup()
+    expect(screen.getByRole('link', { name: 'Cancel' })).toHaveAttribute('href', '/admin/payments')
+    expect(screen.getByText('One click only. The button locks while saving.')).toBeInTheDocument()
   })
 
   it('pre-fills sticky values on a re-render after failure', () => {

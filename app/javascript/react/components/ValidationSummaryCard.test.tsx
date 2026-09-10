@@ -38,13 +38,27 @@ describe('ValidationSummaryCard', () => {
     expect(screen.getByText('3 things to fix')).toBeInTheDocument()
   })
 
-  it('renders errors as plain red text — no links', () => {
+  it('renders errors as plain text — no links', () => {
     const { container } = render(
       <ValidationSummaryCard errors={[{ fieldId: 'start', message: 'Start date must be in the future' }]} />
     )
-    const item = screen.getByText('Start date must be in the future')
+    const item = screen.getByText(/Start date must be in the future/)
     expect(item.closest('a')).toBeNull()
-    expect(item).toHaveClass('text-danger-fg')
+    // The heading carries the danger tone; the items stay readable primary ink.
+    expect(item).toHaveClass('text-primary')
     expect(container.querySelector('a')).toBeNull()
+  })
+
+  it('can lead the heading with a sentence about what failed', () => {
+    render(
+      <ValidationSummaryCard
+        lead="This payment wasn't saved."
+        errors={[
+          { fieldId: 'user', message: 'Pick the member this payment is from.' },
+          { fieldId: 'amount', message: 'Amount has to be more than $0.' },
+        ]}
+      />
+    )
+    expect(screen.getByText("This payment wasn't saved. Two things need fixing")).toBeInTheDocument()
   })
 })

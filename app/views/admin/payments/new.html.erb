@@ -1,11 +1,11 @@
 <% content_for :page_title, 'Add manual payment' %>
 <%= vite_typescript_tag 'entrypoints/admin/payments/new.tsx' %>
 
-<div class="flex flex-col gap-1 mb-5">
-  <h1 class="mb-0">Add manual payment</h1>
-  <p class="text-body-sm text-secondary">
-    Record a payment made outside the system — cash, Venmo, a check.
-  </p>
+<div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-5">
+  <%= link_to '‹ Payments', admin_payments_path,
+              class: 'basis-full text-body-sm font-medium text-accent-primary no-underline hover:underline' %>
+  <h1 class="m-0 text-h3 text-primary">Add manual payment</h1>
+  <span class="ml-auto text-body-sm text-secondary"><%= current_season['year'] %> season</span>
 </div>
 
 <div

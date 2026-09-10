@@ -157,21 +157,8 @@ module Admin
       PaymentType.where.not(name: 'Stripe').order(:name).map { |t| { id: t.id, name: t.name } }
     end
 
-    # Per-member view-model for the add-payment form + its projection panel.
-    # Everything the panel needs so a member switch doesn't refetch.
     def add_payment_member_models
-      season_id = current_season['id']
-      User.members_for_season(season_id).with_payments.order(:last_name, :first_name).map do |member|
-        summary = PaymentService.member_dues_summary(member, season_id)
-        {
-          id: member.id,
-          name: member.full_name,
-          paid_before_cents: summary[:paid],
-          season_total_cents: summary[:total],
-          expected_cents: summary[:expected],
-          applies_to: (summary[:remaining_installments] || []).first(2).map { |e| e[:pay_date].iso8601 }
-        }
-      end
+      Admin::AddPaymentPresenter.members_for(current_season)
     end
 
     def payment_params

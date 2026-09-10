@@ -1,5 +1,5 @@
 import React from 'react'
-import DuesMeter, { DuesState } from './DuesMeter'
+import { dollars } from '../../utilities/money'
 
 type ProjectionMember = {
   id: number
@@ -16,18 +16,14 @@ type PaymentProjectionPanelProps = {
   className?: string
 }
 
-const money = (cents: number) =>
-  `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-
-const projectedState = (paidAfter: number, total: number, expected: number): DuesState => {
-  if (paidAfter >= total) return 'paid-in-full'
-  if (paidAfter < expected) return 'behind'
-  if (paidAfter > expected) return 'ahead'
-  return 'on-track'
+const verdictFor = (paidAfter: number, total: number, expected: number) => {
+  if (total > 0 && paidAfter >= total) return 'Fully paid up for the season after this.'
+  if (paidAfter >= expected) return 'Caught up to what’s expected by today.'
+  return `Still ${dollars(expected - paidAfter)} short of what’s expected by today.`
 }
 
-// The "where this leaves them" side panel on /admin/payments/new — updates live
-// as the form changes. §4.24.
+// The "where this leaves them" side panel on /admin/payments/new — updates
+// live as the form changes. §4.24.
 const PaymentProjectionPanel = ({
   member,
   thisPaymentCents,
@@ -36,10 +32,10 @@ const PaymentProjectionPanel = ({
   if (!member) {
     return (
       <div
-        className={`flex flex-col gap-3 rounded-md border border-border-default bg-surface p-5 ${className}`.trim()}
+        className={`flex flex-col gap-3.5 rounded-md border border-border-default bg-surface p-5 ${className}`.trim()}
       >
         <span className="text-label uppercase text-secondary">Where this leaves them</span>
-        <div className="h-3.5 rounded-full bg-sunken" />
+        <div className="h-2.5 rounded-full bg-sunken" />
         <p className="text-body-sm text-secondary">
           Pick a member to see how this payment moves their dues.
         </p>
@@ -49,47 +45,53 @@ const PaymentProjectionPanel = ({
 
   const paidAfter = member.paidBeforeCents + thisPaymentCents
   const stillOwed = Math.max(member.seasonTotalCents - paidAfter, 0)
-  const state = projectedState(paidAfter, member.seasonTotalCents, member.expectedCents)
-
-  const verdict =
-    stillOwed === 0
-      ? 'Fully paid up for the season after this.'
-      : paidAfter >= member.expectedCents
-        ? 'Caught up to what’s expected by today.'
-        : `Still ${money(member.expectedCents - paidAfter)} short of what’s expected by today.`
+  const pct =
+    member.seasonTotalCents > 0
+      ? Math.max(0, Math.min(100, (paidAfter / member.seasonTotalCents) * 100))
+      : 0
 
   return (
     <div
-      className={`flex flex-col gap-4 rounded-md border border-border-default bg-surface p-5 ${className}`.trim()}
+      className={`flex flex-col gap-3.5 rounded-md border border-border-default bg-surface p-5 ${className}`.trim()}
     >
       <span className="text-label uppercase text-secondary">Where this leaves them</span>
 
-      <DuesMeter
-        paidCents={paidAfter}
-        totalCents={member.seasonTotalCents}
-        expectedCents={member.expectedCents}
-        state={state}
-        showLabel={false}
-      />
+      <div className="flex items-baseline gap-2">
+        <span className="text-[20px] font-bold leading-[26px] text-primary">
+          {dollars(paidAfter)} of {dollars(member.seasonTotalCents)}
+        </span>
+        <span className="text-body-sm text-secondary">paid</span>
+      </div>
 
-      <dl className="flex flex-col gap-1 text-body-sm">
-        <div className="flex justify-between">
+      <div className="h-2.5 overflow-hidden rounded-full bg-sunken">
+        <div className="h-full rounded-full bg-moss" style={{ width: `${pct}%` }} />
+      </div>
+
+      <p className="text-caption text-success-fg">
+        {verdictFor(paidAfter, member.seasonTotalCents, member.expectedCents)}
+      </p>
+
+      <dl className="flex flex-col gap-px overflow-hidden rounded-lg border border-border-default bg-border-default">
+        <div className="flex justify-between bg-surface px-3 py-2.5 text-body-sm">
           <dt className="text-secondary">Paid before</dt>
-          <dd className="font-mono tabular-nums text-primary">{money(member.paidBeforeCents)}</dd>
+          <dd className="font-mono tabular-nums text-primary">{dollars(member.paidBeforeCents)}</dd>
         </div>
-        <div className="flex justify-between">
+        <div className="flex justify-between bg-surface px-3 py-2.5 text-body-sm">
           <dt className="text-secondary">This payment</dt>
-          <dd className="font-mono tabular-nums text-success-fg">+{money(thisPaymentCents)}</dd>
+          <dd className="font-mono font-bold tabular-nums text-success-fg">
+            +{dollars(thisPaymentCents)}
+          </dd>
         </div>
-        <div className="flex justify-between border-t border-border-default pt-1">
+        <div className="flex justify-between bg-surface px-3 py-2.5 text-body-sm">
           <dt className="text-secondary">Still owed</dt>
-          <dd className="font-mono tabular-nums font-semibold text-primary">{money(stillOwed)}</dd>
+          <dd className="font-mono tabular-nums text-primary">{dollars(stillOwed)}</dd>
         </div>
       </dl>
 
-      <p className="text-body-sm text-secondary">{verdict}</p>
-
-      <a href={`/admin/users/${member.id}`} className="text-body-sm font-semibold text-accent-primary">
+      <a
+        href={`/admin/users/${member.id}`}
+        className="text-body-sm font-semibold text-accent-primary"
+      >
         Open {member.name}’s Member 360
       </a>
     </div>

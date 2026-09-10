@@ -1,17 +1,21 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import MoneyField from '../../components/MoneyField'
 import PaymentProjectionPanel from '../../components/PaymentProjectionPanel'
+import MemberSchedulePanel, { ScheduleInstallment } from '../../components/MemberSchedulePanel'
 import ValidationSummaryCard, { ValidationError } from '../../components/ValidationSummaryCard'
 import Button from '../../components/Button'
 
 export type AddPaymentMember = {
   id: number
   name: string
+  section: string
   paid_before_cents: number
   season_total_cents: number
   expected_cents: number
   /** ISO dates of the next unpaid installments, oldest first. */
   applies_to: string[]
+  schedule_id: number | null
+  installments: ScheduleInstallment[]
 }
 
 export type AddPaymentType = { id: number; name: string }
@@ -34,11 +38,21 @@ type AddPaymentFormProps = {
   }
 }
 
-const fieldClass =
-  'h-11 w-full rounded-sm border border-border-strong bg-surface px-3 text-body text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1'
+const fieldBase =
+  'h-11 w-full rounded-sm bg-surface px-3 text-body text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1'
+const fieldOk = `${fieldBase} border border-border-strong`
+const fieldErr = `${fieldBase} border-2 border-danger-fg px-[11px]`
 
 const fmtDate = (iso: string) =>
   new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
+
+const Hint = ({ children }: { children: React.ReactNode }) => (
+  <span className="text-caption text-secondary">{children}</span>
+)
+
+const FieldError = ({ children }: { children: React.ReactNode }) => (
+  <span className="text-caption font-semibold text-danger-fg">{children}</span>
+)
 
 const AddPaymentForm = ({
   members,
@@ -49,11 +63,8 @@ const AddPaymentForm = ({
   initial,
 }: AddPaymentFormProps) => {
   const today = new Date().toISOString().slice(0, 10)
-  const formRef = useRef<HTMLFormElement>(null)
 
-  const [userId, setUserId] = useState<string>(
-    String(initial.userId ?? preselectedUserId ?? ''),
-  )
+  const [userId, setUserId] = useState<string>(String(initial.userId ?? preselectedUserId ?? ''))
   const [paymentTypeId, setPaymentTypeId] = useState<string>(
     String(initial.paymentTypeId ?? paymentTypes.find((t) => t.name === 'Venmo')?.id ?? ''),
   )
@@ -72,14 +83,22 @@ const AddPaymentForm = ({
     ? clientErrors
     : serverErrors.map((message, i) => ({ fieldId: `server-${i}`, message }))
 
+  const errorFor = (fieldId: string) => clientErrors.find((e) => e.fieldId === fieldId)?.message
+
   const validate = (): ValidationError[] => {
     const next: ValidationError[] = []
-    if (!userId) next.push({ fieldId: 'payment_user_id', message: 'Pick the member this payment is for.' })
-    if (amountCents == null || amountCents <= 0)
-      next.push({ fieldId: 'payment_amount', message: 'Enter an amount greater than $0.' })
-    if (!paymentTypeId)
+    if (!userId) {
+      next.push({ fieldId: 'payment_user_id', message: 'Pick the member this payment is from.' })
+    }
+    if (amountCents == null || amountCents <= 0) {
+      next.push({ fieldId: 'payment_amount', message: 'Amount has to be more than $0.' })
+    }
+    if (!paymentTypeId) {
       next.push({ fieldId: 'payment_payment_type_id', message: 'Choose how the payment was made.' })
-    if (!datePaid) next.push({ fieldId: 'payment_date_paid', message: 'Set the date the payment was made.' })
+    }
+    if (!datePaid) {
+      next.push({ fieldId: 'payment_date_paid', message: 'Set the date the payment was made.' })
+    }
     return next
   }
 
@@ -90,20 +109,21 @@ const AddPaymentForm = ({
       setClientErrors(found)
       return
     }
-    setSubmitting(true) // real POST proceeds; button locks against a double-submit
+    setSubmitting(true) // real POST proceeds; the button locks against a double-submit
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+    <div className="grid items-start gap-7 lg:grid-cols-[minmax(0,1fr)_360px]">
       <div className="flex flex-col gap-4">
-        {errors.length > 0 && <ValidationSummaryCard errors={errors} />}
+        {errors.length > 0 && (
+          <ValidationSummaryCard errors={errors} lead="This payment wasn't saved." />
+        )}
 
         <form
-          ref={formRef}
           action="/admin/payments"
           method="post"
           onSubmit={onSubmit}
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-5 rounded-md border border-border-default bg-surface p-6"
         >
           <input type="hidden" name="authenticity_token" value={csrfToken} />
 
@@ -114,101 +134,153 @@ const AddPaymentForm = ({
               name="payment[user_id]"
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
-              className={fieldClass}
+              className={errorFor('payment_user_id') ? fieldErr : fieldOk}
             >
-              <option value="">Select a member…</option>
+              <option value="">Choose a member</option>
               {members.map((m) => (
                 <option key={m.id} value={m.id}>
-                  {m.name}
+                  {m.section ? `${m.name} · ${m.section}` : m.name}
                 </option>
               ))}
             </select>
+            {errorFor('payment_user_id') ? (
+              <FieldError>{errorFor('payment_user_id')}</FieldError>
+            ) : (
+              <Hint>
+                Last name first, current-season members only. Type to filter {members.length} names.
+              </Hint>
+            )}
           </label>
 
-          <MoneyField
-            id="payment_amount"
-            name="payment[amount]"
-            label="Amount"
-            valueCents={amountCents}
-            onChangeCents={setAmountCents}
-            helper={amountCents != null && amountCents > 0 ? 'Looks good.' : undefined}
-          />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <MoneyField
+                id="payment_amount"
+                name="payment[amount]"
+                label="Amount"
+                valueCents={amountCents}
+                onChangeCents={setAmountCents}
+                error={errorFor('payment_amount')}
+              />
+              {!errorFor('payment_amount') && (
+                <Hint>Full amount received. No processing fee on manual payments.</Hint>
+              )}
+            </div>
 
-          <label className="flex flex-col gap-1.5">
-            <span className="text-body-sm font-semibold text-primary">Payment type</span>
-            <select
-              id="payment_payment_type_id"
-              name="payment[payment_type_id]"
-              value={paymentTypeId}
-              onChange={(e) => setPaymentTypeId(e.target.value)}
-              className={fieldClass}
-            >
-              <option value="">Select a type…</option>
-              {paymentTypes.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-          </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="text-body-sm font-semibold text-primary">Payment type</span>
+              <select
+                id="payment_payment_type_id"
+                name="payment[payment_type_id]"
+                value={paymentTypeId}
+                onChange={(e) => setPaymentTypeId(e.target.value)}
+                className={errorFor('payment_payment_type_id') ? fieldErr : fieldOk}
+              >
+                <option value="">Select a type…</option>
+                {paymentTypes.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+              {errorFor('payment_payment_type_id') ? (
+                <FieldError>{errorFor('payment_payment_type_id')}</FieldError>
+              ) : (
+                <Hint>{paymentTypes.map((t) => t.name).join(' · ')}</Hint>
+              )}
+            </label>
+          </div>
 
-          <label className="flex flex-col gap-1.5">
-            <span className="text-body-sm font-semibold text-primary">Date paid</span>
-            <input
-              type="date"
-              id="payment_date_paid"
-              name="payment[date_paid]"
-              value={datePaid}
-              max={today}
-              onChange={(e) => setDatePaid(e.target.value)}
-              className={fieldClass}
-            />
-          </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="flex flex-col gap-1.5">
+              <span className="text-body-sm font-semibold text-primary">Date paid</span>
+              <input
+                type="date"
+                id="payment_date_paid"
+                name="payment[date_paid]"
+                value={datePaid}
+                max={today}
+                onChange={(e) => setDatePaid(e.target.value)}
+                className={errorFor('payment_date_paid') ? fieldErr : fieldOk}
+              />
+              {errorFor('payment_date_paid') ? (
+                <FieldError>{errorFor('payment_date_paid')}</FieldError>
+              ) : (
+                <Hint>Defaults to today. Back-date it if the cash sat in the box.</Hint>
+              )}
+            </label>
 
-          <label className="flex flex-col gap-1.5">
-            <span className="text-body-sm font-semibold text-primary">Notes</span>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-body-sm font-semibold text-primary">Applies to</span>
+              <div className="flex min-h-11 items-center rounded-sm border border-dashed border-border-strong bg-sunken px-3 text-body-sm text-secondary">
+                {member
+                  ? member.applies_to.length > 0
+                    ? `Oldest unpaid due date first: ${member.applies_to.map(fmtDate).join(', then ')}`
+                    : 'Nothing outstanding — this counts as paid ahead.'
+                  : 'Pick a member to see their due dates'}
+              </div>
+              <Hint>Not editable: payments credit against the schedule in order.</Hint>
+            </div>
+          </div>
+
+          <label className="flex flex-col gap-1.5 border-t border-border-default pt-5">
+            <span className="flex items-baseline gap-2">
+              <span className="text-body-sm font-semibold text-primary">Notes</span>
+              <span className="text-caption text-secondary">Optional</span>
+              <span className="ml-auto font-mono text-caption text-secondary">{notes.length}</span>
+            </span>
             <textarea
               id="payment_notes"
               name="payment[notes]"
-              rows={3}
               value={notes}
               maxLength={255}
+              placeholder="What should the member see about this payment?"
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full rounded-sm border border-border-strong bg-surface px-3 py-2 text-body text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
+              className="min-h-20 w-full rounded-sm border border-border-strong bg-surface p-3 text-body text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
             />
-            <span className="self-end text-caption text-secondary">{notes.length}/255</span>
+            <Hint>Members can see this on their payment history.</Hint>
           </label>
 
-          <div className="rounded-sm bg-sunken px-3 py-2 text-body-sm text-secondary">
-            <span className="font-semibold text-primary">Applies to:</span>{' '}
-            {member && member.applies_to.length > 0
-              ? `oldest unpaid due date first — ${member.applies_to.map(fmtDate).join(', then ')}`
-              : 'nothing outstanding — this will count as paid ahead.'}
-            <span className="mt-1 block text-caption">
-              Not editable: payments credit against the schedule in order.
-            </span>
-          </div>
-
-          <div className="flex justify-end">
+          <div className="flex items-center gap-3 border-t border-border-default pt-5">
             <Button type="submit" variant="primary" size="lg" loading={submitting} fullWidthBelow={false}>
               Record payment
             </Button>
+            <a
+              href="/admin/payments"
+              className="flex h-11 items-center px-3 text-body font-medium text-secondary no-underline hover:text-primary"
+            >
+              Cancel
+            </a>
+            <span className="ml-auto max-w-[220px] text-right text-caption text-secondary">
+              One click only. The button locks while saving.
+            </span>
           </div>
         </form>
       </div>
 
-      <PaymentProjectionPanel
-        member={
-          member && {
-            id: member.id,
-            name: member.name,
-            paidBeforeCents: member.paid_before_cents,
-            seasonTotalCents: member.season_total_cents,
-            expectedCents: member.expected_cents,
+      <div className="flex flex-col gap-5">
+        <PaymentProjectionPanel
+          member={
+            member && {
+              id: member.id,
+              name: member.name,
+              paidBeforeCents: member.paid_before_cents,
+              seasonTotalCents: member.season_total_cents,
+              expectedCents: member.expected_cents,
+            }
           }
-        }
-        thisPaymentCents={amountCents ?? 0}
-      />
+          thisPaymentCents={amountCents ?? 0}
+        />
+
+        {member && (
+          <MemberSchedulePanel
+            memberName={member.name.split(',')[0]}
+            scheduleId={member.schedule_id}
+            installments={member.installments}
+            pendingCents={amountCents ?? 0}
+          />
+        )}
+      </div>
     </div>
   )
 }
