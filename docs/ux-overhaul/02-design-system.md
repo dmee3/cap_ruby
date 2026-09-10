@@ -698,7 +698,17 @@ each one superseded.
    callout. Expect a round or two of tweaks from the visual pass after the PR
    opens — and treat anything the pass finds that §4 *could* have specified
    as a gap to fold back into §4.
-8. **A canvas is a point-in-time design, not a living spec. This document is
+8. **Check what the flow's screens link *out* to.** A flow can improve five
+   screens and still make the product feel worse at the seams, if a polished
+   screen hands off to one nobody has touched. Flow 4 added Edit links into
+   `/admin/payments/:id/edit` from three new places — a screen still on
+   pre-overhaul Bootstrap, because the audit bundled it into one row with
+   `/new` and only `/new` made the flow's scope list (`cap_ruby-b3a.15`).
+   Two cheap habits: give each screen its **own** audit row so scope can't
+   silently cover two things, and before closing a flow, grep the new code
+   for outbound links and confirm each destination is either in-flow or
+   knowingly deferred.
+9. **A canvas is a point-in-time design, not a living spec. This document is
    the record.** Once a flow ships, its artboards are frozen: they're
    hand-authored HTML (hardcoded SVG paths, literal figures, mock markup),
    not generated from the components, so keeping them current would mean
