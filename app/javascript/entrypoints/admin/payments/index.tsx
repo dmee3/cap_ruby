@@ -18,6 +18,7 @@ if (el) {
     <PaymentsList
       paymentTypes={paymentTypes}
       justCreatedId={Number.isFinite(justCreatedId) ? justCreatedId : null}
+      seasonLabel={el.dataset.seasonLabel || 'This season'}
     />,
     el,
   )

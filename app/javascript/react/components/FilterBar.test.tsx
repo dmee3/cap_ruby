@@ -35,7 +35,7 @@ describe('FilterBar', () => {
 
   it('emits a merged filters object when the search changes', async () => {
     const onChange = setup()
-    await userEvent.type(screen.getByPlaceholderText('e.g. Alvarez'), 'A')
+    await userEvent.type(screen.getByPlaceholderText('Search member name'), 'A')
     expect(onChange).toHaveBeenCalledWith({ ...EMPTY_FILTERS, q: 'A' })
   })
 

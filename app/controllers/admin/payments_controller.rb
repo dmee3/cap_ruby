@@ -6,6 +6,7 @@ module Admin
       respond_to do |format|
         format.html do
           @payment_types = manual_payment_types
+          @season_payment_count = Payment.for_season(current_season['id']).count
           render('admin/payments/index')
         end
         format.json do

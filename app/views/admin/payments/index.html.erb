@@ -1,13 +1,21 @@
 <% content_for :page_title, 'Payments' %>
 <%= vite_typescript_tag 'entrypoints/admin/payments/index.tsx' %>
 
-<div class="flex items-center justify-between gap-3 mb-4">
-  <h1 class="mb-0">Payments</h1>
-  <%= link_to 'Add manual payment', new_admin_payment_path, class: 'btn-green btn-lg' %>
+<div class="flex flex-wrap items-baseline gap-4 mb-4">
+  <h1 class="m-0">Payments</h1>
+  <span class="text-body-sm text-secondary">
+    <%= @season_payment_count %> this season · <%= current_season['year'] %> season
+  </span>
+  <div class="ml-auto flex gap-2">
+    <%= link_to 'Add manual payment', new_admin_payment_path,
+                class: 'inline-flex h-9 items-center rounded-sm bg-accent-primary px-3.5 ' \
+                       'text-body-sm font-semibold text-on-brand no-underline' %>
+  </div>
 </div>
 
 <div
   id="admin-payments"
+  data-season-label="<%= current_season['year'] %> season"
   data-payment-types="<%= @payment_types.to_json %>"
   data-just-created="<%= flash[:undo_payment_id] %>"
 >

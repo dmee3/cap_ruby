@@ -18,13 +18,15 @@ export const EMPTY_FILTERS: PaymentFilters = {
   scope: 'active',
 }
 
+export const isDirty = (f: PaymentFilters) =>
+  f.q !== '' || f.typeId !== '' || f.startDate !== '' || f.endDate !== '' || f.scope !== 'active'
+
 type PaymentTypeOption = { id: number; name: string }
 
 type FilterBarProps = {
   filters: PaymentFilters
   onChange: (next: PaymentFilters) => void
   paymentTypes: PaymentTypeOption[]
-  /** Live result summary. */
   totalCount: number
   totalLabel: string
   deletedCount: number
@@ -37,13 +39,11 @@ const SCOPE_LABEL: Record<PaymentScope, string> = {
   deleted_only: 'Deleted only',
 }
 
-const isDirty = (f: PaymentFilters) =>
-  f.q !== '' || f.typeId !== '' || f.startDate !== '' || f.endDate !== '' || f.scope !== 'active'
-
 const field =
-  'h-11 rounded-sm border border-border-strong bg-surface px-2 text-body-sm text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1'
+  'h-[38px] rounded-sm border border-border-strong bg-surface px-2.5 text-body-sm text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1'
 
-// For /admin/payments (reusable by any admin table). Every control is a
+// One boxed row of unlabelled controls — the placeholders carry the copy, so
+// the bar reads as a toolbar rather than a form. Every control is a
 // server-side param; the controller allowlists them (no interpolation).
 const FilterBar = ({
   filters,
@@ -57,91 +57,91 @@ const FilterBar = ({
   const set = <K extends keyof PaymentFilters>(key: K, value: PaymentFilters[K]) =>
     onChange({ ...filters, [key]: value })
 
+  const scopeSet = filters.scope !== 'active'
+
   return (
-    <div className={`flex flex-col gap-3 ${className}`.trim()}>
-      <div className="flex flex-wrap items-end gap-3">
-        <label className="flex flex-col gap-1">
-          <span className="text-caption text-secondary">Search member name</span>
-          <input
-            type="search"
-            value={filters.q}
-            onChange={(e) => set('q', e.target.value)}
-            placeholder="e.g. Alvarez"
-            className={`${field} w-52`}
-          />
-        </label>
+    <div
+      className={`flex flex-wrap items-center gap-2.5 rounded-md border border-border-default bg-surface px-4 py-3.5 ${className}`.trim()}
+    >
+      <input
+        type="search"
+        value={filters.q}
+        onChange={(e) => set('q', e.target.value)}
+        placeholder="Search member name"
+        aria-label="Search member name"
+        className={`${field} min-w-[220px] flex-1`}
+      />
 
-        <label className="flex flex-col gap-1">
-          <span className="text-caption text-secondary">Type</span>
-          <select
-            value={filters.typeId}
-            onChange={(e) => set('typeId', e.target.value)}
-            className={field}
-          >
-            <option value="">All types</option>
-            {paymentTypes.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
-        </label>
+      <select
+        value={filters.typeId}
+        onChange={(e) => set('typeId', e.target.value)}
+        aria-label="Payment type"
+        className={field}
+      >
+        <option value="">All types</option>
+        {paymentTypes.map((t) => (
+          <option key={t.id} value={t.id}>
+            {t.name}
+          </option>
+        ))}
+      </select>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-caption text-secondary">From</span>
-          <input
-            type="date"
-            value={filters.startDate}
-            onChange={(e) => set('startDate', e.target.value)}
-            className={field}
-          />
-        </label>
+      <span className="flex items-center gap-1.5">
+        <input
+          type="date"
+          value={filters.startDate}
+          onChange={(e) => set('startDate', e.target.value)}
+          aria-label="Paid on or after"
+          className={`${field} font-mono`}
+        />
+        <span className="text-body-sm text-secondary">–</span>
+        <input
+          type="date"
+          value={filters.endDate}
+          onChange={(e) => set('endDate', e.target.value)}
+          aria-label="Paid on or before"
+          className={`${field} font-mono`}
+        />
+      </span>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-caption text-secondary">To</span>
-          <input
-            type="date"
-            value={filters.endDate}
-            onChange={(e) => set('endDate', e.target.value)}
-            className={field}
-          />
-        </label>
+      <select
+        value={filters.scope}
+        onChange={(e) => set('scope', e.target.value as PaymentScope)}
+        aria-label="Which payments to show"
+        title="Deleted payments are excluded from every total on this page."
+        className={
+          scopeSet
+            ? `${field} border-accent-primary font-semibold text-accent-primary`
+            : field
+        }
+      >
+        {(Object.keys(SCOPE_LABEL) as PaymentScope[]).map((s) => (
+          <option key={s} value={s}>
+            {SCOPE_LABEL[s]}
+          </option>
+        ))}
+      </select>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-caption text-secondary">Show</span>
-          <select
-            value={filters.scope}
-            onChange={(e) => set('scope', e.target.value as PaymentScope)}
-            className={field}
-          >
-            {(Object.keys(SCOPE_LABEL) as PaymentScope[]).map((s) => (
-              <option key={s} value={s}>
-                {SCOPE_LABEL[s]}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        {isDirty(filters) && (
-          <button
-            type="button"
-            onClick={() => onChange(EMPTY_FILTERS)}
-            className="h-9 text-body-sm font-medium text-accent-primary underline underline-offset-2"
-          >
-            Clear filters
-          </button>
-        )}
-      </div>
-
-      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-body-sm text-secondary">
+      <span className="text-body-sm text-secondary">
         <span className="font-medium text-primary">
           {totalCount} {totalCount === 1 ? 'payment' : 'payments'} · {totalLabel}
         </span>
-        {deletedCount > 0 && filters.scope !== 'active' && <span>· {deletedCount} deleted</span>}
-        <span className="basis-full text-caption">
-          Deleted payments are excluded from every total on this page.
-        </span>
-      </div>
+        {deletedCount > 0 && scopeSet && <> · {deletedCount} deleted</>}
+      </span>
+
+      {isDirty(filters) && (
+        <button
+          type="button"
+          onClick={() => onChange(EMPTY_FILTERS)}
+          className="text-body-sm font-medium text-accent-primary underline underline-offset-2"
+        >
+          Clear filters
+        </button>
+      )}
+
+      <span className="basis-full text-caption text-secondary">
+        Deleted payments are excluded from every total on this page.
+      </span>
     </div>
   )
 }
