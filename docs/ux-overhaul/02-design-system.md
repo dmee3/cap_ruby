@@ -221,6 +221,17 @@ each one superseded.
 - Replaces: `.btn-primary/.btn-green/.btn-red/.btn-gray/.btn-link` + `.btn-lg/md/sm`.
 
 ### 4.3 Card
+- **Three variants** *(the last two added in Flow 4)*. Pick by what the title
+  is doing:
+  - `panel` (default) — padded box, 12px uppercase kicker title. For stat
+    blocks and small labelled boxes, where the title *labels a figure*.
+  - `section` — padded box, 16px sentence-case heading baseline-aligned with
+    its action. For a card that *leads a piece of content*.
+  - `list` — edge-to-edge body under a bordered header strip, so rows run
+    full-bleed and supply their own padding; supports `count` and `subtitle`.
+  A heading-weight title on a `panel` is the most common mistake here — it
+  renders as a grey kicker and the card reads as a stat box.
+- `borderTone` draws the tone on the whole border instead of a left rail.
 - One card component. Props: `title` (uses `text.label` kicker), optional
   `action` (link/button top-right), `tone` (`neutral` default, or `success` /
   `danger` / `warning` — sets a subtle left accent + tinted title, not a full
@@ -545,6 +556,14 @@ each one superseded.
 - *Build note:* both are presentational; `ScheduleEditor.tsx` (the widget) owns
   the editable rows, the client-side "Moved from" tracking, and wires the diff
   panel to `#default_preview` / `#apply_default`.
+- *Copy revised in the visual pass:* the card is titled **"How this schedule is
+  going"**, not the canvas's "Plan against what's actually in" — that phrase
+  trails off, and the warmer question matches the voice of "Where you stand"
+  (Flow 2) and "Are we on track?" (the admin dashboard).
+- *Layout note:* the node track is inset by a 2rem gutter and positioned with
+  `calc()` inside it. Nodes are three stacked lines centred on their date, so
+  without the gutter the first and last hang half their width off the card.
+  A single-entry schedule centres its lone node rather than pinning it left.
 - For `/admin/payment_schedules/:id/edit`. Distinct from the §4.5 burndown — this
   is **per-member and node-based**, not a line chart.
 - **Timeline**: a horizontal track with a node dot per `PaymentScheduleEntry`

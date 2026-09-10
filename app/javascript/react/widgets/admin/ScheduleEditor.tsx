@@ -276,7 +276,8 @@ const ScheduleEditor = ({ data }: { data: ScheduleEditorData }) => {
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="flex flex-col gap-5">
           <Card
-            title="Plan against what's actually in"
+            variant="section"
+            title="How this schedule is going"
             action={
               <span className="text-body-sm text-secondary">
                 {dollars(data.paid_cents)} paid of {dollars(plannedCents)} planned

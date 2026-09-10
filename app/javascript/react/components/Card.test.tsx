@@ -75,6 +75,39 @@ describe('Card', () => {
     })
   })
 
+  describe('variant="section"', () => {
+    it('renders the title as a real heading, not an uppercase kicker', () => {
+      render(
+        <Card variant="section" title="How this schedule is going">
+          x
+        </Card>,
+      )
+      const title = screen.getByText('How this schedule is going')
+      expect(title).toHaveClass('text-h3', 'text-primary')
+      expect(title.className).not.toMatch(/uppercase/)
+    })
+
+    it('baseline-aligns the action beside the title', () => {
+      render(
+        <Card variant="section" title="Heading" action={<span>$500 paid</span>}>
+          x
+        </Card>,
+      )
+      const header = screen.getByText('Heading').parentElement
+      expect(header).toHaveClass('items-baseline')
+      expect(screen.getByText('$500 paid').parentElement).toHaveClass('ml-auto')
+    })
+
+    it('keeps its body padded, unlike the list variant', () => {
+      const { container } = render(
+        <Card variant="section" title="Heading">
+          x
+        </Card>,
+      )
+      expect(container.firstElementChild?.className).toMatch(/px-6/)
+    })
+  })
+
   it('can draw the tone on the whole border instead of a left rail', () => {
     const { container } = render(
       <Card tone="warning" borderTone>

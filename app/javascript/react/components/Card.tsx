@@ -3,12 +3,15 @@ import React from 'react'
 type CardTone = 'neutral' | 'success' | 'danger' | 'warning'
 
 /**
- * `panel` — the original: padded box, uppercase kicker title.
- * `list`  — edge-to-edge body under a bordered header strip, so rows can run
- *           full-bleed and supply their own padding. Sentence-case 16px title,
- *           an optional secondary count beside it, an optional right action.
+ * `panel`   — the original: padded box, uppercase kicker title. For stat
+ *             blocks and small labelled boxes.
+ * `section` — a padded box whose title is a real 16px sentence-case heading,
+ *             baseline-aligned with its action. For a card that leads a piece
+ *             of content rather than labelling a figure.
+ * `list`    — edge-to-edge body under a bordered header strip, so rows can run
+ *             full-bleed and supply their own padding.
  */
-type CardVariant = 'panel' | 'list'
+type CardVariant = 'panel' | 'section' | 'list'
 
 type CardProps = {
   title?: string
@@ -72,6 +75,25 @@ const Card = ({
             {title && <span className="text-h3 text-primary">{title}</span>}
             {count && <span className="text-body-sm text-secondary">{count}</span>}
             {subtitle && <span className="basis-full text-body-sm text-secondary">{subtitle}</span>}
+            {action && <div className="ml-auto shrink-0">{action}</div>}
+          </div>
+        )}
+        {children}
+      </Tag>
+    )
+  }
+
+  if (variant === 'section') {
+    return (
+      <Tag
+        className={`bg-surface border ${border} rounded-md px-6 pb-6 pt-5 ${
+          borderTone ? '' : TONE_ACCENT[tone]
+        } ${className}`.trim()}
+      >
+        {(title || subtitle || action) && (
+          <div className="mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            {title && <span className="text-h3 text-primary">{title}</span>}
+            {subtitle && <span className="text-body-sm text-secondary">{subtitle}</span>}
             {action && <div className="ml-auto shrink-0">{action}</div>}
           </div>
         )}

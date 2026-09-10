@@ -85,7 +85,8 @@ afterEach(() => vi.unstubAllGlobals())
 describe('ScheduleEditor', () => {
   it('renders the timeline card with a paid-of-planned summary', () => {
     render(<ScheduleEditor data={data} />)
-    expect(screen.getByText("Plan against what's actually in")).toBeInTheDocument()
+    const title = screen.getByText('How this schedule is going')
+    expect(title).toHaveClass('text-h3')
     expect(screen.getByText('$500 paid of $900 planned')).toBeInTheDocument()
   })
 

@@ -47,12 +47,14 @@ const LEGEND: [TimelineNodeStatus, string][] = [
 const fmt = (iso: string) =>
   new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
 
-/** Where a date sits along the track, 0–100. */
-const positionOf = (iso: string, first: string, last: string) => {
+/** Where a date sits along the track, 0–100. Exported for testing. */
+export const positionOf = (iso: string, first: string, last: string) => {
   const t = new Date(`${iso}T00:00:00`).getTime()
   const a = new Date(`${first}T00:00:00`).getTime()
   const b = new Date(`${last}T00:00:00`).getTime()
-  if (b === a) return 0
+  // A one-entry schedule has no span to place things along — centre it rather
+  // than pinning it to the left edge.
+  if (b === a) return 50
   return Math.max(0, Math.min(100, ((t - a) / (b - a)) * 100))
 }
 
@@ -75,24 +77,31 @@ const ScheduleTimeline = ({
   const todayInRange = today >= first && today <= last
 
   return (
-    <div className={`flex flex-col gap-3 ${className}`.trim()}>
-      <div className="relative h-14">
-        <div className="absolute inset-x-0 top-[26px] h-1 rounded-full bg-sunken" />
+    <div className={`flex flex-col gap-4 ${className}`.trim()}>
+      {/*
+        A node is three stacked lines centred on its date, so the outermost
+        two would hang half their width off each end. Inset the whole track
+        by a gutter and position within that, rather than letting them clip.
+        The container is sized to the node stack (18 + 12 + 16 + gaps), not to
+        the rail, so the amounts can't overrun whatever follows.
+      */}
+      <div className="relative h-[74px] px-8">
+        <div className="absolute inset-x-8 top-[30px] h-1 rounded-full bg-sunken" />
         <div
-          className="absolute left-0 top-[26px] h-1 rounded-full bg-moss"
-          style={{ width: `${paidPct}%` }}
+          className="absolute top-[30px] h-1 rounded-full bg-moss"
+          style={{ left: '2rem', width: `calc((100% - 4rem) * ${paidPct / 100})` }}
         />
 
         {todayInRange && (
           <>
             <div
-              className="absolute bottom-0 top-3.5 border-l border-dashed border-primary"
-              style={{ left: `${todayPct}%` }}
+              className="absolute bottom-1 top-5 border-l border-dashed border-primary"
+              style={{ left: `calc(2rem + (100% - 4rem) * ${todayPct / 100})` }}
               aria-hidden="true"
             />
             <span
-              className="absolute top-0 -translate-x-1/2 text-caption font-semibold text-primary"
-              style={{ left: `${todayPct}%` }}
+              className="absolute top-0 -translate-x-1/2 whitespace-nowrap text-caption font-semibold text-primary"
+              style={{ left: `calc(2rem + (100% - 4rem) * ${todayPct / 100})` }}
             >
               Today
             </span>
@@ -102,14 +111,16 @@ const ScheduleTimeline = ({
         {sorted.map((node) => (
           <span
             key={node.id}
-            className="absolute top-3 flex -translate-x-1/2 flex-col items-center gap-1"
-            style={{ left: `${positionOf(node.payDate, first, last)}%` }}
+            className="absolute top-[18px] flex -translate-x-1/2 flex-col items-center gap-1.5"
+            style={{
+              left: `calc(2rem + (100% - 4rem) * ${positionOf(node.payDate, first, last) / 100})`,
+            }}
           >
-            <span className="font-mono text-caption font-semibold text-secondary">
+            <span className="whitespace-nowrap font-mono text-caption font-semibold text-secondary">
               {fmt(node.payDate)}
             </span>
             <span className={`h-3 w-3 rounded-full border-2 ${DOT[node.status]}`} aria-hidden="true" />
-            <span className={`text-caption font-medium ${AMOUNT_TONE[node.status]}`}>
+            <span className={`whitespace-nowrap text-caption font-medium ${AMOUNT_TONE[node.status]}`}>
               {dollars(node.amountCents)}
             </span>
           </span>
