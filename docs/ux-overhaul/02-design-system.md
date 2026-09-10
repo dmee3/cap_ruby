@@ -149,6 +149,20 @@ For the dues burndown chart and any fundraiser charts. Keep it small and on-bran
 > (tabular numeric emphasis) but standardize on the `text.metric` token so every
 > stat looks the same.
 
+**Money formatting** *(established — Flow 4, `app/javascript/utilities/money.ts`)*.
+Two formats, one rule, one module — eight hand-rolled copies of the same
+formatter had drifted before this was extracted:
+
+| Helper | Format | Use |
+|---|---|---|
+| `dollars(cents)` | `$57,600` | **Headline figures** — stat metrics, table amounts, chart captions, list rows. A column of `.00` is noise when you're scanning. |
+| `exact(cents)` | `$325.30` | **Where the cents are the point** — an amount being entered or confirmed, a fee breakdown, a member's own payment history. |
+| `signedDollars(cents)` | `+$600` | A delta whose direction carries meaning. |
+
+`text.metric` is the **sans** stack at weight 800 with `tracking-tight`, not
+mono — mono is for figures sitting in a column that needs to align (table
+cells, schedule rows), not for the one big number on a card.
+
 ### 3.5 Spacing, radius, elevation
 
 | Token | Value |
@@ -505,6 +519,11 @@ each one superseded.
 - *Build note:* the mobile "Filters button + sheet + removable chips" was
   simplified to a wrapping inline row of 44px controls — it holds at tablet
   width and the sheet/chips can be a follow-up if a phone pass wants them.
+- *Divergence — the status scope is a native `<select>`, not the canvas's
+  checkbox popover.* A native control is keyboard- and screen-reader-
+  accessible for free; the popover is presentation with a custom focus trap
+  to maintain. The "excluded from every total" note sits under the bar rather
+  than inside the panel. Agreed in the Flow 4 visual pass.
 - For `/admin/payments` (and reusable by any admin table). A horizontal row:
   search field (`Search member name`), a type dropdown (`All types` +
   Card/Venmo/Cash/Check/Other), a **date-range** dropdown, a **status-scope**
@@ -530,6 +549,22 @@ each one superseded.
   **Replaces all four chevron pagers** on the current admin dashboard widgets.
 
 ### 4.23 Deleted-row treatment *(built — Flow 4, as `deletedRow.tsx`: `deletedRowClass` + `DeletedPill` + `RestoreAction`)*
+- **Row actions and the destructive confirm** *(added — Flow 4 visual pass).*
+  A payment row carries `Edit` + `Delete`; a machine-recorded one
+  (Stripe / Square — created by a checkout flow, no manual edit path) carries
+  a plain source label instead; a deleted one carries `Restore`.
+  `utilities/payment_type` holds the tone map and that machine-recorded rule,
+  shared by the payments list and Member 360 so a Cash row looks the same in
+  both.
+- **Delete confirms in place**: the row's action slot swaps to
+  `Delete? Yes / No` rather than opening a modal, so the row you're about to
+  remove stays visible while you decide. Deletion is soft, so `Restore` is the
+  real safety net and the confirm is a speed bump.
+- Strike-through is **scoped to the identifying cells** (date, member, type,
+  amount), never the notes or the actions — the note is usually the reason the
+  deleted row is worth showing at all ("entered twice, this one voided"). Tint
+  the row rather than dropping its opacity, which pushes already-muted text
+  under AA.
 - How a soft-deleted `Payment` (paranoia gem) renders in a table row, a mobile
   card, and the Member 360 payments list: every cell struck through, an uppercase
   `Deleted` status pill (neutral), a faint body tint, and the row actions
@@ -541,6 +576,18 @@ each one superseded.
 ### 4.24 "Where this leaves them" projection panel *(built — Flow 4, as `PaymentProjectionPanel.tsx`)*
 - *Build note:* the add-payment form passes every member's projection numbers
   inline, so the panel updates on member-switch with no fetch.
+- **Member picker: `MemberCombobox` *(added — Flow 4 visual pass)*.** A real
+  type-ahead, not a `<select>`: an ARIA combobox (listbox, `aria-activedescendant`,
+  arrow/enter/escape, click-away, clear button) over a hidden input, so a plain
+  form POST still carries the id. Search runs on **name and section** through
+  `fuzzysort`, which matches across gaps — "esokol" and "vibes" both find Elena
+  Sokol — but is **not** typo tolerant: characters must appear in order.
+- Members display **First Last** everywhere (picker, projection link). The
+  roster still *sorts* by last name; only the display format is first-last.
+- The add-payment form also carries a **member's-schedule panel**
+  (`MemberSchedulePanel`) under the projection: every installment, the paid
+  ones marked, and the rows the pending amount will cover highlighted
+  oldest-unpaid-first.
 - Side panel on `/admin/payments/new`, updates live as the form changes. A
   **DuesMeter (§4.14)** for the selected member plus a three-row ledger:
   `Paid before $X` / `This payment +$Y` / `Still owed $Z`, and a one-line verdict
@@ -651,6 +698,16 @@ each one superseded.
    callout. Expect a round or two of tweaks from the visual pass after the PR
    opens — and treat anything the pass finds that §4 *could* have specified
    as a gap to fold back into §4.
+8. **A canvas is a point-in-time design, not a living spec. This document is
+   the record.** Once a flow ships, its artboards are frozen: they're
+   hand-authored HTML (hardcoded SVG paths, literal figures, mock markup),
+   not generated from the components, so keeping them current would mean
+   hand-editing static files that drift again on the next change — and
+   they can't express behaviour anyway. So when the build diverges from the
+   canvas, whether from a visual pass or a judgement call, **record it in §4
+   with the reasoning** rather than editing the artboard. Flow 4's §4.21,
+   §4.24 and §4.25 carry several of these. When reading an older flow's
+   canvas, check §4 for what actually shipped.
 
 ---
 
