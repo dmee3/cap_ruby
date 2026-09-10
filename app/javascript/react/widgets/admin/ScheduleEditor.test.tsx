@@ -97,13 +97,34 @@ describe('ScheduleEditor', () => {
     expect(screen.getByRole('button', { name: '+ Add a payment date' })).toBeInTheDocument()
   })
 
-  it('locks a paid row — no editing, no removing', () => {
+  // Paid rows stay editable: fixing a mistyped amount on a covered
+  // installment is ordinary work. Preserving them is the RESET action's job,
+  // not the editor's.
+  it('lets every row be edited and removed, paid ones included', () => {
     render(<ScheduleEditor data={data} />)
-    expect(screen.getByLabelText('Due date for payment 1')).toBeDisabled()
-    expect(screen.queryByRole('button', { name: 'Remove payment 1' })).not.toBeInTheDocument()
-    // the unpaid row stays editable
+    expect(screen.getByLabelText('Due date for payment 1')).not.toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Remove payment 1' })).toBeInTheDocument()
     expect(screen.getByLabelText('Due date for payment 2')).not.toBeDisabled()
     expect(screen.getByRole('button', { name: 'Remove payment 2' })).toBeInTheDocument()
+  })
+
+  it('still marks a paid row as paid — the status is information, not a lock', () => {
+    render(<ScheduleEditor data={data} />)
+    expect(screen.getByText('Paid 10/18')).toBeInTheDocument()
+  })
+
+  it('tracks an edit to a paid row as an unsaved change', async () => {
+    const { container } = render(<ScheduleEditor data={data} />)
+    // entry 1 is the paid one
+    const paidAmount = container.querySelector('#entry-1') as HTMLInputElement
+
+    await userEvent.clear(paidAmount)
+    await userEvent.type(paidAmount, '450')
+
+    expect(paidAmount).toHaveValue('450')
+    expect(screen.getByText('Unsaved changes')).toBeInTheDocument()
+    // and the new figure reaches the running total
+    expect(screen.getByText('Total $850')).toBeInTheDocument()
   })
 
   it('names the date a paid row was actually covered', () => {

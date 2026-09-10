@@ -32,6 +32,30 @@ RSpec.describe 'Api::Admin::PaymentSchedules', type: :request do
     end
   end
 
+  describe 'PUT /api/admin/payment_schedules/:id' do
+    # The editor lets any row be edited, paid ones included — correcting a
+    # mistyped amount on a covered installment is ordinary work. Preserving
+    # paid entries is the RESET action's job, not the update's.
+    it 'updates an entry already covered by a payment' do
+      entry = create(:payment_schedule_entry, payment_schedule: schedule,
+                                              pay_date: Date.new(2025, 10, 17), amount: 40_000)
+      create(:payment, user: member, season: season, amount: 40_000, date_paid: Date.new(2025, 10, 18))
+
+      put "/api/admin/payment_schedules/#{schedule.id}", params: {
+        payment_schedule: {
+          id: schedule.id,
+          payment_schedule_entries_attributes: [
+            { id: entry.id, pay_date: '2025-10-20', amount: 45_000 }
+          ]
+        }
+      }, as: :json
+
+      expect(response).to have_http_status(:no_content)
+      expect(entry.reload.amount).to eq(45_000)
+      expect(entry.pay_date).to eq(Date.new(2025, 10, 20))
+    end
+  end
+
   describe 'POST /api/admin/payment_schedules/apply-default' do
     it 'preserves entries covered by a payment and rewrites the rest' do
       create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.new(2025, 10, 17), amount: 40_000)

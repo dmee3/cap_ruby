@@ -90,19 +90,9 @@ const ScheduleTimeline = ({
         their width off the card.
       */}
       <div className="px-8">
-        {/* Band 1 — the Today caption, above everything */}
-        <div className="relative h-4">
-          {todayInRange && (
-            <span
-              className="absolute -translate-x-1/2 whitespace-nowrap text-caption font-semibold text-primary"
-              style={{ left: `${todayPct}%` }}
-            >
-              Today
-            </span>
-          )}
-        </div>
-
-        {/* Band 2 — dates, then the rail with the dots centred on it */}
+        {/* Band 1 — dates, then the rail with the dots centred on it.
+            The dashed rule marks today; it needs no caption, since the only
+            vertical line on the chart can't be mistaken for anything else. */}
         <div className="relative h-9">
           {sorted.map((node) => (
             <span
@@ -122,7 +112,7 @@ const ScheduleTimeline = ({
 
           {todayInRange && (
             <div
-              className="absolute -top-1 bottom-0 border-l border-dashed border-primary"
+              className="absolute inset-y-0 border-l border-dashed border-primary"
               style={{ left: `${todayPct}%` }}
               aria-hidden="true"
             />
@@ -138,7 +128,7 @@ const ScheduleTimeline = ({
           ))}
         </div>
 
-        {/* Band 3 — amounts, clear of the rail */}
+        {/* Band 2 — amounts, clear of the rail */}
         <div className="relative h-5 pt-1.5">
           {sorted.map((node) => (
             <span

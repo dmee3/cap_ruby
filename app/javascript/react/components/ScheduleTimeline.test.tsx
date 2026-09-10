@@ -77,14 +77,21 @@ describe('ScheduleTimeline', () => {
     expect(screen.getAllByText('$400')[0]).toBeInTheDocument()
   })
 
-  it('draws a Today marker when today falls inside the schedule', () => {
-    render(<ScheduleTimeline nodes={nodes} today="2026-01-20" paidCents={50_000} plannedCents={170_000} />)
-    expect(screen.getByText('Today')).toBeInTheDocument()
+  // The marker is the dashed rule alone — the only vertical line on the
+  // chart, so it needs no caption.
+  it('marks today with a dashed rule when it falls inside the schedule', () => {
+    const { container } = render(
+      <ScheduleTimeline nodes={nodes} today="2026-01-20" paidCents={50_000} plannedCents={170_000} />,
+    )
+    expect(container.querySelector('.border-dashed')).toBeInTheDocument()
+    expect(screen.queryByText('Today')).not.toBeInTheDocument()
   })
 
-  it('omits the Today marker when the season has not started', () => {
-    render(<ScheduleTimeline nodes={nodes} today="2025-01-01" paidCents={0} plannedCents={170_000} />)
-    expect(screen.queryByText('Today')).not.toBeInTheDocument()
+  it('omits the marker entirely when the season has not started', () => {
+    const { container } = render(
+      <ScheduleTimeline nodes={nodes} today="2025-01-01" paidCents={0} plannedCents={170_000} />,
+    )
+    expect(container.querySelector('.border-dashed')).not.toBeInTheDocument()
   })
 
   it('shows the same three-key legend regardless of which statuses are present', () => {

@@ -312,54 +312,46 @@ const ScheduleEditor = ({ data }: { data: ScheduleEditorData }) => {
               <span className="sr-only">Remove</span>
             </div>
 
+            {/*
+              Every row is editable, including ones already covered by a
+              payment — correcting a mistyped amount or a wrong due date on a
+              past installment is ordinary work. "Paid" is information, not a
+              barrier. (Preserving paid entries is a property of the RESET
+              action, which is separate; see ScheduleDefault.)
+            */}
             <ul className="flex flex-col">
-              {rows.map((row, i) => {
-                const locked = row.status === 'paid'
-                return (
-                  <li key={row.id} className={`${GRID} border-b border-border-default px-4 py-2.5`}>
-                    <span
-                      className={`font-mono text-body-sm ${locked ? 'text-secondary' : 'font-bold text-primary'}`}
-                    >
-                      {i + 1}
-                    </span>
+              {rows.map((row, i) => (
+                <li key={row.id} className={`${GRID} border-b border-border-default px-4 py-2.5`}>
+                  <span className="font-mono text-body-sm font-bold text-primary">{i + 1}</span>
 
-                    <input
-                      type="date"
-                      aria-label={`Due date for payment ${i + 1}`}
-                      value={row.payDate}
-                      disabled={locked}
-                      onChange={(e) => setRow(row.id, { payDate: e.target.value })}
-                      className="h-10 rounded-sm border border-border-strong bg-surface px-2.5 text-body-sm text-primary disabled:border-border-default disabled:bg-sunken disabled:text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
-                    />
+                  <input
+                    type="date"
+                    aria-label={`Due date for payment ${i + 1}`}
+                    value={row.payDate}
+                    onChange={(e) => setRow(row.id, { payDate: e.target.value })}
+                    className="h-10 rounded-sm border border-border-strong bg-surface px-2.5 text-body-sm text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
+                  />
 
-                    <MoneyField
-                      id={`entry-${row.id}`}
-                      label=""
-                      valueCents={row.amountCents}
-                      onChangeCents={(cents) => setRow(row.id, { amountCents: cents })}
-                      disabled={locked}
-                      compact
-                    />
+                  <MoneyField
+                    id={`entry-${row.id}`}
+                    label=""
+                    valueCents={row.amountCents}
+                    onChangeCents={(cents) => setRow(row.id, { amountCents: cents })}
+                    compact
+                  />
 
-                    {statusPill(row)}
+                  {statusPill(row)}
 
-                    {locked ? (
-                      <span className="text-center text-border-strong" aria-hidden="true">
-                        –
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => removeRow(row.id)}
-                        aria-label={`Remove payment ${i + 1}`}
-                        className="text-body font-semibold text-danger-fg hover:opacity-70"
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </li>
-                )
-              })}
+                  <button
+                    type="button"
+                    onClick={() => removeRow(row.id)}
+                    aria-label={`Remove payment ${i + 1}`}
+                    className="text-body font-semibold text-danger-fg hover:opacity-70"
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
             </ul>
 
             <div className="flex items-center gap-3 px-4 py-3">

@@ -560,6 +560,14 @@ each one superseded.
   going"**, not the canvas's "Plan against what's actually in" — that phrase
   trails off, and the warmer question matches the voice of "Where you stand"
   (Flow 2) and "Are we on track?" (the admin dashboard).
+- *Every row stays editable, paid ones included.* An earlier build locked
+  covered entries, reading "resetting preserves paid entries" as a general
+  prohibition. It isn't: preserving them is a property of the **reset**
+  action. Correcting a mistyped amount or a wrong due date on a covered
+  installment is ordinary work, and the API always allowed it. "Paid" is
+  information on the row, not a barrier.
+- *Today marker:* the dashed rule carries it with no caption — it's the only
+  vertical line on the chart, so the label was redundant.
 - *Layout note:* the node track is inset by a 2rem gutter and positioned with
   `calc()` inside it. Nodes are three stacked lines centred on their date, so
   without the gutter the first and last hang half their width off the card.
