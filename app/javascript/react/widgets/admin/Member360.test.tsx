@@ -1,5 +1,6 @@
-import { render, screen } from '@testing-library/react'
-import { describe, it, expect, beforeEach } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import Member360, { Member360Data } from './Member360'
 
 const base: Member360Data = {
@@ -92,14 +93,61 @@ describe('Member360', () => {
     expect(edits).toContain('/admin/payment_schedules/3/edit')
   })
 
-  it('summarises payments in the card header and offers a per-row Edit', () => {
+  it('summarises payments in the card header and badges the type', () => {
     render(<Member360 data={base} csrfToken="tok" />)
     expect(screen.getByText('1 this season · $2,400')).toBeInTheDocument()
-    expect(screen.getByText('$2,400 · Venmo')).toBeInTheDocument()
-    expect(screen.getAllByRole('link', { name: 'Edit' })[1]).toHaveAttribute(
-      'href',
-      '/admin/payments/5/edit',
+    expect(screen.getAllByText('$2,400').length).toBeGreaterThan(0)
+    expect(screen.getByText('Venmo')).toBeInTheDocument()
+    const edits = screen.getAllByRole('link', { name: 'Edit' }).map((a) => a.getAttribute('href'))
+    expect(edits).toContain('/admin/payments/5/edit')
+  })
+
+  it('confirms in place before deleting a payment', async () => {
+    const fetchMock = vi.fn(() => Promise.resolve({ ok: true } as Response))
+    vi.stubGlobal('fetch', fetchMock)
+    render(<Member360 data={base} csrfToken="tok" />)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }))
+    expect(fetchMock).not.toHaveBeenCalled()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Yes' }))
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/admin/payments/5',
+        expect.objectContaining({ method: 'DELETE' }),
+      )
+    })
+    vi.unstubAllGlobals()
+  })
+
+  it('backs out of the delete confirm', async () => {
+    const fetchMock = vi.fn(() => Promise.resolve({ ok: true } as Response))
+    vi.stubGlobal('fetch', fetchMock)
+    render(<Member360 data={base} csrfToken="tok" />)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }))
+    await userEvent.click(screen.getByRole('button', { name: 'No' }))
+
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+    vi.unstubAllGlobals()
+  })
+
+  it('offers no delete on a machine-recorded payment', () => {
+    render(
+      <Member360
+        data={{ ...base, payment_rows: [{ ...base.payment_rows[0], payment_type: 'Stripe' }] }}
+        csrfToken="tok"
+      />,
     )
+    expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument()
+  })
+
+  it('puts the schedule amount in its own column, not beside the date', () => {
+    const { container } = render(<Member360 data={base} csrfToken="tok" />)
+    const row = container.querySelector('.grid-cols-\\[auto_1fr_auto\\]')
+    expect(row).toBeInTheDocument()
+    expect(row).toHaveTextContent('$3,000')
   })
 
   it('keeps a deleted payment’s note readable and offers Restore', () => {

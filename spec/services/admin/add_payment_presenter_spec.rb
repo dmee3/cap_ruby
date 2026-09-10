@@ -15,8 +15,20 @@ RSpec.describe Admin::AddPaymentPresenter do
     described_class.members_for(season).find { |m| m[:id] == member.id }
   end
 
-  it 'names members last-name-first with their section, for the picker' do
-    expect(model).to include(name: 'Sokol, Elena', section: 'Front Ensemble / Vibes')
+  it 'names members first-last with their section, for the picker' do
+    expect(model).to include(name: 'Elena Sokol', section: 'Front Ensemble / Vibes')
+  end
+
+  it 'still orders the roster by last name, whatever the display format' do
+    create(:user, first_name: 'Aaron', last_name: 'Zeller').tap do |u|
+      create(:seasons_user, user: u, season: season, role: 'member')
+    end
+    create(:user, first_name: 'Zoe', last_name: 'Abbott').tap do |u|
+      create(:seasons_user, user: u, season: season, role: 'member')
+    end
+
+    names = described_class.members_for(season).map { |m| m[:name] }
+    expect(names).to eq(names.sort_by { |n| n.split.last })
   end
 
   it 'carries the projection figures' do

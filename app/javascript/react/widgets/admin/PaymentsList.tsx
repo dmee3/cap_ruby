@@ -3,10 +3,11 @@ import FilterBar, { PaymentFilters, EMPTY_FILTERS, isDirty } from '../../compone
 import SortableTh, { SortDir } from '../../components/SortableTh'
 import Card from '../../components/Card'
 import EmptyState from '../../components/EmptyState'
-import Pill, { PillTone } from '../../components/Pill'
+import Pill from '../../components/Pill'
 import { DeletedPill, RestoreAction } from '../../components/deletedRow'
 import Utilities from '../../../utilities/utilities'
 import { dollars } from '../../../utilities/money'
+import { typeTone, isMachineRecorded } from '../../../utilities/payment_type'
 
 type PaymentTypeOption = { id: number; name: string }
 
@@ -47,11 +48,7 @@ const fmtDate = (iso: string | null) =>
       })
     : '—'
 
-/** Stripe rows are machine-created; they have no manual edit/delete path. */
-const isStripe = (name: string) => name === 'Stripe' || name.startsWith('Square')
-
-const TYPE_TONE: Record<string, PillTone> = { Cash: 'success', Stripe: 'neutral' }
-const typeTone = (name: string): PillTone => TYPE_TONE[name] ?? 'neutral'
+const isStripe = isMachineRecorded
 
 const toParams = (filters: PaymentFilters, sort: string, dir: SortDir, offset: number) => {
   const p = new URLSearchParams({ sort, dir, limit: String(PAGE), offset: String(offset) })

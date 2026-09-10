@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import MoneyField from '../../components/MoneyField'
 import PaymentProjectionPanel from '../../components/PaymentProjectionPanel'
 import MemberSchedulePanel, { ScheduleInstallment } from '../../components/MemberSchedulePanel'
+import MemberCombobox from '../../components/MemberCombobox'
 import ValidationSummaryCard, { ValidationError } from '../../components/ValidationSummaryCard'
 import Button from '../../components/Button'
 
@@ -127,30 +128,26 @@ const AddPaymentForm = ({
         >
           <input type="hidden" name="authenticity_token" value={csrfToken} />
 
-          <label className="flex flex-col gap-1.5">
-            <span className="text-body-sm font-semibold text-primary">Member</span>
-            <select
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="payment_user_id" className="text-body-sm font-semibold text-primary">
+              Member
+            </label>
+            <MemberCombobox
               id="payment_user_id"
               name="payment[user_id]"
+              members={members.map((m) => ({ id: m.id, name: m.name, section: m.section }))}
               value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              className={errorFor('payment_user_id') ? fieldErr : fieldOk}
-            >
-              <option value="">Choose a member</option>
-              {members.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.section ? `${m.name} · ${m.section}` : m.name}
-                </option>
-              ))}
-            </select>
+              onChange={setUserId}
+              error={errorFor('payment_user_id')}
+            />
             {errorFor('payment_user_id') ? (
               <FieldError>{errorFor('payment_user_id')}</FieldError>
             ) : (
               <Hint>
-                Last name first, current-season members only. Type to filter {members.length} names.
+                Current-season members only. Start typing to search {members.length} names.
               </Hint>
             )}
-          </label>
+          </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
@@ -251,9 +248,6 @@ const AddPaymentForm = ({
             >
               Cancel
             </a>
-            <span className="ml-auto max-w-[220px] text-right text-caption text-secondary">
-              One click only. The button locks while saving.
-            </span>
           </div>
         </form>
       </div>
@@ -274,7 +268,7 @@ const AddPaymentForm = ({
 
         {member && (
           <MemberSchedulePanel
-            memberName={member.name.split(',')[0]}
+            memberName={member.name.split(' ')[0]}
             scheduleId={member.schedule_id}
             installments={member.installments}
             pendingCents={amountCents ?? 0}

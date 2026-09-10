@@ -11,6 +11,7 @@ import Button from '../../components/Button'
 import { DeletedPill } from '../../components/deletedRow'
 import Utilities from '../../../utilities/utilities'
 import { dollars } from '../../../utilities/money'
+import { typeTone, isMachineRecorded } from '../../../utilities/payment_type'
 
 type DuesSummary = {
   state: 'no_schedule' | 'paid_in_full' | 'behind' | 'ahead' | 'on_track'
@@ -104,6 +105,8 @@ const Member360 = ({ data, csrfToken }: { data: Member360Data; csrfToken: string
   const { identity, dues, schedule } = data
   const [restoring, setRestoring] = useState<number | null>(null)
   const [restoredIds, setRestoredIds] = useState<Set<number>>(new Set())
+  const [deletedIds, setDeletedIds] = useState<Set<number>>(new Set())
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
 
   const scheduleHref = data.schedule_setup_href ?? '#'
   const variant: 'on-track' | 'past-due' | 'no-schedule' =
@@ -120,10 +123,98 @@ const Member360 = ({ data, csrfToken }: { data: Member360Data; csrfToken: string
     fetch(row.restore_href, { method: 'PUT', headers: { 'X-CSRF-Token': csrfToken } })
       .then((r) => {
         if (!r.ok) throw r
-        setRestoredIds((prev) => new Set(prev).add(row.id))
+        setRestoredIds((prev) => {
+          const next = new Set(prev)
+          next.add(row.id)
+          return next
+        })
+        setDeletedIds((prev) => {
+          const next = new Set(prev)
+          next.delete(row.id)
+          return next
+        })
       })
       .catch(() => undefined)
       .finally(() => setRestoring(null))
+  }
+
+  const destroy = (row: PaymentRowModel) => {
+    setRestoring(row.id)
+    fetch(`/admin/payments/${row.id}`, {
+      method: 'DELETE',
+      headers: { 'X-CSRF-Token': csrfToken },
+    })
+      .then((r) => {
+        if (!r.ok) throw r
+        setDeletedIds((prev) => {
+          const next = new Set(prev)
+          next.add(row.id)
+          return next
+        })
+        setConfirmDelete(null)
+      })
+      .catch(() => undefined)
+      .finally(() => setRestoring(null))
+  }
+
+  // Same in-place confirm as the payments list — the row stays visible while
+  // you decide, and a soft delete is reversible from the Restore that replaces
+  // these actions.
+  const rowActions = (p: PaymentRowModel, stillDeleted: boolean) => {
+    if (stillDeleted) {
+      return (
+        <button
+          type="button"
+          onClick={() => restore(p)}
+          disabled={restoring === p.id}
+          className="font-medium text-accent-primary underline disabled:opacity-50"
+        >
+          Restore
+        </button>
+      )
+    }
+
+    if (isMachineRecorded(p.payment_type)) {
+      return <span className="text-secondary">{p.payment_type}</span>
+    }
+
+    if (confirmDelete === p.id) {
+      return (
+        <>
+          <span className="text-secondary">Delete?</span>
+          <button
+            type="button"
+            onClick={() => destroy(p)}
+            disabled={restoring === p.id}
+            className="font-semibold text-danger-fg underline disabled:opacity-50"
+          >
+            Yes
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirmDelete(null)}
+            className="font-medium text-secondary underline"
+          >
+            No
+          </button>
+        </>
+      )
+    }
+
+    return (
+      <>
+        <a href={p.edit_href} className="font-medium text-accent-primary underline">
+          Edit
+        </a>
+        <button
+          type="button"
+          onClick={() => setConfirmDelete(p.id)}
+          className="font-medium text-danger-fg underline"
+        >
+          Delete
+        </button>
+      </>
+    )
   }
 
   return (
@@ -232,10 +323,10 @@ const Member360 = ({ data, csrfToken }: { data: Member360Data; csrfToken: string
                   {schedule.entries.map((e) => (
                     <li
                       key={e.id}
-                      className="flex items-center justify-between gap-2 border-b border-border-default px-4 py-2.5"
+                      className="grid grid-cols-[auto_1fr_auto] items-center gap-3 border-b border-border-default px-4 py-2.5"
                     >
                       <span className="font-mono text-body-sm text-secondary">{fmtDate(e.pay_date)}</span>
-                      <span className="ml-auto font-mono text-body-sm text-secondary">
+                      <span className="text-right font-mono text-body-sm text-primary">
                         {dollars(e.amount_cents)}
                       </span>
                       <Pill tone={ENTRY_TONE[e.status]} casing="sentence">
@@ -289,7 +380,8 @@ const Member360 = ({ data, csrfToken }: { data: Member360Data; csrfToken: string
             ) : (
               <ul className="flex flex-col">
                 {data.payment_rows.map((p) => {
-                  const stillDeleted = p.deleted && !restoredIds.has(p.id)
+                  const stillDeleted =
+                    (p.deleted || deletedIds.has(p.id)) && !restoredIds.has(p.id)
                   return (
                     <li
                       key={p.id}
@@ -297,38 +389,27 @@ const Member360 = ({ data, csrfToken }: { data: Member360Data; csrfToken: string
                         stillDeleted ? 'bg-sunken/40' : ''
                       }`}
                     >
-                      <span className="flex min-w-0 flex-1 flex-col">
-                        <span
-                          className={`text-body-sm font-semibold ${
-                            stillDeleted ? 'text-secondary line-through' : 'text-primary'
-                          }`}
-                        >
-                          {dollars(p.amount_cents)} · {p.payment_type}
+                      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <span className="flex items-center gap-2">
+                          <span
+                            className={`font-mono text-body-sm font-semibold ${
+                              stillDeleted ? 'text-secondary line-through' : 'text-primary'
+                            }`}
+                          >
+                            {dollars(p.amount_cents)}
+                          </span>
+                          <span className={stillDeleted ? 'line-through' : ''}>
+                            <Pill tone={typeTone(p.payment_type)}>{p.payment_type}</Pill>
+                          </span>
+                          {stillDeleted && <DeletedPill />}
                         </span>
                         <span className="truncate text-caption text-secondary">
                           {[fmtDate(p.date_paid), p.notes].filter(Boolean).join(' · ')}
                         </span>
                       </span>
-                      {stillDeleted ? (
-                        <span className="flex shrink-0 items-center gap-2">
-                          <DeletedPill />
-                          <button
-                            type="button"
-                            onClick={() => restore(p)}
-                            disabled={restoring === p.id}
-                            className="text-body-sm font-medium text-accent-primary underline disabled:opacity-50"
-                          >
-                            Restore
-                          </button>
-                        </span>
-                      ) : (
-                        <a
-                          href={p.edit_href}
-                          className="shrink-0 text-body-sm font-medium text-accent-primary underline"
-                        >
-                          Edit
-                        </a>
-                      )}
+                      <span className="flex shrink-0 items-baseline gap-2.5 text-body-sm">
+                        {rowActions(p, stillDeleted)}
+                      </span>
                     </li>
                   )
                 })}

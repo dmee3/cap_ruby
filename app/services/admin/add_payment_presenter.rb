@@ -23,8 +23,7 @@ module Admin
 
         {
           id: member.id,
-          # Last-name-first for the picker; the section disambiguates.
-          name: "#{member.last_name}, #{member.first_name}",
+          name: member.full_name,
           section: [member.ensemble_for(season_id), member.section_for(season_id)].compact.join(' / '),
           paid_before_cents: summary[:paid],
           season_total_cents: summary[:total],

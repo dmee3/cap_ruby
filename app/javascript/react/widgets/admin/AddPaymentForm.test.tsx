@@ -6,7 +6,7 @@ import AddPaymentForm, { AddPaymentMember, AddPaymentType } from './AddPaymentFo
 const members: AddPaymentMember[] = [
   {
     id: 9,
-    name: 'Sokol, Elena',
+    name: 'Elena Sokol',
     section: 'Front Ensemble / Vibes',
     paid_before_cents: 240_000,
     season_total_cents: 360_000,
@@ -38,8 +38,10 @@ const setup = (props = {}) =>
     />,
   )
 
-const pickMember = async (container: HTMLElement) =>
-  userEvent.selectOptions(container.querySelector('[name="payment[user_id]"]')!, '9')
+const pickMember = async () => {
+  await userEvent.click(screen.getByRole('combobox', { name: 'Member' }))
+  await userEvent.click(screen.getByRole('option', { name: /Elena Sokol/ }))
+}
 
 describe('AddPaymentForm', () => {
   it('is a real POST form to /admin/payments with a CSRF token', () => {
@@ -58,14 +60,17 @@ describe('AddPaymentForm', () => {
     expect(container.querySelector('[name="payment[date_paid]"]')).toBeInTheDocument()
   })
 
-  it('lists members last-name-first with their section', () => {
+  it('searches members by first-last name with their section', async () => {
     setup()
-    expect(screen.getByRole('option', { name: 'Sokol, Elena · Front Ensemble / Vibes' })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('combobox', { name: 'Member' }))
+    const option = screen.getByRole('option', { name: /Elena Sokol/ })
+    expect(option).toHaveTextContent('Elena Sokol')
+    expect(option).toHaveTextContent('Front Ensemble / Vibes')
   })
 
   it('carries a helper line under every field', () => {
     setup()
-    expect(screen.getByText(/Last name first, current-season members only/)).toBeInTheDocument()
+    expect(screen.getByText(/Current-season members only/)).toBeInTheDocument()
     expect(screen.getByText('Full amount received. No processing fee on manual payments.')).toBeInTheDocument()
     expect(screen.getByText('Defaults to today. Back-date it if the cash sat in the box.')).toBeInTheDocument()
     expect(screen.getByText('Members can see this on their payment history.')).toBeInTheDocument()
@@ -88,8 +93,8 @@ describe('AddPaymentForm', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Record payment' }))
 
-    const select = container.querySelector('[name="payment[user_id]"]')!
-    expect(select.className).toMatch(/border-danger-fg/)
+    // the combobox shell takes the error border; the hidden input carries the id
+    expect(container.innerHTML).toMatch(/border-danger-fg/)
   })
 
   it('shows server errors after a failed submit', () => {
@@ -99,7 +104,7 @@ describe('AddPaymentForm', () => {
 
   it('updates the projection panel as the member and amount change', async () => {
     const { container } = setup()
-    await pickMember(container)
+    await pickMember()
     await userEvent.type(screen.getByLabelText('Amount'), '1200')
 
     expect(screen.getByText('Paid before').nextSibling).toHaveTextContent('$2,400')
@@ -108,7 +113,7 @@ describe('AddPaymentForm', () => {
 
   it('shows the read-only "Applies to" line for the selected member', async () => {
     const { container } = setup()
-    await pickMember(container)
+    await pickMember()
     expect(screen.getByText(/Oldest unpaid due date first: 3\/15, then 4\/15/)).toBeInTheDocument()
   })
 
@@ -119,9 +124,9 @@ describe('AddPaymentForm', () => {
 
   it("renders the member's schedule and marks what this payment will cover", async () => {
     const { container } = setup()
-    await pickMember(container)
+    await pickMember()
 
-    expect(screen.getByText('Sokol’s schedule')).toBeInTheDocument()
+    expect(screen.getByText('Elena’s schedule')).toBeInTheDocument()
     expect(screen.getByText('Paid')).toBeInTheDocument()
     expect(screen.getByText('Season total')).toBeInTheDocument()
 
@@ -129,10 +134,9 @@ describe('AddPaymentForm', () => {
     expect(screen.getByText('Covers this')).toBeInTheDocument()
   })
 
-  it('offers Cancel and explains the submit lock', () => {
+  it('offers Cancel', () => {
     setup()
     expect(screen.getByRole('link', { name: 'Cancel' })).toHaveAttribute('href', '/admin/payments')
-    expect(screen.getByText('One click only. The button locks while saving.')).toBeInTheDocument()
   })
 
   it('pre-fills sticky values on a re-render after failure', () => {
