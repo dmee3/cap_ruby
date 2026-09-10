@@ -21,6 +21,16 @@ export type AddPaymentMember = {
 
 export type AddPaymentType = { id: number; name: string }
 
+/**
+ * Editing an existing payment. The projection panel then has to net out the
+ * payment's ORIGINAL amount before applying the new one — otherwise changing
+ * $600 to $700 reads as if $700 more were arriving.
+ */
+type EditingPayment = {
+  id: number
+  originalAmountCents: number
+}
+
 type AddPaymentFormProps = {
   members: AddPaymentMember[]
   paymentTypes: AddPaymentType[]
@@ -37,6 +47,8 @@ type AddPaymentFormProps = {
     datePaid?: string
     notes?: string
   }
+  /** Present when correcting an existing payment rather than recording a new one. */
+  editing?: EditingPayment
 }
 
 const fieldBase =
@@ -62,8 +74,10 @@ const AddPaymentForm = ({
   csrfToken,
   serverErrors,
   initial,
+  editing,
 }: AddPaymentFormProps) => {
   const today = new Date().toISOString().slice(0, 10)
+  const isEdit = editing != null
 
   const [userId, setUserId] = useState<string>(String(initial.userId ?? preselectedUserId ?? ''))
   const [paymentTypeId, setPaymentTypeId] = useState<string>(
@@ -117,16 +131,21 @@ const AddPaymentForm = ({
     <div className="grid items-start gap-7 lg:grid-cols-[minmax(0,1fr)_360px]">
       <div className="flex flex-col gap-4">
         {errors.length > 0 && (
-          <ValidationSummaryCard errors={errors} lead="This payment wasn't saved." />
+          <ValidationSummaryCard
+            errors={errors}
+            lead={isEdit ? "Your changes weren't saved." : "This payment wasn't saved."}
+          />
         )}
 
         <form
-          action="/admin/payments"
+          action={isEdit ? `/admin/payments/${editing.id}` : '/admin/payments'}
           method="post"
           onSubmit={onSubmit}
           className="flex flex-col gap-5 rounded-md border border-border-default bg-surface p-6"
         >
           <input type="hidden" name="authenticity_token" value={csrfToken} />
+          {/* Rails reads _method for verbs a browser form can't send. */}
+          {isEdit && <input type="hidden" name="_method" value="patch" />}
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor="payment_user_id" className="text-body-sm font-semibold text-primary">
@@ -240,7 +259,7 @@ const AddPaymentForm = ({
 
           <div className="flex items-center gap-3 border-t border-border-default pt-5">
             <Button type="submit" variant="primary" size="lg" loading={submitting} fullWidthBelow={false}>
-              Record payment
+              {isEdit ? 'Save changes' : 'Record payment'}
             </Button>
             <a
               href="/admin/payments"
@@ -258,7 +277,12 @@ const AddPaymentForm = ({
             member && {
               id: member.id,
               name: member.name,
-              paidBeforeCents: member.paid_before_cents,
+              // When editing, the member's paid total already contains this
+              // payment — net it out so the panel projects the CHANGE, not a
+              // second payment on top of itself.
+              paidBeforeCents: isEdit
+                ? member.paid_before_cents - editing.originalAmountCents
+                : member.paid_before_cents,
               seasonTotalCents: member.season_total_cents,
               expectedCents: member.expected_cents,
             }

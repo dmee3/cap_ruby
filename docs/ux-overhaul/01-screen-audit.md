@@ -101,8 +101,8 @@ Admin inherits coordinator + staff, plus:
 | **Admin dashboard** | `/admin` | Financial + operational health of the season at a glance: expected vs collected dues, upcoming payments, members behind, upcoming conflicts | Best-developed screen, but: 4 independent React widgets each doing their own fetch/paginate; "Dues owed / collected" is two stacked numbers with no chart; each list widget has its own 5-per-page chevron pager; no date/season controls; the whole thing is information-dense but not *insight*-dense | 🔴 |
 | **Payments list** | `/admin/payments` | Find a member, see their payment status, add a manual (cash/Venmo/check) payment | One big `.custom-table`, fuzzy name filter, per-row "New" button. `whitespace-nowrap` everywhere → horizontal scroll. No sorting, no status filter, no "show only behind" | 🔴 |
 | **Add manual payment** | `/admin/payments/new` | Record a manual payment (amount, date, type, notes) | ✅ rebuilt in Flow 4 | ✅ |
-| Edit payment | `/admin/payments/:id/edit` | Correct an existing payment | ⚠️ **still pre-overhaul Bootstrap.** Was bundled with `new` in one audit row, so it fell outside Flow 4's scope while `new` was rebuilt — and Flow 4 added Edit links into it from three places. Two live bugs (cents truncation on update, 404 on validation failure). `bd show cap_ruby-b3a.15` | 🔴 |
-| Payment detail | `/admin/payments/:id` | View one payment, delete/restore (soft-delete) | Minimal, pre-overhaul. May not need to survive now that rows are editable from two lists — decide before porting. `bd show cap_ruby-b3a.15` | ⚪ |
+| **Edit payment** | `/admin/payments/:id/edit` | Correct an existing payment | ✅ rebuilt in Flow 4 on the same `AddPaymentForm` as `new`, seeded from the payment; the projection panel nets out the original amount so it shows the *change*. Fixed two live bugs found here: cents truncation on update, and a 404 on validation failure | ✅ |
+| Payment detail | `/admin/payments/:id` | View one payment, delete/restore (soft-delete) | Minimal, pre-overhaul, and now largely redundant — rows are editable and deletable from the payments list and Member 360. Decide whether it survives rather than porting it. `bd show cap_ruby-b3a.15` | ⚪ |
 | **Payment schedule editor** | `/admin/payment_schedules/:id/edit` | Adjust a member's due-date/amount plan; generate a default schedule by member type (vet/new) | React edit rows; add/remove entry; "create default" action. Powerful, but the relationship between schedule, payments made, and what's owed is not visualized | 🟡 |
 | **Users list** | `/admin/users` | Find/manage members; see roster | React table (`UserTable`); fine, plain | 🟡 |
 | New / edit user | `/admin/users/new`, `/:id/edit` | Create a member, assign season/role/ensemble/section/member-type; auto-creates a payment schedule | `UserForm` + `UserRoleRow` — the most complex form in the app (per-season role assignment). Deserves careful redesign | 🔴 |
@@ -165,6 +165,10 @@ editable at `/admin/season/edit`) is the seasonal on/off switch coordinators use
 - Admin dashboard (insight-focused: dues burndown as the hero, not two numbers)
 - Payments list (filter/sort/status, mobile card fallback)
 - Add manual payment (projection panel, validation summary, disable-on-submit)
+- Edit payment (`/admin/payments/:id/edit`) — *added mid-flow*: the same form
+  as `new`, seeded from the payment. It wasn't in the original scope, but the
+  flow put Edit links into it from three screens, so leaving it on Bootstrap
+  would have made the seam worse than before the flow started
 - Member 360 (`/admin/users/:id`) — the shared detail view, phone layout
 - Payment schedule editor (`/admin/payment_schedules/:id/edit` — built to the
   real route; the canvas's `/admin/users/:id/payment_schedule/edit` label was wrong)

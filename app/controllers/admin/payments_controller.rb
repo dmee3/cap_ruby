@@ -30,11 +30,7 @@ module Admin
     end
 
     def create
-      attrs = payment_params.to_h
-      # The form field is dollars; store cents. `.to_f` first so "32.30" doesn't
-      # truncate to 32 via the integer column before the ×100.
-      attrs[:amount] = (attrs[:amount].to_f * 100).round if attrs[:amount].present?
-      @payment = Payment.new(attrs)
+      @payment = Payment.new(payment_attrs(payment_params))
       @payment.season_id = current_season['id']
 
       saved = Payment.transaction do
@@ -62,20 +58,27 @@ module Admin
     end
 
     def edit
+      # Amount stays in cents — the view hands it to MoneyField, which takes
+      # cents. (It used to be divided here, truncating $32.30 to $32.)
       @payment = Payment.find(params[:id])
-      @payment.amount /= 100
+      @payment_types = manual_payment_types
+      @members = add_payment_member_models
       render('admin/payments/edit')
     end
 
     def update
       @payment = Payment.find(params[:id])
-      if @payment.update(update_params.reject { |_k, v| v.blank? }) # only update non-empty fields
-        flash[:success] = 'Payment updated'
-        redirect_to('/admin/payments')
+
+      if @payment.update(payment_attrs(update_params))
+        flash[:success] = "#{ActiveSupport::NumberHelper.number_to_currency(@payment.amount / 100.0)} " \
+                          "updated for #{@payment.user.full_name}"
+        redirect_to(admin_payments_path)
       else
         Rollbar.info('Payment could not be updated.', errors: @payment.errors.full_messages)
-        flash[:error] = 'Unable to update payment'
-        redirect_to("/admin/payments/edit/#{@payment.id}")
+        @payment_types = manual_payment_types
+        @members = add_payment_member_models
+        flash.now[:error] = @payment.errors.full_messages.to_sentence
+        render('admin/payments/edit')
       end
     end
 
@@ -151,6 +154,15 @@ module Admin
       params.permit(:sort, :dir, :q, :type_id, :start_date, :end_date, :scope, :limit, :offset)
     end
 
+    # The amount field is dollars; the column is integer cents. `.to_f` first,
+    # so "32.30" doesn't truncate to 32 on the way through. Shared by create
+    # and update — they drifted apart once already.
+    def payment_attrs(permitted)
+      attrs = permitted.to_h
+      attrs[:amount] = (attrs[:amount].to_f * 100).round if attrs[:amount].present?
+      attrs
+    end
+
     # Payment types an admin can pick when recording a payment made outside the
     # system — Stripe rows are created by the checkout flow, never entered here.
     def manual_payment_types
@@ -165,10 +177,11 @@ module Admin
       params.require(:payment).permit(:user_id, :payment_type_id, :amount, :date_paid, :notes)
     end
 
+    # Same shape as `payment_params` — a payment recorded against the wrong
+    # member is one of the likelier things you'd open this screen to fix.
+    # Conversion to cents happens in `payment_attrs`, not here.
     def update_params
-      params.require(:payment).permit(:payment_type_id, :amount, :date_paid, :notes).tap do |p|
-        p[:amount] = p[:amount].to_i * 100 if p[:amount] # Convert to cents
-      end
+      params.require(:payment).permit(:user_id, :payment_type_id, :amount, :date_paid, :notes)
     end
   end
 end

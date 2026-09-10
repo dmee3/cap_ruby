@@ -113,6 +113,63 @@ RSpec.describe 'Admin::Payments', type: :request do
     end
   end
 
+  describe 'GET /admin/payments/:id/edit' do
+    it 'mounts the shared payment form seeded from the existing payment' do
+      payment = create(:payment, user: member, season: season, payment_type: cash,
+                                 amount: 3230, date_paid: Date.new(2026, 1, 15), notes: 'At rehearsal')
+
+      get "/admin/payments/#{payment.id}/edit"
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('id="edit-payment"')
+      # amount stays in cents for MoneyField — it used to be divided here,
+      # truncating $32.30 to $32
+      expect(response.body).to include('3230')
+      expect(response.body).to include('At rehearsal')
+      expect(response.body).to include('Rae Quinn')
+    end
+  end
+
+  describe 'PATCH /admin/payments/:id' do
+    let(:payment) do
+      create(:payment, user: member, season: season, payment_type: cash,
+                       amount: 60_000, date_paid: Date.new(2026, 1, 15), notes: 'original')
+    end
+
+    it 'stores a decimal dollar amount as exact cents (no truncation)' do
+      patch "/admin/payments/#{payment.id}", params: { payment: { amount: '32.30' } }
+
+      expect(payment.reload.amount).to eq(3230)
+      expect(response).to redirect_to(admin_payments_path)
+    end
+
+    it 'can clear the notes — a blank value is a real edit, not a no-op' do
+      patch "/admin/payments/#{payment.id}", params: { payment: { notes: '' } }
+
+      expect(payment.reload.notes).to eq('')
+    end
+
+    it 'can reassign a payment recorded against the wrong member' do
+      other = create(:user, first_name: 'Sam', last_name: 'Reed')
+      create(:seasons_user, user: other, season: season, role: 'member')
+
+      patch "/admin/payments/#{payment.id}", params: { payment: { user_id: other.id } }
+
+      expect(payment.reload.user_id).to eq(other.id)
+    end
+
+    it 're-renders the form on failure instead of redirecting to a dead URL' do
+      # /admin/payments/edit/:id was the old failure target; the route is
+      # /admin/payments/:id/edit, so that 404'd.
+      allow_any_instance_of(Payment).to receive(:update).and_return(false)
+
+      patch "/admin/payments/#{payment.id}", params: { payment: { amount: '0' } }
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('id="edit-payment"')
+    end
+  end
+
   describe 'GET /admin/payments/burndown-chart' do
     it 'returns weekly season-scoped scheduled and actual series' do
       schedule = create(:payment_schedule, season: season, user: member)

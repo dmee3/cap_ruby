@@ -1,58 +1,28 @@
-<div class="row">
-  <div class="col-md-9">
-    <h1>Edit Payment for <%= @payment.user.first_name %></h1>
-  </div>
-  <div class="col-md-3 text-right-md">
-    <%= link_to 'All Payments', admin_payments_path, class: 'btn btn-light align-middle' %>
-  </div>
+<% content_for :page_title, 'Edit payment' %>
+<%= vite_typescript_tag 'entrypoints/admin/payments/edit.tsx' %>
+
+<div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-5">
+  <%= link_to '‹ Payments', admin_payments_path,
+              class: 'basis-full text-body-sm font-medium text-accent-primary no-underline hover:underline' %>
+  <h1 class="m-0 text-h3 text-primary">Edit payment</h1>
+  <span class="text-body-sm text-secondary">
+    Recorded <%= @payment.created_at.strftime('%-m/%-d/%y') %>
+  </span>
 </div>
 
-<div class="card">
-  <%= form_for @payment, url: admin_payment_path(@payment), html: { class: 'card-body' } do |p| %>
-    <div class="row mt-3">
-      <div class="col-md-4 form-group">
-        <%= p.collection_select :payment_type_id, PaymentType.all, :id, :name, {}, { class: 'form-control select2-form-control' } %>
-      </div>
-      <div class="col-md-4">
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text">$</span>
-          </div>
-          <%= p.number_field :amount, placeholder: '0.00', step: :any, class: 'form-control' %>
-        </div>
-      </div>
-      <div class="col-md-4 form-group">
-        <%= p.text_field :date_paid, { class: 'flatpickr form-control mr-2 mb-2 w-100' } %>
-      </div>
-    </div>
-
-    <div class="row mt-3">
-      <div class="col-12 form-group">
-        <%= p.text_area :notes, { class: 'form-control', placeholder: 'Notes' } %>
-      </div>
-    </div>
-
-    <div class="row mt-3">
-      <div class="col-sm-12 form-group text-center">
-        <%= p.submit 'Submit', class: 'btn btn-success', id: 'payment-submit-btn' %>
-      </div>
-    </div>
-  <% end %>
-</div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const form = document.querySelector('form');
-    const submitBtn = document.getElementById('payment-submit-btn');
-
-    form.addEventListener('submit', (e) => {
-      if (submitBtn.disabled) {
-        e.preventDefault();
-        return false;
-      }
-      submitBtn.value = 'Submitting...';
-      submitBtn.disabled = true;
-      submitBtn.classList.add('opacity-50', 'cursor-default');
-    });
-  });
-</script>
+<div
+  id="edit-payment"
+  data-members="<%= @members.to_json %>"
+  data-payment-types="<%= @payment_types.to_json %>"
+<%# originalAmountCents is what's currently BANKED for this payment — the
+    projection panel nets it out. On a failed update @payment carries the
+    rejected values, so read the persisted amount, not the in-memory one. %>
+  data-editing="<%= { id: @payment.id,
+                      originalAmountCents: @payment.amount_in_database }.to_json %>"
+  data-server-errors="<%= (@payment.errors.any? ? @payment.errors.full_messages : []).to_json %>"
+  data-initial="<%= { userId: @payment.user_id,
+                      paymentTypeId: @payment.payment_type_id,
+                      amountCents: @payment.amount,
+                      datePaid: @payment.date_paid&.iso8601,
+                      notes: @payment.notes }.to_json %>"
+></div>

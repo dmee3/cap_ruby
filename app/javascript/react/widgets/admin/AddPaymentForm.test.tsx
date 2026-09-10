@@ -139,6 +139,51 @@ describe('AddPaymentForm', () => {
     expect(screen.getByRole('link', { name: 'Cancel' })).toHaveAttribute('href', '/admin/payments')
   })
 
+  describe('editing an existing payment', () => {
+    const editing = { id: 77, originalAmountCents: 60_000 }
+    const editSetup = (props = {}) =>
+      setup({
+        editing,
+        initial: { userId: 9, paymentTypeId: 4, amountCents: 60_000, datePaid: '2026-01-15' },
+        ...props,
+      })
+
+    it('PATCHes the existing payment rather than posting a new one', () => {
+      const { container } = editSetup()
+      const form = container.querySelector('form')!
+      expect(form).toHaveAttribute('action', '/admin/payments/77')
+      expect(container.querySelector('input[name="_method"]')).toHaveValue('patch')
+    })
+
+    it('says Save changes, not Record payment', () => {
+      editSetup()
+      expect(screen.getByRole('button', { name: 'Save changes' })).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Record payment' })).not.toBeInTheDocument()
+    })
+
+    it('seeds every field from the payment', () => {
+      const { container } = editSetup()
+      expect(screen.getByLabelText('Amount')).toHaveValue('600.00')
+      expect(container.querySelector('[name="payment[payment_type_id]"]')).toHaveValue('4')
+      expect(container.querySelector('[name="payment[date_paid]"]')).toHaveValue('2026-01-15')
+      expect(screen.getByText('Elena Sokol')).toBeInTheDocument()
+    })
+
+    // The member's paid total already includes this payment, so the panel has
+    // to net it out — otherwise editing $600 → $700 reads as $700 more coming in.
+    it('projects the change, not a second payment on top of itself', () => {
+      editSetup()
+      // paid_before 2400 − original 600 = 1800 banked without this payment
+      expect(screen.getByText('Paid before').nextSibling).toHaveTextContent('$1,800')
+      expect(screen.getByText('This payment').nextSibling).toHaveTextContent('+$600')
+    })
+
+    it('leads the error summary with the edit wording', () => {
+      editSetup({ serverErrors: ['Amount must be greater than 0'] })
+      expect(screen.getByText(/Your changes weren't saved\./)).toBeInTheDocument()
+    })
+  })
+
   it('pre-fills sticky values on a re-render after failure', () => {
     const { container } = setup({
       initial: { paymentTypeId: 3, amountCents: 4500, datePaid: '2026-01-15', notes: 'Cash at rehearsal' },
