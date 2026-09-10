@@ -102,7 +102,8 @@ const AddPaymentForm = ({
 
   const validate = (): ValidationError[] => {
     const next: ValidationError[] = []
-    if (!userId) {
+    // Not checked when editing — the member is fixed and not submitted.
+    if (!isEdit && !userId) {
       next.push({ fieldId: 'payment_user_id', message: 'Pick the member this payment is from.' })
     }
     if (amountCents == null || amountCents <= 0) {
@@ -148,23 +149,46 @@ const AddPaymentForm = ({
           {isEdit && <input type="hidden" name="_method" value="patch" />}
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="payment_user_id" className="text-body-sm font-semibold text-primary">
+            <label
+              htmlFor={isEdit ? undefined : 'payment_user_id'}
+              className="text-body-sm font-semibold text-primary"
+            >
               Member
             </label>
-            <MemberCombobox
-              id="payment_user_id"
-              name="payment[user_id]"
-              members={members.map((m) => ({ id: m.id, name: m.name, section: m.section }))}
-              value={userId}
-              onChange={setUserId}
-              error={errorFor('payment_user_id')}
-            />
-            {errorFor('payment_user_id') ? (
-              <FieldError>{errorFor('payment_user_id')}</FieldError>
+            {isEdit ? (
+              // A payment can't move between members — reassigning one
+              // silently rewrites two dues histories. Shown, not editable, and
+              // no user_id is submitted at all; the controller refuses one too.
+              <>
+                <div className="flex min-h-11 items-center gap-2 rounded-sm border border-border-default bg-sunken px-3">
+                  <span className="text-body text-primary">{member?.name ?? '—'}</span>
+                  {member?.section && (
+                    <span className="text-caption text-secondary">{member.section}</span>
+                  )}
+                </div>
+                <Hint>
+                  Fixed once recorded. To move this payment to someone else, delete it and record
+                  it against them.
+                </Hint>
+              </>
             ) : (
-              <Hint>
-                Current-season members only. Start typing to search {members.length} names.
-              </Hint>
+              <>
+                <MemberCombobox
+                  id="payment_user_id"
+                  name="payment[user_id]"
+                  members={members.map((m) => ({ id: m.id, name: m.name, section: m.section }))}
+                  value={userId}
+                  onChange={setUserId}
+                  error={errorFor('payment_user_id')}
+                />
+                {errorFor('payment_user_id') ? (
+                  <FieldError>{errorFor('payment_user_id')}</FieldError>
+                ) : (
+                  <Hint>
+                    Current-season members only. Start typing to search {members.length} names.
+                  </Hint>
+                )}
+              </>
             )}
           </div>
 

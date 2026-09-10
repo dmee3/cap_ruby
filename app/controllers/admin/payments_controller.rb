@@ -69,6 +69,13 @@ module Admin
     def update
       @payment = Payment.find(params[:id])
 
+      # Strong params would drop a stray user_id silently. An attempt to move
+      # a payment between members is worth refusing out loud, not absorbing.
+      if reassignment_attempted?
+        Rollbar.info('Rejected an attempt to reassign a payment', payment_id: @payment.id)
+        return head(:unprocessable_entity)
+      end
+
       if @payment.update(payment_attrs(update_params))
         flash[:success] = "#{ActiveSupport::NumberHelper.number_to_currency(@payment.amount / 100.0)} " \
                           "updated for #{@payment.user.full_name}"
@@ -177,11 +184,21 @@ module Admin
       params.require(:payment).permit(:user_id, :payment_type_id, :amount, :date_paid, :notes)
     end
 
-    # Same shape as `payment_params` — a payment recorded against the wrong
-    # member is one of the likelier things you'd open this screen to fix.
+    # A user_id that differs from the record's own is a reassignment attempt.
+    # One matching the current owner is harmless — the form may echo it back.
+    def reassignment_attempted?
+      submitted = params.dig(:payment, :user_id)
+      submitted.present? && submitted.to_s != @payment.user_id.to_s
+    end
+
+    # Deliberately NO `:user_id` — a payment can't be moved between members.
+    # Reassigning one silently rewrites two members' dues histories, so the
+    # supported path is delete-and-re-record, which leaves an audit trail.
+    # This is enforced here rather than only in the form: a permitted param is
+    # reachable by anyone who can craft a request.
     # Conversion to cents happens in `payment_attrs`, not here.
     def update_params
-      params.require(:payment).permit(:user_id, :payment_type_id, :amount, :date_paid, :notes)
+      params.require(:payment).permit(:payment_type_id, :amount, :date_paid, :notes)
     end
   end
 end

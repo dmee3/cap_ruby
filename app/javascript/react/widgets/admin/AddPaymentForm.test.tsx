@@ -169,6 +169,31 @@ describe('AddPaymentForm', () => {
       expect(screen.getByText('Elena Sokol')).toBeInTheDocument()
     })
 
+    // A payment can't move between members — that rewrites two dues
+    // histories. The controller refuses a differing user_id too.
+    it('shows the member but does not let it be changed', () => {
+      editSetup()
+      expect(screen.getByText('Elena Sokol')).toBeInTheDocument()
+      expect(screen.queryByRole('combobox', { name: 'Member' })).not.toBeInTheDocument()
+      expect(screen.getByText(/Fixed once recorded/)).toBeInTheDocument()
+    })
+
+    it('submits no user_id at all, so the member cannot ride along', () => {
+      const { container } = editSetup()
+      expect(container.querySelector('[name="payment[user_id]"]')).toBeNull()
+    })
+
+    it('does not ask for a member that cannot be chosen', async () => {
+      const { container } = editSetup({ initial: { amountCents: null, paymentTypeId: 4 } })
+      container.querySelector('form')!.addEventListener('submit', (e) => e.preventDefault())
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+
+      expect(screen.queryByText(/Pick the member this payment is from/)).not.toBeInTheDocument()
+      // summary + inline field error
+      expect(screen.getAllByText(/Amount has to be more than \$0/).length).toBeGreaterThan(0)
+    })
+
     // The member's paid total already includes this payment, so the panel has
     // to net it out — otherwise editing $600 → $700 reads as $700 more coming in.
     it('projects the change, not a second payment on top of itself', () => {

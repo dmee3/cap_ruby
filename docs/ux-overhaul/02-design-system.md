@@ -584,6 +584,14 @@ each one superseded.
   Sokol — but is **not** typo tolerant: characters must appear in order.
 - Members display **First Last** everywhere (picker, projection link). The
   roster still *sorts* by last name; only the display format is first-last.
+- **On the edit screen the member is fixed.** The combobox is replaced by a
+  read-only display, no `user_id` is submitted, and `Admin::PaymentsController`
+  **refuses** a `user_id` that differs from the record's own (422) rather than
+  letting strong params drop it silently. Moving a payment between members
+  rewrites two dues histories at once with no trace; the supported path is
+  delete-and-re-record, which leaves one. Enforce this server-side — a
+  permitted param is reachable by anyone who can craft a request, whatever
+  the form renders.
 - The add-payment form also carries a **member's-schedule panel**
   (`MemberSchedulePanel`) under the projection: every installment, the paid
   ones marked, and the rows the pending amount will cover highlighted

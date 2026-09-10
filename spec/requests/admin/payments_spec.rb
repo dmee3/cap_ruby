@@ -149,13 +149,35 @@ RSpec.describe 'Admin::Payments', type: :request do
       expect(payment.reload.notes).to eq('')
     end
 
-    it 'can reassign a payment recorded against the wrong member' do
+    # A payment can't move between members — that silently rewrites two dues
+    # histories. Refused server-side, not just hidden in the form.
+    it 'refuses to reassign a payment to another member' do
       other = create(:user, first_name: 'Sam', last_name: 'Reed')
       create(:seasons_user, user: other, season: season, role: 'member')
 
-      patch "/admin/payments/#{payment.id}", params: { payment: { user_id: other.id } }
+      patch "/admin/payments/#{payment.id}", params: { payment: { user_id: other.id, amount: '25' } }
 
-      expect(payment.reload.user_id).to eq(other.id)
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(payment.reload.user_id).to eq(member.id)
+    end
+
+    it 'refuses the reassignment without applying the rest of the edit' do
+      other = create(:user)
+      create(:seasons_user, user: other, season: season, role: 'member')
+
+      patch "/admin/payments/#{payment.id}", params: { payment: { user_id: other.id, amount: '25' } }
+
+      expect(payment.reload.amount).to eq(60_000) # unchanged
+    end
+
+    it 'accepts an echoed user_id that matches the payment it is on' do
+      patch "/admin/payments/#{payment.id}", params: {
+        payment: { user_id: member.id, amount: '25' }
+      }
+
+      expect(response).to redirect_to(admin_payments_path)
+      expect(payment.reload.amount).to eq(2500)
+      expect(payment.user_id).to eq(member.id)
     end
 
     it 're-renders the form on failure instead of redirecting to a dead URL' do
