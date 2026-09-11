@@ -122,6 +122,35 @@ RSpec.describe 'Conflict triage screens', type: :request do
     end
   end
 
+  describe 'the nav badge' do
+    let(:member) { create(:user) }
+
+    before do
+      create(:seasons_user, user: member, season: season, role: 'member')
+      sign_in_as_coordinator(season: season)
+    end
+
+    it 'counts what is waiting, and announces it rather than showing a bare number' do
+      create(
+        :conflict,
+        user: member, season: season,
+        conflict_status: ConflictStatus.find_by(name: 'Pending'),
+        start_date: Date.current + 5.days, end_date: Date.current + 5.days + 3.hours,
+        skip_future_date_validation: true
+      )
+
+      get '/coordinators'
+
+      expect(response.body).to include('waiting on a decision')
+    end
+
+    it 'carries no badge at all when the queue is clear' do
+      get '/coordinators'
+
+      expect(response.body).not_to include('waiting on a decision')
+    end
+  end
+
   describe 'GET /coordinators (the rebuilt dashboard)' do
     let(:member) { create(:user, first_name: 'Elena', last_name: 'Sokol') }
 

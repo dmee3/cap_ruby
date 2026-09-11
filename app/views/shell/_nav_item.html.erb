@@ -6,6 +6,8 @@
   <%= render 'shell/icon', name: item.icon %>
   <span class="text-body-sm"><%= item.label %></span>
   <% if item.badge.present? %>
-    <span class="sidebar-badge"><%= item.badge %></span>
+    <%# A bare number reads as nothing on its own, so the count is announced. %>
+    <span class="sidebar-badge" aria-hidden="true"><%= item.badge %></span>
+    <span class="sr-only"><%= "#{item.badge} waiting on a decision" %></span>
   <% end %>
 <% end %>

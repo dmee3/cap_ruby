@@ -669,7 +669,7 @@ each one superseded.
   are all derived from schedule entries vs. the running payment total —
   confirm none become DB columns.
 
-### 4.26 Triage row *(added — Flow 5)*
+### 4.26 Triage row *(built — Flow 5, as `TriageRow.tsx`)*
 - **§4.19 plus a decision.** Same title line (date range + optional time range +
   status pill) and relative subline; adds an action cluster on the right and an
   in-place reason disclosure. Lives inside a §4.27 member group card.
@@ -695,11 +695,14 @@ each one superseded.
 - **Responsive**: below 720px the row becomes a stacked card — member name +
   section on the top line, status pill right, then time, subline, reason, then
   Approve/Deny at `flex:1` and 44px tall with Edit at a fixed 64px.
+- *Build note: the staleness flag fires at 14 days or more.* The canvas only
+  ever drew "Waiting 40 days", with no threshold stated; 14 days is one
+  rehearsal cycle, and flagging sooner would mark almost every row.
 - *Cut from the Flow 5 build: the "Why you denied it" block.* It has no column,
   no capture path, and the canvas's own footer says deny takes one click with no
   note. Filed as a followup bead with the notification email.
 
-### 4.27 Member group header *(added — Flow 5)*
+### 4.27 Member group header *(built — Flow 5, as `MemberGroupHeader.tsx`)*
 - The header of a queue group card: 32px initials avatar, name, `Ensemble ·
   Section`, and a **pending-count pill** (`1 pending` / `2 pending` in warning
   tokens; `Nothing pending` in neutral).
@@ -715,7 +718,7 @@ each one superseded.
   ordered by **oldest pending submission**, rows within a group by **conflict
   date**. One rule, stated, rather than three mocks disagreeing.
 
-### 4.28 View switcher *(added — Flow 5)*
+### 4.28 View switcher *(built — Flow 5, as `ViewSwitcher.tsx`)*
 - Two segments, never three: `Queue` / `Calendar`, as a segmented control. Queue
   is the default view — the only question on arrival is what needs a decision.
 - The choice **persists per user via `localStorage`**, not a DB column: it's a
@@ -724,7 +727,7 @@ each one superseded.
   grid (seven columns is unreadable on a phone). The label stays `Calendar`.
 - Mobile: full width, both segments `flex:1` at 36px.
 
-### 4.29 Conflict detail popover *(added — Flow 5)*
+### 4.29 Conflict detail popover *(built — Flow 5, as `ConflictPopover.tsx`)*
 - **Replaces the hand-built tooltip** — today's is a `<div>` imperatively
   `prepend`ed on `eventMouseEnter`, so it is mouse-only, has no keyboard or
   screen-reader path, and only works in `dayGridMonth`.
@@ -735,8 +738,14 @@ each one superseded.
   outside-click to close, **focus moves to Approve on open and returns to the
   triggering event on close**, `role="dialog"` with an accessible name. It must
   not cover the day cell it belongs to.
+- *Build note:* `Button` is not a `forwardRef` component, so the popover finds
+  its primary action via a `data-popover-primary` attribute rather than a ref —
+  a ref would silently never attach and leave focus outside the dialog, which is
+  precisely the failure this component exists to fix.
+- *Build note:* it renders in a fixed overlay on phones and anchored to the
+  calendar card above that, rather than the canvas's absolute pixel offsets.
 
-### 4.30 Decision confirm + undo *(added — Flow 5)*
+### 4.30 Decision confirm + undo *(built — Flow 5, as `DecisionConfirm.tsx`)*
 - The row becomes its own confirmation rather than firing a §4.11 toast — the
   confirmation stays where the eye already is. **Toast keeps its standard slot
   for anything not tied to a row.**
@@ -752,9 +761,12 @@ each one superseded.
   of the Pending filter.
 - **The undo window is a time limit on an action (WCAG 2.2.1).** The countdown
   bar must not be the only cue, and Undo stays keyboard-reachable for the full
-  window.
+  window. *Built as a `role="timer"` reading "Ns to undo" beside the button.*
+- *Build note: undo is a second write, not a cancelled one.* The decision is
+  saved immediately, so undo restores the prior status rather than calling off a
+  pending request — which is what makes navigating away safe.
 
-### 4.31 Calendar event chip + month grid *(added — Flow 5)*
+### 4.31 Calendar event chip + month grid *(built — Flow 5, inside `ConflictCalendarView.tsx`)*
 - Status-toned chips (`bg`/`border`/`dot` per Pending/Approved/Denied/Resolved)
   labelled `6:30p Marcus Webb` / `All day Elena Sokol`. Multi-day conflicts run
   as **one bar** across the days they cover, built from start/middle/end
@@ -765,6 +777,8 @@ each one superseded.
 - Month grid: 7 columns, 1px gutters, today's date a filled ocean disc on a
   tinted cell, out-of-month cells dimmed. Needs a `+N more` overflow treatment
   for busy days — the canvas never draws one.
+- *Build note: the chip label names the status* (`Marcus Webb · Pending`), so
+  status is never carried by colour alone; the legend repeats the vocabulary.
 - **`Show denied and resolved` is an explicit toggle, off by default.** This
   makes visible a filter the current calendar applies *silently* (it drops
   Denied and Resolved with no legend or control), which is the single most

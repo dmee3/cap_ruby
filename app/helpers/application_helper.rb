@@ -47,6 +47,27 @@ module ApplicationHelper
 
   private
 
+  # How many conflicts are waiting on a decision, for the nav badge. One
+  # indexed COUNT, memoized per request, and nil at zero so a clear queue
+  # carries no badge at all rather than a "0".
+  def pending_conflict_badge
+    return @pending_conflict_badge if defined?(@pending_conflict_badge)
+
+    @pending_conflict_badge = begin
+      season = current_season
+      if season.nil?
+        nil
+      else
+        count = Conflict.for_season(season['id'])
+                        .future_conflicts
+                        .joins(:conflict_status)
+                        .where(conflict_statuses: { name: 'Pending' })
+                        .count
+        count.positive? ? count : nil
+      end
+    end
+  end
+
   def admin_nav
     [
       NavItem.new(label: 'Home',      path: admin_home_path,            icon: :home, match: %r{\A/admin\z}),
@@ -55,7 +76,7 @@ module ApplicationHelper
       NavItem.new(label: 'Payments',  path: admin_payments_path,        icon: :cash,
                   match: %r{\A/admin/payment}),
       NavItem.new(label: 'Conflicts', path: admin_conflicts_path,       icon: :calendar,
-                  match: %r{\A/admin/conflicts}),
+                  badge: pending_conflict_badge, match: %r{\A/admin/conflicts}),
       NavItem.new(label: 'Files',     path: files_path,                 icon: :folder),
       NavItem.new(label: 'Inventory', path: inventory_categories_path,  icon: :cube,
                   match: %r{\A/inventory/categor}),
@@ -70,7 +91,7 @@ module ApplicationHelper
     [
       NavItem.new(label: 'Home',      path: coordinators_home_path,      icon: :home, match: %r{\A/coordinators\z}),
       NavItem.new(label: 'Conflicts', path: coordinators_conflicts_path, icon: :calendar,
-                  match: %r{\A/coordinators/conflicts}),
+                  badge: pending_conflict_badge, match: %r{\A/coordinators/conflicts}),
       NavItem.new(label: 'Files',     path: files_path,                  icon: :folder),
       NavItem.new(label: 'Inventory', path: inventory_categories_path,   icon: :cube,
                   match: %r{\A/inventory/categor}),
