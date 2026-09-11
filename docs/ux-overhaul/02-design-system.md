@@ -483,7 +483,7 @@ each one superseded.
   validation resets it to blank) — but that's expected behaviour now, not
   something to call out with a reassurance line.
 
-### 4.19 Conflict context row *(added — Flow 3)*
+### 4.19 Conflict context row *(added — Flow 3; extended — Flow 5)*
 - The shape used both for "your existing conflicts" on the submit form and the
   dashboard "Your conflicts" card, so the two reconcile visually — and so a
   future triage queue (Flow 5) can reuse the same row grouped by member.
@@ -502,6 +502,17 @@ each one superseded.
 - A transient "just submitted" variant: a dismissible `success` band above the
   list ("Sent. Your coordinators see it now. Approval isn't automatic.") rather
   than a separate toast, so the confirmation and the new row are read together.
+- ***Flow 5 extension — the triage row (§4.26).*** The coordinator/admin queue
+  reuses this row and adds a decision: an action cluster on the right, an
+  expand-in-place reason, and a member group wrapper (§4.27). Two rules diverge
+  there deliberately: **reason shows on every triage row** (deciding requires
+  it, where a member's own list stays scannable), and the relative subline
+  extends to decided rows ("Submitted 55 days ago · you approved it 52 days
+  ago") — attribution read from the `Activity` rows `ActivityLogger.log_conflict`
+  already writes, not from new columns.
+- *Date formatting is the presenter's, not the mock's.* The Flow 5 canvas draws
+  far-out dates without a year ("3/29 · 2–6 PM"); `ConflictPresenter` renders
+  `%-m/%-d/%y` ("3/29/26"). The shipped, spec'd presenter wins.
 
 ### 4.20 Alert banner with action list *(built — Flow 4, as `AlertBanner.tsx`)*
 - Replaces the admin dashboard's `flash[:error]` array ("Member found with blank
@@ -538,6 +549,15 @@ each one superseded.
   allowlist sort/filter columns (no interpolation).
 - Mobile: collapses to a `Filters` button with a count badge that opens a sheet;
   active filters also show as removable chips above the list.
+- ***Flow 5 reuse — the conflict filter bar.*** Same bar, different controls:
+  a status scope (Pending / Approved / Denied / Resolved / All) carrying a count
+  on each scope, a `When` scope (Upcoming / Past / All season), a date range, and
+  an ensemble filter. **The status scope stays a native control** — the Flow 5
+  canvas draws it as custom clickable `<span>` pills, which would revert the
+  accessibility decision recorded above. Same for the status picker on the edit
+  form (a radio group) and every toggle (a real `<input type="checkbox">`).
+  Narrow-screen filtering is undesigned in that canvas — the mobile board shows
+  only status chips — so the sheet above is the fallback if a phone pass wants it.
 
 ### 4.22 Sortable table header + "load more" pager *(built — Flow 4, as `SortableTh.tsx` + `LoadMoreButton.tsx`; `PaginatedList.tsx` wraps the pager for client-side lists)*
 - **Sort**: column headers carry a sort affordance (`↕` idle, `▲`/`▼` active),
@@ -649,6 +669,107 @@ each one superseded.
   are all derived from schedule entries vs. the running payment total —
   confirm none become DB columns.
 
+### 4.26 Triage row *(added — Flow 5)*
+- **§4.19 plus a decision.** Same title line (date range + optional time range +
+  status pill) and relative subline; adds an action cluster on the right and an
+  in-place reason disclosure. Lives inside a §4.27 member group card.
+- **Actions by status** — Pending: `Approve` (moss fill — the one button whose
+  color carries meaning rather than emphasis, in both themes) · `Deny`
+  (raspberry) · `Edit` (ghost). Approved: `Mark resolved` (secondary) · `Edit`.
+  Denied: `Approve instead` (moss) · `Edit`. **No row ever offers a delete** —
+  the routes have none (`except: %i[show destroy]`); Resolved *is* the archive.
+  *Decision: `Edit` appears on every row regardless of status — the canvas is
+  inconsistent about this across artboards (present on the queue rows, absent on
+  the component sheet's expanded pending row and the tablet agenda). One rule is
+  worth more than matching each mock.*
+- **Reason expands in place**, replacing Flow 3's hover tooltip: a truncated
+  single line + `Full reason ▾` / `Hide reason ▴`, opening a sunken panel
+  (`bg.sunken`, 1px `border.subtle`, radius 8) with a `REASON` kicker, the full
+  text, and an optional provenance line ("Submitted Wed 3/4 · Marcus has one
+  other approved conflict this season."). Expanded rows take a faint body tint.
+- ***Deliberate exception to §4.19's reason rule.*** §4.19 shows `reason` only on
+  Denied and the next-upcoming row, to keep a member's own list scannable.
+  Triage inverts that: deciding *requires* the reason, so every row carries it.
+  The gate is server-side in `ConflictPresenter#reason_for`, so the triage
+  endpoint shapes rows itself rather than reusing the member gate.
+- **Responsive**: below 720px the row becomes a stacked card — member name +
+  section on the top line, status pill right, then time, subline, reason, then
+  Approve/Deny at `flex:1` and 44px tall with Edit at a fixed 64px.
+- *Cut from the Flow 5 build: the "Why you denied it" block.* It has no column,
+  no capture path, and the canvas's own footer says deny takes one click with no
+  note. Filed as a followup bead with the notification email.
+
+### 4.27 Member group header *(added — Flow 5)*
+- The header of a queue group card: 32px initials avatar, name, `Ensemble ·
+  Section`, and a **pending-count pill** (`1 pending` / `2 pending` in warning
+  tokens; `Nothing pending` in neutral).
+- Right slot carries **either** a staleness flag (`Waiting 40 days`, danger text)
+  **or** a bulk action (`Approve both`, secondary, shown only at ≥2 pending) —
+  never both.
+- Ensemble and section come from `seasons_users` via `user.ensemble_for(season)`
+  / `section_for(season)`, already eager-loaded by the conflicts endpoint.
+- *Sticky within its group is the intent; note the group card must then not use
+  `overflow: hidden`, which would break `position: sticky` on a descendant.*
+- **Ordering rule** (the canvas is ambiguous — it sorts the queue by conflict
+  date while the page header emphasizes the oldest submission): groups are
+  ordered by **oldest pending submission**, rows within a group by **conflict
+  date**. One rule, stated, rather than three mocks disagreeing.
+
+### 4.28 View switcher *(added — Flow 5)*
+- Two segments, never three: `Queue` / `Calendar`, as a segmented control. Queue
+  is the default view — the only question on arrival is what needs a decision.
+- The choice **persists per user via `localStorage`**, not a DB column: it's a
+  per-device display preference, and a migration for it is disproportionate.
+- Below 900px the Calendar segment renders a date-grouped **agenda**, not a month
+  grid (seven columns is unreadable on a phone). The label stays `Calendar`.
+- Mobile: full width, both segments `flex:1` at 36px.
+
+### 4.29 Conflict detail popover *(added — Flow 5)*
+- **Replaces the hand-built tooltip** — today's is a `<div>` imperatively
+  `prepend`ed on `eventMouseEnter`, so it is mouse-only, has no keyboard or
+  screen-reader path, and only works in `dayGridMonth`.
+- 360px, `elevation.3`. Header: avatar + name + `Ensemble · Section` + close.
+  Body: title line + status pill, relative subline, reason in a sunken panel.
+  Footer: the same three actions as the triage row.
+- **Behavior is the spec, not decoration**: click (not hover) to open, Escape and
+  outside-click to close, **focus moves to Approve on open and returns to the
+  triggering event on close**, `role="dialog"` with an accessible name. It must
+  not cover the day cell it belongs to.
+
+### 4.30 Decision confirm + undo *(added — Flow 5)*
+- The row becomes its own confirmation rather than firing a §4.11 toast — the
+  confirmation stays where the eye already is. **Toast keeps its standard slot
+  for anything not tied to a row.**
+- Outcome-colored border + a badge (moss `✓` / raspberry `×`), a headline naming
+  what happened, the conflict's date beneath, an `Undo` button, and a 3px
+  progress bar counting out the undo window.
+- **Also specifies `Saving…` and error states**: the error takes the blame and
+  states that nothing was sent ("The row is back to Pending exactly as it was."),
+  with `Try again`.
+- **Ordering, stated because it would otherwise be implemented three ways**: the
+  status is written immediately and the pending count decrements immediately;
+  the confirmed row *lingers* in place for the undo window, then collapses out
+  of the Pending filter.
+- **The undo window is a time limit on an action (WCAG 2.2.1).** The countdown
+  bar must not be the only cue, and Undo stays keyboard-reachable for the full
+  window.
+
+### 4.31 Calendar event chip + month grid *(added — Flow 5)*
+- Status-toned chips (`bg`/`border`/`dot` per Pending/Approved/Denied/Resolved)
+  labelled `6:30p Marcus Webb` / `All day Elena Sokol`. Multi-day conflicts run
+  as **one bar** across the days they cover, built from start/middle/end
+  fragments with the radius and border suppressed on the joins.
+- **Status must not be color-only** (§5) — the chip label names a time and a
+  person, never the status, so denied and resolved chips need a textual or shape
+  cue beyond the legend.
+- Month grid: 7 columns, 1px gutters, today's date a filled ocean disc on a
+  tinted cell, out-of-month cells dimmed. Needs a `+N more` overflow treatment
+  for busy days — the canvas never draws one.
+- **`Show denied and resolved` is an explicit toggle, off by default.** This
+  makes visible a filter the current calendar applies *silently* (it drops
+  Denied and Resolved with no legend or control), which is the single most
+  surprising behavior on the screen today.
+
 ---
 
 ## 5. Accessibility baseline
@@ -669,6 +790,13 @@ each one superseded.
 - Forms: label tied to field, errors announced, `required` marked in text not
   just color.
 - Hit targets ≥ 44px on member-facing (mobile) screens.
+- *(Flow 5)* **Time limits on actions** (WCAG 2.2.1): the decision-undo window
+  (§4.30) must keep `Undo` keyboard-reachable for its full duration, and the
+  countdown bar must not be the only cue that the window exists.
+- *(Flow 5)* **Popovers replace hover-only affordances.** The conflict popover
+  (§4.29) opens on click, closes on Escape and outside-click, moves focus to its
+  primary action and returns it on close. The tooltip it replaces was mouse-only
+  with no accessible path at all.
 
 ---
 

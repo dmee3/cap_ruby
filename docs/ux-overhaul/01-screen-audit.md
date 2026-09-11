@@ -130,9 +130,9 @@ Admin inherits coordinator + staff, plus:
 Design in **flows**, not isolated screens — shared components carry across a flow so
 each one is faster than the last.
 
-**Progress:** Flows 1–3 merged (PR #221 shell/tokens, #226 member dues,
-#230 member conflicts). Flow 4 (admin financial command center) built — PR open,
-awaiting a visual pass. (Authoritative status: `bd ready`.)
+**Progress:** Flows 1–4 merged (PR #221 shell/tokens, #226 member dues,
+#230 member conflicts, #234 admin financial command center). Flow 5 (conflict
+triage) is designed and reviewed, build next. (Authoritative status: `bd ready`.)
 
 Along the way, the layout set collapsed to three — `application` / `auth` /
 `public`, with public controllers inheriting `PublicController` (PR #229) — which
@@ -161,7 +161,7 @@ editable at `/admin/season/edit`) is the seasonal on/off switch coordinators use
   pending after N days" nudge, the shared `ConflictContextRow` shape
 - (row shape + status vocabulary built to be reused by Flow 5)
 
-### Flow 4 — Admin financial command center ✅ shipped *(PR open — visual pass pending)*
+### Flow 4 — Admin financial command center ✅ shipped *(PR #234, merged)*
 - Admin dashboard (insight-focused: dues burndown as the hero, not two numbers)
 - Payments list (filter/sort/status, mobile card fallback)
 - Add manual payment (projection panel, validation summary, disable-on-submit)
@@ -181,10 +181,23 @@ editable at `/admin/season/edit`) is the seasonal on/off switch coordinators use
   never nets against dues; "reset to default" preserves paid entries (was
   `destroy_all`); the schedule-editor route above.
 
-### Flow 5 — Conflict triage (coordinator/admin) 🔴
+### Flow 5 — Conflict triage (coordinator/admin) 🔴 *(designed + reviewed — build next)*
 - Conflict queue ("pending, needs a decision") + calendar as two views of one dataset
 - Inline approve/deny/edit
 - Coordinator dashboard rebuilt around this
+- Canvas reviewed against the code in `flow5-design-review.md`. **The API's
+  date-range filter is dead code** — `start`/`end` are parsed, discarded, and
+  replaced by a hardcoded 2000–2030 window (proven: a one-week request returned
+  a conflict ~300 days out). Fixed in this flow.
+- Admin and coordinator conflict code is duplicated at every layer (the `_form`
+  partials are byte-identical; the entrypoints differ by five URL slugs), and
+  `redirect_if_not` is an **exact role match**, so each role can only reach its
+  own copy. Collapsing to one API + one widget, keeping both URLs.
+- New components: §4.26–§4.31, plus §4.19 extended in place. *(The canvas
+  claimed §4.20–§4.24, which collide with Flow 4's entries.)*
+- Cut and filed as beads: member approve/deny email (none exists today), the
+  denial note (no column, no capture path), and member self-edit of a pending
+  conflict (no member edit route; Flow 3 territory).
 
 ### Flow 6 — Admin: roster & onboarding 🟡
 - Users list
