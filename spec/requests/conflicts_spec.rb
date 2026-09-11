@@ -170,7 +170,7 @@ RSpec.describe 'Conflicts Workflow', type: :request do
     end
 
     it 'updates conflict via API endpoint' do
-      patch "/api/coordinators/conflicts/#{conflict.id}", params: {
+      patch "/api/conflicts/#{conflict.id}", params: {
         conflict: {
           status_id: approved_status.id
         }
@@ -260,7 +260,7 @@ RSpec.describe 'Conflicts Workflow', type: :request do
     end
 
     it 'can update conflicts via API' do
-      patch "/api/admin/conflicts/#{conflict.id}", params: {
+      patch "/api/conflicts/#{conflict.id}", params: {
         conflict: {
           status_id: approved_status.id
         }

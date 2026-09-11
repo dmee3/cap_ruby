@@ -12,8 +12,6 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :admin do
-      resources :conflicts, only: %i[index update]
-
       resources :payments, only: %i[index create]
       get 'payments/collected', to: 'payments#collected'
       get 'payments/upcoming', to: 'payments#upcoming'
@@ -31,10 +29,6 @@ Rails.application.routes.draw do
       resources :seasons, only: %i[index]
     end
 
-    namespace :coordinators do
-      resources :conflicts, only: %i[index update]
-    end
-
     namespace :inventory do
       resources :categories, only: %i[index create update] do
         resources :items, only: %i[create update show]
@@ -49,6 +43,10 @@ Rails.application.routes.draw do
     namespace :calendars do
       resources :payment_intents, only: %i[create]
     end
+
+    # One triage endpoint for both admins and coordinators (Flow 5).
+    put 'conflicts/bulk', to: 'conflicts#bulk_update'
+    resources :conflicts, only: %i[index update]
 
     resources :conflict_statuses, only: %i[index]
     resources :files, only: %i[index show]

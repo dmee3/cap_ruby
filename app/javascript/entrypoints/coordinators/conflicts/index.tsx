@@ -31,7 +31,7 @@ const CoordinatorsConflicts = () => {
 
   const updateConflict = (conflictId, statusId) => {
     fetch(
-      `/api/coordinators/conflicts/${conflictId}`,
+      `/api/conflicts/${conflictId}`,
       {
         method: 'PUT',
         headers: {
@@ -57,14 +57,15 @@ const CoordinatorsConflicts = () => {
   }
 
   const fetchAllConflicts = () => {
-    fetch('/api/coordinators/conflicts')
+    fetch('/api/conflicts')
       .then(resp => {
         if (resp.ok) {
           return resp.json()
         }
         throw resp
       })
-      .then(data => {
+      .then(payload => {
+        let data = payload.conflicts ?? payload
         data = data.sort((a, b) => a.start - b.start)
         setConflicts(
           data.filter(c => c.status.name !== 'Pending')

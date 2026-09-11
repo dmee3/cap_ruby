@@ -34,14 +34,15 @@ const ConflictCalendar = ({
 
   useEffect(() => {
     const urlSlug = coordinator ? 'coordinators' : 'admin'
-    fetch(`/api/${urlSlug}/conflicts`)
+    fetch('/api/conflicts')
       .then(resp => {
         if (resp.ok) {
           return resp.json()
         }
         throw resp
       })
-      .then(data => {
+      .then(payload => {
+        const data = payload.conflicts ?? payload
         setConflicts(data
           .filter(c => c.status.name !== 'Denied' && c.status.name !== 'Resolved')
           .map(c => {
