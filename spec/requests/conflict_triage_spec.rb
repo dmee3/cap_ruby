@@ -122,6 +122,39 @@ RSpec.describe 'Conflict triage screens', type: :request do
     end
   end
 
+  describe 'GET /coordinators (the rebuilt dashboard)' do
+    let(:member) { create(:user, first_name: 'Elena', last_name: 'Sokol') }
+
+    before do
+      create(:seasons_user, user: member, season: season, role: 'member', ensemble: 'Front ensemble')
+      sign_in_as_coordinator(season: season)
+    end
+
+    it 'leads with the backlog rather than a second calendar' do
+      create(
+        :conflict,
+        user: member, season: season,
+        conflict_status: ConflictStatus.find_by(name: 'Pending'),
+        start_date: Date.current + 5.days, end_date: Date.current + 5.days + 3.hours,
+        skip_future_date_validation: true
+      )
+
+      get '/coordinators'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('triage-dashboard')
+      expect(response.body).to include('data-pending-count="1"')
+      expect(response.body).to include('Elena Sokol')
+    end
+
+    it 'reports a clear queue as zero rather than omitting the count' do
+      get '/coordinators'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('data-pending-count="0"')
+    end
+  end
+
   # redirect_if_not is an exact role match, not a hierarchy: each role reaches
   # its own screen and is redirected away from the other's.
   it 'keeps a coordinator out of the admin screen' do
