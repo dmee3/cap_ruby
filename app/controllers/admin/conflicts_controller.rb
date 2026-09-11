@@ -2,7 +2,13 @@
 
 module Admin
   class ConflictsController < AdminController
-    def index; end
+    def index
+      @ensembles = SeasonsUser.where(season_id: current_season['id'])
+                              .where.not(ensemble: [nil, ''])
+                              .distinct
+                              .pluck(:ensemble)
+                              .sort
+    end
 
     def new
       @conflict = Conflict.new

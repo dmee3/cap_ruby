@@ -1,3 +1,8 @@
-<%= vite_typescript_tag 'entrypoints/admin/conflicts/index.tsx' %>
+<% content_for :page_title, 'Conflicts' %>
+<%= vite_typescript_tag 'entrypoints/conflicts/index.tsx' %>
 
-<div id="conflicts"></div>
+<div
+  id="conflicts"
+  data-base-path="/admin/conflicts"
+  data-ensembles="<%= @ensembles.to_json %>"
+></div>
