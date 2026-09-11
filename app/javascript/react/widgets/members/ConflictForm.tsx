@@ -8,17 +8,37 @@ type FieldDefaults = {
   endDate?: string
   endTime?: string
   reason?: string
+  userId?: string
+  statusId?: string
 }
 
 type ServerError = { field: 'start_date' | 'end_date' | 'reason'; message: string }
 
+export type MemberOption = { id: number; name: string }
+export type StatusOption = { id: number; name: string }
+
 type ConflictFormProps = {
   formAction: string
   authenticityToken: string
-  /** ISO `YYYY-MM-DD` — today; the native date pickers won't offer anything earlier. */
-  minDate: string
+  /**
+   * ISO `YYYY-MM-DD` for the member form, where a conflict must be in the
+   * future. Coordinators and admins pass undefined: they file conflicts on
+   * someone's behalf after the fact, and the server already skips the
+   * future-date validation for them.
+   */
+  minDate?: string
   defaults: FieldDefaults
   errors: ServerError[]
+  /** Triage-only: pick who the conflict is for. Absent on the member form. */
+  members?: MemberOption[]
+  /** Triage-only: set the status directly. Absent on the member form. */
+  statuses?: StatusOption[]
+  /** PATCH needs a method override on a plain form post. */
+  method?: 'post' | 'patch'
+  submitLabel?: string
+  cancelHref?: string
+  /** The member form's "sending this isn't approval" note is member-only. */
+  showApprovalNote?: boolean
 }
 
 const REASON_MAX = 500
@@ -35,12 +55,26 @@ const endBeforeStart = (startDate: string, startTime: string, endDate: string, e
 // not a fetch/JSON flow. Fields are controlled; the two native inputs per
 // boundary post as conflict[start_date_date] / conflict[start_date_time],
 // which the controller combines back into a datetime.
-const ConflictForm = ({ formAction, authenticityToken, minDate, defaults, errors }: ConflictFormProps) => {
+const ConflictForm = ({
+  formAction,
+  authenticityToken,
+  minDate,
+  defaults,
+  errors,
+  members,
+  statuses,
+  method = 'post',
+  submitLabel = 'Submit conflict',
+  cancelHref,
+  showApprovalNote = true,
+}: ConflictFormProps) => {
   const [startDate, setStartDate] = useState(defaults.startDate ?? '')
   const [startTime, setStartTime] = useState(defaults.startTime ?? '')
   const [endDate, setEndDate] = useState(defaults.endDate ?? '')
   const [endTime, setEndTime] = useState(defaults.endTime ?? '')
   const [reason, setReason] = useState(defaults.reason ?? '')
+  const [userId, setUserId] = useState(defaults.userId ?? '')
+  const [statusId, setStatusId] = useState(defaults.statusId ?? '')
 
   const serverErrorFor = (field: ServerError['field']) => errors.find((e) => e.field === field)?.message
 
@@ -61,10 +95,57 @@ const ConflictForm = ({ formAction, authenticityToken, minDate, defaults, errors
   return (
     <form method="post" action={formAction} className="flex flex-col gap-4">
       <input type="hidden" name="authenticity_token" value={authenticityToken} />
+      {method === 'patch' && <input type="hidden" name="_method" value="patch" />}
 
       <ValidationSummaryCard errors={summaryErrors} />
 
       <div className="card flex flex-col gap-4">
+        {members && (
+          <div className="flex flex-col gap-2">
+            <label htmlFor="conflict-user" className="text-body-sm font-semibold text-primary">
+              Member
+            </label>
+            <select
+              id="conflict-user"
+              name="conflict[user_id]"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+              required
+              className="h-11 rounded-sm border border-border-strong bg-surface px-3 text-body text-primary"
+            >
+              <option value="">Pick a member</option>
+              {members.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {statuses && (
+          <fieldset className="flex flex-col gap-2 border-0 p-0">
+            <legend className="mb-1 text-body-sm font-semibold text-primary">Status</legend>
+            <div className="flex flex-wrap gap-2">
+              {statuses.map((status) => (
+                <label
+                  key={status.id}
+                  className="inline-flex items-center gap-2 rounded-sm border border-border-strong px-3 py-2 text-body-sm text-primary"
+                >
+                  <input
+                    type="radio"
+                    name="conflict[status_id]"
+                    value={status.id}
+                    checked={String(statusId) === String(status.id)}
+                    onChange={(e) => setStatusId(e.target.value)}
+                  />
+                  {status.name}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        )}
+
         <ConflictDateTimeField
           label="Starts"
           dateName="conflict[start_date_date]"
@@ -114,18 +195,36 @@ const ConflictForm = ({ formAction, authenticityToken, minDate, defaults, errors
         </div>
       </div>
 
-      <div className="card flex gap-3 border-l-[3px] border-l-warning-fg">
-        <div className="flex flex-col gap-1">
-          <span className="text-body-sm font-semibold text-primary">Sending this isn&apos;t approval</span>
+      {showApprovalNote && (
+        <div className="card flex gap-3 border-l-[3px] border-l-warning-fg">
+          <div className="flex flex-col gap-1">
+            <span className="text-body-sm font-semibold text-primary">Sending this isn&apos;t approval</span>
+            <span className="text-caption text-secondary">
+              A coordinator has to review it. If it&apos;s urgent, contact your coordinator, too.
+            </span>
+          </div>
+        </div>
+      )}
+
+      {members && (
+        <div className="card flex gap-3 border-l-[3px] border-l-accent-primary">
           <span className="text-caption text-secondary">
-            A coordinator has to review it. If it&apos;s urgent, contact your coordinator, too.
+            A past date is fine here. You&apos;re recording something that already happened, so we
+            don&apos;t ask for a future date the way the member form does.
           </span>
         </div>
-      </div>
+      )}
 
-      <button type="submit" className="btn-primary btn-lg">
-        Submit conflict
-      </button>
+      <div className="flex flex-wrap items-center gap-3">
+        <button type="submit" className="btn-primary btn-lg">
+          {submitLabel}
+        </button>
+        {cancelHref && (
+          <a href={cancelHref} className="link text-body-sm">
+            Cancel
+          </a>
+        )}
+      </div>
     </form>
   )
 }

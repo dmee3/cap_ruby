@@ -45,6 +45,83 @@ RSpec.describe 'Conflict triage screens', type: :request do
     end
   end
 
+  describe 'the shared conflict form' do
+    let(:member) { create(:user, first_name: 'Wes', last_name: 'Hardin') }
+
+    before do
+      create(:seasons_user, user: member, season: season, role: 'member', ensemble: 'Battery')
+      sign_in_as_coordinator(season: season)
+    end
+
+    it 'renders one shared form for both namespaces' do
+      get '/coordinators/conflicts/new'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('conflictTriageForm')
+      expect(response.body).to include('Wes Hardin')
+    end
+
+    # Coordinators record conflicts after the fact, so the future-date
+    # validation the member form enforces must not apply here.
+    it 'accepts a past date on create' do
+      status = ConflictStatus.find_by(name: 'Pending')
+
+      expect do
+        post '/coordinators/conflicts', params: {
+          conflict: {
+            user_id: member.id,
+            status_id: status.id,
+            start_date_date: (Date.current - 10.days).to_s,
+            start_date_time: '18:30',
+            end_date_date: (Date.current - 10.days).to_s,
+            end_date_time: '21:30',
+            reason: 'Recorded after the fact'
+          }
+        }
+      end.to change(Conflict, :count).by(1)
+
+      expect(Conflict.last.start_date).to be < Time.current
+    end
+
+    # This used to redirect to the dashboard, losing the coordinator's place.
+    it 'returns to the queue after creating' do
+      status = ConflictStatus.find_by(name: 'Pending')
+
+      post '/coordinators/conflicts', params: {
+        conflict: {
+          user_id: member.id, status_id: status.id,
+          start_date_date: (Date.current + 3.days).to_s, start_date_time: '18:30',
+          end_date_date: (Date.current + 3.days).to_s, end_date_time: '21:30',
+          reason: 'Work'
+        }
+      }
+
+      expect(response).to redirect_to('/coordinators/conflicts')
+    end
+
+    it 'redraws the form with the errors when invalid' do
+      post '/coordinators/conflicts', params: {
+        conflict: { user_id: member.id, reason: '' }
+      }
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('conflictTriageForm')
+    end
+
+    it 'edits an existing conflict through the same form' do
+      conflict = create(
+        :conflict, user: member, season: season,
+                   conflict_status: ConflictStatus.find_by(name: 'Pending'),
+                   skip_future_date_validation: true
+      )
+
+      get "/coordinators/conflicts/#{conflict.id}/edit"
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('conflictTriageForm')
+    end
+  end
+
   # redirect_if_not is an exact role match, not a hierarchy: each role reaches
   # its own screen and is redirected away from the other's.
   it 'keeps a coordinator out of the admin screen' do
