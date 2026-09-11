@@ -6,9 +6,20 @@ codebase at `main` (`9f98f0c`). This is the step-4 "verify assumptions before
 planning the build" pass, the same one that caught 4 latent bugs in Flow 2 and
 three design errors in Flow 4.
 
-> **Section status:** the codebase-verification sections below are complete and
-> empirically checked. The canvas-side sections (artboard inventory, component
-> specs, copy) are filled in from the canvas digest.
+Mock context: "today" is **Tue 3/10/26**, season **Spring 2026**, **24 members**,
+viewer **Sam Ortiz** (a coordinator).
+
+**Decisions taken with the user before planning:**
+1. **Collapse strategy — shared API + shared widget, both URLs kept.** One
+   `/api/conflicts` gated on `redirect_if_not('admin', 'coordinator')` (the
+   helper already takes a splat), one React widget parameterized by `basePath`
+   + capability flags, one shared `_form` partial. `/admin/conflicts` and
+   `/coordinators/conflicts` stay as thin shells. No URL moves.
+2. **The date-filter bug is fixed in this flow**, in the backend phase, together
+   with the range-operator correction and a regression spec.
+3. **No approve/deny email is built in this flow.** The canvas's copy assumes
+   one throughout (see #18 below); the copy gets rewritten and the email is
+   filed as a followup bead.
 
 ---
 
@@ -91,6 +102,7 @@ three design errors in Flow 4.
 | 14 | **Tooltips are accessible** | No. `displayTooltip` builds a `<div>` imperatively and `prepend`s it into the FullCalendar event element on `eventMouseEnter` — **mouse-only**, no keyboard or screen-reader path, no `role="tooltip"`, and it only works in `dayGridMonth`. The audit already flags this; any hover-reveal in the design needs a real focus-reachable treatment. |
 | 15 | **Season scoping** | `for_season(current_season['id'])` throughout, where `current_season` is `ApplicationController`'s cookie-backed season (**`Season.current` does not exist** — `cap_ruby-w9r`, despite CLAUDE.md). Triage screens must stay season-scoped and follow the shell's switcher. |
 | 16 | **`skip_future_date_validation`** | `Conflict` validates `future_dates_only` **on create only**; admin/coordinator `#create` sets `skip_future_date_validation = true` so staff can backfill past conflicts. Updates never run it. Relevant if the design offers date editing inline: editing dates into the past is already permitted server-side. |
+| 17 | **Rehearsal dates can be shown behind the conflicts** (if the calendar implies it) | **Flow 3's constraint still holds.** `Event` exists as a model and table (`id, season_id, name, start_date, end_date` — no location, no type, no ensemble scoping), but the **only** query against it in the entire app is `EventService.next_event`, which returns a single row for the dashboards. There is no listing, no admin CRUD, no seed path, and no way for staff to populate it. A calendar that shades rehearsal days is therefore **new build on a table nobody fills** — treat it as out of scope for this flow unless the user says otherwise. |
 
 ---
 
@@ -150,8 +162,132 @@ keeps fetching the entire season on every view change.
 
 ---
 
-## Canvas-side sections
+## What's in the canvas
 
-*(artboard inventory, new component specs, extensions to existing §4 entries,
-sample data shapes, copy inventory, and canvas inconsistencies — from the
-digest pass.)*
+Nineteen artboards in six sections plus a component sheet and an assumptions
+footer, all in one `.dc.html` (static divs/spans — no real `<table>`, `<input>`
+or `<button>` semantics, same as Flow 4's canvas).
+
+| Section | Screen | Artboards |
+|---|---|---|
+| 01 | Triage queue — `/coordinators/conflicts` + `/admin/conflicts` | desktop light (pending, one row expanded, 1360×1020); desktop dark (all-season scope) |
+| 02 | Queue async states | loading / empty / error, light + dark (6 × 460px cards) |
+| 03 | Triage calendar | desktop light (detail popover open, March 2026); desktop dark (April, denied+resolved shown) |
+| 04 | Narrow screens | mobile 390px agenda light; tablet 820px agenda dark (decision-confirm + undo) |
+| 05 | Edit & add in place | coordinator/admin edit (900px light); coordinator/admin add (dark); member edit + locked-row (light) |
+| 06 | Coordinator dashboard `/coordinators` | desktop light (backlog); desktop dark (caught up) |
+| 07 | Component sheet | light + dark |
+| — | Footer | "What this flow decides" — 7 assumption cards |
+
+**The flow's premise**, in the canvas's own words: "one dataset with two views, a
+queue and a calendar, where every decision happens inline and the coordinator and
+admin screens stop being two near-identical pages." Principles: queue is the
+default view · decide inline, never a separate page · optimistic with a real undo
+· one screen for coordinators and admins.
+
+**Where the canvas is right about the app** (it did its homework):
+- It keeps FullCalendar as the grid engine and preserves the "denied and resolved
+  hidden by default" behavior — but makes it an explicit toggle, which is the
+  correct resolution of finding #10.
+- "No row offers a delete, because the routes have none" — it correctly derived
+  the `except: %i[show destroy]` constraint and treats **Resolved as the archive**.
+- "The queue reads from the same presenter" — it correctly targets
+  `ConflictPresenter.rows_for` and states that grouping + per-member pending
+  counts "are the only additions the endpoint needs."
+- It **drops the next-event card** from the coordinator dashboard for the same
+  reason Flow 4 did: no event data exists to design against (finding #17).
+- "Nothing on this screen is admin-only, so the second controller is a route and
+  a shell, not a second design" — exactly the collapse decision taken above.
+
+---
+
+## Design-vs-codebase conflicts (the corrections this pass exists to catch)
+
+| # | Canvas assumption | Finding / action |
+|---|---|---|
+| 18 | **Approve and deny email the member** — pervasive: "Either way, Marcus gets an email with your decision.", "Approved. Marcus will get an email.", "Marcus gets an email either way.", "Changing the status here emails Wes, same as the buttons.", and the error state's "Nothing was sent to Marcus." The denial email is said to carry the denial note ("Jordan got this in the denial email"), and a member editing their own conflict is said to email coordinators. | **No such email exists** (headline #3). Per the user's decision, **this flow does not build it**: every one of these strings is rewritten to drop the email promise, and member-facing approve/deny notification is filed as a followup bead. Shipping the copy without the mailer would promise members something the app does not do. |
+| 19 | **The confirm card's delayed-email job** — "the email is sent by a job that waits out the minute and reads the row's final status, so navigating away, closing the tab or changing your mind twice all end in one correct email." | Moot for this flow given #18, but note the design is *architecturally right*: a delayed job re-reading status at execution time is the correct way to reconcile an undo window with a notification. Carry this note onto the followup bead — Sidekiq is already in the stack. |
+| 20 | **A denial note ("Why you denied it")** rendered on denied rows and carried into the email. | **No such column.** `conflicts` has `reason` only — that's the *member's* reason. A denial note is a new field. Compounded by the canvas contradicting itself: the footer says "Deny takes one click with no note required," yet no artboard shows where a note is ever entered. **Action: cut the denial note from this flow** (it has no capture path, no column, and no email to carry it). Defer with the email bead. |
+| 21 | **Decision attribution — "you approved it 52 days ago", "You denied it 6 days ago"** | Derivable **without new columns**: `ActivityLogger.log_conflict` already writes an `Activity` with `created_by_id` and `activity_type: 'conflict'` (headline #4). Needs only a read path, and the "you" phrasing compares `created_by_id` to `current_user`. Cheaper than the canvas assumes — worth building. |
+| 22 | **An `all_day` toggle** on the edit forms | **Not a column.** All-day is *derived* today — `ConflictPresenter.all_day?` tests `start_date.seconds_since_midnight.zero? && end_date.seconds_since_midnight >= 86_340`. A toggle is fine as a UI affordance that writes 00:00 / 23:59, but it must not imply a stored flag. Note the canvas omits the toggle from the **add** form while showing it on both edit forms — an inconsistency; include it consistently or not at all. |
+| 23 | **Member self-edit of a pending conflict** (dates + reason, locked once decided) | **New build, and out of this flow's scope.** Members' routes are `only: %i[index new create]` (`routes.rb:93`) — there is no member `edit`/`update` action at all. The canvas footer admits this ("Today members can only add"). It is also a *member* screen, i.e. Flow 3 territory, not coordinator triage. **Action: cut from Flow 5, file as a bead.** The two member artboards (edit + locked row) are design work banked for later. |
+| 24 | **A persisted per-user view preference** (Queue vs Calendar, "the choice persists per user") | No user-preference storage of any kind exists on `User`. **Action: `localStorage`**, not a column — it's a per-device display preference, and a migration for it is disproportionate. |
+| 25 | **Server-side filters: status, when (upcoming/past/all season), date range, ensemble** | Only the (broken) date range exists. `status`, `when` and `ensemble` are all new params. Ensemble/section come from `seasons_users` via `user.ensemble_for(season_id)` — already loaded by the API's `includes(user: :seasons_users)`, so grouping and filtering by them is cheap. Allowlist every filter param; no interpolation. |
+| 26 | **Per-scope counts on the filter pills** ("Pending · 5", "All · 9") | New — the endpoint must return counts for *unselected* scopes too, not just the filtered rows. One grouped count query. |
+| 27 | **Per-member season counts** ("2 this season", "one other approved conflict this season") | New, and easy from the same season-scoped set already being fetched. |
+| 28 | **Bulk "Approve both"** when a member has ≥2 pending, "confirms as one undoable action" | New. The current API is one-conflict-per-`PUT`. Either a bulk endpoint or N parallel `PUT`s; the "one undoable action" framing argues for a bulk endpoint so the undo is atomic. **No artboard shows the bulk confirm/undo state** despite the footer promising one — a designed-state gap. |
+| 29 | **Component numbers §4.20–§4.24** | **Collide with Flow 4.** The doc's §4.20–§4.25 are already AlertBanner, FilterBar, SortableTh+LoadMore, deleted-row treatment, projection panel, and schedule timeline. **Flow 5's components renumber to §4.26+.** |
+| 30 | **Status filter as custom clickable `<span>` pills**, status picker as four `<span>`s, toggles as styled `<span>`s | **Reverts a documented Flow 4 decision.** §4.21 records the divergence explicitly: the status scope became a native `<select>` because "A native control is keyboard- and screen-reader-accessible for free; the popover is presentation with a custom focus trap to maintain." Build the status scope as a real control (native `<select>`, or a proper radio group with roving focus), the status picker as a radio group, and the toggles as real `<input type="checkbox">`. §5 of the design doc requires this. |
+| 31 | **No pagination or sort anywhere on the queue** | §4.22 established load-more as the one app-wide pager. An all-season queue across 24 members is unbounded. **Action: apply §4.22's load-more** to the queue, per group or per list. Also note the canvas's own ordering is ambiguous — the queue runs by conflict date (3/20 → 3/21 → 3/29 → 4/3) while the header emphasizes the oldest *submitted* and the dashboard list leads with Elena. **Pick one: group by member, order groups by oldest-pending-submission, rows by conflict date.** |
+| 32 | **The reason expands on every row** | Deliberately abandons §4.19's "reason only on Denied and the next upcoming row, to keep the list scannable" rule. Reasonable for a triage screen (deciding *requires* the reason) but it must be recorded as an explicit exception in §4.19 rather than a silent divergence — the presenter's `reason_for` gate is server-side, so the triage endpoint needs its own shaping. |
+| 33 | **Far-out dates without a year** ("3/29 · 2–6 PM", "1/24 · 9 AM–1 PM") | §4.19 / `ConflictPresenter` renders these as `%-m/%-d/%y` → "3/29/26". **The presenter wins** (it's shipped and spec'd); the canvas mock is simply missing the year. |
+| 34 | **Sticky member group header** | Asserted in the sheet blurb, never drawn — and the group card is `overflow:hidden`, which breaks `position:sticky` on a descendant. Implement without `overflow:hidden` on the card, or drop the stickiness. |
+| 35 | **Calendar chips carry status by color only** | Chip label is time + name; status is fill/border/dot. The legend is per-calendar, not per-chip. §5 requires status never be color-only — add a textual or shape cue (the denied/resolved chips especially). |
+| 36 | **Undo window vs. the pending count** | The design saves immediately, keeps the confirm card in place for ~60s, then collapses it out of the Pending filter. The tablet artboard shows the count already decremented ("4 waiting on you") while the confirmed row is still visible. That ordering is the sensible one — **count updates immediately, row lingers** — but it should be stated, since it's the kind of detail that otherwise gets implemented three different ways. |
+
+### Designed-state gaps to fill in the build
+
+No hover state on triage rows or calendar cells; no focus rings except one Ends-time
+field; no disabled/in-flight state on Approve/Deny during the save; **no empty state
+for the calendar view** (only the queue has one); no popover loading/error state and
+no popover variant for approved/denied/resolved events; no validation-error state on
+either edit form (§4.18's validation summary card never appears); no mobile rendering
+of the edit form; no "+2 more" overflow treatment for a day with more events than
+fit; no bulk-approve confirm/undo artboard. The mobile artboard also drops the
+When/Range/Ensemble filters entirely, so **narrow-screen filtering is undesigned** —
+decide whether they collapse into a sheet (§4.21's original idea) or are simply
+unavailable on phones.
+
+### Accessibility gaps to close in the build
+
+- Everything is `<div>`/`<span>`. Build real `<button>`, `<input>`, `<select>`,
+  and a real radio group for the status picker — do not carry the mock's markup.
+- The popover needs the behavior its own blurb promises: click to open, Escape and
+  outside-click to close, **focus lands on Approve**, focus returns to the trigger
+  on close, `role="dialog"` + label. The thing it replaces (an imperatively
+  `prepend`ed div on `eventMouseEnter`) is mouse-only, so this is a real a11y win.
+- The undo window is a **60-second time limit on an action** — WCAG 2.2.1 territory.
+  The countdown must not be the only way to notice it, and Undo must stay reachable
+  by keyboard for the full window.
+- Status must never be color-only (#35). Count pills and staleness flags need
+  accessible names, not just tinted text.
+- The nav count badge needs an accessible name ("5 conflicts waiting"), not a bare "5".
+
+---
+
+## Scope cuts (design work banked, not built in Flow 5)
+
+Each of these is real design work that shouldn't be lost — but none belongs in
+this flow. Filed as beads rather than built:
+
+| Cut | Why |
+|---|---|
+| **Member approve/deny notification email** | No mailer exists; user's call is to flag not build (#18). Carry the delayed-job-re-reads-status design note (#19) onto the bead. |
+| **Denial note ("Why you denied it")** | New column, no capture path designed, and the canvas contradicts itself on whether deny takes a note at all (#20). |
+| **Member self-edit of a pending conflict** | No member `edit`/`update` route exists, and it's a member screen (Flow 3 territory), not coordinator triage (#23). |
+| **Rehearsal dates behind the calendar** | `Event` is populated by nothing (#17). The canvas independently reached the same conclusion and dropped its next-event card. |
+
+## Suggested build phasing (for the plan file)
+
+1. **Backend** — collapse to one `/api/conflicts` gated on both roles; **fix the
+   date-range filter** (return the parsed value; correct the strict one-sided
+   operators to real overlap; regression spec); add `status` / `when` /
+   `ensemble` filter params with an allowlist; per-scope and per-member counts;
+   member grouping; extend `ConflictPresenter` with an opt-in `member:` /
+   `section:` and collapse the two ad-hoc merges; decision attribution read from
+   `Activity`; bulk-approve endpoint.
+2. **Primitives** — triage row (§4.26, extending §4.19), member group header,
+   view switcher, conflict detail popover, decision confirm + undo. Real
+   semantics throughout (#30), real focus management on the popover.
+3. **Screen: triage queue** — grouped queue, filter bar, load-more (#31),
+   empty / loading / error states.
+4. **Screen: triage calendar + agenda** — FullCalendar with status-token colors,
+   the show-denied-and-resolved toggle made explicit (#10), popover replacing the
+   imperative tooltip, and the <900px agenda.
+5. **Screen: inline edit + add** — one shared form partial replacing the two
+   byte-identical copies; past dates allowed on add; fix `#create` redirecting to
+   `root_url` instead of back to the list (#13).
+6. **Screen: coordinator dashboard** — hero + "clear a few from here" list +
+   month widget, replacing the second FullCalendar currently mounted there (#11).
+7. **Polish** — a11y pass (#30, #35, the undo time limit), dark mode, the
+   designed-state gaps above, "needs a human visual pass" callout on the PR.
