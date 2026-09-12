@@ -37,7 +37,7 @@ if (mount && props) {
       method={props.method}
       submitLabel={props.submitLabel}
       cancelHref={props.cancelHref}
-      showApprovalNote={false}
+      memberVoice={false}
     />,
     mount
   )

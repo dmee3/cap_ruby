@@ -37,8 +37,12 @@ type ConflictFormProps = {
   method?: 'post' | 'patch'
   submitLabel?: string
   cancelHref?: string
-  /** The member form's "sending this isn't approval" note is member-only. */
-  showApprovalNote?: boolean
+  /**
+   * Copy written to the member ("your conflict", "sending this isn't
+   * approval"). Off for coordinators and admins, who are filing on someone
+   * else's behalf and don't need to be told how review works.
+   */
+  memberVoice?: boolean
 }
 
 const REASON_MAX = 500
@@ -66,7 +70,7 @@ const ConflictForm = ({
   method = 'post',
   submitLabel = 'Submit conflict',
   cancelHref,
-  showApprovalNote = true,
+  memberVoice = true,
 }: ConflictFormProps) => {
   const [startDate, setStartDate] = useState(defaults.startDate ?? '')
   const [startTime, setStartTime] = useState(defaults.startTime ?? '')
@@ -188,14 +192,16 @@ const ConflictForm = ({
               reasonError ? 'border-danger-fg' : 'border-border-strong focus:border-[color:rgb(var(--focus-ring))]'
             }`}
           />
-          <span className="text-caption text-secondary">
-            Coordinators and directors read this to decide on your conflict.
-          </span>
+          {memberVoice && (
+            <span className="text-caption text-secondary">
+              Coordinators and directors read this to decide on your conflict.
+            </span>
+          )}
           {reasonError && <span className="text-caption text-danger-fg">{reasonError}</span>}
         </div>
       </div>
 
-      {showApprovalNote && (
+      {memberVoice && (
         <div className="card flex gap-3 border-l-[3px] border-l-warning-fg">
           <div className="flex flex-col gap-1">
             <span className="text-body-sm font-semibold text-primary">Sending this isn&apos;t approval</span>

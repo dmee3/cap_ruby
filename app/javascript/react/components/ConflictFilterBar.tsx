@@ -40,13 +40,13 @@ const ConflictFilterBar = ({
 
   return (
     <div
-      className={`flex flex-wrap items-center gap-4 rounded-md border border-border-default bg-surface px-4 py-3 ${className}`.trim()}
+      className={`flex flex-col items-stretch gap-3 rounded-md border border-border-default bg-surface px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 ${className}`.trim()}
     >
       {ensembles.length > 0 && (
-        <label className="flex items-center gap-2">
+        <label className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
           <span className="text-label uppercase text-secondary">Ensemble</span>
           <select
-            className={field}
+            className={`${field} w-full sm:w-auto`}
             value={filters.ensemble}
             onChange={event => onChange({ ...filters, ensemble: event.target.value })}
           >
@@ -65,7 +65,7 @@ const ConflictFilterBar = ({
           checked={!!showDecided}
           onChange={onShowDecidedChange}
           label="Show denied and resolved"
-          className="ml-auto"
+          className="sm:ml-auto"
         />
       )}
     </div>

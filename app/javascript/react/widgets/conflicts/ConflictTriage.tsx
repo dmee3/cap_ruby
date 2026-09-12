@@ -119,11 +119,39 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
     [groups]
   )
 
+  const save = useCallback(
+    (id: number, target: number) =>
+      fetch(`/api/conflicts/${id}`, {
+        method: 'PUT',
+        headers: {
+          'X-CSRF-TOKEN': Utilities.getAuthToken(),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ conflict: { status_id: target } }),
+      }).then(resp => {
+        if (!resp.ok) throw resp
+        return resp
+      }),
+    []
+  )
+
   const decide = useCallback(
     (id: number, statusName: 'Approved' | 'Denied' | 'Resolved') => {
-      const found = rowFor(id)
       const target = statusId(statusName)
-      if (!found || !target) return
+      if (!target) return
+
+      const found = rowFor(id)
+
+      // On the calendar there is no visible row to turn into a confirmation —
+      // both views share one payload, so a queue row usually still exists in
+      // state, but confirming on it would be invisible. Save and refetch
+      // instead, so the event picks up its new colour.
+      if (view === 'calendar' || !found) {
+        save(id, target)
+          .then(load)
+          .catch(() => setError('load'))
+        return
+      }
 
       const label = [found.row.date_range_label, found.row.time_range_label]
         .filter(Boolean)
@@ -142,16 +170,8 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
         },
       }))
 
-      fetch(`/api/conflicts/${id}`, {
-        method: 'PUT',
-        headers: {
-          'X-CSRF-TOKEN': Utilities.getAuthToken(),
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ conflict: { status_id: target } }),
-      })
-        .then(resp => {
-          if (!resp.ok) throw resp
+      save(id, target)
+        .then(() => {
           setDecisions(current => ({ ...current, [id]: { ...current[id], saving: false } }))
         })
         .catch(() => {
@@ -165,7 +185,7 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
           }))
         })
     },
-    [rowFor, statusId]
+    [rowFor, statusId, save, load, view]
   )
 
   const approveAll = useCallback(
@@ -247,7 +267,7 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
   const addButton = (
     <a
       href={`${basePath}/new`}
-      className="inline-flex h-9 items-center rounded-sm bg-ocean px-4 text-body-sm font-medium text-on-brand transition hover:bg-ocean-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+      className="inline-flex h-9 items-center justify-center rounded-sm bg-ocean px-4 text-body-sm font-medium text-on-brand transition hover:bg-ocean-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
     >
       Add conflict
     </a>
@@ -260,7 +280,7 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
         <span className="text-body-sm text-secondary">{subline}</span>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <ViewSwitcher value={view} onChange={setView} />
         {addButton}
       </div>
