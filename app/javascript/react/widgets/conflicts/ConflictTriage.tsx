@@ -53,13 +53,16 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
 
   const query = useMemo(() => {
     const params = new URLSearchParams()
-    // The queue is only ever "what needs a decision"; the calendar shows the
-    // whole season and hides decided conflicts client-side via the toggle.
+    // The queue is only ever "what needs a decision" — every pending conflict,
+    // unfiltered. The ensemble filter belongs to the calendar, which is the
+    // only view that renders the control; applying it to the queue would hide
+    // conflicts behind a filter the queue gives you no way to see or clear.
     if (view === 'queue') {
       params.set('status', 'Pending')
       params.set('when', 'upcoming')
+    } else if (filters.ensemble) {
+      params.set('ensemble', filters.ensemble)
     }
-    if (filters.ensemble) params.set('ensemble', filters.ensemble)
     return params.toString()
   }, [filters, view])
 

@@ -168,6 +168,43 @@ describe('ConflictTriage', () => {
     })
   })
 
+  // Regression: the ensemble filter is set on the calendar but the queue
+  // renders no control for it, so leaving it applied hid pending conflicts
+  // behind a filter the queue gave no way to see or clear.
+  it('does not carry the calendar ensemble filter back into the queue', async () => {
+    const calls = stubFetch()
+    render(<ConflictTriage basePath="/admin/conflicts" ensembles={['CC2', 'World']} />)
+    await screen.findByText('Marcus Webb')
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Calendar' }))
+    await userEvent.selectOptions(await screen.findByLabelText('Ensemble'), 'CC2')
+
+    await waitFor(() => {
+      expect(calls.some(call => call.url.includes('ensemble=CC2'))).toBe(true)
+    })
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Queue' }))
+
+    await waitFor(() => {
+      const gets = calls.filter(call => call.method === 'GET' && call.url.startsWith('/api/conflicts?'))
+      expect(gets[gets.length - 1].url).not.toContain('ensemble')
+    })
+  })
+
+  it('keeps the ensemble filter while staying on the calendar', async () => {
+    const calls = stubFetch()
+    render(<ConflictTriage basePath="/admin/conflicts" ensembles={['CC2']} />)
+    await screen.findByText('Marcus Webb')
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Calendar' }))
+    await userEvent.selectOptions(await screen.findByLabelText('Ensemble'), 'CC2')
+
+    await waitFor(() => {
+      const gets = calls.filter(call => call.method === 'GET' && call.url.startsWith('/api/conflicts?'))
+      expect(gets[gets.length - 1].url).toContain('ensemble=CC2')
+    })
+  })
+
   it('remembers the chosen view', async () => {
     stubFetch()
     render(<ConflictTriage basePath="/admin/conflicts" />)
