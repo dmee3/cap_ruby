@@ -78,6 +78,36 @@ RSpec.describe 'Dashboard Data Accuracy', type: :request do
       expect(response.body).to include('Your conflicts')
     end
 
+    # The card shows only four rows. Ordering the whole season by start_date
+    # and taking the first four buries next week's conflict under ones from
+    # the fall, so upcoming comes first and past fills what's left.
+    it 'puts upcoming conflicts ahead of past ones in the four it shows' do
+      status = ConflictStatus.find_by(name: 'Pending') || create(:conflict_status, name: 'Pending')
+      5.times do |i|
+        create(
+          :conflict,
+          user: member,
+          season: season,
+          conflict_status: status,
+          start_date: (60 - i).days.ago,
+          end_date: (59 - i).days.ago,
+          reason: "Old conflict #{i}",
+          skip_future_date_validation: true
+        )
+      end
+
+      get '/members'
+
+      rows = JSON.parse(response.body[/data-conflicts="([^"]*)"/, 1].gsub('&quot;', '"'))
+      # `conflict` (1 week out) is the only upcoming one, so it leads.
+      expect(rows.first['id']).to eq(conflict.id)
+      expect(rows.length).to eq(4)
+      # ...and the rest are the most recent past ones, newest first.
+      expect(rows.drop(1).map { |r| r['id'] }).to eq(
+        member.conflicts.where('end_date < ?', Date.current).order(start_date: :desc).limit(3).pluck(:id)
+      )
+    end
+
     it 'reconciles the payment schedule and payments into one timeline' do
       get '/members'
 

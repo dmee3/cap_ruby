@@ -10,7 +10,7 @@ module Members
                    .includes(:conflict_status)
                    .for_season(season_id)
                    .order(:start_date)
-      @conflict_rows = ConflictPresenter.rows_for(@conflicts.first(4))
+      @conflict_rows = ConflictPresenter.rows_for(dashboard_conflicts(@conflicts))
       @conflict_nudge = conflict_nudge_sentence(@conflicts)
       @just_submitted = flash[:conflict_submitted].present?
 
@@ -26,6 +26,14 @@ module Members
 
     # e.g. "Next one is Fri 3/14, still pending after 3 days." — nil when
     # nothing's waiting on a decision.
+    # The four rows worth a member's attention: upcoming first, then the most
+    # recent past ones to fill the space. Plain `.first(4)` on a season-long
+    # start_date sort buries next week's conflict under ones from the fall.
+    def dashboard_conflicts(conflicts, limit = 4)
+      upcoming, past = conflicts.partition { |c| c.end_date >= Time.zone.today }
+      (upcoming + past.reverse).first(limit)
+    end
+
     def conflict_nudge_sentence(conflicts)
       next_pending = conflicts.select { |c| c.status.name == 'Pending' && c.start_date.future? }
                               .min_by(&:start_date)

@@ -62,14 +62,9 @@ const MemberConflictList = ({
             reason={c.reason}
             editable={showEditLinks ? c.editable : undefined}
             editPath={c.edit_path}
-            // Inside a list card the row owns its padding so the divider
-            // reaches the card's edges. Bare (the dashboard, which mounts
-            // this in an already-padded card) it keeps the old inset rows.
-            className={
-              cardTitle
-                ? 'border-b border-border-default px-4 py-3 last:border-0'
-                : 'border-b border-border-default py-3 last:border-0'
-            }
+            // The row owns its padding so the divider reaches the card's
+            // edges. Every caller mounts this in a flush card now.
+            className="border-b border-border-default px-4 py-3 last:border-0"
           />
         ))}
       </div>

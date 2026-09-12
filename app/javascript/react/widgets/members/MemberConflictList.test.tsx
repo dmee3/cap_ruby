@@ -74,12 +74,11 @@ describe('MemberConflictList', () => {
     expect(screen.queryByText('All conflicts')).not.toBeInTheDocument()
   })
 
-  // The dashboard mounts this inside an already-padded `.card`, so adding
-  // horizontal padding there would indent the rows twice.
-  it('leaves horizontal padding off the rows when there is no list card', () => {
+  // Every caller mounts this in a flush card, so the rows carry their own
+  // horizontal padding whether or not this widget draws the card itself.
+  it('pads the rows even when the caller brings its own card', () => {
     const { container } = render(<MemberConflictList conflicts={[conflict]} />)
-    expect(container.querySelector('.px-4')).toBeNull()
-    expect(container.querySelector('.border-b.py-3')).not.toBeNull()
+    expect(container.querySelector('.border-b.px-4.py-3')).not.toBeNull()
   })
 
   it('shows Edit only on editable rows when the screen opts in', () => {
