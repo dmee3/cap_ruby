@@ -225,7 +225,7 @@ const ConflictForm = ({
           {submitLabel}
         </button>
         {cancelHref && (
-          <a href={cancelHref} className="link text-body-sm">
+          <a href={cancelHref} className="btn-gray btn-lg no-underline">
             Cancel
           </a>
         )}

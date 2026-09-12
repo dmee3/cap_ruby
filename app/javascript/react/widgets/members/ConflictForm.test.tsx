@@ -60,6 +60,20 @@ describe('ConflictForm', () => {
     expect(screen.getByDisplayValue('Family vacation')).toBeInTheDocument()
   })
 
+  it('offers a cancel alongside submit, styled as an outline button', () => {
+    render(<ConflictForm {...baseProps} cancelHref="/members" />)
+
+    const cancel = screen.getByRole('link', { name: 'Cancel' })
+    expect(cancel).toHaveAttribute('href', '/members')
+    expect(cancel.className).toContain('btn-gray')
+  })
+
+  it('omits cancel when there is nowhere to go back to', () => {
+    render(<ConflictForm {...baseProps} />)
+
+    expect(screen.queryByRole('link', { name: 'Cancel' })).not.toBeInTheDocument()
+  })
+
   it('shows the disclaimer unconditionally', () => {
     render(<ConflictForm {...baseProps} />)
     expect(screen.getByText("Sending this isn't approval")).toBeInTheDocument()
