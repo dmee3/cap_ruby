@@ -36,8 +36,6 @@ RSpec.describe 'Flash rendering', type: :request do
   end
 
   describe 'submitting a conflict' do
-    # The bug: one submission got answered twice — an inline banner in the
-    # dashboard's conflicts card AND a toast pinned to the bottom of the screen.
     it 'answers inline only, with no duplicate toast' do
       sign_in_as_member(season: season)
       pending_status

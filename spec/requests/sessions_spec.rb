@@ -26,8 +26,7 @@ RSpec.describe 'Sessions', type: :request do
       expect(response.body).not_to include('You need to sign in or sign up before continuing.')
     end
 
-    # The whole point of the redirect change is that it moves only the landing
-    # page. If it ever started leaving the session intact, this fails loudly.
+    # Guards the redirect change against ever skipping the actual sign-out.
     it 'still destroys the session' do
       get '/members'
 

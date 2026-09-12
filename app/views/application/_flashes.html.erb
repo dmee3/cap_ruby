@@ -1,8 +1,4 @@
-<%# Server-rendered counterpart to the React <Toast> component. Both render the
-    same shape — dot, message, dismiss — in the same bottom-right stack, so a
-    redirect-driven flash and a JS-driven toast are indistinguishable to the
-    user. Keys that drive UI elsewhere (an inline banner, an undo affordance)
-    carry no message and are skipped here. %>
+<%# Server-rendered counterpart to the React <Toast>; keep the two in sync. %>
 <% renderable = flash.flat_map { |type, messages|
      Array.wrap(messages).filter_map { |m| [type, m] if flash_message?(type, m) }
    } %>

@@ -42,9 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
   })
 
   // ---- Dismissible close ----
-  // Keyed off `[data-dismissible]` rather than `.flash` so an inline banner can
-  // opt into the close behavior without also inheriting the flash bar's
-  // on-brand padding/color, which it then has to fight with its own utilities.
   document.querySelectorAll('[data-dismissible]').forEach(el => {
     el.querySelector('[data-dismiss]')?.addEventListener('click', () => el.remove())
   })

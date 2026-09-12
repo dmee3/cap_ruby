@@ -1,11 +1,10 @@
 @layer components {
-  /* Matches the React <Toast> host's stack: same corner, same widths, same gap,
-     so server-rendered flashes and JS toasts line up as one column. */
+  /* Mirrors the React <Toast> host so flashes and toasts stack as one column. */
   .flash-bar {
     @apply fixed z-50 bottom-0 right-0 w-full md:w-96 flex flex-col gap-2 p-2 md:p-4;
   }
 
-  /* The toast row itself — mirrors <Toast>'s px-3.5 py-3 / gap-2.5 / dot layout. */
+  /* Matches <Toast>'s row metrics. */
   .flash {
     @apply flex flex-row items-center gap-2.5 rounded-md px-3.5 py-3 text-on-brand shadow-e3;
   }
