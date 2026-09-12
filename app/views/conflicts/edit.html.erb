@@ -1,0 +1,13 @@
+<% content_for :page_title, 'Edit conflict' %>
+
+<div class="mx-auto w-full max-w-[640px] flex flex-col gap-4">
+  <a href="<%= conflict_base_path %>" class="link text-body-sm">&lsaquo; Conflicts</a>
+  <h1>Edit <%= @conflict.user.full_name %>&rsquo;s conflict</h1>
+
+  <%= render(
+        'conflicts/form',
+        form_action: "#{conflict_base_path}/#{@conflict.id}",
+        form_method: 'patch',
+        submit_label: 'Save changes'
+      ) %>
+</div>

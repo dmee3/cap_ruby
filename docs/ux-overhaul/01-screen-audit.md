@@ -85,9 +85,9 @@ Legend for **Priority**: 🔴 High (painful + high traffic) · 🟡 Medium · �
 
 | Screen | Route | Job to be done | Current friction | Priority |
 |---|---|---|---|---|
-| **Coordinator dashboard** | `/coordinators` | Overview: files + upcoming conflicts | Very thin (2 cards). Coordinators' real work is conflict triage — the dashboard doesn't reflect that | 🟡 |
-| **Conflict calendar + triage** | `/coordinators/conflicts` | See all conflicts on a calendar, approve/deny/edit | FullCalendar month/list view; tooltip is a manually-constructed div; editing a conflict is a separate form page (`/conflicts/:id/edit`); no inline approve/deny; no queue view of "pending, needs my decision" | 🔴 |
-| Conflict new / edit | `/coordinators/conflicts/new`, `/:id/edit` | Create or modify a conflict for a member | 5-col grid form with `_form` partial; member select; status select | 🟡 |
+| **Coordinator dashboard** | `/coordinators` | Overview: files + upcoming conflicts | ✅ rebuilt in Flow 5 around the backlog — a hero naming what's waiting and the oldest of it, plus inline approve/deny. Replaced a card that mounted a *second* full FullCalendar | ✅ |
+| **Conflict calendar + triage** | `/coordinators/conflicts` | See all conflicts on a calendar, approve/deny/edit | ✅ rebuilt in Flow 5 as a queue + calendar over one dataset, with inline decisions, a real popover replacing the hover-only tooltip, and an explicit "show denied and resolved" toggle | ✅ |
+| Conflict new / edit | `/coordinators/conflicts/new`, `/:id/edit` | Create or modify a conflict for a member | ✅ rebuilt in Flow 5 on the shared member form with triage-only fields; one partial now serves both namespaces | ✅ |
 | **Inventory** | `/inventory/categories` | View categories/items, edit quantities, add items, manage low-stock email rules | React list of collapsible category tables; inline quantity edit; separate pages for new category / new item / email rules | 🟡 |
 | Inventory email rules | `/inventory/email_rules` | Configure "email X when item Y drops below Z" | List + form pages; functional, unpolished | ⚪ |
 | Files, Settings, Whistleblower | as above | | | ⚪ |
@@ -107,7 +107,7 @@ Admin inherits coordinator + staff, plus:
 | **Users list** | `/admin/users` | Find/manage members; see roster | React table (`UserTable`); fine, plain | 🟡 |
 | New / edit user | `/admin/users/new`, `/:id/edit` | Create a member, assign season/role/ensemble/section/member-type; auto-creates a payment schedule | `UserForm` + `UserRoleRow` — the most complex form in the app (per-season role assignment). Deserves careful redesign | 🔴 |
 | User detail | `/admin/users/:id` | Everything about one member: roles by season, payment schedule, payments, conflicts | Landing target from many places (payments table, behind-members). Central "member 360" view — high value, currently a plain stacked page | 🔴 |
-| **Admin conflicts** | `/admin/conflicts` | Same as coordinator conflict calendar + date-range filtering + ensemble/section data | React calendar widget; date filtering | 🟡 |
+| **Admin conflicts** | `/admin/conflicts` | Same as coordinator conflict calendar + date-range filtering + ensemble/section data | ✅ the *same screen* as the coordinator one after Flow 5 — one API, one widget, two thin shells | ✅ |
 | Conflict new / edit (admin) | `/admin/conflicts/new`, `/:id/edit` | | Same `_form` pattern | 🟡 |
 | **Admin calendar fundraiser** | `/admin/calendars` | Ensemble-wide fundraiser: totals by member, completed vs in-progress | Overview page; needs a leaderboard / progress visualization | 🟡 |
 | Admin settings | `/admin/settings` | | Standard | ⚪ |
@@ -130,9 +130,9 @@ Admin inherits coordinator + staff, plus:
 Design in **flows**, not isolated screens — shared components carry across a flow so
 each one is faster than the last.
 
-**Progress:** Flows 1–3 merged (PR #221 shell/tokens, #226 member dues,
-#230 member conflicts). Flow 4 (admin financial command center) built — PR open,
-awaiting a visual pass. (Authoritative status: `bd ready`.)
+**Progress:** Flows 1–4 merged (PR #221 shell/tokens, #226 member dues,
+#230 member conflicts, #234 admin financial command center). Flow 5 (conflict
+triage) is built and awaiting a visual pass. (Authoritative status: `bd ready`.)
 
 Along the way, the layout set collapsed to three — `application` / `auth` /
 `public`, with public controllers inheriting `PublicController` (PR #229) — which
@@ -161,7 +161,7 @@ editable at `/admin/season/edit`) is the seasonal on/off switch coordinators use
   pending after N days" nudge, the shared `ConflictContextRow` shape
 - (row shape + status vocabulary built to be reused by Flow 5)
 
-### Flow 4 — Admin financial command center ✅ shipped *(PR open — visual pass pending)*
+### Flow 4 — Admin financial command center ✅ shipped *(PR #234, merged)*
 - Admin dashboard (insight-focused: dues burndown as the hero, not two numbers)
 - Payments list (filter/sort/status, mobile card fallback)
 - Add manual payment (projection panel, validation summary, disable-on-submit)
@@ -181,10 +181,29 @@ editable at `/admin/season/edit`) is the seasonal on/off switch coordinators use
   never nets against dues; "reset to default" preserves paid entries (was
   `destroy_all`); the schedule-editor route above.
 
-### Flow 5 — Conflict triage (coordinator/admin) 🔴
+### Flow 5 — Conflict triage (coordinator/admin) ✅ shipped *(visual pass pending)*
 - Conflict queue ("pending, needs a decision") + calendar as two views of one dataset
 - Inline approve/deny/edit
 - Coordinator dashboard rebuilt around this
+- Canvas reviewed against the code in `flow5-design-review.md`. **The API's
+  date-range filter is dead code** — `start`/`end` are parsed, discarded, and
+  replaced by a hardcoded 2000–2030 window (proven: a one-week request returned
+  a conflict ~300 days out). Fixed in this flow.
+- Admin and coordinator conflict code is duplicated at every layer (the `_form`
+  partials are byte-identical; the entrypoints differ by five URL slugs), and
+  `redirect_if_not` is an **exact role match**, so each role can only reach its
+  own copy. Collapsing to one API + one widget, keeping both URLs.
+- New components: §4.26–§4.31, plus §4.19 extended in place. *(The canvas
+  claimed §4.20–§4.24, which collide with Flow 4's entries.)*
+- Cut and filed as beads: member approve/deny email (`cap_ruby-b3a.17`), the
+  denial note (`.18`), member self-edit (`.19`), and the narrow-screen filter
+  sheet (`.20`).
+- **Built:** one `/api/conflicts` for both roles, a `ConflictTriage` concern
+  behind two thin controllers, six conflict views collapsed to three, one
+  entrypoint in place of two, and the coordinator dashboard rebuilt around the
+  backlog. The date-filter bug is fixed with regression specs covering the
+  straddling case. The calendar's silent denied/resolved filter is now a visible
+  toggle, and the empty/loading/error states the screens never had now exist.
 
 ### Flow 6 — Admin: roster & onboarding 🟡
 - Users list

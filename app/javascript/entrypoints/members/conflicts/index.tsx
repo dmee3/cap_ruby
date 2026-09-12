@@ -11,6 +11,7 @@ declare global {
         minDate: string
         defaults: Record<string, string | undefined>
         errors: { field: 'start_date' | 'end_date' | 'reason'; message: string }[]
+        cancelHref?: string
       }
     | undefined
   var conflictList: ConflictListItem[] | undefined
@@ -26,6 +27,7 @@ if (formEl && window.conflictForm) {
       minDate={cfg.minDate}
       defaults={cfg.defaults}
       errors={cfg.errors}
+      cancelHref={cfg.cancelHref}
     />,
     formEl
   )

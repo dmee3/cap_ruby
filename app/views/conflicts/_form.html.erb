@@ -1,0 +1,28 @@
+<%# Note: <%== (raw) below, not <%= — embedding a to_json blob in a script tag
+    with <%= double-escapes it. %>
+<%= javascript_tag do %>
+  window.conflictTriageForm = <%== {
+    formAction: form_action,
+    authenticityToken: form_authenticity_token,
+    method: form_method,
+    submitLabel: submit_label,
+    cancelHref: conflict_base_path,
+    defaults: {
+      userId: @conflict.user_id.to_s,
+      statusId: @conflict.status_id.to_s,
+      startDate: @conflict.start_date&.strftime('%Y-%m-%d'),
+      startTime: @conflict.start_date&.strftime('%H:%M'),
+      endDate: @conflict.end_date&.strftime('%Y-%m-%d'),
+      endTime: @conflict.end_date&.strftime('%H:%M'),
+      reason: @conflict.reason
+    }.compact,
+    errors: @conflict.errors.map { |error| { field: error.attribute.to_s, message: error.full_message } }
+                     .select { |error| %w[start_date end_date reason].include?(error[:field]) },
+    members: @members.map { |member| { id: member.id, name: member.full_name } },
+    statuses: @statuses.map { |status| { id: status.id, name: status.name } }
+  }.to_json %>;
+<% end %>
+
+<%= vite_typescript_tag 'entrypoints/conflicts/form.tsx' %>
+
+<div id="conflict-form"></div>

@@ -64,18 +64,19 @@ module Admin
       end
     end
 
-    # Pending conflicts still ahead of us, oldest start first — the "needs a
-    # decision" queue, using the shared ConflictPresenter row shape.
+    # Pending conflicts still ahead of us — the "needs a decision" queue, in the
+    # same shape the triage screens use. Previously paired rows to conflicts by
+    # array index, which only held while both stayed in the same order.
     def conflicts_to_review(season_id)
       conflicts = Conflict
-                  .includes(:conflict_status, :user)
+                  .includes(:conflict_status, user: :seasons_users)
                   .for_season(season_id)
                   .future_conflicts
                   .order(:start_date)
                   .select { |c| c.status.name == 'Pending' }
 
-      ConflictPresenter.rows_for(conflicts).map.with_index do |row, i|
-        row.merge(member: conflicts[i].user.full_name)
+      ConflictTriagePresenter.groups_for(conflicts, season_id, current_user).flat_map do |group|
+        group[:rows].map { |row| row.merge(member: group[:member]) }
       end
     end
   end

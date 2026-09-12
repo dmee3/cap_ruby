@@ -1,0 +1,14 @@
+<% content_for :page_title, 'Add a conflict' %>
+
+<div class="mx-auto w-full max-w-[640px] flex flex-col gap-4">
+  <a href="<%= conflict_base_path %>" class="link text-body-sm">&lsaquo; Conflicts</a>
+  <h1>Add a conflict for someone</h1>
+  <p class="text-body-sm text-secondary m-0">Lands at the top of the queue as Pending.</p>
+
+  <%= render(
+        'conflicts/form',
+        form_action: conflict_base_path,
+        form_method: 'post',
+        submit_label: 'Add conflict'
+      ) %>
+</div>

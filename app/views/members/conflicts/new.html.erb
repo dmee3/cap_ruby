@@ -6,7 +6,8 @@
     authenticityToken: form_authenticity_token,
     minDate: Date.current.iso8601,
     defaults: conflict_form_defaults(@conflict),
-    errors: conflict_field_errors(@conflict)
+    errors: conflict_field_errors(@conflict),
+    cancelHref: members_home_path
   }.to_json %>;
   window.conflictList = <%== conflict_row_data(@existing_conflicts).to_json %>;
 <% end %>
