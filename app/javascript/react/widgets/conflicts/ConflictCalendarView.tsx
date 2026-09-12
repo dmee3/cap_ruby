@@ -28,6 +28,8 @@ type ConflictCalendarViewProps = {
   onRetry?: () => void
   onApprove?: (id: number) => void
   onDeny?: (id: number) => void
+  /** Owned by the parent so the switch can sit on the shared filter line. */
+  showDecided: boolean
 }
 
 // Status tokens, mirrored from the §4.8 pill vocabulary so a chip and a pill
@@ -54,11 +56,8 @@ const ConflictCalendarView = ({
   onRetry,
   onApprove,
   onDeny,
+  showDecided,
 }: ConflictCalendarViewProps) => {
-  // The old calendar dropped Denied and Resolved silently, with no legend and
-  // no way to see them. Same default, but now it is a visible, reversible
-  // control rather than a hidden filter.
-  const [showDecided, setShowDecided] = useState(false)
   const [selected, setSelected] = useState<ConflictPopoverData | null>(null)
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 900
 
@@ -111,31 +110,6 @@ const ConflictCalendarView = ({
 
   return (
     <div className="relative flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-4 rounded-md border border-border-default bg-surface px-4 py-3">
-        <label className="flex items-center gap-2 text-body-sm text-primary">
-          <input
-            type="checkbox"
-            checked={showDecided}
-            onChange={event => setShowDecided(event.target.checked)}
-            className="h-4 w-4 rounded-sm border-border-strong"
-          />
-          Show denied and resolved
-        </label>
-
-        <ul className="ml-auto flex flex-wrap items-center gap-3">
-          {Object.keys(CHIP).map(status => (
-            <li key={status} className="flex items-center gap-1.5 text-caption text-secondary">
-              <span
-                aria-hidden="true"
-                className="h-2.5 w-2.5 rounded-sm"
-                style={{ backgroundColor: CHIP[status].bg, border: `1px solid ${CHIP[status].border}` }}
-              />
-              {status}
-            </li>
-          ))}
-        </ul>
-      </div>
-
       {loading && (
         <div className="h-[420px] rounded-md border border-border-default bg-sunken animate-pulse" aria-busy="true">
           <span className="sr-only">Loading calendar…</span>

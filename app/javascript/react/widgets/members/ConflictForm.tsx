@@ -209,8 +209,7 @@ const ConflictForm = ({
       {members && (
         <div className="card flex gap-3 border-l-[3px] border-l-accent-primary">
           <span className="text-caption text-secondary">
-            A past date is fine here. You&apos;re recording something that already happened, so we
-            don&apos;t ask for a future date the way the member form does.
+            A past date is fine here if you want to record a previous conflict.
           </span>
         </div>
       )}

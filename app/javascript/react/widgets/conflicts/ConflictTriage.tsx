@@ -39,6 +39,7 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
   const [statuses, setStatuses] = useState<StatusOption[]>([])
   const [filters, setFilters] = useState<ConflictFilters>(DEFAULT_CONFLICT_FILTERS)
   const [view, setView] = useState<ViewOption>(readStoredView)
+  const [showDecided, setShowDecided] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
@@ -52,13 +53,15 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
 
   const query = useMemo(() => {
     const params = new URLSearchParams()
-    if (filters.status) params.set('status', filters.status)
-    if (filters.when) params.set('when', filters.when)
+    // The queue is only ever "what needs a decision"; the calendar shows the
+    // whole season and hides decided conflicts client-side via the toggle.
+    if (view === 'queue') {
+      params.set('status', 'Pending')
+      params.set('when', 'upcoming')
+    }
     if (filters.ensemble) params.set('ensemble', filters.ensemble)
-    if (filters.start) params.set('start', filters.start)
-    if (filters.end) params.set('end', filters.end)
     return params.toString()
-  }, [filters])
+  }, [filters, view])
 
   const load = useCallback(() => {
     setLoading(true)
@@ -262,12 +265,15 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
         {addButton}
       </div>
 
-      <ConflictFilterBar
-        filters={filters}
-        onChange={setFilters}
-        counts={counts}
-        ensembles={ensembles}
-      />
+      {view === 'calendar' && (
+        <ConflictFilterBar
+          filters={filters}
+          onChange={setFilters}
+          ensembles={ensembles}
+          showDecided={showDecided}
+          onShowDecidedChange={setShowDecided}
+        />
+      )}
 
       {view === 'queue' ? (
         <TriageQueue
@@ -291,9 +297,9 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
                 variant="secondary"
                 size="md"
                 fullWidthBelow={false}
-                onClick={() => setFilters({ ...DEFAULT_CONFLICT_FILTERS, status: 'All', when: 'all' })}
+                onClick={() => setView('calendar')}
               >
-                See all season
+                See the calendar
               </Button>
               {addButton}
             </div>
@@ -308,6 +314,7 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
           onRetry={load}
           onApprove={id => decide(id, 'Approved')}
           onDeny={id => decide(id, 'Denied')}
+          showDecided={showDecided}
         />
       )}
     </div>

@@ -5,36 +5,16 @@ import userEvent from '@testing-library/user-event'
 import ConflictFilterBar, { DEFAULT_CONFLICT_FILTERS } from './ConflictFilterBar'
 
 describe('ConflictFilterBar', () => {
-  // Flow 4 chose native controls over custom pills because they are keyboard-
-  // and screen-reader-accessible for free; the Flow 5 canvas drew pills again.
-  it('uses native selects, not clickable spans', () => {
-    render(<ConflictFilterBar filters={DEFAULT_CONFLICT_FILTERS} onChange={vi.fn()} />)
-
-    expect(screen.getByLabelText('Status')).toHaveProperty('tagName', 'SELECT')
-    expect(screen.getByLabelText('When')).toHaveProperty('tagName', 'SELECT')
-  })
-
-  it('reports a status change', async () => {
-    const onChange = vi.fn()
-    render(<ConflictFilterBar filters={DEFAULT_CONFLICT_FILTERS} onChange={onChange} />)
-
-    await userEvent.selectOptions(screen.getByLabelText('Status'), 'Approved')
-
-    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ status: 'Approved' }))
-  })
-
-  it('shows the count on each scope, including unselected ones', () => {
+  it('uses a native select for the ensemble, not clickable spans', () => {
     render(
       <ConflictFilterBar
         filters={DEFAULT_CONFLICT_FILTERS}
         onChange={vi.fn()}
-        counts={{ Pending: 5, Approved: 3, All: 9 }}
+        ensembles={['Battery']}
       />
     )
 
-    expect(screen.getByRole('option', { name: 'Pending · 5' })).toBeInTheDocument()
-    expect(screen.getByRole('option', { name: 'Approved · 3' })).toBeInTheDocument()
-    expect(screen.getByRole('option', { name: 'All · 9' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Ensemble')).toHaveProperty('tagName', 'SELECT')
   })
 
   it('offers the ensembles the season actually uses', () => {
@@ -50,38 +30,63 @@ describe('ConflictFilterBar', () => {
     expect(screen.getByRole('option', { name: 'Front ensemble' })).toBeInTheDocument()
   })
 
-  it('omits the ensemble filter when the season has none', () => {
-    render(<ConflictFilterBar filters={DEFAULT_CONFLICT_FILTERS} onChange={vi.fn()} />)
-
-    expect(screen.queryByLabelText('Ensemble')).not.toBeInTheDocument()
-  })
-
-  it('offers a clear only once something is filtered', async () => {
+  it('reports an ensemble change', async () => {
     const onChange = vi.fn()
-    const { rerender } = render(
-      <ConflictFilterBar filters={DEFAULT_CONFLICT_FILTERS} onChange={onChange} />
-    )
-    expect(screen.queryByRole('button', { name: 'Clear filters' })).not.toBeInTheDocument()
-
-    rerender(
+    render(
       <ConflictFilterBar
-        filters={{ ...DEFAULT_CONFLICT_FILTERS, status: 'Denied' }}
+        filters={DEFAULT_CONFLICT_FILTERS}
         onChange={onChange}
+        ensembles={['Battery']}
       />
     )
-    await userEvent.click(screen.getByRole('button', { name: 'Clear filters' }))
 
-    expect(onChange).toHaveBeenCalledWith(DEFAULT_CONFLICT_FILTERS)
+    await userEvent.selectOptions(screen.getByLabelText('Ensemble'), 'Battery')
+
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ ensemble: 'Battery' }))
   })
 
-  it('carries a real date range', async () => {
-    const onChange = vi.fn()
-    render(<ConflictFilterBar filters={DEFAULT_CONFLICT_FILTERS} onChange={onChange} />)
+  // The calendar shows every status; the only thing worth hiding is what has
+  // already been decided.
+  it('carries no status or date filters', () => {
+    render(
+      <ConflictFilterBar
+        filters={DEFAULT_CONFLICT_FILTERS}
+        onChange={vi.fn()}
+        ensembles={['Battery']}
+        showDecided={false}
+        onShowDecidedChange={vi.fn()}
+      />
+    )
 
-    const from = screen.getByLabelText('From')
-    expect(from).toHaveAttribute('type', 'date')
+    expect(screen.queryByLabelText('Status')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('When')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('From')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('To')).not.toBeInTheDocument()
+  })
 
-    await userEvent.type(from, '2026-03-01')
-    expect(onChange).toHaveBeenCalled()
+  it('puts the decided switch on the same line as the filters', async () => {
+    const onShowDecidedChange = vi.fn()
+    render(
+      <ConflictFilterBar
+        filters={DEFAULT_CONFLICT_FILTERS}
+        onChange={vi.fn()}
+        ensembles={['Battery']}
+        showDecided={false}
+        onShowDecidedChange={onShowDecidedChange}
+      />
+    )
+
+    const toggle = screen.getByRole('switch', { name: 'Show denied and resolved' })
+    await userEvent.click(toggle)
+
+    expect(onShowDecidedChange).toHaveBeenCalledWith(true)
+  })
+
+  it('renders nothing when there is neither an ensemble nor a toggle', () => {
+    const { container } = render(
+      <ConflictFilterBar filters={DEFAULT_CONFLICT_FILTERS} onChange={vi.fn()} />
+    )
+
+    expect(container).toBeEmptyDOMElement()
   })
 })

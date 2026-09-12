@@ -40,4 +40,45 @@
     background-color: rgb(var(--bg-sunken)) !important;
     background: rgb(var(--bg-sunken)) !important;
   }
+
+  /* Month grid. FullCalendar hardcodes #ddd borders and leaves cells
+     transparent, so on a dark page the grid reads as white rules and the
+     column headings become light-grey-on-white. Everything below is the
+     theme tokens applied to FullCalendar's own variables. */
+  .fc {
+    --fc-border-color: rgb(var(--border-default));
+    --fc-page-bg-color: rgb(var(--bg-surface));
+    --fc-neutral-bg-color: rgb(var(--bg-sunken));
+    --fc-today-bg-color: rgb(var(--bg-sunken));
+    --fc-list-event-hover-bg-color: rgb(var(--bg-sunken));
+  }
+
+  .fc .fc-col-header-cell {
+    background-color: rgb(var(--bg-sunken));
+  }
+
+  /* The day-name headings and day numbers are anchors, which FullCalendar
+     leaves at its own link colour. */
+  .fc .fc-col-header-cell-cushion,
+  .fc .fc-daygrid-day-number {
+    color: rgb(var(--text-primary));
+  }
+
+  .fc .fc-daygrid-day.fc-day-other .fc-daygrid-day-number {
+    color: rgb(var(--text-secondary));
+  }
+
+  .fc .fc-daygrid-day {
+    background-color: rgb(var(--bg-surface));
+  }
+
+  .fc .fc-toolbar-title,
+  .fc .fc-list-day-text,
+  .fc .fc-list-day-side-text {
+    color: rgb(var(--text-primary));
+  }
+
+  .fc .fc-list-table td {
+    border-color: rgb(var(--border-default));
+  }
 }
