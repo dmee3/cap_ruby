@@ -39,7 +39,68 @@ class ConflictTriagePresenter
       end
     end
 
+    # The triage queue groups by the date the conflict falls on, soonest first —
+    # a coordinator works through "what's coming up", not "whose is this".
+    # Each row still names its member, since the group header no longer does.
+    sig do
+      params(
+        conflicts: T::Enumerable[Conflict],
+        season_id: Integer,
+        viewer: T.nilable(User)
+      ).returns(T::Array[T::Hash[Symbol, T.untyped]])
+    end
+    def date_groups_for(conflicts, season_id, viewer = nil)
+      conflicts = conflicts.to_a
+      attributions = attributions_for(conflicts, viewer)
+
+      conflicts
+        .group_by { |conflict| conflict.start_date.to_date }
+        .sort_by { |date, _| date }
+        .map { |date, day_conflicts| date_group(date, day_conflicts, season_id, attributions) }
+    end
+
     private
+
+    sig do
+      params(
+        date: Date,
+        conflicts: T::Array[Conflict],
+        season_id: Integer,
+        attributions: T::Hash[Integer, String]
+      ).returns(T::Hash[Symbol, T.untyped])
+    end
+    def date_group(date, conflicts, season_id, attributions)
+      ordered = conflicts.sort_by(&:start_date)
+
+      {
+        date: date.iso8601,
+        date_label: date_heading(date),
+        pending_count: ordered.count { |conflict| conflict.status.name == 'Pending' },
+        rows: rows_for(ordered, attributions).map.with_index do |row, index|
+          conflict = T.must(ordered[index])
+          row.merge(
+            member: conflict.user.full_name,
+            section: conflict.user.section_for(season_id),
+            initials: initials_for(conflict.user)
+          )
+        end
+      }
+    end
+
+    # "Today" / "Tomorrow" inside the week, then a weekday, then a bare date
+    # beyond a fortnight — the same proximity rule ConflictPresenter uses for
+    # the row labels, so a heading and its rows agree.
+    sig { params(date: Date).returns(String) }
+    def date_heading(date)
+      days = (date - Date.current).to_i
+
+      case days
+      when 0 then 'Today'
+      when 1 then 'Tomorrow'
+      when 2..13 then date.strftime('%A, %-m/%-d')
+      else date.strftime('%a %-m/%-d/%y')
+      end
+    end
 
     sig do
       params(

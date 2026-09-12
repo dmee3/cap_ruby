@@ -16,7 +16,8 @@ module Api
       conflicts = filtered_conflicts
       render(
         json: {
-          groups: ConflictTriagePresenter.groups_for(conflicts, season_id, current_user),
+          # Grouped by date: the queue is worked through chronologically.
+          groups: ConflictTriagePresenter.date_groups_for(conflicts, season_id, current_user),
           # The calendar needs ungrouped events; the queue needs groups. Same
           # dataset, two shapes, one request.
           conflicts: conflicts.map { |conflict| calendar_event(conflict) },

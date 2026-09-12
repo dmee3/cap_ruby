@@ -1,21 +1,21 @@
 import React from 'react'
 import EmptyState from '../../components/EmptyState'
 import Button from '../../components/Button'
-import MemberGroupHeader from '../../components/MemberGroupHeader'
 import TriageRow, { TriageRowData } from '../../components/TriageRow'
 import DecisionConfirm, { DecisionOutcome } from '../../components/DecisionConfirm'
 import LoadMoreButton from '../../components/LoadMoreButton'
 
-export type TriageGroup = {
-  user_id: number
+export type TriageRowWithMember = TriageRowData & {
   member: string
-  initials?: string
-  ensemble?: string
   section?: string
+  initials?: string
+}
+
+export type TriageGroup = {
+  date: string
+  date_label: string
   pending_count: number
-  season_count: number
-  waiting_days?: number | null
-  rows: TriageRowData[]
+  rows: TriageRowWithMember[]
 }
 
 export type PendingDecision = {
@@ -35,7 +35,6 @@ type TriageQueueProps = {
   onApprove: (id: number) => void
   onDeny: (id: number) => void
   onResolve: (id: number) => void
-  onApproveAll: (group: TriageGroup) => void
   onUndo: (id: number) => void
   onDecisionExpire: (id: number) => void
   /** Conflicts mid-decision, keyed by conflict id. */
@@ -47,11 +46,16 @@ type TriageQueueProps = {
 
 const PAGE_SIZE = 10
 
-// §4.26 + §4.27 assembled: the grouped triage queue.
-//
-// Groups arrive ordered by longest-waiting member (the server's rule) — the
-// canvas sorted its mocks three different ways, so the ordering is pinned
-// server-side rather than re-derived here.
+const OUTCOME_BORDER: Record<DecisionOutcome, string> = {
+  Approved: 'border-moss',
+  Denied: 'border-raspberry',
+  Resolved: 'border-border-strong',
+}
+
+// The triage queue, grouped by the date each conflict falls on and worked
+// through soonest first. The date is a plain heading above the day's rows
+// rather than a bar inside a card, so nothing has to line its corners up with
+// the card beneath it.
 const TriageQueue = ({
   groups,
   basePath,
@@ -61,7 +65,6 @@ const TriageQueue = ({
   onApprove,
   onDeny,
   onResolve,
-  onApproveAll,
   onUndo,
   onDecisionExpire,
   decisions,
@@ -71,20 +74,16 @@ const TriageQueue = ({
 }: TriageQueueProps) => {
   if (loading) {
     return (
-      <div className="flex flex-col gap-4" aria-busy="true" aria-live="polite">
+      <div className="flex flex-col gap-5" aria-busy="true" aria-live="polite">
         <span className="sr-only">Loading conflicts…</span>
         {[0, 1].map(key => (
-          <div key={key} className="overflow-hidden rounded-md border border-border-default bg-surface">
-            <div className="flex items-center gap-3 border-b border-border-subtle bg-sunken px-4 py-3">
-              <div className="h-8 w-8 rounded-full bg-border-subtle animate-pulse" />
-              <div className="flex flex-col gap-1.5">
-                <div className="h-3.5 w-36 rounded-sm bg-border-subtle animate-pulse" />
-                <div className="h-2.5 w-24 rounded-sm bg-border-subtle animate-pulse" />
+          <div key={key} className="flex flex-col gap-2">
+            <div className="h-3 w-28 rounded-sm bg-border-subtle animate-pulse" />
+            <div className="rounded-md border border-border-default bg-surface px-4 py-3.5">
+              <div className="flex flex-col gap-2">
+                <div className="h-3.5 w-56 rounded-sm bg-border-subtle animate-pulse" />
+                <div className="h-2.5 w-44 rounded-sm bg-border-subtle animate-pulse" />
               </div>
-            </div>
-            <div className="flex flex-col gap-2 px-4 py-3.5">
-              <div className="h-3.5 w-56 rounded-sm bg-border-subtle animate-pulse" />
-              <div className="h-2.5 w-44 rounded-sm bg-border-subtle animate-pulse" />
             </div>
           </div>
         ))}
@@ -126,53 +125,56 @@ const TriageQueue = ({
   const visible = groups.slice(0, visibleCount)
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       {visible.map(group => (
-        <div
-          key={group.user_id}
-          className="rounded-md border border-border-default bg-surface"
-        >
-          <MemberGroupHeader
-            member={group.member}
-            initials={group.initials}
-            ensemble={group.ensemble}
-            section={group.section}
-            pendingCount={group.pending_count}
-            waitingDays={group.waiting_days}
-            onApproveAll={group.pending_count >= 2 ? () => onApproveAll(group) : undefined}
-          />
-          <div className="divide-y divide-border-subtle">
+        <section key={group.date} className="flex flex-col gap-2">
+          <h2 className="m-0 text-label uppercase tracking-wide text-secondary">
+            {group.date_label}
+          </h2>
+
+          <div className="flex flex-col gap-2">
             {group.rows.map(row => {
               const decision = decisions[row.id]
-              if (decision) {
-                return (
-                  <DecisionConfirm
-                    key={row.id}
-                    outcome={decision.outcome}
-                    member={decision.member}
-                    dateLabel={decision.dateLabel}
-                    saving={decision.saving}
-                    error={decision.error}
-                    onUndo={() => onUndo(row.id)}
-                    onExpire={() => onDecisionExpire(row.id)}
-                    onRetry={onRetry}
-                  />
-                )
-              }
+
+              // Same rounded card either way, so a row doesn't change shape
+              // the moment it's decided — only its border colour.
+              const frame = decision
+                ? OUTCOME_BORDER[decision.outcome]
+                : 'border-border-default'
 
               return (
-                <TriageRow
+                <div
                   key={row.id}
-                  row={row}
-                  editHref={`${basePath}/${row.id}/edit`}
-                  onApprove={onApprove}
-                  onDeny={onDeny}
-                  onResolve={onResolve}
-                />
+                  className={`overflow-hidden rounded-md border bg-surface ${frame}`}
+                >
+                  {decision ? (
+                    <DecisionConfirm
+                      outcome={decision.outcome}
+                      member={decision.member}
+                      dateLabel={decision.dateLabel}
+                      saving={decision.saving}
+                      error={decision.error}
+                      onUndo={() => onUndo(row.id)}
+                      onExpire={() => onDecisionExpire(row.id)}
+                      onRetry={onRetry}
+                      className="border-0"
+                    />
+                  ) : (
+                    <TriageRow
+                      row={row}
+                      member={row.member}
+                      section={row.section}
+                      editHref={`${basePath}/${row.id}/edit`}
+                      onApprove={onApprove}
+                      onDeny={onDeny}
+                      onResolve={onResolve}
+                    />
+                  )}
+                </div>
               )
             })}
           </div>
-        </div>
+        </section>
       ))}
 
       {groups.length > PAGE_SIZE && (

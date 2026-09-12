@@ -702,21 +702,23 @@ each one superseded.
   no capture path, and the canvas's own footer says deny takes one click with no
   note. Filed as a followup bead with the notification email.
 
-### 4.27 Member group header *(built — Flow 5, as `MemberGroupHeader.tsx`)*
-- The header of a queue group card: 32px initials avatar, name, `Ensemble ·
-  Section`, and a **pending-count pill** (`1 pending` / `2 pending` in warning
-  tokens; `Nothing pending` in neutral).
-- Right slot carries **either** a staleness flag (`Waiting 40 days`, danger text)
-  **or** a bulk action (`Approve both`, secondary, shown only at ≥2 pending) —
-  never both.
-- Ensemble and section come from `seasons_users` via `user.ensemble_for(season)`
-  / `section_for(season)`, already eager-loaded by the conflicts endpoint.
-- *Sticky within its group is the intent; note the group card must then not use
-  `overflow: hidden`, which would break `position: sticky` on a descendant.*
-- **Ordering rule** (the canvas is ambiguous — it sorts the queue by conflict
-  date while the page header emphasizes the oldest submission): groups are
-  ordered by **oldest pending submission**, rows within a group by **conflict
-  date**. One rule, stated, rather than three mocks disagreeing.
+### 4.27 Queue date heading *(built — Flow 5; replaced the member group header)*
+- *Revised in the visual pass: the queue groups by **date**, not by member.*
+  A coordinator works through "what's coming up", so the queue is ordered
+  chronologically and each day is a plain heading above that day's rows.
+  The member moves onto the row (§4.26), which now always names them.
+- The heading is a bare `<h2>` in `text-label` over the day's cards — not a bar
+  inside a card. The member-grouped version put a squared-off header strip
+  inside a rounded card, so the card's corners showed through behind it; a
+  heading outside the cards has no corners to reconcile.
+- **Proximity labels**, matching the §4.19 date rules so a heading and its rows
+  agree: `Today` / `Tomorrow` inside two days, a weekday (`Friday, 3/20`) inside
+  a fortnight, then a bare `Fri 3/20/26`.
+- *Dropped with the member grouping: the per-member pending pill, the
+  "Waiting N days" staleness flag, and bulk "Approve all".* Bulk approve was a
+  per-member action — "approve everyone on this date" is not a decision anyone
+  should make in one click. The `PUT /api/conflicts/bulk` endpoint remains, so
+  the affordance can come back if a per-member view ever does.
 
 ### 4.28 View switcher *(built — Flow 5, as `ViewSwitcher.tsx`)*
 - Two segments, never three: `Queue` / `Calendar`, as a segmented control. Queue
@@ -759,9 +761,15 @@ each one superseded.
   status is written immediately and the pending count decrements immediately;
   the confirmed row *lingers* in place for the undo window, then collapses out
   of the Pending filter.
+- **The undo window is 15 seconds** *(visual pass — 60 was long enough to feel
+  like the row was stuck)*.
 - **The undo window is a time limit on an action (WCAG 2.2.1).** The countdown
-  bar must not be the only cue, and Undo stays keyboard-reachable for the full
-  window. *Built as a `role="timer"` reading "Ns to undo" beside the button.*
+  bar carries it visually; the remaining seconds are announced by a `role="timer"`
+  that is **`sr-only`** — perceivable without the bar, but not competing with the
+  Undo button on screen. Undo stays keyboard-reachable for the whole window.
+- **A decided row keeps its card.** The confirmation replaces the row's contents,
+  not its frame: same rounded border, retoned to the outcome colour, so nothing
+  changes shape at the moment of the decision.
 - *Build note: undo is a second write, not a cancelled one.* The decision is
   saved immediately, so undo restores the prior status rather than calling off a
   pending request — which is what makes navigating away safe.

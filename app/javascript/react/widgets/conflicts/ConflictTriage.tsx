@@ -115,7 +115,7 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
     (id: number) => {
       for (const group of groups) {
         const row = group.rows.find(candidate => candidate.id === id)
-        if (row) return { group, row }
+        if (row) return row
       }
       return null
     },
@@ -156,7 +156,7 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
         return
       }
 
-      const label = [found.row.date_range_label, found.row.time_range_label]
+      const label = [found.date_range_label, found.time_range_label]
         .filter(Boolean)
         .join(' · ')
 
@@ -166,7 +166,7 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
         ...current,
         [id]: {
           outcome: statusName,
-          member: found.group.member,
+          member: found.member,
           dateLabel: label,
           saving: true,
           error: null,
@@ -189,29 +189,6 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
         })
     },
     [rowFor, statusId, save, load, view]
-  )
-
-  const approveAll = useCallback(
-    (group: TriageGroup) => {
-      const target = statusId('Approved')
-      const ids = group.rows.filter(row => row.status === 'Pending').map(row => row.id)
-      if (!target || ids.length === 0) return
-
-      fetch('/api/conflicts/bulk', {
-        method: 'PUT',
-        headers: {
-          'X-CSRF-TOKEN': Utilities.getAuthToken(),
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ids, status_id: target }),
-      })
-        .then(resp => {
-          if (!resp.ok) throw resp
-          load()
-        })
-        .catch(() => setError('load'))
-    },
-    [statusId, load]
   )
 
   // Undo restores the prior status. The row was already written, so this is a
@@ -262,10 +239,10 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
   const pendingTotal = counts.Pending ?? 0
   const headline = pendingTotal === 1 ? '1 waiting on you' : `${pendingTotal} waiting on you`
 
-  const oldest = groups.find(group => group.pending_count > 0 && group.waiting_days)
-  const subline = oldest?.waiting_days
-    ? `Oldest has been sitting ${oldest.waiting_days} days.`
-    : 'Nothing has been waiting long.'
+  // Grouped by date, so the useful pointer is what's coming up soonest rather
+  // than who has waited longest.
+  const soonest = groups.find(group => group.pending_count > 0)
+  const subline = soonest ? `Next up: ${soonest.date_label}.` : 'Nothing needs a decision.'
 
   const addButton = (
     <a
@@ -308,7 +285,6 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
           onApprove={id => decide(id, 'Approved')}
           onDeny={id => decide(id, 'Denied')}
           onResolve={id => decide(id, 'Resolved')}
-          onApproveAll={approveAll}
           onUndo={undo}
           onDecisionExpire={expire}
           decisions={decisions}

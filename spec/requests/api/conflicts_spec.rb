@@ -152,7 +152,7 @@ RSpec.describe 'Api::Conflicts', type: :request do
       end
     end
 
-    describe 'grouping by member' do
+    describe 'grouping by date' do
       let!(:marcus) { member_in(season, first_name: 'Marcus', last_name: 'Webb', section: 'Snare') }
       let!(:elena) do
         member_in(season, first_name: 'Elena', last_name: 'Sokol', ensemble: 'Front ensemble', section: 'Vibes')
@@ -170,22 +170,35 @@ RSpec.describe 'Api::Conflicts', type: :request do
 
       before { sign_in_as_coordinator(season: season) }
 
-      it 'returns one group per member carrying the member identity' do
+      it 'returns one group per date, soonest first' do
         get '/api/conflicts'
 
-        marcus_group = json_body['groups'].find { |group| group['member'] == 'Marcus Webb' }
-        expect(marcus_group['section']).to eq('Snare')
-        expect(marcus_group['ensemble']).to eq('Battery')
-        expect(marcus_group['rows'].map { |row| row['id'] }).to eq([marcus_first.id, marcus_second.id])
+        dates = json_body['groups'].map { |group| group['date'] }
+        expect(dates).to eq(dates.sort)
+        expect(dates).to include((Date.current + 10.days).iso8601, (Date.current + 11.days).iso8601)
       end
 
-      it 'counts pending per member' do
+      it 'names the member on the row, since the heading is now a date' do
         get '/api/conflicts'
 
-        marcus_group = json_body['groups'].find { |group| group['member'] == 'Marcus Webb' }
-        elena_group = json_body['groups'].find { |group| group['member'] == 'Elena Sokol' }
-        expect(marcus_group['pending_count']).to eq(2)
-        expect(elena_group['pending_count']).to eq(1)
+        row = json_body['groups']
+              .flat_map { |group| group['rows'] }
+              .find { |candidate| candidate['id'] == marcus_first.id }
+        expect(row['member']).to eq('Marcus Webb')
+        expect(row['section']).to eq('Snare')
+      end
+
+      it 'counts pending per date' do
+        get '/api/conflicts'
+
+        group = json_body['groups'].find { |candidate| candidate['date'] == (Date.current + 10.days).iso8601 }
+        expect(group['pending_count']).to eq(1)
+      end
+
+      it 'labels each group for reading, not just sorting' do
+        get '/api/conflicts'
+
+        expect(json_body['groups'].map { |group| group['date_label'] }).to all(be_present)
       end
 
       it 'carries the row shape ConflictPresenter produces' do

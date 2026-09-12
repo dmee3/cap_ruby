@@ -53,7 +53,7 @@ const DecisionConfirm = ({
   dateLabel,
   onUndo,
   onExpire,
-  duration = 60000,
+  duration = 15000,
   saving = false,
   error = null,
   onRetry,
@@ -120,7 +120,7 @@ const DecisionConfirm = ({
   const pct = Math.max(0, Math.min(100, (remaining / duration) * 100))
 
   return (
-    <div className={`relative border ${tone.border} ${className}`.trim()}>
+    <div className={`relative border ${tone.border} ${className}`.trim()} data-outcome={outcome}>
       <div className="flex flex-col gap-2 px-4 py-3.5 sm:flex-row sm:items-center sm:gap-3">
         <span
           className={`flex h-6 w-6 flex-none items-center justify-center rounded-full text-caption font-bold ${tone.badge}`}
@@ -137,8 +137,11 @@ const DecisionConfirm = ({
         </div>
 
         <div className="flex flex-none items-center gap-3">
-          <span className="text-caption text-secondary" role="timer" aria-live="off">
-            {secondsLeft}s to undo
+          {/* The bar carries the countdown visually. The remaining time is
+              still named for screen readers (WCAG 2.2.1 — a time limit must
+              not be signalled by a visual cue alone), just not on screen. */}
+          <span className="sr-only" role="timer">
+            {secondsLeft} seconds left to undo
           </span>
           <Button variant="secondary" size="md" fullWidthBelow={false} onClick={onUndo}>
             Undo

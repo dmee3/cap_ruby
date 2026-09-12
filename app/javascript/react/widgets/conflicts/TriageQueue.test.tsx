@@ -5,17 +5,15 @@ import userEvent from '@testing-library/user-event'
 import TriageQueue, { TriageGroup } from './TriageQueue'
 
 const group = (overrides: Partial<TriageGroup> = {}): TriageGroup => ({
-  user_id: 1,
-  member: 'Marcus Webb',
-  initials: 'MW',
-  ensemble: 'Battery',
-  section: 'Snare',
+  date: '2026-03-20',
+  date_label: 'Friday, 3/20',
   pending_count: 1,
-  season_count: 1,
-  waiting_days: 3,
   rows: [
     {
       id: 11,
+      member: 'Marcus Webb',
+      section: 'Snare',
+      initials: 'MW',
       date_range_label: 'Fri 3/20',
       time_range_label: '6:30–9:30 PM',
       status: 'Pending',
@@ -31,7 +29,6 @@ const baseProps = {
   onApprove: vi.fn(),
   onDeny: vi.fn(),
   onResolve: vi.fn(),
-  onApproveAll: vi.fn(),
   onUndo: vi.fn(),
   onDecisionExpire: vi.fn(),
   decisions: {},
@@ -40,11 +37,23 @@ const baseProps = {
 }
 
 describe('TriageQueue', () => {
-  it('groups rows under the member', () => {
+  it('groups rows under the date they fall on', () => {
     render(<TriageQueue {...baseProps} groups={[group()]} />)
 
+    expect(screen.getByRole('heading', { name: 'Friday, 3/20' })).toBeInTheDocument()
+    // The member moves onto the row, since the heading no longer names them.
     expect(screen.getByText('Marcus Webb')).toBeInTheDocument()
-    expect(screen.getByText(/Fri 3\/20/)).toBeInTheDocument()
+  })
+
+  it('orders groups as the server sent them', () => {
+    const groups = [
+      group({ date: '2026-03-20', date_label: 'Friday, 3/20' }),
+      group({ date: '2026-03-22', date_label: 'Sunday, 3/22', rows: [{ ...group().rows[0], id: 12 }] }),
+    ]
+    render(<TriageQueue {...baseProps} groups={groups} />)
+
+    const headings = screen.getAllByRole('heading').map(node => node.textContent)
+    expect(headings).toEqual(['Friday, 3/20', 'Sunday, 3/22'])
   })
 
   // The old ConflictList returned null when empty — a blank screen with no
@@ -102,26 +111,33 @@ describe('TriageQueue', () => {
     expect(screen.queryByRole('button', { name: 'Approve' })).not.toBeInTheDocument()
   })
 
-  it('offers the bulk action when a member has two pending', async () => {
-    const onApproveAll = vi.fn()
-    const twoPending = group({
-      pending_count: 2,
-      rows: [
-        { ...group().rows[0], id: 11 },
-        { ...group().rows[0], id: 12 },
-      ],
-    })
-    render(<TriageQueue {...baseProps} groups={[twoPending]} onApproveAll={onApproveAll} />)
+  // A decided row must not change shape — same rounded card, new border tone.
+  it('keeps the row in its rounded card once decided', () => {
+    const { container } = render(
+      <TriageQueue
+        {...baseProps}
+        groups={[group()]}
+        decisions={{
+          11: {
+            outcome: 'Approved',
+            member: 'Marcus Webb',
+            dateLabel: 'Fri 3/20',
+            saving: false,
+            error: null,
+          },
+        }}
+      />
+    )
 
-    await userEvent.click(screen.getByRole('button', { name: 'Approve all 2' }))
-
-    expect(onApproveAll).toHaveBeenCalled()
+    const card = container.querySelector('.rounded-md.border')
+    expect(card).toBeTruthy()
+    expect(card?.className).toContain('border-moss')
   })
 
   it('pages with the one app-wide load-more pattern', async () => {
     const onShowMore = vi.fn()
     const many = Array.from({ length: 12 }, (_, index) =>
-      group({ user_id: index + 1, member: `Member ${index + 1}` })
+      group({ date: `2026-03-${String(index + 1).padStart(2, '0')}`, date_label: `Day ${index + 1}` })
     )
     render(<TriageQueue {...baseProps} groups={many} visibleCount={10} onShowMore={onShowMore} />)
 

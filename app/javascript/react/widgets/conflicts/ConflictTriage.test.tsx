@@ -32,17 +32,15 @@ const conflict = {
 }
 
 const group = {
-  user_id: 1,
-  member: 'Marcus Webb',
-  initials: 'MW',
-  ensemble: 'Battery',
-  section: 'Snare',
+  date: '2026-03-20',
+  date_label: 'Friday, 3/20',
   pending_count: 1,
-  season_count: 1,
-  waiting_days: 3,
   rows: [
     {
       id: 11,
+      member: 'Marcus Webb',
+      section: 'Snare',
+      initials: 'MW',
       date_range_label: 'Fri 3/20',
       time_range_label: '6:30–9:30 PM',
       status: 'Pending',

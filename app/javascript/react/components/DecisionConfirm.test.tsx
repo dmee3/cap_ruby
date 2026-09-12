@@ -30,21 +30,38 @@ describe('DecisionConfirm', () => {
     expect(onUndo).toHaveBeenCalled()
   })
 
-  // WCAG 2.2.1: the countdown must not be the only cue that a time limit exists.
-  it('states the remaining time as text, not only as a bar', () => {
-    render(<DecisionConfirm {...baseProps} duration={60000} />)
+  // WCAG 2.2.1: the time limit still has to be perceivable without the bar,
+  // so the remaining seconds are announced even though they aren't shown.
+  it('announces the remaining time without showing it', () => {
+    render(<DecisionConfirm {...baseProps} duration={15000} />)
 
-    expect(screen.getByRole('timer')).toHaveTextContent('60s to undo')
+    expect(screen.getByRole('timer')).toHaveTextContent('15 seconds left to undo')
+    expect(screen.getByRole('timer')).toHaveClass('sr-only')
   })
 
   it('counts down', () => {
-    render(<DecisionConfirm {...baseProps} duration={60000} />)
+    render(<DecisionConfirm {...baseProps} duration={15000} />)
 
     act(() => {
       vi.advanceTimersByTime(5000)
     })
 
-    expect(screen.getByRole('timer')).toHaveTextContent('55s to undo')
+    expect(screen.getByRole('timer')).toHaveTextContent('10 seconds left to undo')
+  })
+
+  it('defaults to a 15 second window', () => {
+    const onExpire = vi.fn()
+    render(<DecisionConfirm {...baseProps} onExpire={onExpire} />)
+
+    act(() => {
+      vi.advanceTimersByTime(14000)
+    })
+    expect(onExpire).not.toHaveBeenCalled()
+
+    act(() => {
+      vi.advanceTimersByTime(1500)
+    })
+    expect(onExpire).toHaveBeenCalled()
   })
 
   it('reports when the undo window closes so the row can leave the queue', () => {
