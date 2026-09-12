@@ -1,10 +1,16 @@
 <% content_for :page_title, 'Conflicts' %>
 
+<% conflict_count = conflicts.to_a.size %>
+
 <%= javascript_tag do %>
   window.conflictList = <%== conflict_row_data(conflicts).to_json %>;
+  <%# Same header shape the submit screen's card uses. %>
   window.conflictListCard = <%== {
     title: 'All conflicts',
-    count: "#{current_season.year} Season"
+    count: [
+      "#{current_season.year} Season",
+      (conflict_count if conflict_count.positive?)
+    ].compact.join(' · ')
   }.to_json %>;
 <% end %>
 

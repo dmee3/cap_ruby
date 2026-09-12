@@ -110,7 +110,11 @@ module ApplicationHelper
     items = [
       NavItem.new(label: 'Home',      path: members_home_path,         icon: :home, match: %r{\A/members\z}),
       NavItem.new(label: 'Pay Dues',  path: new_members_payment_path,  icon: :cash),
-      NavItem.new(label: 'Submit Conflict', path: new_members_conflict_path, icon: :calendar),
+      # Lands on the list, not the form — reading is the common case, and the
+      # list's own New button covers submitting. `match` keeps the item active
+      # on /new and /edit too, which an exact current_page? wouldn't.
+      NavItem.new(label: 'See Conflicts', path: members_conflicts_path, icon: :calendar,
+                  match: %r{\A/members/conflicts}),
       NavItem.new(label: 'Files',           path: files_path,             icon: :folder),
       NavItem.new(label: 'My Fundraisers',  path: members_calendars_path, icon: :calendar_days)
     ]

@@ -15,6 +15,8 @@
 <%= vite_typescript_tag 'entrypoints/members/conflicts/index.tsx' %>
 
 <div class="mx-auto w-full max-w-[640px] flex flex-col gap-4">
+  <%# Edit is reached from the list's Edit link, so back returns to the list
+      rather than skipping over it to the dashboard. %>
   <a href="<%= members_conflicts_path %>" class="link text-body-sm">&lsaquo; Your conflicts</a>
   <h1>Edit conflict</h1>
 

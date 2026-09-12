@@ -112,6 +112,52 @@ RSpec.describe 'Conflicts Workflow', type: :request do
     end
   end
 
+  describe 'Member conflicts list' do
+    it 'is where the nav item points, and is named for reading not submitting' do
+      sign_in_as_member(season: season)
+
+      get '/members'
+
+      expect(response.body).to include('See Conflicts')
+      expect(response.body).not_to include('Submit Conflict')
+      expect(response.body).to include('href="/members/conflicts"')
+    end
+
+    it 'labels the card with the season and how many there are' do
+      member = sign_in_as_member(season: season)
+      create_list(
+        :conflict, 3,
+        user: member, season: season, conflict_status: pending_status,
+        start_date: 1.week.from_now, end_date: 8.days.from_now
+      )
+
+      get '/members/conflicts'
+
+      expect(response.body).to include('All conflicts')
+      expect(response.body).to include("#{season.year} Season · 3")
+    end
+
+    # The nav item stays lit on the form and the edit screen, which an exact
+    # current_page? match wouldn't do.
+    it 'keeps the conflicts nav item active on the new and edit screens' do
+      member = sign_in_as_member(season: season)
+      conflict = create(
+        :conflict,
+        user: member, season: season, conflict_status: pending_status,
+        start_date: 1.week.from_now, end_date: 8.days.from_now
+      )
+
+      %W[/members/conflicts /members/conflicts/new /members/conflicts/#{conflict.id}/edit].each do |path|
+        get path
+        expect(response.body).to include('See Conflicts')
+        # The conflicts row specifically, not just any active nav row.
+        expect(response.body).to match(
+          %r{class="[^"]*sidebar-link--active[^"]*"[^>]*>(?:(?!</a>).)*See Conflicts}m
+        ), "expected the conflicts nav item to be active on #{path}"
+      end
+    end
+  end
+
   describe 'The "Already submitted" card on the new-conflict form' do
     it 'labels the card with the season and how many are already in' do
       member = sign_in_as_member(season: season)
