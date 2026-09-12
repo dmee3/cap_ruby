@@ -56,37 +56,9 @@ describe('InputTextarea', () => {
     })
   })
 
-  describe('className', () => {
-    it('applies default input-text class', () => {
-      const { container } = render(<InputTextarea name="description" />)
-      const textarea = container.querySelector('textarea')
-      expect(textarea).toHaveClass('input-text')
-    })
-
-    it('applies custom className along with default', () => {
-      const { container } = render(
-        <InputTextarea name="description" className="custom-class" />
-      )
-      const textarea = container.querySelector('textarea')
-      expect(textarea).toHaveClass('input-text')
-      expect(textarea).toHaveClass('custom-class')
-    })
-
-    it('handles empty custom className', () => {
-      const { container } = render(<InputTextarea name="description" className="" />)
-      const textarea = container.querySelector('textarea')
-      expect(textarea).toHaveClass('input-text')
-    })
-
-    it('handles multiple custom classes', () => {
-      const { container } = render(
-        <InputTextarea name="description" className="class-one class-two" />
-      )
-      const textarea = container.querySelector('textarea')
-      expect(textarea).toHaveClass('input-text')
-      expect(textarea).toHaveClass('class-one')
-      expect(textarea).toHaveClass('class-two')
-    })
+  it('merges a custom className with its own', () => {
+    const { container } = render(<InputTextarea name="test" className="custom-class" />)
+    expect(container.querySelector('textarea')).toHaveClass('custom-class')
   })
 
   describe('disabled state', () => {

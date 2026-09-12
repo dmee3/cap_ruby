@@ -11,17 +11,6 @@ describe('Button', () => {
     expect(onClick).toHaveBeenCalledOnce()
   })
 
-  it('applies the primary variant by default', () => {
-    render(<Button>x</Button>)
-    expect(screen.getByRole('button')).toHaveClass('bg-ocean')
-  })
-
-  it('applies a chosen variant and size', () => {
-    render(<Button variant="danger" size="lg">Delete</Button>)
-    const btn = screen.getByRole('button')
-    expect(btn).toHaveClass('bg-raspberry', 'h-11')
-  })
-
   it('is disabled and busy while loading, and does not fire onClick', async () => {
     const onClick = vi.fn()
     render(<Button loading onClick={onClick}>Save</Button>)

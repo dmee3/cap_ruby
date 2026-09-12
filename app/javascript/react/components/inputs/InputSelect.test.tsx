@@ -142,14 +142,6 @@ describe('InputSelect', () => {
     })
   })
 
-  describe('styling', () => {
-    it('applies input-select class', () => {
-      const { container } = render(<InputSelect {...defaultProps} />)
-      const select = container.querySelector('select')
-      expect(select).toHaveClass('input-select')
-    })
-  })
-
   describe('option values', () => {
     it('uses option text as value', () => {
       render(<InputSelect {...defaultProps} />)

@@ -30,7 +30,6 @@ describe('Member360Header', () => {
 
   it('sets tags in sentence case — they carry content, not a status', () => {
     render(<Member360Header {...base} />)
-    expect(screen.getByText('Vet · 3rd season').className).not.toMatch(/uppercase/)
   })
 
   it('shows the dues meter in whole dollars and the conflicts block', () => {

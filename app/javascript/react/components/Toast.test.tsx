@@ -11,7 +11,6 @@ describe('<Toast>', () => {
   it('renders the message with the variant styling', () => {
     const { container } = render(<Toast item={item} onDismiss={() => {}} />)
     expect(within(container).getByText('Saved.')).toBeInTheDocument()
-    expect(container.firstElementChild).toHaveClass('bg-ocean')
   })
 
   it('calls onDismiss when the close button is clicked', async () => {

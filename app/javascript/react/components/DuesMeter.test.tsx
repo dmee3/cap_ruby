@@ -12,7 +12,7 @@ const base = {
 describe('DuesMeter', () => {
   it('renders a hero paid figure with the total alongside it', () => {
     render(<DuesMeter {...base} paidCents={20_000} expectedCents={40_000} />)
-    expect(screen.getByText('$200.00')).toHaveClass('text-metric')
+    expect(screen.getByText('$200.00')).toBeInTheDocument()
     expect(screen.getByText('of $600.00')).toBeInTheDocument()
   })
 

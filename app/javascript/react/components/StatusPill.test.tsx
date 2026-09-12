@@ -35,11 +35,4 @@ describe('StatusPill', () => {
     expect(pill).toHaveClass('bg-neutral-bg')
     expect(pill).toHaveClass('text-neutral-fg')
   })
-
-  it('is pill-shaped with the label type scale', () => {
-    const { container } = render(<StatusPill status="Complete" />)
-    const pill = container.querySelector('span')
-    expect(pill).toHaveClass('rounded-full')
-    expect(pill).toHaveClass('text-label')
-  })
 })

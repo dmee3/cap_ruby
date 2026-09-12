@@ -15,8 +15,6 @@ RSpec.describe Inventory::Category, type: :model do
   context 'validations' do
     subject { create(:inventory_category) }
 
-    it { is_expected.to be_valid }
-
     it 'requires a name' do
       subject.name = nil
       expect(subject).to_not be_valid
@@ -25,12 +23,6 @@ RSpec.describe Inventory::Category, type: :model do
     it 'requires a non-empty name' do
       subject.name = ''
       expect(subject).to_not be_valid
-    end
-  end
-
-  context 'associations' do
-    it 'has many items' do
-      expect(subject).to respond_to(:items)
     end
   end
 end

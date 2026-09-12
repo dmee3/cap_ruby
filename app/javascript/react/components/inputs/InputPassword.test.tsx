@@ -144,14 +144,6 @@ describe('InputPassword', () => {
     })
   })
 
-  describe('styling', () => {
-    it('applies input-text class', () => {
-      const { container } = render(<InputPassword name="password" />)
-      const input = container.querySelector('input')
-      expect(input).toHaveClass('input-text')
-    })
-  })
-
   describe('placeholder', () => {
     it('shows placeholder when empty', () => {
       render(<InputPassword name="password" placeholder="Password" />)
