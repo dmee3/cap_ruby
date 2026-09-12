@@ -27,7 +27,10 @@ module Members
 
       @conflict = Conflict.new(conflict_params)
       if @conflict.save
-        flash[:success] = 'Conflict submitted for review.'
+        # No `flash[:success]` here on purpose: the dashboard answers this
+        # submission inline, in the conflicts card, with a more specific message
+        # ("Sent. Your coordinators see it now."). Setting both put a toast at
+        # the bottom of the screen *and* a banner in the widget for one action.
         flash[:conflict_submitted] = true
         ActivityLogger.log_conflict(@conflict, current_user)
         EmailService.send_conflict_submitted_email(@conflict, current_user, current_season['id'])

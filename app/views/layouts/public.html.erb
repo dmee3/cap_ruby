@@ -25,9 +25,7 @@
     <% end %>
 
     <main id="main-content" class="p-4 pt-0">
-      <% if flash.present? %>
-        <%= render 'flashes' %>
-      <% end %>
+      <%= render 'flashes' %>
       <%= yield %>
     </main>
 

@@ -19,9 +19,7 @@
         <%= render 'shell/topbar' %>
 
         <main id="main-content">
-          <% if flash.present? %>
-            <%= render 'flashes' %>
-          <% end %>
+          <%= render 'flashes' %>
           <%= yield %>
         </main>
       </div>

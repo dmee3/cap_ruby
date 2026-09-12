@@ -1,19 +1,23 @@
 @layer components {
+  /* Matches the React <Toast> host's stack: same corner, same widths, same gap,
+     so server-rendered flashes and JS toasts line up as one column. */
   .flash-bar {
-    @apply fixed z-50 bottom-0 right-0 w-full md:w-1/3 flex flex-col gap-2 p-2 md:p-4;
+    @apply fixed z-50 bottom-0 right-0 w-full md:w-96 flex flex-col gap-2 p-2 md:p-4;
   }
 
-  /* Both `.flash` (ERB) and JS-built markup carry `.flash`; `.flash-base` is
-     applied via @apply by the variants below. Keep both selectors styled. */
-  .flash,
-  .flash-base {
-    @apply flex flex-row items-center rounded-md p-4 md:p-3 text-on-brand shadow-e3;
+  /* The toast row itself — mirrors <Toast>'s px-3.5 py-3 / gap-2.5 / dot layout. */
+  .flash {
+    @apply flex flex-row items-center gap-2.5 rounded-md px-3.5 py-3 text-on-brand shadow-e3;
   }
 
-  .flash-success { @apply flash-base bg-moss; }
-  .flash-error   { @apply flash-base bg-raspberry; }
-  .flash-info    { @apply flash-base bg-ocean; }
-  .flash-default { @apply flash-base bg-[color:rgb(var(--status-neutral-fg))]; }
+  .flash-dot { @apply h-2 w-2 shrink-0 rounded-full bg-white; }
 
-  .flash-close { @apply cursor-pointer h-6 w-6 ml-2 shrink-0; }
+  .flash-success { @apply bg-moss; }
+  .flash-error   { @apply bg-raspberry; }
+  .flash-info    { @apply bg-ocean; }
+  .flash-default { @apply bg-[color:rgb(var(--status-neutral-fg))]; }
+
+  .flash-close {
+    @apply shrink-0 cursor-pointer text-lg leading-none opacity-70 hover:opacity-100;
+  }
 }

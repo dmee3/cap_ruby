@@ -83,11 +83,11 @@
     <% if @just_submitted || @conflicts.any? %>
     <div class="flex flex-col gap-3 px-4 py-3">
     <% if @just_submitted %>
-      <div class="flash flex items-center gap-2 rounded-sm bg-success-bg px-3 py-2">
+      <div data-dismissible role="status" class="flex items-center gap-2 rounded-sm bg-success-bg px-3 py-2">
         <span class="block flex-1 text-body-sm font-semibold text-success-fg">
           Sent. Your coordinators see it now. Approval isn't automatic.
         </span>
-        <svg xmlns="http://www.w3.org/2000/svg" class="flash-close h-5 w-5 flex-none cursor-pointer text-success-fg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" data-dismiss role="button" aria-label="Dismiss" class="h-5 w-5 flex-none cursor-pointer text-success-fg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </div>

@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 module ApplicationHelper
+  # Flash keys that carry a signal for some other piece of UI rather than a
+  # message to show in the flash bar. Rendering these would put a stray empty
+  # or "true" toast on screen next to the real affordance.
+  NON_MESSAGE_FLASH_KEYS = %i[conflict_submitted undo_payment_id].freeze
+
+  def flash_message?(type, message)
+    !NON_MESSAGE_FLASH_KEYS.include?(type.to_sym) && message.present?
+  end
+
   def flash_color(type)
     case type.to_sym
     when :alert, :error

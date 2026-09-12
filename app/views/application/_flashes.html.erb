@@ -1,17 +1,20 @@
-<div id="flash-bar" class="flash-bar">
-  <% flash.each do |type, messages| %>
-  <% next if %i[conflict_submitted undo_payment_id].include?(type.to_sym) %>
-  <% Array.wrap(messages).each do |message| %>
-      <% if message.length > 0 %>
-        <div class="flash <%= flash_color(type) %>">
-          <span class="block flex-1">
-            <%= message %>
-          </span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="flash-close cursor-pointer h-6 w-6 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </div>
-      <% end %>
+<%# Server-rendered counterpart to the React <Toast> component. Both render the
+    same shape — dot, message, dismiss — in the same bottom-right stack, so a
+    redirect-driven flash and a JS-driven toast are indistinguishable to the
+    user. Keys that drive UI elsewhere (an inline banner, an undo affordance)
+    carry no message and are skipped here. %>
+<% renderable = flash.flat_map { |type, messages|
+     Array.wrap(messages).filter_map { |m| [type, m] if flash_message?(type, m) }
+   } %>
+
+<% if renderable.any? %>
+  <div id="flash-bar" class="flash-bar">
+    <% renderable.each do |type, message| %>
+      <div data-dismissible role="status" class="flash <%= flash_color(type) %>">
+        <span class="flash-dot"></span>
+        <span class="block flex-1 text-body-sm font-medium"><%= message %></span>
+        <button type="button" data-dismiss aria-label="Dismiss" class="flash-close">&times;</button>
+      </div>
     <% end %>
-  <% end %>
-</div>
+  </div>
+<% end %>

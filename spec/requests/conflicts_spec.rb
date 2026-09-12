@@ -43,7 +43,10 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       expect(conflict.conflict_status.name).to eq('Pending')
       expect(conflict.reason).to eq('Family vacation')
       expect(response).to redirect_to(root_url)
-      expect(flash[:success]).to match(/submitted for review/)
+      # Confirmation is the dashboard's inline banner, not a toast — see
+      # spec/requests/flashes_spec.rb. Only the signal key survives the redirect.
+      expect(flash[:conflict_submitted]).to be(true)
+      expect(flash[:success]).to be_nil
     end
 
     it 'rejects conflicts with past start dates' do
