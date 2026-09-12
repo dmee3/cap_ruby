@@ -220,12 +220,15 @@ const ConflictForm = ({
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-3">
-        <button type="submit" className="btn-primary btn-lg">
+      {/* One row at every width, filling the form. `btn-base` is `w-full
+          sm:w-auto`, which would stack these on a phone, so the widths are set
+          here instead: submit takes the larger share, cancel the smaller. */}
+      <div className="flex items-center gap-3">
+        <button type="submit" className="btn-primary btn-lg !w-auto flex-[2]">
           {submitLabel}
         </button>
         {cancelHref && (
-          <a href={cancelHref} className="btn-gray btn-lg no-underline">
+          <a href={cancelHref} className="btn-gray btn-lg !w-auto flex-1 no-underline">
             Cancel
           </a>
         )}
