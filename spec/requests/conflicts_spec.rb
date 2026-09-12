@@ -112,6 +112,31 @@ RSpec.describe 'Conflicts Workflow', type: :request do
     end
   end
 
+  describe 'The "Already submitted" card on the new-conflict form' do
+    it 'labels the card with the season and how many are already in' do
+      member = sign_in_as_member(season: season)
+      create_list(
+        :conflict, 2,
+        user: member, season: season, conflict_status: pending_status,
+        start_date: 1.week.from_now, end_date: 8.days.from_now
+      )
+
+      get '/members/conflicts/new'
+
+      expect(response.body).to include('Already submitted')
+      expect(response.body).to match(/#{season.year} Season\s*·\s*2/)
+    end
+
+    it 'names the season but omits the count when nothing has been submitted' do
+      sign_in_as_member(season: season)
+
+      get '/members/conflicts/new'
+
+      expect(response.body).to include("#{season.year} Season")
+      expect(response.body).not_to match(/#{season.year} Season\s*·/)
+    end
+  end
+
   describe 'Conflict submission is closed for the season' do
     let(:closed_season) { create(:season, year: Date.today.year, conflict_submission_open: false) }
 

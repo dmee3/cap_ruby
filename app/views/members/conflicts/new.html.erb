@@ -20,8 +20,19 @@
 
   <div id="conflict-form"></div>
 
+  <%# Always below the form's submit/cancel, never beside it — the page is a
+      single column at every width, which is what the Flow 3 boards show. %>
   <div class="card flex flex-col gap-3">
-    <span class="card-title">Already submitted</span>
+    <div class="flex items-baseline justify-between gap-2">
+      <span class="card-title">Already submitted</span>
+      <%# Flow 3 puts the season and a count opposite the title. The canvas
+          says "Spring 2026"; seasons only store a year, so this uses the same
+          "<year> Season" label the season switcher does. %>
+      <% submitted_count = @existing_conflicts.to_a.size %>
+      <span class="text-caption text-secondary">
+        <%= current_season.year %> Season<%= " · #{submitted_count}" if submitted_count.positive? %>
+      </span>
+    </div>
     <div id="conflict-list"></div>
   </div>
 </div>
