@@ -38,6 +38,28 @@ class EmailService
       Rollbar.error(e, user: user)
     end
 
+    # A member editing their own pending conflict re-notifies whoever decides
+    # it: the dates or reason they were about to rule on may have just moved.
+    # Goes to coordinators and admins, never back to the member.
+    sig { params(conflict: Conflict, user: User, season_id: Integer).void }
+    def send_conflict_edited_email(conflict, user, season_id)
+      role = user.seasons_users.select { |su| su.season_id == season_id }&.first
+      subject = "Conflict updated by #{user.full_name}"
+      text = <<~TEXT
+        #{user.full_name} has updated their conflict for #{conflict.start_date}.\n\n
+        Section: #{role&.ensemble} #{role&.section}\n
+        Start: #{conflict.start_date}\n
+        End: #{conflict.end_date}\n
+        Reason: #{conflict.reason}
+      TEXT
+
+      coordinators = User.with_role_for_season('coordinator', season_id)
+      admins = User.with_role_for_season('admin', season_id)
+      PostOffice.send_email((coordinators + admins).map(&:email), subject, text)
+    rescue StandardError => e
+      Rollbar.error(e, user: user)
+    end
+
     sig { params(email: String, report: String, recipients: T::Array[String]).void }
     def send_whistleblower_email(email, report, recipients)
       email = '(Anonymous)' unless email.present?

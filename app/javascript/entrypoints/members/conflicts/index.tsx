@@ -8,10 +8,13 @@ declare global {
     | {
         formAction: string
         authenticityToken: string
-        minDate: string
+        /** Set on the new-conflict form only; an edit keeps whatever dates the row already has. */
+        minDate?: string
         defaults: Record<string, string | undefined>
         errors: { field: 'start_date' | 'end_date' | 'reason'; message: string }[]
         cancelHref?: string
+        method?: 'post' | 'patch'
+        submitLabel?: string
       }
     | undefined
   var conflictList: ConflictListItem[] | undefined
@@ -28,6 +31,8 @@ if (formEl && window.conflictForm) {
       defaults={cfg.defaults}
       errors={cfg.errors}
       cancelHref={cfg.cancelHref}
+      method={cfg.method}
+      submitLabel={cfg.submitLabel}
     />,
     formEl
   )
@@ -40,6 +45,7 @@ if (listEl) {
       conflicts={window.conflictList || []}
       emptyTitle="Nothing submitted yet"
       emptyBody="This is where the conflicts you send will show up."
+      showEditLinks
     />,
     listEl
   )

@@ -23,12 +23,23 @@ class ConflictPresenter
           time_range_label: time_range_label(conflict),
           status: conflict.status.name,
           relative_subline: relative_subline(conflict),
-          reason: reason_for(conflict, next_upcoming_id)
+          reason: reason_for(conflict, next_upcoming_id),
+          # Whether the member may still change it. Decided here, not in the
+          # widget, so the row and the controller's lock agree on one rule.
+          editable: conflict.status.name == 'Pending',
+          edit_path: edit_path_for(conflict)
         }.compact
       end
     end
 
     private
+
+    sig { params(conflict: Conflict).returns(T.nilable(String)) }
+    def edit_path_for(conflict)
+      return nil unless conflict.status.name == 'Pending'
+
+      Rails.application.routes.url_helpers.edit_members_conflict_path(conflict)
+    end
 
     sig { params(conflicts: T::Array[Conflict]).returns(T.nilable(Integer)) }
     def next_upcoming_pending_id(conflicts)

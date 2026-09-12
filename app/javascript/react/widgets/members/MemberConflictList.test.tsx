@@ -33,6 +33,30 @@ describe('MemberConflictList', () => {
     expect(screen.getByText('Custom copy here')).toBeInTheDocument()
   })
 
+  it('shows Edit only on editable rows when the screen opts in', () => {
+    render(
+      <MemberConflictList
+        showEditLinks
+        conflicts={[
+          { ...conflict, editable: true, edit_path: '/members/conflicts/1/edit' },
+          { ...conflict, id: 2, date_range_label: 'Sat 3/22', status: 'Approved', editable: false },
+        ]}
+      />
+    )
+    expect(screen.getByRole('link', { name: 'Edit' })).toHaveAttribute('href', '/members/conflicts/1/edit')
+    // The decided row still says Edit, just not as a link.
+    expect(screen.getAllByText('Edit')).toHaveLength(2)
+  })
+
+  it('hides Edit entirely on screens that do not opt in (the dashboard card)', () => {
+    render(
+      <MemberConflictList
+        conflicts={[{ ...conflict, editable: true, edit_path: '/members/conflicts/1/edit' }]}
+      />
+    )
+    expect(screen.queryByText('Edit')).not.toBeInTheDocument()
+  })
+
   it('passes reason through only for rows that have one', () => {
     render(
       <MemberConflictList

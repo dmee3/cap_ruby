@@ -13,6 +13,14 @@ type ConflictContextRowProps = {
    * only" rule is a data-shaping decision made server-side, not here.
    */
   reason?: string
+  /**
+   * Members can change a conflict only while it's Pending. Pass the path to
+   * render an active Edit link; pass `editable={false}` to render the
+   * disabled one the canvas shows on a decided row. Omit both on screens
+   * with no member edit affordance at all (the dashboard card).
+   */
+  editable?: boolean
+  editPath?: string
   className?: string
 }
 
@@ -25,6 +33,8 @@ const ConflictContextRow = ({
   status,
   relativeSubline,
   reason,
+  editable,
+  editPath,
   className = '',
 }: ConflictContextRowProps) => (
   <div className={`flex flex-col gap-1 py-3 ${className}`.trim()}>
@@ -33,7 +43,22 @@ const ConflictContextRow = ({
         {dateRangeLabel}
         {timeRangeLabel && ` · ${timeRangeLabel}`}
       </span>
-      <StatusPill status={status} />
+      <span className="flex items-center gap-2">
+        <StatusPill status={status} />
+        {editable && editPath && (
+          <a href={editPath} className="link text-caption font-semibold">
+            Edit
+          </a>
+        )}
+        {editable === false && (
+          <span
+            className="text-caption font-semibold text-secondary opacity-50"
+            title="Once it's decided, ask a coordinator if something changed."
+          >
+            Edit
+          </span>
+        )}
+      </span>
     </div>
     <span className="text-caption text-secondary">{relativeSubline}</span>
     {reason && <span className="text-caption text-secondary">{reason}</span>}

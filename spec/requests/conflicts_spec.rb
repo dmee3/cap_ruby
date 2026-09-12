@@ -295,4 +295,138 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       expect(flash[:success]).to match(/created/)
     end
   end
+
+  describe 'Member edits their own pending conflict' do
+    let(:member) { sign_in_as_member(season: season) }
+    let!(:conflict) do
+      create(
+        :conflict,
+        user: member,
+        season: season,
+        conflict_status: pending_status,
+        start_date: 1.week.from_now,
+        end_date: 8.days.from_now,
+        reason: 'Original reason'
+      )
+    end
+
+    before { allow(EmailService).to receive(:send_conflict_edited_email) }
+
+    it 'shows the edit form prefilled with the conflict' do
+      get "/members/conflicts/#{conflict.id}/edit"
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('Original reason')
+    end
+
+    it 'updates the dates and reason' do
+      patch "/members/conflicts/#{conflict.id}", params: conflict_form_params(
+        start_at: 3.weeks.from_now, end_at: 22.days.from_now, reason: 'Updated reason'
+      )
+
+      conflict.reload
+      expect(conflict.reason).to eq('Updated reason')
+      expect(conflict.start_date.to_date).to eq(3.weeks.from_now.to_date)
+      expect(response).to redirect_to(members_conflicts_path)
+      expect(flash[:success]).to match(/updated/i)
+    end
+
+    it 'notifies coordinators and admins that the member changed it' do
+      patch "/members/conflicts/#{conflict.id}", params: conflict_form_params(
+        start_at: 3.weeks.from_now, end_at: 22.days.from_now, reason: 'Updated reason'
+      )
+
+      expect(EmailService).to have_received(:send_conflict_edited_email)
+        .with(having_attributes(id: conflict.id), member, season.id)
+    end
+
+    it 'keeps the status and owner even when the params try to change them' do
+      other_user = create(:user)
+
+      patch "/members/conflicts/#{conflict.id}", params: {
+        conflict: {
+          start_date_date: 3.weeks.from_now.strftime('%Y-%m-%d'),
+          start_date_time: '18:30',
+          end_date_date: 22.days.from_now.strftime('%Y-%m-%d'),
+          end_date_time: '21:30',
+          reason: 'Updated reason',
+          status_id: approved_status.id,
+          user_id: other_user.id
+        }
+      }
+
+      conflict.reload
+      expect(conflict.conflict_status).to eq(pending_status)
+      expect(conflict.user).to eq(member)
+    end
+
+    # The lock the canvas asks for is server-side, not just a disabled button.
+    it 'refuses to edit a conflict that has already been decided' do
+      decided = create(
+        :conflict,
+        user: member,
+        season: season,
+        conflict_status: approved_status,
+        start_date: 1.week.from_now,
+        end_date: 8.days.from_now,
+        reason: 'Already approved'
+      )
+
+      patch "/members/conflicts/#{decided.id}", params: conflict_form_params(
+        start_at: 3.weeks.from_now, end_at: 22.days.from_now, reason: 'Sneaky edit'
+      )
+
+      expect(decided.reload.reason).to eq('Already approved')
+      expect(response).to redirect_to(members_conflicts_path)
+      expect(flash[:error]).to match(/already been decided/)
+    end
+
+    it 'refuses to edit a conflict belonging to someone else' do
+      other_user = create(:user)
+      theirs = create(
+        :conflict,
+        user: other_user,
+        season: season,
+        conflict_status: pending_status,
+        start_date: 1.week.from_now,
+        end_date: 8.days.from_now,
+        reason: 'Not yours'
+      )
+
+      patch "/members/conflicts/#{theirs.id}", params: conflict_form_params(
+        start_at: 3.weeks.from_now, end_at: 22.days.from_now, reason: 'Sneaky edit'
+      )
+
+      expect(theirs.reload.reason).to eq('Not yours')
+      expect(response).to redirect_to(members_conflicts_path)
+      expect(flash[:error]).to match(/couldn't find/)
+    end
+
+    it 'rejects an edit whose end falls before its start' do
+      patch "/members/conflicts/#{conflict.id}", params: conflict_form_params(
+        start_at: 3.weeks.from_now, end_at: 2.weeks.from_now, reason: 'Backwards'
+      )
+
+      expect(conflict.reload.reason).to eq('Original reason')
+      expect(response.body).to include('must be on or after the start date')
+    end
+
+    # Same regression guard as create: exercise the literal urlencoded body a
+    # browser sends, so a wrong name= attribute can't hide behind a Ruby hash.
+    it 'accepts the flat param names a browser posts' do
+      d1 = 20.days.from_now.strftime('%Y-%m-%d')
+      d2 = 21.days.from_now.strftime('%Y-%m-%d')
+      body = "_method=patch&authenticity_token=x&conflict%5Bstart_date_date%5D=#{d1}" \
+             '&conflict%5Bstart_date_time%5D=18%3A30' \
+             "&conflict%5Bend_date_date%5D=#{d2}" \
+             '&conflict%5Bend_date_time%5D=21%3A30&conflict%5Breason%5D=Closing+shift'
+
+      patch "/members/conflicts/#{conflict.id}", params: body,
+                                                 headers: { 'CONTENT_TYPE' => 'application/x-www-form-urlencoded' }
+
+      conflict.reload
+      expect(conflict.start_date.strftime('%Y-%m-%d %H:%M')).to eq("#{d1} 18:30")
+      expect(conflict.reason).to eq('Closing shift')
+    end
+  end
 end
