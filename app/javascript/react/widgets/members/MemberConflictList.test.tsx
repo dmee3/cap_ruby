@@ -61,6 +61,19 @@ describe('MemberConflictList', () => {
     expect(rows[1].className).toMatch(/last:border-0/)
   })
 
+  // The dashboard opts into Edit links but brings its own card, so the two
+  // options have to be independent of each other.
+  it('offers Edit links without a list card (the dashboard shape)', () => {
+    render(
+      <MemberConflictList
+        showEditLinks
+        conflicts={[{ ...conflict, editable: true, edit_path: '/members/conflicts/1/edit' }]}
+      />
+    )
+    expect(screen.getByRole('link', { name: 'Edit' })).toHaveAttribute('href', '/members/conflicts/1/edit')
+    expect(screen.queryByText('All conflicts')).not.toBeInTheDocument()
+  })
+
   // The dashboard mounts this inside an already-padded `.card`, so adding
   // horizontal padding there would indent the rows twice.
   it('leaves horizontal padding off the rows when there is no list card', () => {
@@ -84,7 +97,9 @@ describe('MemberConflictList', () => {
     expect(screen.getAllByText('Edit')).toHaveLength(2)
   })
 
-  it('hides Edit entirely on screens that do not opt in (the dashboard card)', () => {
+  // Both member screens opt in now; this keeps the default honest for any
+  // future read-only caller.
+  it('hides Edit entirely on screens that do not opt in', () => {
     render(
       <MemberConflictList
         conflicts={[{ ...conflict, editable: true, edit_path: '/members/conflicts/1/edit' }]}

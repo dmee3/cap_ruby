@@ -21,26 +21,4 @@
   <h1>Edit conflict</h1>
 
   <div id="conflict-form"></div>
-
-  <%# Per the canvas: the member sees these two, but can't change either. %>
-  <div class="card flex flex-col gap-3">
-    <div class="flex items-center justify-between gap-3">
-      <span class="flex flex-col gap-0.5">
-        <span class="text-body-sm font-semibold text-primary">Status</span>
-        <span class="text-caption text-secondary">Only a coordinator can change this.</span>
-      </span>
-      <%# Deliberately the muted pill, not the live StatusPill colors: on this
-          screen the status is a locked fact, not a thing being decided. %>
-      <span class="rounded-full bg-sunken px-3 py-1 text-caption font-semibold uppercase tracking-wide text-secondary">
-        <%= @conflict.status.name %>
-      </span>
-    </div>
-    <div class="flex items-center justify-between gap-3 border-t border-border-default pt-3">
-      <span class="flex flex-col gap-0.5">
-        <span class="text-body-sm font-semibold text-primary">Member</span>
-        <span class="text-caption text-secondary">It&rsquo;s yours, so there&rsquo;s nothing to pick.</span>
-      </span>
-      <span class="text-body-sm text-secondary"><%= @conflict.user.full_name %></span>
-    </div>
-  </div>
 </div>

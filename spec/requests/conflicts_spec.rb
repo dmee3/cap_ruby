@@ -392,6 +392,15 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       expect(response.body).to include('Original reason')
     end
 
+    # A member only reaches this screen for their own Pending conflict, so
+    # showing them a locked status and their own name was noise.
+    it 'does not show a status or member panel' do
+      get "/members/conflicts/#{conflict.id}/edit"
+
+      expect(response.body).not_to include('Only a coordinator can change this')
+      expect(response.body).not_to include('nothing to pick')
+    end
+
     it 'updates the dates and reason' do
       patch "/members/conflicts/#{conflict.id}", params: conflict_form_params(
         start_at: 3.weeks.from_now, end_at: 22.days.from_now, reason: 'Updated reason'
