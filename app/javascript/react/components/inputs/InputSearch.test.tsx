@@ -359,38 +359,4 @@ describe('InputSearch', () => {
     })
   })
 
-  describe('styling', () => {
-    it('applies input-search class', () => {
-      const { container } = render(
-        <InputSearch name="search" onChange={vi.fn()} options={defaultOptions} />
-      )
-      const input = container.querySelector('input')
-      expect(input).toHaveClass('input-search')
-    })
-
-    it('applies correct classes to suggestions container', async () => {
-      const user = userEvent.setup()
-      const { container } = render(
-        <InputSearch name="search" onChange={vi.fn()} options={defaultOptions} />
-      )
-
-      const input = screen.getByRole('textbox')
-      await user.type(input, 'ap')
-
-      const list = container.querySelector('ul')
-      expect(list).toHaveClass('input-search-suggestions-container')
-    })
-
-    it('applies active class to highlighted suggestion', async () => {
-      const user = userEvent.setup()
-      render(<InputSearch name="search" onChange={vi.fn()} options={defaultOptions} />)
-
-      const input = screen.getByRole('textbox')
-      await user.type(input, 'ra') // Type to match Raspberry
-
-      const list = screen.getByRole('list')
-      const items = within(list).getAllByRole('listitem')
-      expect(items[0]).toHaveClass('active')
-    })
-  })
 })

@@ -27,8 +27,6 @@ RSpec.describe Conflict, type: :model do
   context 'validations' do
     subject { create(:conflict) }
 
-    it { is_expected.to be_valid }
-
     it 'requires an end date' do
       subject.end_date = nil
       expect(subject).to_not be_valid

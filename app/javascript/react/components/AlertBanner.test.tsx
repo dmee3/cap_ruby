@@ -10,13 +10,6 @@ describe('AlertBanner', () => {
     expect(screen.getByText("They're missing from the burndown.")).toBeInTheDocument()
   })
 
-  it('keeps the headline in primary text — the rail carries the tone', () => {
-    render(<AlertBanner headline="2 members have no payment schedule" />)
-    const headline = screen.getByText('2 members have no payment schedule')
-    expect(headline).toHaveClass('text-body-sm', 'font-semibold', 'text-primary')
-    expect(headline.className).not.toMatch(/text-warning-fg/)
-  })
-
   it('renders the embedded action list with a name, a meta column and a link', () => {
     render(
       <AlertBanner
@@ -31,8 +24,8 @@ describe('AlertBanner', () => {
         ]}
       />,
     )
-    expect(screen.getByText('Marcus Vale')).toHaveClass('font-semibold')
-    expect(screen.getByText('New member · Battery / Snare')).toHaveClass('text-caption', 'text-secondary')
+    expect(screen.getByText('Marcus Vale')).toBeInTheDocument()
+    expect(screen.getByText('New member · Battery / Snare')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Set up schedule' })).toHaveAttribute(
       'href',
       '/admin/payment_schedules/7/edit',

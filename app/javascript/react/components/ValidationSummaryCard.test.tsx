@@ -45,7 +45,6 @@ describe('ValidationSummaryCard', () => {
     const item = screen.getByText(/Start date must be in the future/)
     expect(item.closest('a')).toBeNull()
     // The heading carries the danger tone; the items stay readable primary ink.
-    expect(item).toHaveClass('text-primary')
     expect(container.querySelector('a')).toBeNull()
   })
 

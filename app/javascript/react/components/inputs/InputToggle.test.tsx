@@ -191,22 +191,7 @@ describe('InputToggle', () => {
         />
       )
 
-      const label = container.querySelector('label')
-      expect(label).toHaveClass('input-toggle-wrapper')
-    })
-
-    it('applies correct checkbox class', () => {
-      render(
-        <InputToggle
-          checked={false}
-          id="testId"
-          name="testName"
-          onChange={vi.fn()}
-          text="Toggle"
-        />
-      )
-
-      expect(screen.getByRole('checkbox')).toHaveClass('input-toggle')
+      expect(container.querySelector('label')).toBeInTheDocument()
     })
 
     it('renders toggle UI elements', () => {

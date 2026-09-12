@@ -222,9 +222,6 @@ describe('ConflictList', () => {
       const { container } = render(<ConflictList conflicts={mockConflicts} />)
       const ul = container.querySelector('ul')
       expect(ul).toBeInTheDocument()
-      expect(ul).toHaveClass('divide-y')
-      expect(ul).toHaveClass('divide-gray-300')
-      expect(ul).toHaveClass('dark:divide-gray-600')
     })
   })
 

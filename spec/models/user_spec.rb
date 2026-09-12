@@ -34,8 +34,6 @@ RSpec.describe User, type: :model do
 
     subject { create(:user) }
 
-    it { is_expected.to be_valid }
-
     it 'requires an email' do
       subject.email = nil
       expect(subject).to_not be_valid

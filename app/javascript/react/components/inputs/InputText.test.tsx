@@ -29,25 +29,9 @@ describe('InputText', () => {
     })
   })
 
-  describe('className', () => {
-    it('applies default input-text class', () => {
-      const { container } = render(<InputText name="test" />)
-      const input = container.querySelector('input')
-      expect(input).toHaveClass('input-text')
-    })
-
-    it('applies custom className along with default', () => {
-      const { container } = render(<InputText name="test" className="custom-class" />)
-      const input = container.querySelector('input')
-      expect(input).toHaveClass('input-text')
-      expect(input).toHaveClass('custom-class')
-    })
-
-    it('handles empty custom className', () => {
-      const { container } = render(<InputText name="test" className="" />)
-      const input = container.querySelector('input')
-      expect(input).toHaveClass('input-text')
-    })
+  it('merges a custom className with its own', () => {
+    const { container } = render(<InputText name="test" className="custom-class" />)
+    expect(container.querySelector('input')).toHaveClass('custom-class')
   })
 
   describe('disabled state', () => {

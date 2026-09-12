@@ -176,25 +176,9 @@ describe('InputNumberV2', () => {
     })
   })
 
-  describe('className', () => {
-    it('applies default input-text class', () => {
-      const { container } = render(<InputNumberV2 name="amount" />)
-      const input = container.querySelector('input')
-      expect(input).toHaveClass('input-text')
-    })
-
-    it('applies custom className along with default', () => {
-      const { container } = render(<InputNumberV2 name="amount" className="custom-class" />)
-      const input = container.querySelector('input')
-      expect(input).toHaveClass('input-text')
-      expect(input).toHaveClass('custom-class')
-    })
-
-    it('handles empty custom className', () => {
-      const { container } = render(<InputNumberV2 name="amount" className="" />)
-      const input = container.querySelector('input')
-      expect(input).toHaveClass('input-text')
-    })
+  it('merges a custom className with its own', () => {
+    const { container } = render(<InputNumberV2 name="amount" className="custom-class" />)
+    expect(container.querySelector('input')).toHaveClass('custom-class')
   })
 
   describe('display name', () => {

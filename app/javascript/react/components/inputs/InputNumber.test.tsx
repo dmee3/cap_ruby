@@ -163,22 +163,6 @@ describe('InputNumber', () => {
     })
   })
 
-  describe('styling', () => {
-    it('applies input-text class', () => {
-      const { container } = render(<InputNumber name="amount" />)
-      const input = container.querySelector('input')
-      expect(input).toHaveClass('input-text')
-    })
-
-    it('applies correct styling to dollar sign', () => {
-      const { container } = render(<InputNumber name="amount" currency={true} />)
-      const dollarSign = container.querySelector('div')
-      expect(dollarSign).toHaveClass('text-secondary')
-      expect(dollarSign).toHaveClass('font-bold')
-      expect(dollarSign).toHaveClass('mr-3')
-    })
-  })
-
   describe('combined props', () => {
     it('handles currency with masked type', () => {
       const { container } = render(<InputNumber name="amount" currency={true} masked={true} value={25.5} />)

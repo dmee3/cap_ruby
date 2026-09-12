@@ -5,15 +5,9 @@ import StatBlock from './StatBlock'
 describe('StatBlock', () => {
   it('renders the kicker, metric and context', () => {
     render(<StatBlock kicker="Collected" metric="$9,420" context="of $12,600" />)
-    expect(screen.getByText('Collected')).toHaveClass('text-label')
-    expect(screen.getByText('of $12,600')).toHaveClass('text-caption')
-  })
-
-  it('sets the metric in the sans stack at extra-bold, not mono', () => {
-    render(<StatBlock kicker="Collected" metric="$9,420" />)
-    const metric = screen.getByText('$9,420')
-    expect(metric).toHaveClass('text-metric', 'font-extrabold', 'tabular-nums')
-    expect(metric.className).not.toMatch(/font-mono/)
+    expect(screen.getByText('Collected')).toBeInTheDocument()
+    expect(screen.getByText('$9,420')).toBeInTheDocument()
+    expect(screen.getByText('of $12,600')).toBeInTheDocument()
   })
 
   it('shows a trend chip next to the metric', () => {

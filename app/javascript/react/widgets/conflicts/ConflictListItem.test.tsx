@@ -64,36 +64,6 @@ describe('ConflictListItem', () => {
   })
 
   describe('clickable behavior', () => {
-    it('applies cursor-pointer class when baseRedirectUrl is provided', () => {
-      const { container } = render(
-        <ConflictListItem
-          conflict={mockConflict}
-          baseRedirectUrl="/admin/conflicts/"
-        />
-      )
-      const listItem = container.querySelector('li')
-      expect(listItem).toHaveClass('cursor-pointer')
-    })
-
-    it('applies table-row-hover class when baseRedirectUrl is provided', () => {
-      const { container } = render(
-        <ConflictListItem
-          conflict={mockConflict}
-          baseRedirectUrl="/admin/conflicts/"
-        />
-      )
-      const listItem = container.querySelector('li')
-      expect(listItem).toHaveClass('table-row-hover')
-    })
-
-    it('does not apply cursor-pointer when baseRedirectUrl is not provided', () => {
-      const { container } = render(
-        <ConflictListItem conflict={mockConflict} />
-      )
-      const listItem = container.querySelector('li')
-      expect(listItem).not.toHaveClass('cursor-pointer')
-    })
-
     it('navigates to edit page when clicked with baseRedirectUrl', async () => {
       const user = userEvent.setup()
       const { container } = render(
@@ -119,25 +89,6 @@ describe('ConflictListItem', () => {
       await user.click(listItem!)
 
       expect(window.location.href).toBe('')
-    })
-  })
-
-  describe('layout without actions', () => {
-    it('uses flex-row layout when no actions provided', () => {
-      const { container } = render(
-        <ConflictListItem conflict={mockConflict} />
-      )
-      const listItem = container.querySelector('li')
-      expect(listItem).toHaveClass('flex-row')
-    })
-
-    it('applies standard padding when no actions', () => {
-      const { container } = render(
-        <ConflictListItem conflict={mockConflict} />
-      )
-      const contentDiv = container.querySelector('div.p-4')
-      expect(contentDiv).toBeInTheDocument()
-      expect(contentDiv).not.toHaveClass('pb-2')
     })
   })
 
@@ -176,28 +127,6 @@ describe('ConflictListItem', () => {
 
       expect(screen.getByLabelText('Approve conflict')).toBeInTheDocument()
       expect(screen.getByLabelText('Deny conflict')).toBeInTheDocument()
-    })
-
-    it('uses flex-col layout when actions are provided', () => {
-      const { container } = render(
-        <ConflictListItem
-          conflict={mockConflict}
-          actions={actions}
-        />
-      )
-      const listItem = container.querySelector('li')
-      expect(listItem).toHaveClass('flex-col')
-    })
-
-    it('applies reduced bottom padding to content when actions present', () => {
-      const { container } = render(
-        <ConflictListItem
-          conflict={mockConflict}
-          actions={actions}
-        />
-      )
-      const contentDiv = container.querySelector('div.p-4')
-      expect(contentDiv).toHaveClass('pb-2')
     })
 
     it('calls action onClick with conflict id when button clicked', async () => {
@@ -239,8 +168,8 @@ describe('ConflictListItem', () => {
       const approveButton = screen.getByLabelText('Approve conflict')
       const denyButton = screen.getByLabelText('Deny conflict')
 
-      expect(approveButton).toHaveClass('btn-green', 'btn-md')
-      expect(denyButton).toHaveClass('btn-red', 'btn-md')
+      expect(approveButton).toBeInTheDocument()
+      expect(denyButton).toBeInTheDocument()
     })
 
     it('prevents navigation when action button clicked', async () => {

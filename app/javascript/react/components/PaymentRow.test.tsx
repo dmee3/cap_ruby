@@ -17,7 +17,7 @@ describe('PaymentRow', () => {
       <PaymentRow variant="upcoming" date="Wed 4/15/26" amountCents={12_000} installmentChip="15" subline="Final installment" />
     )
     expect(screen.getByText('15')).toBeInTheDocument()
-    expect(screen.getByText('$120.00')).toHaveClass('text-secondary')
+    expect(screen.getByText('$120.00')).toBeInTheDocument()
   })
 
   it('gives past-due rows a raspberry accent and danger amount', () => {

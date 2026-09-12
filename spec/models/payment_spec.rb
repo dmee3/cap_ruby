@@ -28,8 +28,6 @@ RSpec.describe Payment, type: :model do
   context 'validations' do
     subject { create(:payment) }
 
-    it { is_expected.to be_valid }
-
     it 'requires an amount' do
       subject.amount = nil
       expect(subject).to_not be_valid

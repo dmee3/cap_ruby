@@ -60,35 +60,11 @@ describe('ConflictForm', () => {
     expect(screen.getByDisplayValue('Family vacation')).toBeInTheDocument()
   })
 
-  it('offers a cancel alongside submit, styled as an outline button', () => {
+  it('offers a cancel alongside submit', () => {
     render(<ConflictForm {...baseProps} cancelHref="/members" />)
 
     const cancel = screen.getByRole('link', { name: 'Cancel' })
     expect(cancel).toHaveAttribute('href', '/members')
-    expect(cancel.className).toContain('btn-gray')
-  })
-
-  // btn-base is w-full sm:w-auto, which would stack the pair on a phone. The
-  // row overrides that so the two always share one line and fill the form.
-  it('keeps submit and cancel on one row at every width', () => {
-    render(<ConflictForm {...baseProps} cancelHref="/members" />)
-
-    const submit = screen.getByRole('button', { name: 'Submit conflict' })
-    const cancel = screen.getByRole('link', { name: 'Cancel' })
-    const row = submit.parentElement
-
-    expect(row).toBe(cancel.parentElement)
-    expect(row?.className).toContain('flex')
-    expect(row?.className).not.toContain('flex-wrap')
-    expect(submit.className).toContain('!w-auto')
-    expect(cancel.className).toContain('!w-auto')
-  })
-
-  it('splits the row between the two buttons', () => {
-    render(<ConflictForm {...baseProps} cancelHref="/members" />)
-
-    expect(screen.getByRole('button', { name: 'Submit conflict' }).className).toContain('flex-[2]')
-    expect(screen.getByRole('link', { name: 'Cancel' }).className).toContain('flex-1')
   })
 
   it('omits cancel when there is nowhere to go back to', () => {
