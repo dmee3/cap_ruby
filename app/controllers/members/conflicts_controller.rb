@@ -27,7 +27,8 @@ module Members
 
       @conflict = Conflict.new(conflict_params)
       if @conflict.save
-        flash[:success] = 'Conflict submitted for review.'
+        # No flash[:success]: the dashboard confirms this inline in the
+        # conflicts card, so a toast would say the same thing twice.
         flash[:conflict_submitted] = true
         ActivityLogger.log_conflict(@conflict, current_user)
         EmailService.send_conflict_submitted_email(@conflict, current_user, current_season['id'])

@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
 module ApplicationHelper
+  # Flash keys that signal other UI rather than carrying a message to display.
+  NON_MESSAGE_FLASH_KEYS = %i[conflict_submitted undo_payment_id].freeze
+
+  def flash_message?(type, message)
+    !NON_MESSAGE_FLASH_KEYS.include?(type.to_sym) && message.present?
+  end
+
   def flash_color(type)
     case type.to_sym
     when :alert, :error

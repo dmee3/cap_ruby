@@ -41,9 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('click', () => form.submit())
   })
 
-  // ---- Flash close ----
-  document.querySelectorAll('.flash').forEach(flash => {
-    flash.querySelector('.flash-close')?.addEventListener('click', () => flash.remove())
+  // ---- Dismissible close ----
+  document.querySelectorAll('[data-dismissible]').forEach(el => {
+    el.querySelector('[data-dismiss]')?.addEventListener('click', () => el.remove())
   })
 
   // ---- flatpickr ----
