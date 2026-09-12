@@ -1,5 +1,7 @@
 <% content_for :page_title, 'New conflict' %>
 
+<% submitted_count = @existing_conflicts.to_a.size %>
+
 <%= javascript_tag do %>
   window.conflictForm = <%== {
     formAction: members_conflicts_path,
@@ -10,29 +12,29 @@
     cancelHref: members_home_path
   }.to_json %>;
   window.conflictList = <%== conflict_row_data(@existing_conflicts).to_json %>;
+  <%# Flow 3 puts the season and a count opposite the card title. The canvas
+      says "Spring 2026"; seasons only store a year, so this uses the same
+      "<year> Season" label the season switcher does. %>
+  window.conflictListCard = <%== {
+    title: 'Already submitted',
+    count: [
+      "#{current_season.year} Season",
+      (submitted_count if submitted_count.positive?)
+    ].compact.join(' · ')
+  }.to_json %>;
 <% end %>
 
 <%= vite_typescript_tag 'entrypoints/members/conflicts/index.tsx' %>
 
-<div class="mx-auto w-full max-w-[640px] flex flex-col gap-4">
+<div class="mx-auto w-full max-w-[1100px] flex flex-col gap-4">
   <a href="<%= members_home_path %>" class="link text-body-sm">&lsaquo; Where you stand</a>
   <h1>New conflict</h1>
 
-  <div id="conflict-form"></div>
-
-  <%# Always below the form's submit/cancel, never beside it — the page is a
-      single column at every width, which is what the Flow 3 boards show. %>
-  <div class="card flex flex-col gap-3">
-    <div class="flex items-baseline justify-between gap-2">
-      <span class="card-title">Already submitted</span>
-      <%# Flow 3 puts the season and a count opposite the title. The canvas
-          says "Spring 2026"; seasons only store a year, so this uses the same
-          "<year> Season" label the season switcher does. %>
-      <% submitted_count = @existing_conflicts.to_a.size %>
-      <span class="text-caption text-secondary">
-        <%= current_season.year %> Season<%= " · #{submitted_count}" if submitted_count.positive? %>
-      </span>
-    </div>
+  <%# Flow 3's desktop board is a 1.5fr/1fr grid — form left, "Already
+      submitted" right, both top-aligned. It stacks to one column on a phone,
+      which is where this form actually gets filled out. %>
+  <div class="grid items-start gap-5 lg:grid-cols-[1.5fr_1fr]">
+    <div id="conflict-form"></div>
     <div id="conflict-list"></div>
   </div>
 </div>

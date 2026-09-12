@@ -21,6 +21,11 @@ type ConflictContextRowProps = {
    */
   editable?: boolean
   editPath?: string
+  /**
+   * The row supplies no padding of its own — inside a `Card variant="list"`
+   * the divider has to reach the card's edges, so the caller passes the
+   * padding and border (`border-b px-4 py-3`) along with it.
+   */
   className?: string
 }
 
@@ -37,7 +42,7 @@ const ConflictContextRow = ({
   editPath,
   className = '',
 }: ConflictContextRowProps) => (
-  <div className={`flex flex-col gap-1 py-3 ${className}`.trim()}>
+  <div className={`flex flex-col gap-1 ${className}`.trim()}>
     <div className="flex items-center justify-between gap-2">
       <span className="text-body-sm font-semibold text-primary">
         {dateRangeLabel}

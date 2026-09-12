@@ -1,4 +1,5 @@
 import React from 'react'
+import Card from '../../components/Card'
 import ConflictContextRow from '../../components/ConflictContextRow'
 import EmptyState from '../../components/EmptyState'
 import { StatusValue } from '../../components/StatusPill'
@@ -25,6 +26,14 @@ type MemberConflictListProps = {
    * editing is the point; off for the dashboard card, which is a glance.
    */
   showEditLinks?: boolean
+  /**
+   * Wrap the rows in a `Card variant="list"` with this title — the header
+   * strip and full-bleed body the Flow 3 board shows. Without it the rows
+   * render bare, for a caller that brings its own card.
+   */
+  cardTitle?: string
+  /** Muted text opposite the card title ("2026 Season · 3"). */
+  cardCount?: string
 }
 
 // Renders the shared conflict-row shape (§4.19). Used both on the
@@ -35,26 +44,43 @@ const MemberConflictList = ({
   emptyTitle = 'Nothing on the books',
   emptyBody = "You haven't told anyone you'll miss a rehearsal this season. When you know, say so early.",
   showEditLinks = false,
+  cardTitle,
+  cardCount,
 }: MemberConflictListProps) => {
-  if (conflicts.length === 0) {
-    return <EmptyState title={emptyTitle} body={emptyBody} />
-  }
+  const body =
+    conflicts.length === 0 ? (
+      <EmptyState title={emptyTitle} body={emptyBody} />
+    ) : (
+      <div className="flex flex-col">
+        {conflicts.map((c) => (
+          <ConflictContextRow
+            key={c.id}
+            dateRangeLabel={c.date_range_label}
+            timeRangeLabel={c.time_range_label}
+            status={c.status}
+            relativeSubline={c.relative_subline}
+            reason={c.reason}
+            editable={showEditLinks ? c.editable : undefined}
+            editPath={c.edit_path}
+            // Inside a list card the row owns its padding so the divider
+            // reaches the card's edges. Bare (the dashboard, which mounts
+            // this in an already-padded card) it keeps the old inset rows.
+            className={
+              cardTitle
+                ? 'border-b border-border-default px-4 py-3 last:border-0'
+                : 'border-b border-border-default py-3 last:border-0'
+            }
+          />
+        ))}
+      </div>
+    )
+
+  if (!cardTitle) return body
 
   return (
-    <div className="flex flex-col divide-y divide-border-default">
-      {conflicts.map((c) => (
-        <ConflictContextRow
-          key={c.id}
-          dateRangeLabel={c.date_range_label}
-          timeRangeLabel={c.time_range_label}
-          status={c.status}
-          relativeSubline={c.relative_subline}
-          reason={c.reason}
-          editable={showEditLinks ? c.editable : undefined}
-          editPath={c.edit_path}
-        />
-      ))}
-    </div>
+    <Card variant="list" title={cardTitle} count={cardCount}>
+      {body}
+    </Card>
   )
 }
 

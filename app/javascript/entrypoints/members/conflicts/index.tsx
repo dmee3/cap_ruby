@@ -18,6 +18,8 @@ declare global {
       }
     | undefined
   var conflictList: ConflictListItem[] | undefined
+  /** Card header for the list, when the screen renders it as a list card. */
+  var conflictListCard: { title: string; count?: string } | undefined
 }
 
 const formEl = document.getElementById('conflict-form')
@@ -46,6 +48,8 @@ if (listEl) {
       emptyTitle="Nothing submitted yet"
       emptyBody="This is where the conflicts you send will show up."
       showEditLinks
+      cardTitle={window.conflictListCard?.title}
+      cardCount={window.conflictListCard?.count}
     />,
     listEl
   )

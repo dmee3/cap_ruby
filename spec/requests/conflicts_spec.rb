@@ -123,8 +123,10 @@ RSpec.describe 'Conflicts Workflow', type: :request do
 
       get '/members/conflicts/new'
 
+      # The card is rendered by MemberConflictList; the view hands it the
+      # header text as JSON, so assert on that rather than on markup.
       expect(response.body).to include('Already submitted')
-      expect(response.body).to match(/#{season.year} Season\s*·\s*2/)
+      expect(response.body).to include("#{season.year} Season \u00b7 2")
     end
 
     it 'names the season but omits the count when nothing has been submitted' do
@@ -133,7 +135,7 @@ RSpec.describe 'Conflicts Workflow', type: :request do
       get '/members/conflicts/new'
 
       expect(response.body).to include("#{season.year} Season")
-      expect(response.body).not_to match(/#{season.year} Season\s*·/)
+      expect(response.body).not_to include("#{season.year} Season \u00b7")
     end
   end
 
