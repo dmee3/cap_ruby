@@ -1,0 +1,24 @@
+<% content_for :page_title, 'Edit conflict' %>
+
+<%= javascript_tag do %>
+  window.conflictForm = <%== {
+    formAction: members_conflict_path(@conflict),
+    authenticityToken: form_authenticity_token,
+    method: 'patch',
+    submitLabel: 'Save changes',
+    defaults: conflict_form_defaults(@conflict),
+    errors: conflict_field_errors(@conflict),
+    cancelHref: members_conflicts_path
+  }.to_json %>;
+<% end %>
+
+<%= vite_typescript_tag 'entrypoints/members/conflicts/index.tsx' %>
+
+<div class="mx-auto w-full max-w-[640px] flex flex-col gap-4">
+  <%# Edit is reached from the list's Edit link, so back returns to the list
+      rather than skipping over it to the dashboard. %>
+  <a href="<%= members_conflicts_path %>" class="link text-body-sm">&lsaquo; Your conflicts</a>
+  <h1>Edit conflict</h1>
+
+  <div id="conflict-form"></div>
+</div>

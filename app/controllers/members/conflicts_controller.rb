@@ -40,7 +40,53 @@ module Members
       end
     end
 
+    def edit
+      @conflict = editable_conflict
+      return if performed?
+
+      render('members/conflicts/edit')
+    end
+
+    def update
+      @conflict = editable_conflict
+      return if performed?
+
+      if @conflict.update(edit_params)
+        flash[:success] = 'Conflict updated.'
+        ActivityLogger.log_conflict(@conflict, current_user)
+        EmailService.send_conflict_edited_email(@conflict, current_user, current_season['id'])
+        redirect_to(members_conflicts_path)
+      else
+        Rollbar.info('Conflict could not be updated.', errors: @conflict.errors.full_messages)
+        flash.now[:error] = @conflict.errors.full_messages.to_sentence
+        render('members/conflicts/edit')
+      end
+    end
+
     private
+
+    # The lock the canvas asks for: a member may only reach their own conflict,
+    # and only while it's still Pending. Both halves are enforced here rather
+    # than by hiding the Edit button, so a hand-built PATCH can't get through
+    # either. Redirects (and leaves the response performed) when it can't.
+    def editable_conflict
+      conflict = member_conflicts.find_by(id: params[:id])
+
+      if conflict.nil?
+        flash[:error] = "We couldn't find that conflict."
+        redirect_to(members_conflicts_path)
+        return nil
+      end
+
+      unless conflict.status.name == 'Pending'
+        flash[:error] = "That conflict has already been decided, so it can't be changed. " \
+                        'Ask a coordinator if something changed.'
+        redirect_to(members_conflicts_path)
+        return nil
+      end
+
+      conflict
+    end
 
     def member_conflicts
       current_user.conflicts.includes(:conflict_status).for_season(current_season['id']).order(:start_date)
@@ -57,6 +103,20 @@ module Members
         conflict_status: ConflictStatus.find_by_name('Pending'),
         season_id: current_season['id'],
         user_id: current_user.id
+      }
+    end
+
+    # Dates and reason only. A member never sets status or user_id, so those
+    # aren't permitted at all here — the row keeps the owner and the Pending
+    # status it already had.
+    def edit_params
+      permitted = params.require(:conflict)
+                        .permit(:reason, :start_date_date, :start_date_time, :end_date_date, :end_date_time)
+
+      {
+        start_date: combine_date_time(permitted[:start_date_date], permitted[:start_date_time]),
+        end_date: combine_date_time(permitted[:end_date_date], permitted[:end_date_time]),
+        reason: permitted[:reason]
       }
     end
 

@@ -88,7 +88,9 @@ Rails.application.routes.draw do
     resources :calendars, only: %i[index]
     get 'calendars/download', to: 'calendars#download'
 
-    resources :conflicts, only: %i[index new create]
+    # Members may also edit their own conflict, but only while it's Pending —
+    # Members::ConflictsController enforces both halves of that server-side.
+    resources :conflicts, only: %i[index new create edit update]
 
     resources :payments, only: %i[new]
     get 'payments/post_processing', to: 'payments#post_processing'

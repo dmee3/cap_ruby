@@ -49,6 +49,37 @@ describe('ConflictContextRow', () => {
     expect(screen.getByText('Family trip booked before the schedule came out.')).toBeInTheDocument()
   })
 
+  it('renders an Edit link when the row is still editable', () => {
+    render(
+      <ConflictContextRow
+        dateRangeLabel="Fri 3/20"
+        status="Pending"
+        relativeSubline="In 8 days"
+        editable
+        editPath="/members/conflicts/7/edit"
+      />
+    )
+    expect(screen.getByRole('link', { name: 'Edit' })).toHaveAttribute('href', '/members/conflicts/7/edit')
+  })
+
+  it('renders a non-link Edit once the conflict has been decided', () => {
+    render(
+      <ConflictContextRow
+        dateRangeLabel="Sat 3/21"
+        status="Approved"
+        relativeSubline="In 9 days"
+        editable={false}
+      />
+    )
+    expect(screen.queryByRole('link', { name: 'Edit' })).not.toBeInTheDocument()
+    expect(screen.getByText('Edit')).toBeInTheDocument()
+  })
+
+  it('shows no Edit affordance at all when the screen does not offer editing', () => {
+    render(<ConflictContextRow dateRangeLabel="Fri 3/20" status="Pending" relativeSubline="In 8 days" />)
+    expect(screen.queryByText('Edit')).not.toBeInTheDocument()
+  })
+
   it('covers all four status values via StatusPill', () => {
     const statuses = ['Pending', 'Approved', 'Denied', 'Resolved'] as const
     statuses.forEach((status) => {

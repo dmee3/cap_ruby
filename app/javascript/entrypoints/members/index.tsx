@@ -32,5 +32,8 @@ if (timelineEl) {
 const conflictListEl = document.getElementById('conflict-list')
 if (conflictListEl && conflictListEl.dataset.conflicts) {
   const conflicts = JSON.parse(conflictListEl.dataset.conflicts) as ConflictListItem[]
-  render(<MemberConflictList conflicts={conflicts} />, conflictListEl)
+  // Edit links here too: the dashboard card is where a member most often
+  // notices a wrong date, and the rows already carry the server's own
+  // editable/edit_path decision.
+  render(<MemberConflictList conflicts={conflicts} showEditLinks />, conflictListEl)
 }
