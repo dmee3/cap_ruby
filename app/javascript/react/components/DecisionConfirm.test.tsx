@@ -110,6 +110,48 @@ describe('DecisionConfirm', () => {
     expect(onExpire).not.toHaveBeenCalled()
   })
 
+  // Regression: onExpire was in the timer effect's deps and the parent passes a
+  // fresh arrow on every render, so deciding one row restarted every other
+  // row's countdown.
+  it('keeps counting down when the parent re-renders with a new onExpire', () => {
+    const { rerender } = render(
+      <DecisionConfirm {...baseProps} duration={15000} onExpire={() => undefined} />
+    )
+
+    act(() => {
+      vi.advanceTimersByTime(5000)
+    })
+    expect(screen.getByRole('timer')).toHaveTextContent('10 seconds left to undo')
+
+    // A new inline callback, exactly as the list would hand it over.
+    rerender(<DecisionConfirm {...baseProps} duration={15000} onExpire={() => undefined} />)
+
+    act(() => {
+      vi.advanceTimersByTime(1000)
+    })
+
+    // Still draining from where it was — not reset to the full window.
+    expect(screen.getByRole('timer')).toHaveTextContent('9 seconds left to undo')
+  })
+
+  it('still expires on time after a parent re-render', () => {
+    const onExpire = vi.fn()
+    const { rerender } = render(
+      <DecisionConfirm {...baseProps} duration={5000} onExpire={onExpire} />
+    )
+
+    act(() => {
+      vi.advanceTimersByTime(3000)
+    })
+    rerender(<DecisionConfirm {...baseProps} duration={5000} onExpire={onExpire} />)
+
+    act(() => {
+      vi.advanceTimersByTime(2500)
+    })
+
+    expect(onExpire).toHaveBeenCalled()
+  })
+
   it('renders a denied decision', () => {
     render(<DecisionConfirm {...baseProps} outcome="Denied" member="Jordan Pike" />)
 

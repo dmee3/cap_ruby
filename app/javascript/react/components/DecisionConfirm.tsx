@@ -44,9 +44,9 @@ const TICK_MS = 100
 // §4.30 — the row becomes its own confirmation rather than firing a toast, so
 // the confirmation stays where the eye already is.
 //
-// The undo window is a time limit on an action (WCAG 2.2.1): the countdown bar
-// is never the only cue — the remaining seconds are also announced as text —
-// and Undo stays keyboard-reachable for the whole window.
+// The undo window is a time limit on an action (WCAG 2.2.1): the bar carries it
+// visually, the remaining seconds are announced sr-only so the limit is
+// perceivable without it, and Undo stays keyboard-reachable throughout.
 const DecisionConfirm = ({
   outcome,
   member,
@@ -61,23 +61,39 @@ const DecisionConfirm = ({
 }: DecisionConfirmProps) => {
   const [remaining, setRemaining] = useState(duration)
   const expiredRef = useRef(false)
+  const deadlineRef = useRef<number | null>(null)
+
+  // onExpire is typically an inline arrow from the parent, so its identity
+  // changes on every render of the list. Held in a ref, it can stay out of the
+  // effect's deps — otherwise deciding one row restarts every other row's
+  // countdown.
+  const onExpireRef = useRef(onExpire)
+  useEffect(() => {
+    onExpireRef.current = onExpire
+  }, [onExpire])
 
   useEffect(() => {
     if (saving || error) return undefined
 
-    const started = Date.now()
-    const timer = window.setInterval(() => {
-      const left = Math.max(0, duration - (Date.now() - started))
+    // The deadline is set once and survives re-renders, so the bar keeps
+    // draining from where it was rather than snapping back to full.
+    if (deadlineRef.current === null) deadlineRef.current = Date.now() + duration
+
+    const tick = () => {
+      const left = Math.max(0, (deadlineRef.current ?? 0) - Date.now())
       setRemaining(left)
       if (left === 0 && !expiredRef.current) {
         expiredRef.current = true
         window.clearInterval(timer)
-        onExpire?.()
+        onExpireRef.current?.()
       }
-    }, TICK_MS)
+    }
+
+    const timer = window.setInterval(tick, TICK_MS)
+    tick()
 
     return () => window.clearInterval(timer)
-  }, [duration, saving, error, onExpire])
+  }, [duration, saving, error])
 
   if (saving) {
     return (
