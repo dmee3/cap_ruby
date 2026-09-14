@@ -41,6 +41,25 @@ describe('SchedulePreviewPanel', () => {
     expect(screen.getByText('World · Music · Rookie')).toBeTruthy()
   })
 
+  // The amber block and the header/total rows fill the card edge to edge, so
+  // without overflow-hidden their square corners paint over the radius.
+  it('clips its full-bleed children to the card radius', () => {
+    const { rerender } = render(<SchedulePreviewPanel forecast={{ no_default: true }} waiting={false} />)
+    expect(screen.getByTestId('preview-no-default').className).toContain('overflow-hidden')
+
+    rerender(
+      <SchedulePreviewPanel
+        waiting={false}
+        forecast={{
+          entries: [{ pay_date: '2025-10-17', amount_cents: 50_000 }],
+          total_cents: 50_000,
+          past_due: { count: 0, amount_cents: 0 },
+        }}
+      />
+    )
+    expect(screen.getByTestId('preview-populated').className).toContain('overflow-hidden')
+  })
+
   it('warns when dates are already past', () => {
     render(
       <SchedulePreviewPanel

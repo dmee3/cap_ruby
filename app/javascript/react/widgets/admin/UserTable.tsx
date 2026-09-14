@@ -198,7 +198,9 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
         )}
       </div>
 
-      <div className="rounded-md border border-border-default bg-surface">
+      {/* overflow-hidden: the table header row and footer are full-bleed, so
+          without it their square corners cover the card's radius. */}
+      <div className="overflow-hidden rounded-md border border-border-default bg-surface">
         {status === 'loading' && <Skeleton rows={5} className="p-4" />}
 
         {status === 'error' && (
@@ -397,7 +399,7 @@ const OffRosterView = ({
       </p>
     </div>
 
-    <div className="rounded-md border border-border-default bg-surface">
+    <div className="overflow-hidden rounded-md border border-border-default bg-surface">
       {status === 'loading' && <Skeleton rows={3} className="p-4" />}
       {status === 'error' && (
         <EmptyState

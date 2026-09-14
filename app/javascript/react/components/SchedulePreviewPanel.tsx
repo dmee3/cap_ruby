@@ -20,6 +20,11 @@ type SchedulePreviewPanelProps = {
 // §4.33. Read-only, and honest that it is a forecast: these rows don't exist
 // yet. Three states — waiting, populated, and "no default exists", which is the
 // live state for any season past 2026.
+//
+// The populated and no-default cards carry `overflow-hidden`: their children
+// (the amber block, the header strip, the total row) fill the card edge to edge
+// with no padding between, so without it those square corners paint straight
+// over the card's radius.
 const SchedulePreviewPanel = ({ forecast, waiting }: SchedulePreviewPanelProps) => {
   if (waiting) {
     return (
@@ -34,7 +39,7 @@ const SchedulePreviewPanel = ({ forecast, waiting }: SchedulePreviewPanelProps) 
 
   if (forecast?.no_default) {
     return (
-      <div className="rounded-md border border-warning-fg" data-testid="preview-no-default">
+      <div className="overflow-hidden rounded-md border border-warning-fg" data-testid="preview-no-default">
         <div className="flex flex-col gap-1 bg-warning-bg p-4">
           <p className="m-0 text-body-sm font-semibold text-warning-fg">
             No default schedule exists for this combination
@@ -54,7 +59,7 @@ const SchedulePreviewPanel = ({ forecast, waiting }: SchedulePreviewPanelProps) 
   if (!forecast?.entries?.length) return null
 
   return (
-    <div className="rounded-md border border-border-default" data-testid="preview-populated">
+    <div className="overflow-hidden rounded-md border border-border-default" data-testid="preview-populated">
       <div className="flex flex-wrap items-baseline gap-2 border-b border-border-default px-4 py-2">
         <span className="text-label text-secondary">Schedule preview</span>
         {forecast.lookup_key && (
