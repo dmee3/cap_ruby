@@ -256,7 +256,7 @@ const AddPaymentForm = ({
                 {member
                   ? member.applies_to.length > 0
                     ? `Oldest unpaid due date first: ${member.applies_to.map(fmtDate).join(', then ')}`
-                    : 'Nothing outstanding — this counts as paid ahead.'
+                    : 'Nothing outstanding, so this counts as paid ahead.'
                   : 'Pick a member to see their due dates'}
               </div>
               <Hint>Not editable: payments credit against the schedule in order.</Hint>

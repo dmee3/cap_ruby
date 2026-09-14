@@ -227,7 +227,7 @@ const ScheduleEditor = ({ data }: { data: ScheduleEditorData }) => {
       .then((r) => {
         if (!r.ok) throw r
         toast(
-          `Schedule saved — ${rows.length} payments, ${dollars(plannedCents)} for ${data.member.name}`,
+          `Schedule saved for ${data.member.name}: ${rows.length} payments, ${dollars(plannedCents)}`,
           { variant: 'success' },
         )
         window.setTimeout(() => {

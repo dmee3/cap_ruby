@@ -41,7 +41,7 @@ RSpec.describe 'Member payment confirmation', type: :request do
         params: { redirect_status: 'succeeded', payment_intent: 'pi_abc', t: '5' }
 
     expect(response.body).not_to include('http-equiv="refresh"')
-    expect(response.body).to include('check your dashboard in a')
+    expect(response.body).to include('Check your dashboard in a')
   end
 
   it 'shows the declined-card screen on a failed redirect' do

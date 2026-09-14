@@ -56,7 +56,7 @@ const DuesMeter = ({
   if (state === 'no-schedule') {
     return (
       <p className={`text-body-sm text-secondary ${className}`.trim()}>
-        No dues schedule set yet — a director will add one.
+        No dues schedule set yet. A director will add one.
       </p>
     )
   }

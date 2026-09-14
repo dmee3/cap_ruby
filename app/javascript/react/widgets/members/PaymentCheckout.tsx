@@ -30,7 +30,7 @@ const PaymentCheckout = ({ returnUrl }: PaymentCheckoutProps) => {
     if (stripeError.type === 'card_error' || stripeError.type === 'validation_error') {
       setError(stripeError.message ?? 'Your card could not be charged.')
     } else {
-      setError('Something went wrong. Nothing was charged — please try again.')
+      setError('Something went wrong and nothing was charged. Please try again.')
     }
     setIsLoading(false)
   }
@@ -41,7 +41,7 @@ const PaymentCheckout = ({ returnUrl }: PaymentCheckoutProps) => {
 
       {error && (
         <div className="rounded-sm bg-danger-bg text-danger-fg text-body-sm p-3">
-          {error} Nothing was charged — check the details above and try again.
+          {error} Nothing was charged. Check the details above and try again.
         </div>
       )}
 
