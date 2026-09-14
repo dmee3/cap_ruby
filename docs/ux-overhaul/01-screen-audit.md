@@ -205,10 +205,24 @@ editable at `/admin/season/edit`) is the seasonal on/off switch coordinators use
   straddling case. The calendar's silent denied/resolved filter is now a visible
   toggle, and the empty/loading/error states the screens never had now exist.
 
-### Flow 6 — Admin: roster & onboarding 🟡
-- Users list
-- Create/edit user with per-season role assignment
-- Auto-generated payment schedule preview
+### Flow 6 — Admin: roster & onboarding 🟡 *(in progress)*
+- Roster (`/admin/users`) — one table with a Members/Staff switch, grouped by
+  ensemble · section, with the loading / empty / filtered-empty / error states
+  the page has never had, and a card fallback under 720px
+- Off all rosters (`/admin/users?roster=none`) — the 17 accounts with no
+  `seasons_users` rows at all. They **cannot sign in**
+  (`active_for_authentication?` requires `seasons_users.any?`) and are currently
+  reachable only from the Rails console
+- Create/edit user with per-season role assignment — `UserRoleRow`'s table of
+  mutually-disabling selects becomes one §4.32 block per season
+- Payment schedule preview (§4.33) — and the backend change that makes it true:
+  creation now **populates** entries from the default instead of creating an
+  empty schedule. See `flow6-design-review.md` §1
+- Member 360 (`/admin/users/:id`) is **not** in this flow — Flow 4 already built it
+- Delete/deactivate is **deferred** to `cap_ruby-b3a.21`; a user delete currently
+  hard-destroys the payment schedule while soft-deleting everything else
+- Canvas reviewed against the code in `flow6-design-review.md` (11 findings,
+  3 decisions taken)
 
 ### Flow 7 — Public fundraiser 🔴 *(distinct audience — external donors)*
 - Landing / pick a performer
