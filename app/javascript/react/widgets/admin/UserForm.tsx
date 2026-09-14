@@ -164,7 +164,7 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
                   label="Temporary password"
                   name="user[password]"
                   type="password"
-                  hint="At least 6 characters. Set only at creation — later changes go through a reset link."
+                  hint="At least 8 characters. Set only at creation — later changes go through a reset link."
                 />
               )}
             </div>

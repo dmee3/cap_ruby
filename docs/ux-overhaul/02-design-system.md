@@ -792,7 +792,7 @@ each one superseded.
   Denied and Resolved with no legend or control), which is the single most
   surprising behavior on the screen today.
 
-### 4.32 Season role block *(added — Flow 6)*
+### 4.32 Season role block *(built — Flow 6, as `SeasonRoleBlock.tsx`)*
 
 One season, one block — replacing `UserRoleRow`'s table of selects that enable
 and disable each other. The toggle answers "were they in the org", the role
@@ -830,7 +830,7 @@ answer is Member.
   never specced. Give it a ≥44px touch target in this block on mobile.
 - Stacks to one column under `720px`, the toggle moving under the season name.
 
-### 4.33 Schedule preview panel *(added — Flow 6)*
+### 4.33 Schedule preview panel *(built — Flow 6, as `SchedulePreviewPanel.tsx`)*
 
 Read-only, and honest that it is a forecast: **these rows don't exist yet.**
 Borrows the date/amount typography from §4.25's timeline but none of its editing

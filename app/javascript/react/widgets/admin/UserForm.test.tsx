@@ -92,7 +92,7 @@ describe('UserForm', () => {
     const data = clone({
       errors: [
         { field: 'email', message: 'Email has already been taken' },
-        { field: 'password', message: 'Password must be at least 6 characters' },
+        { field: 'password', message: 'Password is too short (minimum is 8 characters)' },
       ],
     })
     render(<UserForm data={data} csrfToken="tok" />)

@@ -119,7 +119,11 @@ const SeasonRoleBlock = ({
           <>
             <div className="flex flex-col gap-1.5">
               <span className="text-label text-secondary">Role this season</span>
-              <div className="flex flex-wrap gap-1 rounded-sm bg-sunken p-1">
+              <div
+                className="flex flex-wrap gap-1 rounded-sm bg-sunken p-1"
+                role="group"
+                aria-label={`Role for ${season.year}`}
+              >
                 {roles.map(role => (
                   <button
                     key={role}

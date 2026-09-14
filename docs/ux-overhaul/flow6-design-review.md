@@ -253,6 +253,22 @@ stays open unless we take it in passing (§11).
   **"2026"** everywhere else; the shipped convention wins unless we change it
   globally.
 
+## 10a. The password rules contradicted themselves
+
+Found while checking the rendered validation summary. `User` carried a
+6-character length validation *and* Devise's `:validatable` with
+`password_length: 8..128`. The 6-character rule could never pass on its own, so
+a short password produced two messages at once:
+
+```
+Password is too short (minimum is 8 characters)
+Password must be at least 6 characters
+```
+
+The real minimum is 8 (verified at lengths 5/6/7/8). The redundant validation
+is removed, and the form's hint says 8 — the canvas's "6 characters minimum.
+This one has 5." copy would have been wrong on both counts.
+
 ## 11. Canvas-internal problems worth knowing before building
 
 A full digest of the 23 artboards turned up these. They don't change the

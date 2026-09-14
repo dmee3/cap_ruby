@@ -147,7 +147,7 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
       )}
 
       <div className="flex flex-wrap items-center gap-2 rounded-md border border-border-default bg-surface p-3">
-        <div className="flex gap-1 rounded-sm bg-sunken p-1">
+        <div className="flex gap-1 rounded-sm bg-sunken p-1" role="group" aria-label="Population">
           {(['members', 'staff'] as Population[]).map(p => (
             <button
               key={p}
@@ -166,6 +166,7 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
           type="search"
           value={query}
           onChange={e => setQuery(e.target.value)}
+          aria-label={population === 'members' ? 'Search name, section or ensemble' : 'Search name or role'}
           placeholder={population === 'members' ? 'Search name, section or ensemble' : 'Search name or role'}
           className="h-9 min-w-50 flex-1 rounded-sm border border-border-strong bg-surface px-2.5 text-body-sm"
         />
@@ -173,6 +174,7 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
           <select
             value={ensemble}
             onChange={e => setEnsemble(e.target.value)}
+            aria-label="Filter by ensemble"
             className="h-9 rounded-sm border border-border-strong bg-surface px-2 text-body-sm"
           >
             <option value="">All ensembles</option>

@@ -221,8 +221,15 @@ editable at `/admin/season/edit`) is the seasonal on/off switch coordinators use
 - Member 360 (`/admin/users/:id`) is **not** in this flow — Flow 4 already built it
 - Delete/deactivate is **deferred** to `cap_ruby-b3a.21`; a user delete currently
   hard-destroys the payment schedule while soft-deleting everything else
-- Canvas reviewed against the code in `flow6-design-review.md` (11 findings,
+- Canvas reviewed against the code in `flow6-design-review.md` (12 findings,
   3 decisions taken)
+- **Built:** the roster with its four missing states and a card fallback, the
+  off-all-rosters view, one `SeasonRoleBlock` per season in place of
+  `UserRoleRow`, a live schedule forecast, and the re-render fix that makes a
+  failed save keep what was typed. Four real bugs fixed on the way: a nested
+  update without the row id created a duplicate `seasons_users` row; the
+  `dues_status_okay?` season-key memoization (`.13`); two contradictory password
+  length rules; and new members landing with an empty payment schedule.
 
 ### Flow 7 — Public fundraiser 🔴 *(distinct audience — external donors)*
 - Landing / pick a performer
