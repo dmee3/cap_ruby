@@ -10,4 +10,22 @@
 # whether someone happens to be signed in.
 class PublicController < ApplicationController
   layout 'public'
+
+  private
+
+  # Donors have no season context — they're never signed in, so
+  # `current_season` (cookie-based, keyed off `current_user`) returns nil here.
+  # The newest season is the only sensible answer for a public page.
+  def public_season
+    @public_season ||= Fundraiser.public_season
+  end
+
+  # "Spring 2026". A season's `year` is its ending year, and the competitive
+  # season runs fall to spring, so the public label names the spring everyone
+  # is actually pointing at.
+  def season_label
+    return nil if public_season.blank?
+
+    "Spring #{public_season.year}"
+  end
 end

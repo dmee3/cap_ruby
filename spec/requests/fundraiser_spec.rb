@@ -1,0 +1,275 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+# The public calendar fundraiser (Flow 7). Unauthenticated throughout: a donor
+# arrives from a link someone shared, sponsors dates for one performer, and pays.
+#
+# The mechanic: the donation amount IS the date number, so the 3rd is $3 and the
+# 17th is $17. 31 dates per performer, each claimable once, $496 when complete.
+RSpec.describe 'Public fundraiser', type: :request do
+  # Two seasons, so anything reading "the newest season" has something to get
+  # wrong. The fundraiser is public, so it can't use `current_season`.
+  let!(:old_season) { create(:season, year: 2025) }
+  let!(:season) { create(:season, year: 2026) }
+
+  let(:performer) do
+    create(:user, first_name: 'Elena', last_name: 'Sokol').tap do |u|
+      create(:seasons_user, user: u, season: season, role: 'member',
+                            ensemble: 'World', section: 'Front Ensemble')
+    end
+  end
+
+  def sponsor(user, date, season_for: season, name: 'The Sokol Family', intent: 'pi_test')
+    fundraiser = Calendar::Fundraiser.create!(user: user, season: season_for)
+    Calendar::Donation.create!(
+      user: user, fundraiser: fundraiser, season_id: season_for.id,
+      donation_date: date, amount: date * 100, donor_name: name,
+      notes: "Stripe: #{intent}"
+    )
+  end
+
+  describe 'the picker' do
+    it 'renders for a logged-out visitor without the app shell' do
+      performer
+
+      get '/fundraiser'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).not_to include('class="app-sidebar"')
+      expect(response.body).not_to include('app-drawer')
+    end
+  end
+
+  describe 'a performer page' do
+    it 'is addressed by the opaque token, not the id or the name' do
+      get "/fundraiser/#{performer.public_token}"
+
+      expect(response).to have_http_status(:success)
+      # The whole point of the token: the URL must not carry either.
+      expect(performer.public_token).to be_present
+      expect(performer.public_token).not_to include('elena')
+      expect(performer.public_token).not_to eq(performer.id.to_s)
+    end
+
+    it 'is reachable by the short share link' do
+      get "/f/#{performer.public_token}"
+
+      expect(response).to have_http_status(:success)
+    end
+
+    it 'sends a stale or mistyped link back to the picker instead of erroring' do
+      get '/fundraiser/nosuchtoken'
+
+      expect(response).to redirect_to('/fundraiser')
+    end
+  end
+
+  describe 'old shared links' do
+    # These are on refrigerators and in group texts.
+    it 'redirects the old donate page to the picker' do
+      get '/calendars/new'
+
+      expect(response).to have_http_status(:moved_permanently)
+      expect(response).to redirect_to('/fundraiser')
+    end
+
+    it 'redirects the old Stripe return URL, keeping its query string' do
+      get '/calendars/payment-confirmed?payment_intent=pi_123&redirect_status=succeeded'
+
+      expect(response).to have_http_status(:moved_permanently)
+      expect(response.headers['Location']).to include('/fundraiser/thanks')
+      expect(response.headers['Location']).to include('payment_intent=pi_123')
+    end
+  end
+
+  describe 'GET /api/fundraiser/performers' do
+    it 'returns ensemble, section and progress in one request' do
+      sponsor(performer, 3)
+      sponsor(performer, 17, intent: 'pi_other')
+
+      get '/api/fundraiser/performers'
+
+      expect(response).to have_http_status(:success)
+      body = response.parsed_body
+      row = body['performers'].find { |p| p['token'] == performer.public_token }
+
+      expect(row['name']).to eq('Elena Sokol')
+      expect(row['initials']).to eq('ES')
+      expect(row['section']).to eq('Front Ensemble')
+      # $3 + $17, in cents, because the frontend money helpers take cents.
+      expect(row['raised_cents']).to eq(2000)
+      expect(row['claimed_count']).to eq(2)
+      expect(row['complete']).to be(false)
+      expect(body['total_dates']).to eq(31)
+      expect(body['goal_cents']).to eq(49_600)
+    end
+
+    it 'marks a performer complete when all 31 dates are claimed' do
+      fundraiser = Calendar::Fundraiser.create!(user: performer, season: season)
+      (1..31).each do |date|
+        Calendar::Donation.create!(
+          user: performer, fundraiser: fundraiser, season_id: season.id,
+          donation_date: date, amount: date * 100
+        )
+      end
+
+      get '/api/fundraiser/performers'
+
+      row = response.parsed_body['performers'].first
+      expect(row['raised_cents']).to eq(49_600) # 1+2+...+31 = $496
+      expect(row['complete']).to be(true)
+    end
+
+    it 'scopes to the newest season by year, not by id' do
+      # A back-filled historical season gets the higher id, which is exactly
+      # what `Season.last` got wrong.
+      backfilled = create(:season, year: 2019)
+      other = create(:user, first_name: 'Marcus', last_name: 'Webb')
+      create(:seasons_user, user: other, season: backfilled, role: 'member')
+      performer
+
+      get '/api/fundraiser/performers'
+
+      tokens = response.parsed_body['performers'].map { |p| p['token'] }
+      expect(tokens).to include(performer.public_token)
+      expect(tokens).not_to include(other.public_token)
+    end
+
+    it 'does not run a query per performer' do
+      5.times do |n|
+        u = create(:user, first_name: "Perf#{n}", last_name: 'Test')
+        create(:seasons_user, user: u, season: season, role: 'member')
+        sponsor(u, n + 1, intent: "pi_#{n}")
+      end
+
+      count = 0
+      counter = lambda do |_name, _start, _finish, _id, payload|
+        count += 1 unless payload[:name] == 'SCHEMA' || payload[:sql].start_with?('TRANSACTION')
+      end
+
+      ActiveSupport::Notifications.subscribed(counter, 'sql.active_record') do
+        get '/api/fundraiser/performers'
+      end
+
+      # Roster + the two grouped aggregates + season lookup, not 5 more for the
+      # per-performer donation sums.
+      expect(count).to be < 12
+    end
+  end
+
+  describe 'GET /api/fundraiser/performers/:token/dates' do
+    it 'returns the claimed dates' do
+      sponsor(performer, 3)
+      sponsor(performer, 17, intent: 'pi_other')
+
+      get "/api/fundraiser/performers/#{performer.public_token}/dates"
+
+      expect(response).to have_http_status(:success)
+      expect(response.parsed_body['claimed_dates']).to eq([3, 17])
+    end
+
+    it 'creates no fundraiser row, because a GET must not write' do
+      # The endpoint this replaced called find_or_create_incomplete_for_user,
+      # so opening the picker left an empty fundraiser behind every time.
+      performer
+
+      expect do
+        get "/api/fundraiser/performers/#{performer.public_token}/dates"
+      end.not_to change(Calendar::Fundraiser, :count)
+    end
+
+    it '404s an unknown token' do
+      get '/api/fundraiser/performers/nosuchtoken/dates'
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
+  describe 'POST /api/fundraiser/payment_intents' do
+    before do
+      allow(Stripe::PaymentIntent).to receive(:create).and_return(
+        { 'id' => 'pi_calendar_123', 'client_secret' => 'pi_calendar_123_secret' }
+      )
+    end
+
+    it 'derives the charge from the dates and ignores a client-sent total' do
+      # The bug this replaces: `params[:total] * 100` was charged as sent, so a
+      # crafted request paid $1 while the webhook, which reads `dates`,
+      # credited the performer $31.
+      post '/api/fundraiser/payment_intents', params: {
+        token: performer.public_token, dates: [31], total: 1, donor_name: 'Someone'
+      }, as: :json
+
+      expect(response).to have_http_status(:success)
+      expect(Stripe::PaymentIntent).to have_received(:create).with(
+        hash_including(amount: 3100)
+      )
+    end
+
+    it 'charges the sum of the dates with no fee added' do
+      post '/api/fundraiser/payment_intents', params: {
+        token: performer.public_token, dates: [3, 12, 17], donor_name: 'The Sokol Family'
+      }, as: :json
+
+      # $3 + $12 + $17 = $32 exactly. Donors are not charged a card fee.
+      expect(Stripe::PaymentIntent).to have_received(:create).with(
+        hash_including(amount: 3200)
+      )
+    end
+
+    it 'passes the dates and performer to the webhook through the metadata' do
+      post '/api/fundraiser/payment_intents', params: {
+        token: performer.public_token, dates: [3, 17]
+      }, as: :json
+
+      expect(Stripe::PaymentIntent).to have_received(:create).with(
+        hash_including(
+          metadata: hash_including(charge_type: 'calendar', dates: '3,17', member_id: performer.id)
+        )
+      )
+    end
+
+    it 'stores a blank donor name as nil, because anonymous is a real choice' do
+      post '/api/fundraiser/payment_intents', params: {
+        token: performer.public_token, dates: [3], donor_name: ''
+      }, as: :json
+
+      expect(Stripe::PaymentIntent).to have_received(:create).with(
+        hash_including(metadata: hash_including(donor_name: nil))
+      )
+    end
+
+    it 'ignores dates outside 1..31 and de-duplicates' do
+      post '/api/fundraiser/payment_intents', params: {
+        token: performer.public_token, dates: [3, 3, 0, 32, 99, 17]
+      }, as: :json
+
+      expect(Stripe::PaymentIntent).to have_received(:create).with(
+        hash_including(amount: 2000, metadata: hash_including(dates: '3,17'))
+      )
+    end
+
+    it 'rejects an empty selection without calling Stripe' do
+      post '/api/fundraiser/payment_intents', params: {
+        token: performer.public_token, dates: []
+      }, as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(Stripe::PaymentIntent).not_to have_received(:create)
+    end
+
+    it 'refuses a date someone else already claimed, before charging the card' do
+      sponsor(performer, 17)
+
+      post '/api/fundraiser/payment_intents', params: {
+        token: performer.public_token, dates: [3, 17]
+      }, as: :json
+
+      expect(response).to have_http_status(:conflict)
+      expect(response.parsed_body['claimed_dates']).to eq([17])
+      expect(response.parsed_body['available_dates']).to eq([3])
+      expect(Stripe::PaymentIntent).not_to have_received(:create)
+    end
+  end
+end

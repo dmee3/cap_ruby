@@ -63,8 +63,11 @@ class StripeController < ApplicationController
         amount: date.to_i * 100,
         notes: "Stripe: #{pi_id}",
         donation_date: date.to_i,
-        donor_name: metadata.donor_name,
-        season_id: Season.last.id,
+        # A blank name means the donor chose to be anonymous. Stored as nil so
+        # the receipt and the performer's email can both say "Anonymous"
+        # instead of rendering an empty byline.
+        donor_name: metadata.donor_name.presence,
+        season_id: Fundraiser.public_season.id,
         calendar_fundraiser_id: fundraiser.id
       )
     end
@@ -73,7 +76,7 @@ class StripeController < ApplicationController
       CalendarMailer.with(
         user_id: metadata.member_id,
         donation_dates: metadata.dates.split(',').map(&:to_i),
-        donor_name: metadata.donor_name
+        donor_name: metadata.donor_name.presence
       ).calendar_email.deliver_later
     rescue StandardError => e
       Rollbar.error(e)

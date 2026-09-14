@@ -47,8 +47,12 @@ Rails.application.routes.draw do
       resources :calendars, only: %i[index]
     end
 
-    namespace :calendars do
+    # Public fundraiser (Flow 7), unauthenticated. Performers are addressed by
+    # their opaque public_token, never by id.
+    namespace :fundraiser do
       resources :payment_intents, only: %i[create]
+      get 'performers', to: 'performers#index'
+      get 'performers/:token/dates', to: 'performers#dates'
     end
 
     # One triage endpoint for both admins and coordinators (Flow 5).
@@ -125,9 +129,21 @@ Rails.application.routes.draw do
   get 'rhythm-converter', to: 'tools#rhythm_converter'
   get 'tarp-grid-tool', to: 'tools#tarp_grid_tool'
 
-  resources :calendars, only: %i[index new create]
-  get '/calendars/members', to: 'calendars#members'
-  get '/calendars/payment-confirmed', to: 'calendars#confirm_payment'
+  # The public calendar fundraiser (Flow 7). Four screens: pick a performer,
+  # pick dates, pay, confirmation.
+  get 'fundraiser', to: 'fundraiser#index', as: 'fundraiser'
+  get 'fundraiser/thanks', to: 'fundraiser#thanks', as: 'fundraiser_thanks'
+  get 'fundraiser/:token', to: 'fundraiser#show', as: 'performer_fundraiser'
+  get 'fundraiser/:token/checkout', to: 'fundraiser#checkout', as: 'performer_fundraiser_checkout'
+
+  # The short share link a performer sends to relatives.
+  get 'f/:token', to: 'fundraiser#show', as: 'share_fundraiser'
+
+  # The old donate URLs are on refrigerators and in group texts, so they
+  # redirect rather than 404. `/calendars/new` had no performer in it, so it
+  # can only land on the picker.
+  get 'calendars/new', to: redirect('/fundraiser')
+  get 'calendars/payment-confirmed', to: redirect { |_, request| "/fundraiser/thanks?#{request.query_string}" }
 
   resources :whistleblowers, only: %i[index create]
 
