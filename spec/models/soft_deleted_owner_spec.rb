@@ -43,6 +43,21 @@ RSpec.describe 'records owned by a soft-deleted user' do
     expect { Admin::ScheduleEditorPresenter.call(schedule.reload, season.attributes) }.not_to raise_error
   end
 
+  # The payments list joins users, so before this change a payment whose owner
+  # was soft-deleted dropped out of the list while STILL counting toward the
+  # season total — the list disagreed with its own total by that amount. In the
+  # 2022 production data that gap was $400.
+  it 'keeps the payments list reconciled with the season total' do
+    create(:payment, user: user, season: season, amount: 40_000, date_paid: Date.current)
+    User.where(id: user.id).update_all(deleted_at: Time.current)
+
+    listed = Payment.with_deleted.joins(:user, :payment_type)
+                    .for_season(season.id).where(deleted_at: nil).sum(:amount)
+    counted = Payment.for_season(season.id).sum(:amount)
+
+    expect(listed).to eq(counted)
+  end
+
   # The case actually found in the database: a payment created AFTER the user
   # was soft-deleted stays live with a dangling user_id.
   it 'renders Member 360 when a live payment outlives its deleted user' do
