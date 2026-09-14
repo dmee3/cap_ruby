@@ -393,6 +393,18 @@ webhook then credits the performer **$31** (it derives `amount` and
 `donation_date` from `dates`, not from the charge). The endpoint is public and
 unauthenticated, so anyone can call it.
 
+**Flow 2 already fixed this exact class of bug on the dues path**, and left a
+comment saying so. `Api::Members::PaymentIntentsController#create`:
+
+```ruby
+amount_cents = (params[:amount].to_f * 100).round
+# The fee is computed server-side; any client-sent `total` is ignored.
+total_cents = StripeFees.total_cents(amount_cents)
+```
+
+So this is a consistency fix with in-repo precedent, not a new invention — the
+fundraiser endpoint is simply the one that got left behind.
+
 It's low-stakes in practice — you'd be defrauding a youth music group of a few
 dollars, and the books would show it — but the amount charged must be derived
 server-side from `dates`, which is a two-line change:
@@ -421,6 +433,27 @@ never reads complete and `find_or_create_incomplete_for_user` keeps returning
 it), and arguably benign — the money is real either way. Worth a cheap
 re-check when the intent is created; filing as a follow-up bead rather than
 expanding this flow if it complicates the build.
+
+---
+
+## 9d. §4.13 specs a fee line for a fee the fundraiser doesn't charge
+
+§4.13 says the checkout summary carries "one plain-language fee line". It
+shouldn't, because **donors are not charged a card fee**. Sponsoring the 17th
+costs exactly $17.
+
+`StripeFees` (3% + 30¢, grossed up) is scoped to member dues — its own comment
+says "Card-processing fee for **member dues** payments" — and every caller is a
+dues path (`Api::Members::PaymentIntentsController`, `MoneyField`,
+`PaymentForm`, the member dashboard). `Api::Calendars::PaymentIntentsController`
+never references it: it charges `params[:total] * 100` and nothing more.
+
+That's almost certainly the right product call (a grandparent sponsoring the 3rd
+should be charged $3, not $3.39), so the fix is to the doc, not the code: the
+checkout summary needs **no** fee line. A "100% goes to the ensemble" style
+reassurance is the useful thing to say in that slot instead, if the canvas wants
+copy there. Whether the fee should be *offered* as an optional add-on is a
+product question, out of scope here.
 
 ---
 
@@ -526,25 +559,208 @@ extend those rather than testing by hand against Stripe.
 
 ## 12. Canvas review
 
-*(Artboard inventory, per-screen specs, and the copy deck go here once the
-canvas digest lands.)*
+Canvas: **"Flow 7 - Public fundraiser"**, read in full (21 artboards + 2 prose
+panels + a component sheet, both themes). Notably the canvas **corrects our own
+docs** rather than inheriting their errors — it carries a "Corrections to §4.13"
+panel that independently catches both the "100 numbered days" and the
+"`<canvas>` picker" mistakes described in §1 and §2 above.
+
+### Artboards
+
+| Section | Route | Artboards |
+|---|---|---|
+| 01 Landing | `/fundraiser` | desktop + mobile, light + dark (1100×980 / 390×844) |
+| 02 Picker states | `/fundraiser/:slug` | deep-link entry, plus loading / error / empty (390×560) |
+| 03 Pick dates | `/fundraiser/:slug` | desktop light + dark, mobile empty-selection, mobile near-complete |
+| 04 Checkout | `/fundraiser/:slug/checkout` | desktop light, mobile submitting, mobile declined |
+| 05 Confirmation | `/fundraiser/thanks` | desktop + mobile light, mobile dark, **payment-failed** (390×560) |
+| 06 Component sheet | — | §4.13a–d specs, light + dark |
+
+Coverage is deliberately asymmetric: mobile carries the state variants. There
+is no desktop dark checkout and no desktop payment-failed artboard.
+
+### The date selector — decided: 31 tiles, no calendar
+
+The canvas answers §3's open question explicitly and argues it:
+
+> The call: **31 numbered tiles in a 7-wide grid, no weekday alignment, no month
+> name.** Seven columns keep the calendar shape the fundraiser is named for,
+> which is the identity worth keeping, but the leading blanks go: the tiles are
+> prices, not appointments, and nobody is doing anything on the 17th. That also
+> deletes the bug where hardcoded blanks and a hardcoded month drift apart.
+
+So: `repeat(7, minmax(0,1fr))` at **both** breakpoints, tile 1 always top-left,
+31 tiles laying out as 4 rows of 7 plus a final row of 3. Gap 8px desktop / 5px
+mobile. Both hardcodings from §3 are deleted, and the bug class goes with them.
+
+Each tile carries **the number over its dollar amount** ("Every tile carries its
+dollar amount under the number, so the mechanic is legible even to a donor who
+scrolled past the hero"). Four states:
+
+| State | Sub-line | Treatment |
+|---|---|---|
+| available | `$7` | surface bg, `border-strong` hairline |
+| selected | `✓ $7` | ocean fill (`ocean.light` on dark), white number |
+| taken | the literal word `taken` | sunken bg + **`line-through`**, not focusable |
+| focused | `$7` | 2px page-bg spacer ring + 2px ocean ring, outside the tile |
+
+Desktop tiles `min-height:64px`, number `700 22px/24px`; mobile
+`min-height:44px`, number `700 16px/18px` — 44px is the stated touch-target
+floor. Legend (`Open` / `Yours` / `Taken`) is **desktop only**.
+
+The a11y rationale is explicit and good: *"Taken carries a strikethrough and the
+word taken, so it never depends on color alone, and it isn't focusable. Focus is
+a 2px ocean ring outside the tile, not a border swap, so the tile doesn't
+shift."*
+
+### Structure: four routes, no stepper
+
+Separate pages, not one stepped page, and **no step indicator anywhere**.
+Continuity comes from persisting the performer, the chips and the total on every
+screen ("Selections stay visible through payment"). Two entry points: the list,
+or a per-performer deep link that skips the list ("a grandparent with two kids
+in the ensemble is a real case").
+
+These are **new routes** (`/fundraiser`, `/fundraiser/:slug`,
+`/fundraiser/:slug/checkout`, `/fundraiser/thanks`) replacing `/calendars/new`
+and `/calendars/payment-confirmed`, plus a share alias `/f/:slug`. Old URLs are
+in the wild on shared links, so they need redirects, which the canvas doesn't
+mention.
+
+### Confirmations of findings above
+
+- **No fee line** (§9d confirmed independently): "You'll pay exactly $32. No
+  fees added." and "We'll charge your card $32 today, once. That's the whole
+  amount. Nothing is added on top and nothing repeats." No fee, tip, or
+  processing line anywhere.
+- **Completed performers are shown, not hidden** (§8 confirmed from the design
+  side too): a muted, non-tappable "Fully funded · $496" card, because complete
+  *"reads as good news instead of a dead end."*
+- **`PublicController` + the dead create route** — the canvas's own backend note
+  flags both, matching §4 and §5.
+- **The webhook race** (§6) gets a better answer than the Flow 2 precedent:
+  *"confirmation reads the intent, not the webhook, so a donor who lands before
+  the webhook fires still sees their receipt."* Reading the PaymentIntent
+  sidesteps the race instead of polling through it — the receipt renders from
+  Stripe's own data, and the webhook stays the durable writer. Worth keeping a
+  degraded state anyway for when the intent lookup itself fails.
+
+### What the canvas needs that the app doesn't have
+
+1. **A public slug** for deep links and share URLs. Left open by the designer:
+   *"A slug is friendlier than `?user_id=41` and doesn't leak sequential ids to
+   anyone who receives the link. Either works; the design assumes a slug."*
+   Nothing like it exists on `User` today. Note the deep link is also a **name
+   leak**: `/fundraiser/elena-sokol` publishes a minor's full name in a URL,
+   which `?user_id=41` doesn't. Worth weighing.
+2. **A receipt id** (`#CC-4192`) — invented, with no stated source. The Stripe
+   PI id or the fundraiser/donation id could back it.
+3. **A donor email** for "Receipt sent to". Not collected today; the canvas
+   assumes Stripe's Payment Element supplies it, with a fallback of a second
+   optional input.
+4. **Ensemble/section display labels.** The canvas uses donor-facing labels
+   ("Front Ensemble · Vibes", "Battery · Snare"). `seasons_users` stores the
+   internal values, so this needs a display mapping, not new columns — and the
+   endpoint has to start selecting them (§10).
+5. **Claimed-date counts in one request** — "so the picker can show progress in
+   one request instead of 4 plus 1". Same point as §10's N+1.
+6. **A `Toast` for the concurrency case** (§9c): if a selected date is taken
+   while the donor decides, the canvas wants a toast naming the date and the new
+   total. It references §4.11 but doesn't draw it. `Toast.tsx` exists.
+
+### Canvas-internal problems worth knowing before building
+
+- **Everything is a `<span>`.** Tiles, performer cards, chips and most headings
+  are non-semantic spans with `cursor:pointer`. The tiles need real `<button>`s
+  with `aria-pressed` / `aria-disabled` and an accessible name ("Sponsor the 7th
+  for $7" — a screen reader on the drawn markup reads "7 $7"); the performer
+  cards need `<a>`. The search field isn't an `<input>` on any artboard, so no
+  label is specified.
+- **Two disabled-state contrast failures** in the mobile bottom bar: the `$0`
+  total is `#9aa0a6` on `#fff` (~2.6:1) and the disabled `Continue` label is
+  `#9aa0a6` on `#e4e6e8` (~2.3:1). Disabled *controls* are exempt, but the `$0`
+  total is content and should be darkened.
+- **Desktop-only copy, unflagged.** The hero body, math-card caption, footer
+  legend, attribution block, copy-link field, performer count, and the "Your
+  card was charged $32." sentence all vanish on mobile with no stated
+  responsive rule. Reads as artboard fatigue; needs a call per item.
+- **Marcus's status line hides his count** ("just getting started" instead of
+  "4 of 31 dates claimed") with no defined threshold. Implementer has to invent
+  the rule; simplest is to keep the count everywhere.
+- **The near-complete urgency banner** and its "Take all three and finish her
+  calendar · $38" bulk button have no threshold rule either.
+- **The component sheet's receipt example is a third transaction** ($3 + $17 =
+  $20) different from the $32 used on every screen. Harmless, mildly confusing.
+- **Mobile offers no way to deselect** — no chip `✕`, no clear-all. Re-tapping a
+  tile is implied but never drawn or annotated.
+- Never specified: what the search filters and its no-results state; whether
+  "Share" uses the Web Share API or just copies; what "Give to the ensemble"
+  links to (**no general-donation flow exists in the app**); what "Email us"
+  does.
+- **The month disagreement.** The canvas deliberately drops "March" everywhere
+  in favor of bare ordinals, but `CalendarMailer` sends the performer "3/3".
+  Donor-facing copy and the performer's email will disagree.
+- **Zero em-dashes** in the canvas copy, consistent with the repo convention.
+  Ship the copy as written.
 
 ---
 
-## 13. Open decisions for the user
+## 13. Decisions
 
-1. **Calendar alignment vs. 31 tiles** — §3. Recommendation: 31 numbered tiles,
-   no weekday columns, which deletes both hardcodings and the whole bug class.
-   Pending confirmation against the artboards.
-2. **Hide performers with a completed fundraiser?** — §8. Recommendation: no,
-   show everyone with progress; completion is 0–5% and a hidden performer
-   reappears at 0/496 on their next donation anyway.
-3. **`Season.last` → `Season.order(:year).last`?** — §7. Recommendation: yes,
-   resolved once in the controller. Public-flow only; leaves
-   `Calendar::Fundraiser`'s scopes alone for Flow 9.
-4. **Server-derive the charge amount from `dates`** — §9b. Recommendation: yes,
-   in this flow. It's a correctness fix on the live payment path and its only
-   caller is being rebuilt regardless.
+### Settled by the canvas or the code — building on these
+
+1. **31 numbered tiles, not a calendar** (§3, §12). The canvas decides this
+   explicitly and argues it. Both hardcodings are deleted.
+2. **Completed performers stay listed**, muted and non-tappable (§8, §12).
+   Agreed from both directions: the canvas wants complete to read as good news,
+   and the data says filtering would hide 0–5% of performers and never
+   permanently.
+3. **No fee line** (§9d, §12). Donors pay the bare date sum; the canvas says so
+   three times. The §4.13 fee line is a doc error, corrected in the sync.
+4. **Confirmation reads the PaymentIntent, not the webhook** (§6, §12). Better
+   than the Flow 2 polling precedent — the receipt renders from Stripe's own
+   data, and the webhook remains the durable writer. A degraded state stays for
+   when the intent lookup itself fails.
+5. **`Season.order(:year).last`, resolved once in the controller** (§7).
+   Public-flow only; `Calendar::Fundraiser`'s scopes are left for Flow 9.
+6. **Server-derive the charge amount from `dates`** (§9b). The dues endpoint
+   already does exactly this and says so in a comment; the fundraiser endpoint
+   was left behind. Correctness fix on live money, its only caller is being
+   rebuilt anyway.
+7. **Keep the claimed count in every performer status line** (§12). Rather than
+   invent the undefined threshold behind "just getting started".
+8. **Real interactive semantics** — tiles as `<button>` with `aria-pressed` and
+   an accessible name, performer cards as `<a>`, a real labelled `<input>` for
+   search (§12). The canvas draws spans; that's a mockup artifact, not a spec.
+9. **Darken the mobile `$0` total** so content passes AA (§12).
+
+### Decisions taken with the user
+
+1. **Public URLs use an opaque token, not a name slug.** A random
+   `public_token` on `User`, giving `/f/k7m2xq`. Chosen over the canvas's
+   literal `elena-sokol` because a shared URL that travels through group texts
+   and Facebook shouldn't publish a minor's full name, and over `?user_id=41`
+   because sequential ids are enumerable. The canvas left this open ("Either
+   works; the design assumes a slug"), so this is within the design's intent —
+   the URL is the one place the implementation diverges visibly from the
+   artboards.
+2. **The receipt carries no id.** `#CC-4192` was invented with no source. The
+   receipt header shows the date alone; the date plus the donor's email is
+   enough to find a donation in support, and `"Stripe: <pi_id>"` is still on
+   the row for tracing.
+3. **The donor email comes from Stripe.** The Payment Element already collects
+   one for Stripe's own receipt, so the confirmation reads it off the
+   PaymentIntent. No second input on a page tuned for speed. If Stripe's config
+   doesn't supply it, the line is omitted rather than faked.
+
+### Still open, lower stakes
+
+4. **Old URL redirects.** `/calendars/new` is in the wild on shared links.
+   Plan assumes 301s from the old paths to the new ones. Cheap, and not
+   mentioned by the canvas.
+5. **Does the performer email keep saying "3/3"?** The canvas drops "March"
+   from all donor-facing copy, but `CalendarMailer` sends the performer "3/3".
+   Out of scope to change the mailer here; filed as a follow-up.
 
 ### Decisions taken
 

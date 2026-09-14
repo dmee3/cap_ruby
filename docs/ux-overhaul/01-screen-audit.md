@@ -20,7 +20,7 @@ markers below are kept only as a rough at-a-glance; beads is authoritative.
 
 | Layer | Current state | Implication for redesign |
 |---|---|---|
-| Layouts | 5 separate ERB layouts (`application`, `admin`, `members`, `coordinators`, `staff`, `calendar`) that are near-duplicates of each other | One shell, role-driven nav. Huge consolidation opportunity. |
+| Layouts | *Was* 6 near-duplicate ERB layouts (`application`, `admin`, `members`, `coordinators`, `staff`, `calendar`). **Now three** — `application` / `auth` / `public` — after Flow 1 collapsed the role layouts, PR #229 added `PublicController`, and Flow 7 folded in the last `calendar` one | Done. One shell, role-driven nav; each remaining layout has a declared audience. |
 | Navigation | Fixed 160px left sidebar (icon + label), separate mobile hamburger + slide-in, season dropdown + profile dropdown in a thin top bar | Nav model is sound but visually dated and the mobile/desktop split is fully duplicated markup |
 | Rendering | Mix of server-rendered ERB and React "widgets" mounted into `<div id="...">` holes | Redesign can standardize on one interaction model per screen type |
 | Styling | WindiCSS utilities + ~10 hand-written `@apply` component classes (`.card`, `.btn-primary`, `.custom-table`, `.input-text`, …) | These hand-rolled classes *are* the current design system — small, inconsistent, worth replacing wholesale |
@@ -38,7 +38,7 @@ markers below are kept only as a rough at-a-glance; beads is authoritative.
 4. **Tables are desktop-only in feel.** `.custom-table` with `whitespace-nowrap` everywhere; on mobile these overflow. Members' payment/conflict data has no real mobile table pattern.
 5. **Forms are a 5-column grid hack.** `grid grid-cols-5` with label in col 1, field in cols 2–5, repeated by hand in every form (conflict, whistleblower, payment, login). No shared form-row component on the ERB side.
 6. **Empty states are literally the word "None"** in large mono text (member dashboard conflicts, staff dashboard).
-7. **The public calendar fundraiser** uses a totally separate visual language (fixed background photo, centered 42rem column, its own CSS file) and a `<canvas>`-based date picker with hardcoded pixel coordinates.
+7. **The public calendar fundraiser** uses a totally separate visual language (fixed background photo, centered 42rem column, its own CSS file, its own one-off `calendar` layout) and a date grid whose month heading (`"March 2025"`, a literal) and column offset (six hardcoded leading blanks) are set independently, so weekday alignment is wrong for any year but 2025. *(Corrected in Flow 7: an earlier version of this line described a `<canvas>` picker with hardcoded pixel coordinates. That was already gone — the `<canvas>` belongs to `Calendar::ImageService` on the member-facing page. The redesign drops weekday alignment entirely, which removes both hardcodings.)*
 8. **Badges** are built with dynamic class strings (`bg-${color}-100`) — fragile, and the color set is tiny.
 9. **No visible loading or error states** in most React widgets — they `console.error` and render nothing.
 10. **Season switching** is a dropdown buried in the top-right. It's a primary context control (the whole app is season-scoped) but treated as a minor utility.
@@ -55,8 +55,8 @@ Legend for **Priority**: 🔴 High (painful + high traffic) · 🟡 Medium · �
 |---|---|---|---|---|
 | **Login** | `/login` | Member/staff signs in | Bare form on a background image; no branding story, no "forgot password" prominence | 🟡 |
 | Forgot / reset password | `/password/new`, `/settings-password` etc. | Recover access | Devise default styling, minimal | ⚪ |
-| **Calendar fundraiser — donate** | `/calendars/new` | A donor (often a parent/relative, not a member) picks a performer, selects calendar dates, pays via Stripe | Separate visual world; canvas date-picker with pixel math; multi-step flow (choose member → choose dates → pay) with weak progress indication; mobile experience questionable | 🔴 |
-| Fundraiser — success / error | `/calendars/success`, `/calendars/error` | Confirm the donation | Minimal confirmation; no "share" or "donate again" | 🟡 |
+| **Calendar fundraiser — donate** | `/fundraiser`, `/fundraiser/:token` | A donor (often a parent/relative, not a member) picks a performer, selects calendar dates, pays via Stripe | ✅ rebuilt in Flow 7 as four routes on the `public` layout: picker, 31-tile date grid, checkout, confirmation. Replaced a separate visual world with its own layout and CSS file, a date grid misaligned for any year but 2025, a dead `POST /calendars` form carrying a pre-Payment-Intents `stripe_token`, and a checkout button whose disabled logic was inverted so it never disabled. Mobile is now a first-class layout, not an afterthought | ✅ |
+| Fundraiser — confirmation / failed | `/fundraiser/thanks` | Confirm the donation, and get the next one | ✅ rebuilt in Flow 7: a real receipt, "support someone else", and a share link, which is the highest-leverage thing on the page. Reads the Stripe PaymentIntent rather than the webhook, so a donor who lands before the webhook fires still sees their receipt. Replaced a static "Success!" line linking off-site, plus an `error.html.erb` that had no route to it at all | ✅ |
 | Auditions spreadsheet page | `/auditions-spreadsheet` | Staff triggers a Squarespace→Sheets sync | Utility page, ~6 weeks/year use. Low design value | ⚪ |
 
 ### Member
@@ -130,13 +130,17 @@ Admin inherits coordinator + staff, plus:
 Design in **flows**, not isolated screens — shared components carry across a flow so
 each one is faster than the last.
 
-**Progress:** Flows 1–4 merged (PR #221 shell/tokens, #226 member dues,
-#230 member conflicts, #234 admin financial command center). Flow 5 (conflict
-triage) is built and awaiting a visual pass. (Authoritative status: `bd ready`.)
+**Progress:** Flows 1–6 merged (PR #221 shell/tokens, #226 member dues,
+#230 member conflicts, #234 admin financial command center, #240 conflict
+triage, #241 admin roster & onboarding). Flow 7 (public fundraiser) is built and
+awaiting a visual pass — it was the last 🔴 P1 flow, so what remains is Flow 8
+(inventory) and Flow 9 (supporting screens), both 🟡. (Authoritative status:
+`bd ready`.)
 
 Along the way, the layout set collapsed to three — `application` / `auth` /
-`public`, with public controllers inheriting `PublicController` (PR #229) — which
-is the groundwork Flow 7 builds on (see `02-design-system.md` §4.1). The
+`public`, with public controllers inheriting `PublicController` (PR #229), and
+**Flow 7 finished the job** by folding in the last one-off `calendar` layout
+(see `02-design-system.md` §4.1). The
 conflict-submission toggle added in Flow 3 (`Season#conflict_submission_open`,
 editable at `/admin/season/edit`) is the seasonal on/off switch coordinators use.
 
@@ -231,11 +235,33 @@ editable at `/admin/season/edit`) is the seasonal on/off switch coordinators use
   `dues_status_okay?` season-key memoization (`.13`); two contradictory password
   length rules; and new members landing with an empty payment schedule.
 
-### Flow 7 — Public fundraiser 🔴 *(distinct audience — external donors)*
-- Landing / pick a performer
-- Select dates (replace canvas picker)
-- Checkout
-- Confirmation + "donate again / share"
+### Flow 7 — Public fundraiser ✅ shipped *(distinct audience — external donors)*
+- Landing / pick a performer — initials avatar, ensemble, section, and progress
+  per performer. Completed performers stay listed, muted and non-tappable, since
+  a finished calendar should read as good news rather than a dead end
+- Select dates — **31 numbered tiles, 7 wide, no weekday alignment and no month
+  name**. Seven columns keep the calendar shape the fundraiser is named for, but
+  tile 1 is always top-left: the tiles are prices, not appointments. That also
+  deleted the alignment bug, since the hardcoded month and the hardcoded column
+  offset could no longer drift apart. *(The original scope said "replace canvas
+  picker" — see the corrected friction note above; there was no canvas.)*
+- Checkout — the performer, the date chips and the total stay on screen while
+  the card form sits beside or under them. No fee: a donor pays exactly the sum
+  of the dates they picked
+- Confirmation + share — a real receipt, "support someone else", and a share
+  link, reading the Stripe PaymentIntent so the receipt renders even when the
+  webhook hasn't landed yet
+- **Completed the layout consolidation**: folded away the last one-off
+  `calendar` layout, so the app is finally three layouts
+  (`application` / `auth` / `public`)
+- Public URLs use an **opaque per-performer token** (`/f/k7m2xq`) rather than the
+  name slug the canvas drew, so a link forwarded through a group text doesn't
+  publish a minor's full name
+- Fixed on the way: a `POST /calendars` route pointing at an action that didn't
+  exist (behind a dead form carrying a pre-Payment-Intents `stripe_token`); a
+  checkout button whose `disabled={!stripe && !submitting}` was inverted so it
+  never disabled; and a payment-intent endpoint that trusted a client-supplied
+  total, so a crafted request could charge $1 and credit $31
 
 ### Flow 8 — Inventory 🟡
 - Category + item list with inline quantity edit

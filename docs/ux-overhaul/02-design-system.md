@@ -10,12 +10,15 @@ The **Tokens** and **Components** sections are the Claude Design project's desig
 system. The **Principles** and **Voice** sections are guidance for how screens
 should feel.
 
-**Status:** Flows 1–5 merged (shell/tokens #221, member dues #226, member
-conflicts #230, admin financials #234, conflict triage #240). Layout set is now
-three — `application` / `auth` / `public` (#229), + `calendar` until Flow 7
-folds it in. Flow 6 (admin roster & onboarding) in progress: §4.32 + §4.33 added,
-§4.34 specced but deferred to `cap_ruby-b3a.21`. Full flow list:
-`01-screen-audit.md`. Live task status: **beads** — `bd show cap_ruby-b3a`.
+**Status:** Flows 1–6 merged (shell/tokens #221, member dues #226, member
+conflicts #230, admin financials #234, conflict triage #240, admin roster #241)
+— §4.32 + §4.33 added in Flow 6, §4.34 specced but deferred to
+`cap_ruby-b3a.21`. Flow 7 (public fundraiser) in progress: §4.13 **corrected**
+(it said 100 days, a `<canvas>` picker, and a fee line — all three wrong) and
+§4.35–§4.39 added. **The layout set is now finished at three** —
+`application` / `auth` / `public` (#229) — Flow 7 folded in the last one-off
+`calendar` layout. Full flow list: `01-screen-audit.md`. Live task status:
+**beads** — `bd show cap_ruby-b3a`.
 
 ---
 
@@ -211,11 +214,15 @@ each one superseded.
 - **Mobile nav** — the *same* nav list in a slide-over sheet. One source of truth,
   not a separate markup block.
 - Replaces: all 5 ERB layouts + both `_sidebar` partials + duplicated mobile menus.
-- **Layout set (post-overhaul target): three.** `application` — the shell, every
+- **Layout set: three. Complete as of Flow 7.** `application` — the shell, every
   authenticated screen. `auth` — Devise (login / password recovery), a centered
   card. `public` — the shell-free layout for pages with an external,
-  unauthenticated audience (auditions spreadsheet, standalone tools, and — after
-  Flow 7 — the calendar fundraiser, folding today's one-off `calendar` layout in).
+  unauthenticated audience (auditions spreadsheet, standalone tools, and the
+  calendar fundraiser). **Flow 7 folded in the last one-off `calendar` layout**
+  and deleted it along with its `calendar.css`, so the consolidation that
+  started in Flow 1 (from six near-duplicate layouts) is now finished: three
+  layouts, each with a declared audience, and no per-controller `layout` calls
+  outside them.
   Public controllers inherit from `PublicController` (`layout 'public'`) so the
   category is *declared*, not inferred from whether someone's signed in. The
   shell partials (`_sidebar`, `_topbar`, `_drawer`, `_season_switcher`) carry a
@@ -397,17 +404,39 @@ each one superseded.
   current season tagged with a `Current` pill, each showing that season's
   ensemble / section.
 
-### 4.13 Public fundraiser components
-- The donor flow gets its own lightweight theme layer (still on-brand: `ocean` /
-  `moss`, `flash` background) but does **not** use the app shell.
-- **Performer picker** — searchable list/grid of members with photo/initial,
-  ensemble, and fundraiser progress.
-- **Date selector** — replace the `<canvas>` + hardcoded-pixel picker with a real
-  calendar-grid component: 100 numbered days, each showing available / taken /
-  selected, keyboard accessible.
-- **Checkout summary** — selected performer, selected dates as chips, subtotal,
-  Stripe payment element, one plain-language fee line.
-- **Confirmation** — receipt, "donate to someone else", social share.
+### 4.13 Public fundraiser components *(corrected — Flow 7)*
+
+> **Three corrections to the original Flow 1 spec**, all made in place below.
+> The original said "100 numbered days" (it's **31**), said to "replace the
+> `<canvas>` picker" (the `<canvas>` was already gone; the real defect was a
+> hardcoded month name and six hardcoded leading blanks that disagreed with each
+> other), and specced "one plain-language fee line" (**donors are charged no
+> fee** — `StripeFees` is dues-only). See `flow7-design-review.md` §1, §2, §9d.
+
+**The public theme layer is a named thing.** Same tokens, same 1px border and
+radius scale as the rest of the system, but larger type, looser density, and no
+app shell — a donor reads this once, on a phone, in a parking lot. Named here so
+the next public page inherits it instead of inventing a second one-off layout.
+The fundraiser runs on the `public` layout; Flow 7 folded away the last
+one-off `calendar` layout (see §4.1).
+
+**The mechanic, since every component below divides by it:** the donation amount
+*is* the date number. The 3rd is $3, the 17th is $17. **31 dates** per performer,
+each claimable once, so a finished calendar is **$496** (1+2+…+31).
+
+- **Performer picker** (§4.13a) — searchable list/grid of members with initials
+  avatar, ensemble, section, and fundraiser progress. Photos are explicitly
+  deferred; initials until then.
+- **Date selector** (§4.13b) — **31 numbered tiles in a 7-wide grid, no weekday
+  alignment and no month name**, at both breakpoints. Seven columns keep the
+  calendar shape the fundraiser is named for, but tile 1 is always top-left: the
+  tiles are prices, not appointments. Nothing in the data ties a donation to a
+  real weekday, so pretending otherwise invites "is the 17th a Tuesday" questions
+  the app can't answer — and it was the source of the alignment bug.
+- **Checkout summary** (§4.13c) — selected performer, selected dates as chips,
+  total, and a slot the Stripe element drops into. **No fee line.**
+- **Confirmation / receipt** (§4.13d) — receipt, "support someone else", and
+  share, which is the highest-leverage thing on the page.
 
 ### 4.14 DuesMeter *(added — Flow 2)*
 - Horizontal bar. **Fill = paid ÷ total** in `moss`. A **jet tick** (flips to
@@ -862,6 +891,101 @@ Not built this flow. Before it ships, `PaymentSchedule` needs `acts_as_paranoid`
 — today a user delete hard-destroys the schedule and its entries while
 soft-deleting everything else, so a "stays" list would be lying. See
 `flow6-design-review.md` §6.
+
+### 4.35 Performer picker item *(added — Flow 7, as `PerformerCard.tsx`)*
+
+The §4.13a entry. One card per member on the public picker. Anatomy: initials
+avatar, name, `Ensemble · Section`, a progress bar, then a status line.
+
+- **Three states**, not two: **with progress** (`$312 of $496 · 18 of 31 dates
+  claimed`), **brand new** (`$46 of $496 · just getting started`), and
+  **complete** (`✓ All 31 dates claimed. Nia is fully funded.`).
+- **Complete stops being tappable** — muted surface (`bg.sunken`), name drops to
+  `text.secondary`, progress renders as a solid full `moss` bar with no track,
+  and there is no hover or pointer cursor. It "reads as good news instead of a
+  dead end", which is also why completed performers stay **listed** rather than
+  filtered out (completion is only 0–5% a season anyway, and a completed
+  fundraiser immediately respawns — see `flow7-design-review.md` §8).
+- Avatar fills rotate through `ocean` / `ocean.light`; complete uses
+  `moss.lightest` behind `moss.dark` text.
+- Whole card is one link. Dark: progress uses `moss.light`, complete uses
+  `moss.dark` behind `moss.lightest`, to hold contrast.
+
+### 4.36 Date tile + 31-tile grid *(added — Flow 7, as `DateTile.tsx` + `DateGrid.tsx`)*
+
+The §4.13b entry, and the component this flow exists for. **31 tiles,
+`repeat(7, minmax(0,1fr))`, tile 1 top-left, no leading blanks, no weekday
+header row, no month name** — identical structure at both breakpoints (gap 8px
+desktop, 5px mobile; 31 tiles read as four rows of seven plus a final row of
+three).
+
+Each tile stacks **the day number over its dollar amount**, so the mechanic
+stays legible to a donor who scrolled past the hero.
+
+| State | Sub-line | Fill / border | Interactive |
+|---|---|---|---|
+| `available` | `$7` | `bg.surface` + `border.strong` hairline | yes |
+| `selected` | `✓ $7` | `ocean` fill (`ocean.light` on dark), `text.on-brand` number | yes |
+| `taken` | the word `taken` | `bg.sunken`, **`line-through`** | no, and **not focusable** |
+| `focused` | `$7` | available fill + a 2px page-bg spacer ring then a 2px `ocean` ring **outside** the tile | — |
+
+- Sizes: desktop `min-height 64px`, number `text-[22px]/[24px]` weight 700;
+  mobile `min-height 44px`, number `16px/18px`. **44px is the touch-target
+  floor** — at 390px the 7-column grid yields ~46px tiles, which is why the
+  column count holds on mobile. Below ~360px it would breach the floor.
+- Status is never color-only: `taken` carries both a strikethrough **and** the
+  literal word. `selected` carries a `✓` glyph as real text.
+- Focus is a ring *outside* the tile, never a border swap, so the tile doesn't
+  shift on focus.
+- Real `<button>`s with `aria-pressed` and an accessible name that says what the
+  tile does (`Sponsor the 7th for $7`) — the number-over-amount markup alone
+  reads as "7 $7" to a screen reader. Taken tiles are `disabled`.
+- **Legend** (`Open` / `Yours` / `Taken`, 12px swatches) is desktop-only.
+
+### 4.37 Date chip *(added — Flow 7, as `DateChip.tsx`)*
+
+Pill, `radius.full`, `ocean.lightest` tint fill with an `ocean` border, holding
+`the 3rd` plus the amount in mono. Two variants:
+
+- **removable** — carries a `✕` with an accessible name (`Remove the 3rd`). Used
+  in the desktop summary rail.
+- **static** — `the 3rd · $3`, no `✕`. Used on checkout and the receipt, where
+  the edit path is a `Change dates` link instead.
+
+Dark: deeper `ocean.dark` tint, `ocean.light` border.
+
+### 4.38 Sticky total bar (mobile) *(added — Flow 7, as `StickyTotalBar.tsx`)*
+
+The mobile counterpart to the desktop summary rail: pinned below the scroll
+region, `bg.surface` with a top hairline. Left, the running total (`$32`,
+`text.display` weight 800) over a plain-English list of what's picked (`the 3rd,
+12th and 17th`). Right, the primary action.
+
+- **Disabled state** (nothing picked): total reads `$0`, caption `no dates yet`,
+  button inert. The `$0` is **content, not a control**, so it takes a color that
+  passes AA rather than the disabled grey the canvas drew (~2.6:1).
+- "The total is the only number a donor is tracking", so it is pinned to the
+  viewport on mobile and to the rail on desktop, and never scrolls away.
+
+### 4.39 Receipt *(added — Flow 7, as `Receipt.tsx`)*
+
+The §4.13d entry. One row per sponsored date, a total row that says **charged**,
+and an attribution line beneath. Same row rhythm as the Flow 6 schedule preview
+(§4.33), so a donor and an admin read the same kind of table.
+
+- Header strip: uppercase `Receipt` eyebrow, date right-aligned in mono. **No
+  receipt id** — the mockup's `#CC-4192` had no source in the app; the date plus
+  the donor email is enough for support, and `"Stripe: <pi_id>"` stays on the
+  row for tracing.
+- Rows: `The 3rd` / `$3`, amounts in mono. Total row on `bg.sunken`:
+  `Total charged` / `$32`.
+- Attribution: `From` (the donor name, or **`Anonymous`** — a real stored state,
+  not a blank), `Card` (`•••• 4242`), `Receipt sent to` (the email **from
+  Stripe's Payment Element**; the line is omitted, not faked, if Stripe doesn't
+  supply one).
+- **Must survive at 340px and in plain text** — this component is also the body
+  of the performer's notification email, so it can't depend on the grid tricks
+  the desktop web version uses for hairlines.
 
 ---
 
