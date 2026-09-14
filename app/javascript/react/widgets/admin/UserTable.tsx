@@ -394,8 +394,8 @@ const OffRosterView = ({
     <div className="rounded-md border border-border-default border-l-3 border-l-ocean bg-surface p-4">
       <p className="m-0 text-body-sm font-semibold text-primary">These accounts still exist</p>
       <p className="m-0 mt-1 text-body-sm text-secondary">
-        Every season is off, so they don&rsquo;t appear on a roster, in the burndown or in triage — and
-        they can&rsquo;t sign in until they&rsquo;re on a season. Their payment history is intact.
+        Every season is off, so they don&rsquo;t appear on a roster, in the burndown or in triage,
+        and they can&rsquo;t sign in until they&rsquo;re on a season. Their payment history is intact.
       </p>
     </div>
 

@@ -107,8 +107,6 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
     return !data.user.seasons_users.find(r => r.season_id === season.id)?.has_schedule
   })
 
-  // Seasons being taken off the roster by this save.
-  const removals = data.seasons.filter(s => initiallyOn.has(s.id) && !rows[s.id])
 
   // Posted as its own form so it can't be confused with saving the record.
   const sendReset = () => {
@@ -196,7 +194,7 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
                   label="Temporary password"
                   name="user[password]"
                   type="password"
-                  hint="At least 8 characters. Set only at creation — later changes go through a reset link."
+                  hint="At least 8 characters. Set only at creation; later changes go through a reset link."
                 />
               )}
             </div>
@@ -250,50 +248,36 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
         </div>
 
         <aside className="flex flex-col gap-4">
+          {/* Three fixed steps that hold for any combination of seasons, rather
+              than a sentence per toggle state. The schedule step names the
+              seasons it will actually create one for, since that's the only
+              part that varies in a way the admin can't see elsewhere. */}
           <section className="rounded-md border border-border-default bg-surface p-5">
             <h2 className="mt-0 mb-1 text-body font-bold">What happens when you save</h2>
-            <p className="m-0 mb-3 text-body-sm text-secondary">
-              {isEdit ? 'Only what you changed.' : 'Fills in as you type.'}
-            </p>
             <ol className="m-0 flex list-decimal flex-col gap-3 pl-5">
               <li className="text-body-sm text-primary">
-                {isEdit ? 'Their details are updated.' : 'They get an account.'}
+                {isEdit ? 'Their details and seasons are updated.' : 'They get an account.'}
                 {!isEdit && data.user.username && (
                   <span className="text-secondary"> They sign in as {data.user.username}.</span>
                 )}
               </li>
-              {!isEdit && (
-                <li className="text-body-sm text-primary">
-                  A welcome email goes out, inviting them to set a password.
-                </li>
-              )}
-              {removals.length > 0 && (
-                <li className="text-body-sm text-primary">
-                  They come off the {listSeasons(removals)} roster
-                  {removals.length > 1 ? 's' : ''}.
-                  <span className="text-secondary">
-                    {' '}
-                    Their payments and past seasons stay.
-                  </span>
-                </li>
-              )}
+              <li className="text-body-sm text-primary">
+                {isEdit ? (
+                  <span className="text-secondary">No email goes out. Welcome mail is creation-only.</span>
+                ) : (
+                  'A welcome email goes out, inviting them to set a password.'
+                )}
+              </li>
               <li className="text-body-sm text-primary">
                 {schedulesToCreate.length > 0 ? (
-                  <>
-                    A payment schedule is created for {listSeasons(schedulesToCreate)}.
-                  </>
+                  `A payment schedule is created for ${listSeasons(schedulesToCreate)}.`
                 ) : (
                   <span className="text-secondary">
-                    No new payment schedule — only members get one, and existing schedules
-                    aren&rsquo;t replaced.
+                    No new payment schedules. Only member seasons get one, and existing
+                    schedules are never replaced.
                   </span>
                 )}
               </li>
-              {isEdit && (
-                <li className="text-body-sm text-secondary">
-                  No email goes out. Welcome mail is creation-only.
-                </li>
-              )}
             </ol>
           </section>
 

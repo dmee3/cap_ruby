@@ -170,10 +170,12 @@ describe('UserForm', () => {
         />
       )
 
-      expect(screen.getByText(/No new payment schedule/)).toBeTruthy()
+      expect(screen.getByText(/No new payment schedules\./)).toBeTruthy()
     })
 
-    it('calls out a season the save takes them off', () => {
+    // The steps are fixed rather than branching per toggle state, so turning a
+    // season off doesn't add or remove a step; only the schedule line varies.
+    it('keeps the same three steps when a season is toggled off', () => {
       const { container } = render(
         <UserForm
           data={editing([
@@ -183,10 +185,36 @@ describe('UserForm', () => {
         />
       )
 
-      // Toggle 2027 (the first block) off.
+      expect(container.querySelectorAll('ol li')).toHaveLength(3)
       fireEvent.click(container.querySelectorAll('[role="switch"]')[0])
+      expect(container.querySelectorAll('ol li')).toHaveLength(3)
+    })
 
-      expect(screen.getByText(/They come off the 2027 roster\./)).toBeTruthy()
+    // The reported case: on 2027, removed from it, added to 2026 as a member.
+    it('names 2026 when the member is added there, not the current season', () => {
+      render(
+        <UserForm
+          data={editing([
+            { id: 10, season_id: 2, role: 'member', ensemble: 'World', section: 'Snare', has_schedule: false },
+          ])}
+          csrfToken="tok"
+        />
+      )
+
+      expect(screen.getByText('A payment schedule is created for 2026.')).toBeTruthy()
+    })
+
+    it('has no em-dash in the no-schedule copy', () => {
+      render(
+        <UserForm
+          data={editing([
+            { id: 9, season_id: 3, role: 'member', ensemble: 'World', section: 'Snare', has_schedule: true },
+          ])}
+          csrfToken="tok"
+        />
+      )
+
+      expect(screen.getByText(/No new payment schedules\./).textContent).not.toContain('—')
     })
   })
 
