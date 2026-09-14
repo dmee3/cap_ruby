@@ -135,6 +135,37 @@ RSpec.describe User, type: :model do
       end
     end
 
+    # The method memoized a single @status regardless of the season asked
+    # about, so the second season checked in a request came back with the first
+    # season's answer. Two seasons, opposite answers, same object.
+    context 'dues_status_okay? across two seasons' do
+      let(:paid_season) { create(:season, year: '2025') }
+      let(:behind_season) { create(:season, year: '2026') }
+      let(:member) { create(:user) }
+
+      before do
+        create(:seasons_user, user: member, season: paid_season, role: 'member')
+        create(:seasons_user, user: member, season: behind_season, role: 'member')
+
+        paid = create(:payment_schedule, user: member, season: paid_season)
+        create(:payment_schedule_entry, payment_schedule: paid, amount: 100, pay_date: Date.yesterday)
+        create(:payment, user: member, season: paid_season, amount: 100, date_paid: Date.yesterday)
+
+        behind = create(:payment_schedule, user: member, season: behind_season)
+        create(:payment_schedule_entry, payment_schedule: behind, amount: 500, pay_date: Date.yesterday)
+      end
+
+      it 'answers per season rather than reusing the first answer' do
+        expect(member.dues_status_okay?(paid_season.id)).to be(true)
+        expect(member.dues_status_okay?(behind_season.id)).to be(false)
+      end
+
+      it 'gives the same answers when the behind season is asked first' do
+        expect(member.dues_status_okay?(behind_season.id)).to be(false)
+        expect(member.dues_status_okay?(paid_season.id)).to be(true)
+      end
+    end
+
     context 'amount_paid_for' do
       let!(:season) { create(:season) }
       let!(:user) { create(:user, seasons: [season]) }
