@@ -1,3 +1,9 @@
+<% content_for :page_title, 'Roster' %>
 <%= vite_typescript_tag 'entrypoints/admin/users/index.tsx' %>
 
-<div id="users"></div>
+<div id="users" data-season-year="<%= current_season['year'] %>">
+  <div class="flex flex-col gap-4">
+    <div class="h-10 rounded-md bg-sunken animate-pulse"></div>
+    <div class="h-64 rounded-md bg-sunken animate-pulse"></div>
+  </div>
+</div>

@@ -134,6 +134,33 @@ RSpec.describe 'Admin::Users roster and onboarding', type: :request do
     end
   end
 
+  describe 'GET /admin/users' do
+    it 'mounts the roster island with the season it is scoped to' do
+      get '/admin/users'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('id="users"')
+      expect(response.body).to include('data-season-year="2026"')
+    end
+
+    it 'denies non-admins' do
+      sign_in_as_member(season: season)
+      get '/admin/users'
+      expect(response).to have_http_status(:found)
+    end
+  end
+
+  describe 'GET /admin/users/new' do
+    it 'seeds the form island so a failed save can repopulate it' do
+      get '/admin/users/new'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('id="user-form"')
+      expect(response.body).to include('data-user-form=')
+      expect(response.body).to include('seasons_users')
+    end
+  end
+
   describe 'GET /api/admin/schedule-forecast' do
     it 'forecasts a default without creating anything' do
       expect do
