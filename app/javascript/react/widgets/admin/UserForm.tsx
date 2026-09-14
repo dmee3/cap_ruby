@@ -114,8 +114,14 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
       {isEdit && <input type="hidden" name="_method" value="put" />}
       <input type="hidden" name="authenticity_token" value={csrfToken} />
 
-      <div className="flex flex-col gap-6 lg:flex-row">
-        <div className="flex flex-1 flex-col gap-4">
+      {/* Same shape as AddPaymentForm: a grid with an explicit rail width
+          rather than flex. `lg:w-88` generated no CSS at all (88 isn't in
+          Tailwind's spacing scale, which jumps 80 -> 96), so the aside kept
+          `w-full` and claimed the whole row, squeezing the form column down to
+          its minimum. minmax(0,1fr) also lets the form column actually shrink
+          instead of being held open by its content. */}
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_352px]">
+        <div className="flex flex-col gap-4">
           {data.errors.length > 0 && (
             <div className="rounded-md border border-raspberry bg-surface p-4" role="alert">
               <p className="m-0 text-body-sm font-bold text-danger-fg">
@@ -217,7 +223,7 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
           </section>
         </div>
 
-        <aside className="flex w-full flex-col gap-4 lg:w-88">
+        <aside className="flex flex-col gap-4">
           <section className="rounded-md border border-border-default bg-surface p-5">
             <h2 className="mt-0 mb-1 text-body font-bold">What happens when you save</h2>
             <p className="m-0 mb-3 text-body-sm text-secondary">

@@ -87,8 +87,11 @@ const SeasonRoleBlock = ({
 
   return (
     <div className={`rounded-md border bg-surface ${border}`} data-testid={`season-block-${season.id}`}>
+      {/* The 3px accent strip from the design system. Arbitrary value, not
+          h-0.75 — that isn't in Tailwind's spacing scale, so it generated no
+          CSS and the strip rendered at zero height. */}
       {(season.current || staged) && on !== staged && (
-        <div className={`h-0.75 rounded-t-md ${staged ? 'bg-warning-fg' : 'bg-ocean'}`} />
+        <div className={`h-[3px] rounded-t-md ${staged ? 'bg-warning-fg' : 'bg-ocean'}`} />
       )}
       <div className="flex flex-col gap-4 p-4">
         <div className="flex flex-wrap items-start gap-x-3 gap-y-2">

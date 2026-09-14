@@ -174,7 +174,7 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
           onChange={e => setQuery(e.target.value)}
           aria-label={population === 'members' ? 'Search name, section or ensemble' : 'Search name or role'}
           placeholder={population === 'members' ? 'Search name, section or ensemble' : 'Search name or role'}
-          className="h-9 min-w-50 flex-1 rounded-sm border border-border-strong bg-surface px-2.5 text-body-sm"
+          className="h-9 min-w-[200px] flex-1 rounded-sm border border-border-strong bg-surface px-2.5 text-body-sm"
         />
         {population === 'members' && (
           <select
