@@ -24,7 +24,9 @@
 class Conflict < ApplicationRecord
   acts_as_paranoid
 
-  belongs_to :user
+  # with_deleted: conflicts are soft-deleted with their user, but triage and
+  # history screens still need to name who submitted them.
+  belongs_to :user, -> { with_deleted }
   belongs_to :conflict_status, foreign_key: :status_id
   alias status conflict_status
   belongs_to :season

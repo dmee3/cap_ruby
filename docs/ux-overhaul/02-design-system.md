@@ -10,12 +10,12 @@ The **Tokens** and **Components** sections are the Claude Design project's desig
 system. The **Principles** and **Voice** sections are guidance for how screens
 should feel.
 
-**Status:** Flows 1–3 merged (shell/tokens #221, member dues #226, member
-conflicts #230). Layout set is now three — `application` / `auth` / `public`
-(#229), + `calendar` until Flow 7 folds it in. Flow 4 (admin financial command
-center) built — PR open, visual pass pending; §4.4 + §4.5 + §4.12 + §4.20–4.25
-all shipped this flow. Full flow list: `01-screen-audit.md`. Live task status:
-**beads** — `bd show cap_ruby-b3a`.
+**Status:** Flows 1–5 merged (shell/tokens #221, member dues #226, member
+conflicts #230, admin financials #234, conflict triage #240). Layout set is now
+three — `application` / `auth` / `public` (#229), + `calendar` until Flow 7
+folds it in. Flow 6 (admin roster & onboarding) in progress: §4.32 + §4.33 added,
+§4.34 specced but deferred to `cap_ruby-b3a.21`. Full flow list:
+`01-screen-audit.md`. Live task status: **beads** — `bd show cap_ruby-b3a`.
 
 ---
 
@@ -791,6 +791,77 @@ each one superseded.
   makes visible a filter the current calendar applies *silently* (it drops
   Denied and Resolved with no legend or control), which is the single most
   surprising behavior on the screen today.
+
+### 4.32 Season role block *(built — Flow 6, as `SeasonRoleBlock.tsx`)*
+
+One season, one block — replacing `UserRoleRow`'s table of selects that enable
+and disable each other. The toggle answers "were they in the org", the role
+segment answers "as what", and the member subpanel appears **only** when the
+answer is Member.
+
+- **On, current season:** 1px `accent.primary` border, 3px top strip, subtle
+  raise. Row 1 = season name + `Current season` pill + a derived seniority line
+  (`3rd season · Vet`) + the toggle, labelled `On the roster`. Row 2 = `Role
+  this season` over a 4-way segmented control (Member / Staff / Coordinator /
+  Admin). Row 3 = the member subpanel on `bg.sunken`, headed by the micro-label
+  `Because they're a member`, holding **two** selects — Ensemble and Section.
+- **On, past season:** identical structure, without the accent strip and pill.
+  A past season that is on **stays fully editable** — the canvas's component
+  sheet and its edit artboard disagree on this; editable wins, because an
+  uneditable history block contradicts the point of the edit screen.
+- **Staff/coordinator/admin season:** the member subpanel is absent entirely,
+  replaced by the line `Ensemble and section don't apply to staff.` Crucially,
+  the block must still **post empty `ensemble`/`section`** so switching a member
+  to staff clears the old values rather than leaving them stale in the database.
+- **Off:** collapses to a single row — no role, no selects, no greyed-out
+  controls. Turning it on expands it with **Member preselected**, which also
+  prevents the blank-role `seasons_users` row the current form permits.
+- **Staged removal** (a fifth state the canvas spec omits but draws): the strip
+  and border go `status.warning`, a `Will be removed on save` pill appears, with
+  an explanation block and a `Keep them on the roster` revert link. Nothing is
+  destroyed until save.
+- Posts `_destroy` for a season turned off, removing only that `seasons_users`
+  row and leaving payments alone.
+- **Vet status is derived, never a field** — `User#vet_in?` (any earlier season,
+  of any role, counts). There is no `member_type` column.
+- **Toggle:** reuse the existing `Toggle.tsx` (a real checkbox under a painted
+  track, `role="switch"`, focus-visible ring) rather than the canvas's bespoke
+  42×24 switch — it already carries the keyboard and a11y behaviour the canvas
+  never specced. Give it a ≥44px touch target in this block on mobile.
+- Stacks to one column under `720px`, the toggle moving under the season name.
+
+### 4.33 Schedule preview panel *(built — Flow 6, as `SchedulePreviewPanel.tsx`)*
+
+Read-only, and honest that it is a forecast: **these rows don't exist yet.**
+Borrows the date/amount typography from §4.25's timeline but none of its editing
+controls, because there is nothing to edit until the record exists.
+
+- **Populated:** an uppercase `Schedule preview` header with the lookup key
+  right-aligned (`CC2 · Music · New`), then `date | amount` rows in the mono
+  face, then a highlighted `Total` row. A `status.warning` inline note when
+  entries are already in the past ("Two dates are already past — $975 will read
+  as due the moment they're created").
+- **No default:** `status.warning` border, an amber block reading `No default
+  schedule exists for this combination`, a plain statement that nothing will be
+  created and the person will appear in the dashboard's missing-schedule alert,
+  and a `Build their schedule after saving` action. **This is a live state, not
+  an edge case** — `DEFAULT_PAYMENT_SCHEDULES` stops at 2026 while the 2027
+  season already has 42 members.
+- **Unfilled:** a dashed placeholder — "Waiting on a section".
+- The lookup key is **`Visual` / `Music`**, never "Battery". The canvas labels
+  it "Battery" in three places; the code keys on `section == 'Visual' ?
+  'Visual' : 'Music'`, so every non-Visual section is Music.
+
+### 4.34 Destructive confirm *(specced — Flow 6; deferred to `cap_ruby-b3a.21`)*
+
+Red hairline at the top, a **removed** list and a **stays** list, and a
+typed-name gate keeping the primary button disabled until it matches. Escape
+cancels; never the default focus; admin only.
+
+Not built this flow. Before it ships, `PaymentSchedule` needs `acts_as_paranoid`
+— today a user delete hard-destroys the schedule and its entries while
+soft-deleting everything else, so a "stays" list would be lying. See
+`flow6-design-review.md` §6.
 
 ---
 

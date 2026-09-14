@@ -54,8 +54,10 @@ class User < ApplicationRecord
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :password, presence: true, on: :create
-  validates :password, length: { minimum: 6, message: 'must be at least 6 characters' },
-                       if: :password
+  # NB: no separate length validation here. Devise's :validatable already
+  # enforces password_length (8..128) above; a second 6-character rule only
+  # ever fired alongside it, so a 5-character password produced two
+  # contradictory messages ("minimum is 8" and "must be at least 6").
   validates_confirmation_of :password
   validates :username, presence: true
   validates :username, uniqueness: { case_sensitive: false }
@@ -92,12 +94,16 @@ class User < ApplicationRecord
     first_name
   end
 
+  # Memoized per season. It used to memoize a single @status regardless of the
+  # season asked about, so the second season checked in a request came back with
+  # the first season's answer.
   def dues_status_okay?(season_id)
-    return @status unless @status.nil?
+    @dues_status ||= {}
+    return @dues_status[season_id] if @dues_status.key?(season_id)
 
     dues_paid = amount_paid_for(season_id)
     schedule = payment_schedule_for(season_id)
-    @status = schedule.present? && dues_paid >= schedule.scheduled_to_date
+    @dues_status[season_id] = schedule.present? && dues_paid >= schedule.scheduled_to_date
   end
 
   # NOTE: several of the following methods use Ruby methods instead of

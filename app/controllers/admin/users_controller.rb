@@ -13,7 +13,10 @@ module Admin
       @member360 = Admin::Member360Presenter.call(@user, current_season)
     end
 
-    def new; end
+    def new
+      @user = User.new
+      @form = ::Admin::UserFormPresenter.call(@user, current_season)
+    end
 
     def create
       @user = User.new(user_params)
@@ -24,15 +27,20 @@ module Admin
         redirect_to("/admin/users/#{@user.id}")
       else
         Rollbar.info('User could not be created.', errors: @user.errors.full_messages)
-        flash.now[:error] = @user.errors.full_messages.to_sentence
-        render :new
+        @form = ::Admin::UserFormPresenter.call(@user, current_season)
+        render :new, status: :unprocessable_entity
       end
     end
 
     def edit
       @user = User.find(params[:id])
+      @form = ::Admin::UserFormPresenter.call(@user, current_season)
     end
 
+    # A failed save re-renders with everything the admin typed still in place.
+    # It used to redirect, which threw the whole form away — the single most
+    # expensive bug on this screen, since the form is the most complex in the
+    # app.
     def update
       @user = User.find(params[:id])
       if @user.update(user_params)
@@ -41,9 +49,18 @@ module Admin
         redirect_to('/admin/users')
       else
         Rollbar.info('User could not be updated.', errors: @user.errors.full_messages)
-        flash[:error] = "Unable to update #{@user.first_name}"
-        redirect_to("/admin/users/#{@user.id}/edit")
+        @form = ::Admin::UserFormPresenter.call(@user, current_season)
+        render :edit, status: :unprocessable_entity
       end
+    end
+
+    # Sends Devise's own reset email and stamps reset_password_sent_at, so the
+    # edit screen can answer "did I already send this".
+    def send_reset
+      user = User.find(params[:id])
+      user.send_reset_password_instructions
+      flash[:success] = "Reset link sent to #{user.email}"
+      redirect_to("/admin/users/#{user.id}/edit")
     end
 
     def destroy

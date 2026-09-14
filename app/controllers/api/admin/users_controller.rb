@@ -4,7 +4,7 @@ module Api
   module Admin
     class UsersController < Api::AdminController
       def index
-        render json: members
+        render json: params[:roster] == 'none' ? off_all_rosters : roster
       end
 
       def show
@@ -14,17 +14,47 @@ module Api
 
       private
 
-      def members
+      def roster
+        season_id = current_season['id']
         User
-          .for_season(current_season['id'])
-          .map do |u|
+          .for_season(season_id)
+          .includes(:seasons_users, payment_schedules: :payment_schedule_entries)
+          .map { |u| roster_row(u, season_id) }
+      end
+
+      def roster_row(user, season_id)
+        schedule = user.payment_schedule_for(season_id)
+        {
+          id: user.id,
+          full_name: user.full_name,
+          email: user.email,
+          section: user.section_for(season_id),
+          ensemble: user.ensemble_for(season_id),
+          role: user.role_for(season_id),
+          vet: user.vet_in?(season_id),
+          season_count: user.seasons_users.size,
+          # Drives the roster's "No schedule" pill and the health alert. A
+          # schedule row with no entries counts as missing, because that is
+          # exactly what it is to a member: no due dates and no total.
+          has_schedule: schedule.present? && schedule.entries.any?
+        }
+      end
+
+      # The one place the season scope is bypassed on purpose. These accounts
+      # have no seasons_users rows at all, which means they are invisible on
+      # every other screen AND cannot sign in — `active_for_authentication?`
+      # requires seasons_users.any?.
+      def off_all_rosters
+        User
+          .where.not(id: SeasonsUser.select(:user_id))
+          .includes(:payments)
+          .order(:last_name, :first_name)
+          .map do |user|
             {
-              id: u.id,
-              full_name: u.full_name,
-              email: u.email,
-              section: u.section_for(current_season['id']),
-              ensemble: u.ensemble_for(current_season['id']),
-              role: u.role_for(current_season['id'])
+              id: user.id,
+              full_name: user.full_name,
+              email: user.email,
+              paid_all_time_cents: user.payments.sum(&:amount)
             }
           end
       end

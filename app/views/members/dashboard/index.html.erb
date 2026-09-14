@@ -41,11 +41,11 @@
 
     <% if @dues[:state] == :no_schedule %>
       <p class="text-body border-t border-border-default pt-3">
-        Your dues schedule hasn't been set up yet. A director will add it soon — check back, or reach out if you have questions.
+        Your dues schedule hasn't been set up yet. A director will add it soon. Check back later, or reach out if you have questions.
       </p>
     <% elsif @dues[:state] == :paid_in_full %>
       <p class="text-body border-t border-border-default pt-3">
-        You're all paid up for the season — <strong><%= number_to_currency(@dues[:total] / 100.0) %></strong>. Thanks!
+        You're all paid up for the season (<strong><%= number_to_currency(@dues[:total] / 100.0) %></strong>). Thanks!
       </p>
     <% elsif owed_cents.to_i.positive? %>
       <p class="text-body border-t border-border-default pt-3">

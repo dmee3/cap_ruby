@@ -29,6 +29,10 @@ Rails.application.routes.draw do
 
       resources :users, only: %i[index show]
 
+      # What a schedule *would* be for a combination that doesn't exist yet —
+      # the add/edit user form reads this while the admin is still typing.
+      get 'schedule-forecast', to: 'schedule_forecasts#show'
+
       resources :seasons, only: %i[index]
     end
 
@@ -68,6 +72,11 @@ Rails.application.routes.draw do
     get 'payments/recent', to: 'payments#recent_payments'
     put 'payments/restore/:id', to: 'payments#restore'
     resources :payments
+
+    # Admin-triggered password reset. Devise's own flow is user-initiated, and
+    # the welcome email only links to it, so nothing ever set
+    # reset_password_sent_at before this.
+    post 'users/:id/send-reset', to: 'users#send_reset', as: 'send_reset_admin_user'
 
     resources :users
 

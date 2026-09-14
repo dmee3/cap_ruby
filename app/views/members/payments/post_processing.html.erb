@@ -37,14 +37,14 @@
       <h1 class="mb-0">Payment confirmed</h1>
       <% if tries < 5 %>
         <p class="text-body text-secondary">
-          Your card went through. We're updating your dues now — this usually takes a few seconds.
+          Your card went through. We're updating your dues now, which usually takes a few seconds.
           This page refreshes on its own.
         </p>
         <% refresh_params = request.query_parameters.merge(t: tries + 1).to_query %>
         <meta http-equiv="refresh" content="4; url=<%= "#{request.path}?#{refresh_params}" %>">
       <% else %>
         <p class="text-body text-secondary">
-          Your card went through. Your dues will update shortly — check your dashboard in a
+          Your card went through. Your dues will update shortly. Check your dashboard in a
           minute, or reach out to a director if it doesn't.
         </p>
       <% end %>
@@ -66,7 +66,7 @@
       <ul class="list-disc list-inside text-body-sm text-secondary space-y-1">
         <li>Try again with the same or a different card.</li>
         <li>Contact your bank if it keeps getting declined.</li>
-        <li>Bring Venmo, cash, or a check to rehearsal — no fee, and a director handles it.</li>
+        <li>Bring Venmo, cash, or a check to rehearsal. There's no fee, and a director handles it.</li>
       </ul>
     </div>
 

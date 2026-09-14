@@ -132,6 +132,70 @@ RSpec.describe PaymentScheduleService do
       expect(schedule.season).to eq(season)
     end
 
+    # The whole point of Flow 6's backend change: a new member used to land with
+    # an empty schedule, which is what the admin dashboard's missing-schedule
+    # alert was counting.
+    it 'populates the schedule from the per-year default' do
+      create(:seasons_user, user: user, season: season, role: 'member', ensemble: 'World', section: 'Snare')
+
+      PaymentScheduleService.ensure_payment_schedules_for_user(user)
+
+      schedule = PaymentSchedule.last
+      expect(schedule.entries.count).to eq(6)
+      first = schedule.entries.min_by(&:pay_date)
+      expect(first.pay_date).to eq(Date.new(2025, 10, 17))
+      # Defaults are in dollars, entries are in cents.
+      expect(first.amount).to eq(50_000)
+      expect(schedule.entries.sum(:amount)).to eq(250_000) # $500 + 5 x $400
+    end
+
+    it 'gives a vet the vet default rather than the rookie one' do
+      create(:seasons_user, user: user, season: create(:season, year: '2025'), role: 'member')
+      create(:seasons_user, user: user, season: season, role: 'member', ensemble: 'World', section: 'Snare')
+
+      PaymentScheduleService.ensure_payment_schedules_for_user(user)
+
+      schedule = user.payment_schedules.reload.to_a.find { |s| s.season_id == season.id }
+      november = schedule.entries.to_a.find { |e| e.pay_date == Date.new(2025, 11, 14) }
+      expect(november.amount).to eq(36_000) # vet; the rookie amount is 40_000
+    end
+
+    # The per-year default table always runs out eventually; a season past its
+    # last year is the live path for the next season, not an edge case. Derive
+    # the year rather than naming one, since which years are filled in changes.
+    it 'still creates an empty schedule when no default exists for the season' do
+      unscheduled = described_class.singleton_class::DEFAULT_PAYMENT_SCHEDULES.keys.map(&:to_i).max + 1
+      future = create(:season, year: unscheduled.to_s)
+      create(:seasons_user, user: user, season: future, role: 'member', ensemble: 'World', section: 'Snare')
+
+      expect do
+        PaymentScheduleService.ensure_payment_schedules_for_user(user)
+      end.to change(PaymentSchedule, :count).by(1)
+
+      expect(PaymentSchedule.last.entries).to be_empty
+    end
+
+    # The admin user form calls this on every save, so a second save (or a
+    # double submit) must not re-add the entries.
+    it 'does not add entries to a schedule that already has them' do
+      create(:seasons_user, user: user, season: season, role: 'member', ensemble: 'World', section: 'Snare')
+      PaymentScheduleService.ensure_payment_schedules_for_user(user)
+
+      expect do
+        PaymentScheduleService.ensure_payment_schedules_for_user(user.reload)
+      end.not_to change(PaymentScheduleEntry, :count)
+    end
+
+    it 'leaves a hand-built schedule alone' do
+      create(:seasons_user, user: user, season: season, role: 'member', ensemble: 'World', section: 'Snare')
+      schedule = create(:payment_schedule, user: user, season: season)
+      create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.new(2026, 1, 1), amount: 12_345)
+
+      PaymentScheduleService.ensure_payment_schedules_for_user(user.reload)
+
+      expect(schedule.reload.entries.map(&:amount)).to eq([12_345])
+    end
+
     it 'does not create duplicate payment schedules' do
       create(:seasons_user, user: user, season: season, role: 'member')
       create(:payment_schedule, user: user, season: season)

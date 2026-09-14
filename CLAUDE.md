@@ -388,7 +388,8 @@ app/models/
 **SeasonsUser (Join Table):**
 - Stores user's role for a specific season
 - Roles: 'admin', 'coordinator', 'staff', 'member'
-- Also stores: ensemble, section, member_type (vet/new)
+- Also stores: ensemble and section. There is no `member_type` column; the
+  ensemble/section/role combination is what distinguishes one kind of member from another
 
 **Payment & PaymentSchedule:**
 - `User has_one :payment_schedule`

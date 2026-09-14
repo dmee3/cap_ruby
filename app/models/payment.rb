@@ -24,7 +24,10 @@
 #
 class Payment < ApplicationRecord
   acts_as_paranoid
-  belongs_to :user
+  # with_deleted: a payment can outlive its user's soft delete (and one can
+  # even be recorded afterwards), but it still belongs to that person for
+  # season totals and history.
+  belongs_to :user, -> { with_deleted }
   belongs_to :payment_type
   belongs_to :season
 
