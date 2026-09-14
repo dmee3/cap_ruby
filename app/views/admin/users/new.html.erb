@@ -1,3 +1,11 @@
-<%= vite_typescript_tag 'entrypoints/admin/users/new.tsx' %>
+<% content_for :page_title, 'Add person' %>
+<%= vite_typescript_tag 'entrypoints/admin/users/form.tsx' %>
 
-<div id="root"></div>
+<%# Seeded server-side so a failed save re-renders with everything still typed.
+    NB: no digits in the attribute name — see dataset.test.ts. %>
+<div id="user-form" data-user-form="<%= @form.to_json %>">
+  <div class="flex flex-col gap-4">
+    <div class="h-40 rounded-md bg-sunken animate-pulse"></div>
+    <div class="h-64 rounded-md bg-sunken animate-pulse"></div>
+  </div>
+</div>

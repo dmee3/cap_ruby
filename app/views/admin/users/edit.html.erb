@@ -1,6 +1,9 @@
-<script>
-  var userId = <%= @user.id %>;
-</script>
-<%= vite_typescript_tag 'entrypoints/admin/users/edit.tsx' %>
+<% content_for :page_title, @user.full_name %>
+<%= vite_typescript_tag 'entrypoints/admin/users/form.tsx' %>
 
-<div id="root"></div>
+<div id="user-form" data-user-form="<%= @form.to_json %>">
+  <div class="flex flex-col gap-4">
+    <div class="h-40 rounded-md bg-sunken animate-pulse"></div>
+    <div class="h-64 rounded-md bg-sunken animate-pulse"></div>
+  </div>
+</div>

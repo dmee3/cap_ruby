@@ -35,6 +35,10 @@ Metrics/ClassLength:
   Max: 350
   Exclude:
     - app/controllers/**/*
+    # ~320 of its lines are the static DEFAULT_PAYMENT_SCHEDULES table, not
+    # logic. That data wants to move to config/ eventually (cap_ruby-b3a.22);
+    # until then the length metric says nothing useful about this file.
+    - app/services/payment_schedule_service.rb
 Metrics/CyclomaticComplexity:
   Max: 12
 Metrics/MethodLength:

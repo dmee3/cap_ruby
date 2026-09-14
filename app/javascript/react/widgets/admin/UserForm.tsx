@@ -1,125 +1,281 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import SeasonRoleBlock, { SeasonOption, SeasonRow } from '../../components/SeasonRoleBlock'
+import SchedulePreviewPanel, { Forecast } from '../../components/SchedulePreviewPanel'
+import Button from '../../components/Button'
 
-import User from '../../declarations/user'
-
-import InputPassword from '../../../react/components/inputs/InputPassword'
-import InputText from '../../../react/components/inputs/InputText'
-
-import UserRoleRow from './UserRoleRow'
-
-type UserFormType = {
-  user: User,
-  seasons: Array<any>
+export type UserFormData = {
+  user: {
+    id: number | null
+    first_name: string | null
+    last_name: string | null
+    username: string | null
+    email: string | null
+    phone: string | null
+    seasons_users: SeasonRow[]
+  }
+  seasons: SeasonOption[]
+  errors: { field: string; message: string }[]
+  current_season_id: number | null
+  sections: string[]
+  ensembles: string[]
+  roles: string[]
 }
 
-const UserForm = ({
-  user,
-  seasons
-}: UserFormType) => {
-  const csrfToken = (document.getElementsByName('csrf-token')[0] as HTMLMetaElement).content
-  const [internalUser, setInternalUser] = useState({})
-  const [formUrl, setFormUrl] = useState('/admin/users')
-  const [formPut, setFormPut] = useState(false)
+type UserFormProps = {
+  data: UserFormData
+  csrfToken: string
+}
+
+// /admin/users/new and /admin/users/:id/edit. One §4.32 block per season in
+// place of the old table of selects that enabled and disabled each other.
+const UserForm = ({ data, csrfToken }: UserFormProps) => {
+  const isEdit = data.user.id !== null
+  const [rows, setRows] = useState<Record<number, SeasonRow | null>>(() => {
+    const seeded: Record<number, SeasonRow | null> = {}
+    data.seasons.forEach(s => {
+      seeded[s.id] = data.user.seasons_users.find(r => r.season_id === s.id) ?? null
+    })
+    return seeded
+  })
+  const [forecast, setForecast] = useState<Forecast | null>(null)
+
+  // Which seasons were on when the form loaded — a season that was on and is
+  // now off is staged for removal, not simply absent.
+  const initiallyOn = useMemo(
+    () => new Set(data.user.seasons_users.map(r => r.season_id)),
+    [data.user.seasons_users]
+  )
+
+  const currentSeason = data.seasons.find(s => s.id === data.current_season_id) ?? null
+  const currentRow = currentSeason ? rows[currentSeason.id] : null
+
+  // The preview reads the default for the *current* season only — past seasons
+  // create nothing on save.
+  const ensemble = currentRow?.role === 'member' ? currentRow.ensemble : ''
+  const section = currentRow?.role === 'member' ? currentRow.section : ''
+  const waiting = !ensemble || !section
 
   useEffect(() => {
-    setInternalUser(user)
-    if (user.id) {
-      setFormUrl(`/admin/users/${user.id}`)
-      setFormPut(true)
+    if (!currentSeason || waiting) {
+      setForecast(null)
+      return
     }
-  }, [user])
+    const params = new URLSearchParams({
+      season_id: String(currentSeason.id),
+      ensemble,
+      section,
+      vet: String(currentSeason.vet),
+    })
+    let cancelled = false
+    fetch(`/api/admin/schedule-forecast?${params}`)
+      .then(resp => (resp.ok ? resp.json() : Promise.reject(resp)))
+      .then(json => {
+        if (!cancelled) setForecast(json)
+      })
+      .catch(() => {
+        if (!cancelled) setForecast(null)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [currentSeason?.id, ensemble, section, waiting])
+
+  // Seasons the person is on, oldest first, so the block can say "3rd season".
+  const ordinals = useMemo(() => {
+    const on = data.seasons
+      .filter(s => rows[s.id])
+      .sort((a, b) => Number(a.year) - Number(b.year))
+    const map: Record<number, number> = {}
+    on.forEach((s, i) => {
+      map[s.id] = i + 1
+    })
+    return map
+  }, [rows, data.seasons])
+
+  const onCount = data.seasons.filter(s => rows[s.id]).length
 
   return (
-    <form action={formUrl} method="post">
-      {formPut && <input type="hidden" name="_method" value="put" />}
-      <input type='hidden' name='authenticity_token' value={csrfToken} />
-      <h2>Basic Info</h2>
-      <div className="grid grid-cols-5 gap-x-6 gap-y-4">
-        <div className="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
-          <label htmlFor="first_name" className="input-label">Name</label>
-        </div>
-        <div className="col-span-5 sm:col-span-2 -mb-2 sm:mb-0 flex items-center">
-          <InputText
-            autofocus={true}
-            name='user[first_name]'
-            onChange={evt => setInternalUser({ ...internalUser, first_name: evt.target.value })}
-            placeholder='First'
-            value={internalUser.first_name}
-          />
-        </div>
-        <div className="col-span-5 sm:col-span-2 flex items-center">
-          <InputText
-            name='user[last_name]'
-            onChange={evt => setInternalUser({ ...internalUser, last_name: evt.target.value })}
-            placeholder='Last'
-            value={internalUser.last_name}
-          />
-        </div>
+    <form action={isEdit ? `/admin/users/${data.user.id}` : '/admin/users'} method="post">
+      {isEdit && <input type="hidden" name="_method" value="put" />}
+      <input type="hidden" name="authenticity_token" value={csrfToken} />
 
-        <div className="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
-          <label htmlFor="username" className="input-label">Username</label>
-        </div>
-        <div className="col-span-5 sm:col-span-4">
-          <InputText
-            name='user[username]'
-            onChange={evt => setInternalUser({ ...internalUser, username: evt.target.value })}
-            value={internalUser.username}
-          />
-        </div>
-
-        <div className="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
-          <label htmlFor="email" className="input-label">Email</label>
-        </div>
-        <div className="col-span-5 sm:col-span-4">
-          <InputText
-            name='user[email]'
-            onChange={evt => setInternalUser({ ...internalUser, email: evt.target.value })}
-            value={internalUser.email}
-          />
-        </div>
-
-        {!internalUser.id && (
-          <>
-            <div className="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
-              <label htmlFor="password" className="input-label">Password</label>
+      <div className="flex flex-col gap-6 lg:flex-row">
+        <div className="flex flex-1 flex-col gap-4">
+          {data.errors.length > 0 && (
+            <div className="rounded-md border border-raspberry bg-surface p-4" role="alert">
+              <p className="m-0 text-body-sm font-bold text-danger-fg">
+                {data.errors.length === 1
+                  ? 'One thing to fix'
+                  : `${data.errors.length} things to fix`}
+              </p>
+              <ul className="m-0 mt-2 flex list-none flex-col gap-1 p-0">
+                {data.errors.map(err => (
+                  <li key={`${err.field}-${err.message}`} className="text-body-sm text-danger-fg">
+                    {err.message}
+                  </li>
+                ))}
+              </ul>
+              <p className="m-0 mt-2 text-body-sm text-secondary">
+                Everything else you typed is still here, including the season roles. Nothing was
+                created and no email went out.
+              </p>
             </div>
-            <div className="col-span-5 sm:col-span-4">
-              <InputPassword
-                name='user[password]'
-              />
+          )}
+
+          <section className="rounded-md border border-border-default bg-surface p-5">
+            <h2 className="mt-0 mb-1 text-body font-bold">Basic info</h2>
+            <p className="m-0 mb-4 text-body-sm text-secondary">
+              They sign in with their username or email.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="First name" name="user[first_name]" defaultValue={data.user.first_name} autoFocus />
+              <Field label="Last name" name="user[last_name]" defaultValue={data.user.last_name} />
+              <Field label="Username" name="user[username]" defaultValue={data.user.username} mono />
+              <Field label="Email" name="user[email]" defaultValue={data.user.email} type="email" />
+              <Field label="Phone" name="user[phone]" defaultValue={data.user.phone} optional />
+              {!isEdit && (
+                <Field
+                  label="Temporary password"
+                  name="user[password]"
+                  type="password"
+                  hint="At least 6 characters. Set only at creation — later changes go through a reset link."
+                />
+              )}
             </div>
-          </>
-        )}
+          </section>
+
+          <section className="rounded-md border border-border-default bg-surface p-5">
+            <div className="mb-4 flex flex-wrap items-baseline gap-2">
+              <h2 className="m-0 text-body font-bold">Seasons and roles</h2>
+              <span className="ml-auto text-body-sm text-secondary">
+                {onCount} of {data.seasons.length} seasons on
+              </span>
+            </div>
+            <div className="flex flex-col gap-3">
+              {data.seasons.map(season => (
+                <SeasonRoleBlock
+                  key={season.id}
+                  season={season}
+                  row={rows[season.id]}
+                  ordinal={ordinals[season.id] ?? null}
+                  roles={data.roles}
+                  ensembles={data.ensembles}
+                  sections={data.sections}
+                  wasOn={initiallyOn.has(season.id)}
+                  onChange={row => setRows(prev => ({ ...prev, [season.id]: row }))}
+                />
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <aside className="flex w-full flex-col gap-4 lg:w-88">
+          <section className="rounded-md border border-border-default bg-surface p-5">
+            <h2 className="mt-0 mb-1 text-body font-bold">What happens when you save</h2>
+            <p className="m-0 mb-3 text-body-sm text-secondary">
+              {currentSeason ? `${currentSeason.year} only. Past seasons create nothing.` : 'Fills in as you type.'}
+            </p>
+            <ol className="m-0 flex list-decimal flex-col gap-3 pl-5">
+              <li className="text-body-sm text-primary">
+                {isEdit ? 'Their details are updated.' : 'They get an account.'}
+                {!isEdit && data.user.username && (
+                  <span className="text-secondary"> They sign in as {data.user.username}.</span>
+                )}
+              </li>
+              <li className="text-body-sm text-primary">
+                {isEdit ? (
+                  <span className="text-secondary">No email goes out. Welcome mail is creation-only.</span>
+                ) : (
+                  'A welcome email goes out, inviting them to set a password.'
+                )}
+              </li>
+              <li className="text-body-sm text-primary">
+                {currentRow?.role === 'member'
+                  ? 'A payment schedule is created.'
+                  : 'No payment schedule — only members get one.'}
+              </li>
+            </ol>
+          </section>
+
+          {currentRow?.role === 'member' && (
+            <SchedulePreviewPanel forecast={forecast} waiting={waiting} />
+          )}
+
+          <div className="flex flex-col gap-2">
+            <Button type="submit" variant="primary" size="lg">
+              {isEdit ? 'Save changes' : 'Create person and send welcome'}
+            </Button>
+            <a
+              href="/admin/users"
+              className="inline-flex h-11 items-center justify-center rounded-sm border border-border-strong bg-surface px-4 text-body font-semibold text-primary no-underline"
+            >
+              Cancel
+            </a>
+          </div>
+        </aside>
       </div>
 
-      <h2 className="mt-6">Roles</h2>
-      <table className="min-w-full divide-y divide-gray-500">
-        <thead>
-          <tr>
-            <th scope="col" className="table-header">
-              Seasons
-            </th>
-            <th scope="col" className="table-header">
-              Role
-            </th>
-            <th scope="col" className="table-header">
-              Ensemble
-            </th>
-            <th scope="col" className="table-header">
-              Section
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {seasons.map(season => <UserRoleRow key={season.id} season={season} userSeason={internalUser.seasons_users ? internalUser.seasons_users.filter(su => su.season_id === season.id) : {}} />)}
-        </tbody>
-      </table>
+      {/* Hidden inputs carry the season rows in the nested-attributes shape.
+          A row that was on and is now off posts _destroy so only that
+          seasons_users row goes away — payments are untouched. */}
+      {data.seasons.map(season => {
+        const row = rows[season.id]
+        const wasOn = initiallyOn.has(season.id)
+        const existing = data.user.seasons_users.find(r => r.season_id === season.id)
+        if (!row && !wasOn) return null
 
-      <div className="mt-4 flex flex-row justify-end">
-        <input type="submit" name="commit" value="Save" className="btn-primary btn-lg" />
-      </div>
+        return (
+          <React.Fragment key={`fields-${season.id}`}>
+            {existing?.id && (
+              <input type="hidden" name="user[seasons_users_attributes][][id]" value={existing.id} />
+            )}
+            <input
+              type="hidden"
+              name="user[seasons_users_attributes][][season_id]"
+              value={season.id}
+            />
+            {row ? (
+              <>
+                <input type="hidden" name="user[seasons_users_attributes][][role]" value={row.role} />
+                <input type="hidden" name="user[seasons_users_attributes][][ensemble]" value={row.ensemble || ''} />
+                <input type="hidden" name="user[seasons_users_attributes][][section]" value={row.section || ''} />
+              </>
+            ) : (
+              <input type="hidden" name="user[seasons_users_attributes][][_destroy]" value="1" />
+            )}
+          </React.Fragment>
+        )
+      })}
     </form>
   )
 }
+
+type FieldProps = {
+  label: string
+  name: string
+  defaultValue?: string | null
+  type?: string
+  hint?: string
+  optional?: boolean
+  mono?: boolean
+  autoFocus?: boolean
+}
+
+const Field = ({ label, name, defaultValue, type = 'text', hint, optional, mono, autoFocus }: FieldProps) => (
+  <label className="flex flex-col gap-1">
+    <span className="text-body-sm font-semibold text-primary">
+      {label}
+      {optional && <span className="ml-1 font-normal text-secondary">(optional)</span>}
+    </span>
+    <input
+      type={type}
+      name={name}
+      defaultValue={defaultValue ?? ''}
+      autoFocus={autoFocus}
+      className={`h-10 rounded-sm border border-border-strong bg-surface px-2 text-body-sm ${mono ? 'font-mono' : ''}`}
+    />
+    {hint && <span className="text-body-sm text-secondary">{hint}</span>}
+  </label>
+)
 
 export default UserForm

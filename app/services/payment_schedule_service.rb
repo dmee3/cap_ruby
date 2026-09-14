@@ -322,12 +322,52 @@ class PaymentScheduleService
       }
     }.freeze
 
+    # Every member season the user is on gets a schedule, populated from the
+    # per-year default where one exists.
+    #
+    # Idempotent in two senses, both of which matter because the admin user form
+    # calls this on every save: a season that already has a schedule is skipped
+    # entirely, and a schedule that already has entries is never added to. A
+    # double submit therefore cannot double anyone's dues.
+    #
+    # A season with no default row (DEFAULT_PAYMENT_SCHEDULES currently stops at
+    # 2026) still gets its empty schedule, exactly as before — the UI says so
+    # rather than pretending a schedule was built.
     sig { params(user: User).void }
     def ensure_payment_schedules_for_user(user)
       user.seasons_users.each do |su|
         next if su.role != 'member' || user.payment_schedule_for(su.season_id).present?
 
-        PaymentSchedule.create(user_id: user.id, season_id: su.season_id)
+        schedule = PaymentSchedule.create(user_id: user.id, season_id: su.season_id)
+        populate_from_default(schedule, su.season)
+      end
+    end
+
+    # Write the default's entries onto a schedule that has none. Returns the
+    # number of entries created (0 when there is no default for this
+    # year/ensemble/section/vet-status, or when the schedule is already
+    # populated).
+    sig { params(schedule: PaymentSchedule, season: Season).returns(Integer) }
+    def populate_from_default(schedule, season)
+      return 0 if schedule.entries.any?
+
+      default = default_schedule_for(schedule.user, season.attributes)
+      return 0 if default.nil?
+
+      PaymentSchedule.transaction do
+        default_entries(default).each do |entry|
+          schedule.entries.create!(pay_date: entry[:pay_date], amount: entry[:amount_cents])
+        end
+      end
+      default.size
+    end
+
+    # The default hash is keyed by 'm/d/yy' strings and holds DOLLARS; entries
+    # are stored in CENTS. Same conversion Admin::ScheduleDefault makes.
+    sig { params(default: T::Hash[String, Integer]).returns(T::Array[T::Hash[Symbol, T.untyped]]) }
+    def default_entries(default)
+      default.map do |day, dollars|
+        { pay_date: Date.strptime(day, '%m/%d/%y'), amount_cents: dollars * 100 }
       end
     end
 

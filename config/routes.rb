@@ -29,6 +29,10 @@ Rails.application.routes.draw do
 
       resources :users, only: %i[index show]
 
+      # What a schedule *would* be for a combination that doesn't exist yet —
+      # the add/edit user form reads this while the admin is still typing.
+      get 'schedule-forecast', to: 'schedule_forecasts#show'
+
       resources :seasons, only: %i[index]
     end
 

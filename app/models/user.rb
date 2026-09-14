@@ -92,12 +92,16 @@ class User < ApplicationRecord
     first_name
   end
 
+  # Memoized per season. It used to memoize a single @status regardless of the
+  # season asked about, so the second season checked in a request came back with
+  # the first season's answer.
   def dues_status_okay?(season_id)
-    return @status unless @status.nil?
+    @dues_status ||= {}
+    return @dues_status[season_id] if @dues_status.key?(season_id)
 
     dues_paid = amount_paid_for(season_id)
     schedule = payment_schedule_for(season_id)
-    @status = schedule.present? && dues_paid >= schedule.scheduled_to_date
+    @dues_status[season_id] = schedule.present? && dues_paid >= schedule.scheduled_to_date
   end
 
   # NOTE: several of the following methods use Ruby methods instead of
