@@ -68,6 +68,33 @@ describe('UserTable', () => {
     expect(screen.getAllByText('Jordan Pike').length).toBeGreaterThan(0)
   })
 
+  // The ensemble filter only makes sense for members — staff have no ensemble,
+  // so carrying it across the switch filtered every staff row out, and the
+  // select that would clear it isn't rendered on the staff view.
+  it('does not apply the ensemble filter to staff', async () => {
+    vi.stubGlobal('fetch', mockFetch(rows))
+    render(<UserTable seasonYear="2026" />)
+    await waitFor(() => expect(screen.getAllByText('Jordan Pike').length).toBeGreaterThan(0))
+
+    // Marcus is CC2, so filtering to World drops him from the table. He still
+    // appears in the no-schedule alert above it, hence the row-count check
+    // rather than a bare queryByText.
+    fireEvent.change(screen.getByLabelText(/filter by ensemble/i), { target: { value: 'World' } })
+    expect(screen.getByText('1 of 2')).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: /staff · 1/i }))
+
+    expect(screen.getAllByText('Dana Reyes').length).toBeGreaterThan(0)
+    // The staff view has no ensemble select, so a carried-over filter would be
+    // unclearable — and "Clear filters" must not offer to clear nothing.
+    expect(screen.queryByLabelText(/filter by ensemble/i)).toBeNull()
+    expect(screen.queryByRole('button', { name: /clear filters/i })).toBeNull()
+
+    // Switching back restores the ensemble choice rather than silently losing it.
+    fireEvent.click(screen.getByRole('button', { name: /members · 2/i }))
+    expect(screen.getByText('1 of 2')).toBeTruthy()
+  })
+
   it('keeps the filters and offers a retry when the load fails', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
     render(<UserTable seasonYear="2026" />)

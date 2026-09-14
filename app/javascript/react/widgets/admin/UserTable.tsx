@@ -71,16 +71,22 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
   const staff = useMemo(() => rows.filter(r => r.role && r.role !== 'member'), [rows])
   const pool = population === 'members' ? members : staff
 
+  // Ensemble belongs to the members view only — staff have no ensemble, so
+  // applying it there filtered every row out while the select that would clear
+  // it wasn't even rendered. Scoped rather than reset on switch, so flipping to
+  // staff and back keeps the ensemble you had chosen.
+  const activeEnsemble = population === 'members' ? ensemble : ''
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     return pool.filter(r => {
-      if (ensemble && r.ensemble !== ensemble) return false
+      if (activeEnsemble && r.ensemble !== activeEnsemble) return false
       if (!q) return true
       return [r.full_name, r.email, r.section, r.ensemble, r.role]
         .filter(Boolean)
         .some(v => String(v).toLowerCase().includes(q))
     })
-  }, [pool, query, ensemble])
+  }, [pool, query, activeEnsemble])
 
   const sorted = useMemo(() => {
     const dir = sortDir === 'asc' ? 1 : -1
@@ -95,7 +101,7 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
 
   const visible = sorted.slice(0, limit)
   const missingSchedule = members.filter(m => !m.has_schedule)
-  const filtersDirty = query !== '' || ensemble !== ''
+  const filtersDirty = query !== '' || activeEnsemble !== ''
 
   const clearFilters = () => {
     setQuery('')
