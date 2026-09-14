@@ -26,9 +26,12 @@ type SchedulePreviewPanelProps = {
 // live state for any season past 2026.
 //
 // The populated and no-default cards carry `overflow-hidden`: their children
-// (the amber block, the header strip, the total row) fill the card edge to edge
-// with no padding between, so without it those square corners paint straight
-// over the card's radius.
+// (the amber fill, the header strip, the total row) run edge to edge with no
+// padding between, so without it those square corners paint straight over the
+// card's radius.
+//
+// Neither state describes what else the save does — the "What happens when you
+// save" panel directly above owns that, and says the right thing per screen.
 const SchedulePreviewPanel = ({ forecast, waiting, seasonYear }: SchedulePreviewPanelProps) => {
   if (waiting) {
     return (
@@ -46,6 +49,7 @@ const SchedulePreviewPanel = ({ forecast, waiting, seasonYear }: SchedulePreview
   if (forecast?.no_default) {
     return (
       <div className="overflow-hidden rounded-md border border-warning-fg" data-testid="preview-no-default">
+        {/* Still clipped: the amber fill runs edge to edge. */}
         <div className="flex flex-col gap-1 bg-warning-bg p-4">
           <p className="m-0 text-body-sm font-semibold text-warning-fg">
             No default schedule exists for {seasonYear}
@@ -55,9 +59,6 @@ const SchedulePreviewPanel = ({ forecast, waiting, seasonYear }: SchedulePreview
             in the dashboard&rsquo;s missing-schedule alert until someone builds one.
           </p>
         </div>
-        <p className="m-0 border-t border-border-default p-4 text-body-sm text-secondary">
-          The account is still created and the welcome email still goes out.
-        </p>
       </div>
     )
   }

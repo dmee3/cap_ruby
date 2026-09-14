@@ -15,7 +15,18 @@ describe('SchedulePreviewPanel', () => {
     render(<SchedulePreviewPanel forecast={{ no_default: true }} waiting={false} seasonYear="2026" />)
 
     expect(screen.getByText(/No default schedule exists for 2026/)).toBeTruthy()
-    expect(screen.getByText(/account is still created/i)).toBeTruthy()
+    expect(screen.getByText(/missing-schedule alert/i)).toBeTruthy()
+  })
+
+  // The panel describes the schedule and nothing else. What the save does to
+  // the account and the welcome email differs per screen, and the
+  // "What happens when you save" panel above owns that.
+  it('says nothing about the account or the welcome email', () => {
+    render(<SchedulePreviewPanel forecast={{ no_default: true }} waiting={false} seasonYear="2026" />)
+
+    const card = screen.getByTestId('preview-no-default')
+    expect(card.textContent).not.toMatch(/welcome email/i)
+    expect(card.textContent).not.toMatch(/account/i)
   })
 
   it('renders the entries, the total and the lookup key', () => {
