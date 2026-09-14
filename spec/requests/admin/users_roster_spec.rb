@@ -81,6 +81,36 @@ RSpec.describe 'Admin::Users roster and onboarding', type: :request do
       end.not_to have_enqueued_mail(UserMailer, :welcome_email)
     end
 
+    # The reported bug: a member on 2026 only, adding 2027. With `[]` params the
+    # new season's group (which has no id) swallowed the EXISTING row's id, so
+    # Rails retargeted row 1935 at 2027 and tried to create a second 2026 row,
+    # failing with "Seasons users user has already been taken".
+    it 'adds a new season to a member who already has one' do
+      other = create(:season, year: '2027')
+      row = member.seasons_users.first
+      body = [
+        "user[seasons_users_attributes][0][season_id]=#{other.id}",
+        'user[seasons_users_attributes][0][role]=member',
+        'user[seasons_users_attributes][0][ensemble]=CC2',
+        'user[seasons_users_attributes][0][section]=Auxiliary',
+        "user[seasons_users_attributes][1][id]=#{row.id}",
+        "user[seasons_users_attributes][1][season_id]=#{season.id}",
+        'user[seasons_users_attributes][1][role]=member',
+        'user[seasons_users_attributes][1][ensemble]=World',
+        'user[seasons_users_attributes][1][section]=Woods'
+      ].join('&')
+
+      patch "/admin/users/#{member.id}",
+            params: body,
+            headers: { 'CONTENT_TYPE' => 'application/x-www-form-urlencoded' }
+
+      expect(response).to have_http_status(:found)
+      expect(member.reload.seasons_users.count).to eq(2)
+      expect(member.seasons_users.map(&:season_id)).to match_array([season.id, other.id])
+      # The pre-existing row kept its own season rather than being retargeted.
+      expect(row.reload.season_id).to eq(season.id)
+    end
+
     # Param-shape guard: a Ruby-hash params spec would serialize correctly even
     # if the form's name= attributes were wrong, so post a literal body.
     it 'accepts the nested seasons_users array the form actually posts' do
@@ -205,9 +235,12 @@ RSpec.describe 'Admin::Users roster and onboarding', type: :request do
       expect(response.parsed_body['lookup_key']).to eq('CC2 · Visual · Vet')
     end
 
-    # DEFAULT_PAYMENT_SCHEDULES stops at 2026; 2027 already has members.
+    # DEFAULT_PAYMENT_SCHEDULES is a per-year table that runs out. Pick a year
+    # beyond every key it has, rather than naming one: which years are filled
+    # in changes as seasons are added.
     it 'reports no_default for a season with no defaults' do
-      future = create(:season, year: '2027')
+      unscheduled = PaymentScheduleService.singleton_class::DEFAULT_PAYMENT_SCHEDULES.keys.map(&:to_i).max + 1
+      future = create(:season, year: unscheduled.to_s)
 
       get '/api/admin/schedule-forecast',
           params: { season_id: future.id, ensemble: 'World', section: 'Snare', vet: 'false' }

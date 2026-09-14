@@ -306,35 +306,36 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
 
       {/* Hidden inputs carry the season rows in the nested-attributes shape.
           A row that was on and is now off posts _destroy so only that
-          seasons_users row goes away — payments are untouched. */}
-      {data.seasons.map(season => {
-        const row = rows[season.id]
-        const wasOn = initiallyOn.has(season.id)
-        const existing = data.user.seasons_users.find(r => r.season_id === season.id)
-        if (!row && !wasOn) return null
+          seasons_users row goes away; payments are untouched.
 
-        return (
-          <React.Fragment key={`fields-${season.id}`}>
-            {existing?.id && (
-              <input type="hidden" name="user[seasons_users_attributes][][id]" value={existing.id} />
-            )}
-            <input
-              type="hidden"
-              name="user[seasons_users_attributes][][season_id]"
-              value={season.id}
-            />
-            {row ? (
-              <>
-                <input type="hidden" name="user[seasons_users_attributes][][role]" value={row.role} />
-                <input type="hidden" name="user[seasons_users_attributes][][ensemble]" value={row.ensemble || ''} />
-                <input type="hidden" name="user[seasons_users_attributes][][section]" value={row.section || ''} />
-              </>
-            ) : (
-              <input type="hidden" name="user[seasons_users_attributes][][_destroy]" value="1" />
-            )}
-          </React.Fragment>
-        )
-      })}
+          INDEXED, not `[]`. With `[]` Rack starts a new hash only when it sees
+          a REPEATED key, so a group that omits `id` (a new season) swallows the
+          `id` of the NEXT group, and every row shifts by one. That silently
+          retargeted an existing row at the wrong season and tried to create a
+          duplicate for the old one. */}
+      {data.seasons
+        .filter(season => rows[season.id] || initiallyOn.has(season.id))
+        .map((season, index) => {
+          const row = rows[season.id]
+          const existing = data.user.seasons_users.find(r => r.season_id === season.id)
+          const field = (name: string) => `user[seasons_users_attributes][${index}][${name}]`
+
+          return (
+            <React.Fragment key={`fields-${season.id}`}>
+              {existing?.id && <input type="hidden" name={field('id')} value={existing.id} />}
+              <input type="hidden" name={field('season_id')} value={season.id} />
+              {row ? (
+                <>
+                  <input type="hidden" name={field('role')} value={row.role} />
+                  <input type="hidden" name={field('ensemble')} value={row.ensemble || ''} />
+                  <input type="hidden" name={field('section')} value={row.section || ''} />
+                </>
+              ) : (
+                <input type="hidden" name={field('_destroy')} value="1" />
+              )}
+            </React.Fragment>
+          )
+        })}
     </form>
   )
 }

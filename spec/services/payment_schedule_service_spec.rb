@@ -160,10 +160,12 @@ RSpec.describe PaymentScheduleService do
       expect(november.amount).to eq(36_000) # vet; the rookie amount is 40_000
     end
 
-    # DEFAULT_PAYMENT_SCHEDULES stops at 2026 while the 2027 season already has
-    # members, so this is the live path for the next season, not an edge case.
+    # The per-year default table always runs out eventually; a season past its
+    # last year is the live path for the next season, not an edge case. Derive
+    # the year rather than naming one, since which years are filled in changes.
     it 'still creates an empty schedule when no default exists for the season' do
-      future = create(:season, year: '2027')
+      unscheduled = described_class.singleton_class::DEFAULT_PAYMENT_SCHEDULES.keys.map(&:to_i).max + 1
+      future = create(:season, year: unscheduled.to_s)
       create(:seasons_user, user: user, season: future, role: 'member', ensemble: 'World', section: 'Snare')
 
       expect do

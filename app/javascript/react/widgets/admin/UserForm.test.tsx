@@ -63,15 +63,48 @@ describe('UserForm', () => {
     expect(screen.getByRole('button', { name: /send reset link/i })).toBeTruthy()
   })
 
-  // The param shape is what Rails' nested attributes actually consume. A specs
+  // The param shape is what Rails' nested attributes actually consume. A spec
   // that built params as a Ruby hash would hide a wrong name= here.
   it('emits the nested seasons_users names the controller expects', () => {
     const { container } = render(<UserForm data={base} csrfToken="tok" />)
 
     fireEvent.click(screen.getAllByRole('switch')[0])
 
-    expect(fields(container, 'user[seasons_users_attributes][][season_id]')).toEqual(['2'])
-    expect(fields(container, 'user[seasons_users_attributes][][role]')).toEqual(['member'])
+    expect(fields(container, 'user[seasons_users_attributes][0][season_id]')).toEqual(['2'])
+    expect(fields(container, 'user[seasons_users_attributes][0][role]')).toEqual(['member'])
+  })
+
+  // Indices, not `[]`. With `[]`, Rack starts a new hash only on a REPEATED
+  // key, so a new season (no id) swallows the id of the next group and every
+  // row shifts by one — which retargeted an existing row at the wrong season
+  // and tried to create a duplicate for the old one.
+  it('indexes each season group so a new row cannot absorb an existing id', () => {
+    const data = clone({
+      user: {
+        ...base.user,
+        id: 42,
+        seasons_users: [
+          { id: 1935, season_id: 1, role: 'member', ensemble: 'CC2', section: 'Auxiliary' },
+        ],
+      },
+      seasons: [
+        { id: 2, year: '2027', current: true, vet: true },
+        { id: 1, year: '2026', current: false, vet: false },
+      ],
+      current_season_id: 2,
+    })
+    const { container } = render(<UserForm data={data} csrfToken="tok" />)
+
+    // Turn 2027 on: it has no id, and is rendered BEFORE the 2026 row that has one.
+    fireEvent.click(screen.getAllByRole('switch')[0])
+
+    // The id belongs to the 2026 group (index 1), never the new 2027 group.
+    expect(fields(container, 'user[seasons_users_attributes][0][id]')).toEqual([])
+    expect(fields(container, 'user[seasons_users_attributes][0][season_id]')).toEqual(['2'])
+    expect(fields(container, 'user[seasons_users_attributes][1][id]')).toEqual(['1935'])
+    expect(fields(container, 'user[seasons_users_attributes][1][season_id]')).toEqual(['1'])
+    // And no positional `[]` names survive.
+    expect(fields(container, 'user[seasons_users_attributes][][id]')).toEqual([])
   })
 
   // Turning a season off posts _destroy so only that row goes away.
@@ -87,9 +120,9 @@ describe('UserForm', () => {
 
     fireEvent.click(screen.getAllByRole('switch')[0])
 
-    expect(fields(container, 'user[seasons_users_attributes][][_destroy]')).toEqual(['1'])
+    expect(fields(container, 'user[seasons_users_attributes][0][_destroy]')).toEqual(['1'])
     // The id must ride along, or Rails creates a second row instead.
-    expect(fields(container, 'user[seasons_users_attributes][][id]')).toEqual(['9'])
+    expect(fields(container, 'user[seasons_users_attributes][0][id]')).toEqual(['9'])
   })
 
   it('summarises errors and says the typed values were kept', () => {
