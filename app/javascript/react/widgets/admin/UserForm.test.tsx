@@ -1,6 +1,6 @@
 import React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import UserForm, { UserFormData } from './UserForm'
 
 const base: UserFormData = {
@@ -202,6 +202,37 @@ describe('UserForm', () => {
       )
 
       expect(screen.getByText('A payment schedule is created for 2026.')).toBeTruthy()
+    })
+
+    // The preview used to be hardwired to the current season, so a 2026 member
+    // viewed during 2027 got a 2027 forecast sitting next to a panel promising
+    // a 2026 schedule. The two must name the same season.
+    it('previews the season a schedule is created for, not the current one', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              entries: [{ pay_date: '2025-10-17', amount_cents: 50_000 }],
+              total_cents: 50_000,
+              lookup_key: 'World · Music · Rookie',
+              past_due: { count: 0, amount_cents: 0 },
+            }),
+        })
+      )
+      render(
+        <UserForm
+          data={editing([
+            { id: 10, season_id: 2, role: 'member', ensemble: 'World', section: 'Snare', has_schedule: false },
+          ])}
+          csrfToken="tok"
+        />
+      )
+
+      expect(screen.getByText('A payment schedule is created for 2026.')).toBeTruthy()
+      // Same season named in the preview box.
+      await waitFor(() => expect(screen.getByText('2026 schedule preview')).toBeTruthy())
     })
 
     it('has no em-dash in the no-schedule copy', () => {

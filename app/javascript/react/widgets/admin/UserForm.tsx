@@ -49,40 +49,6 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
     [data.user.seasons_users]
   )
 
-  const currentSeason = data.seasons.find(s => s.id === data.current_season_id) ?? null
-  const currentRow = currentSeason ? rows[currentSeason.id] : null
-
-  // The preview reads the default for the *current* season only — past seasons
-  // create nothing on save.
-  const ensemble = currentRow?.role === 'member' ? currentRow.ensemble : ''
-  const section = currentRow?.role === 'member' ? currentRow.section : ''
-  const waiting = !ensemble || !section
-
-  useEffect(() => {
-    if (!currentSeason || waiting) {
-      setForecast(null)
-      return
-    }
-    const params = new URLSearchParams({
-      season_id: String(currentSeason.id),
-      ensemble,
-      section,
-      vet: String(currentSeason.vet),
-    })
-    let cancelled = false
-    fetch(`/api/admin/schedule-forecast?${params}`)
-      .then(resp => (resp.ok ? resp.json() : Promise.reject(resp)))
-      .then(json => {
-        if (!cancelled) setForecast(json)
-      })
-      .catch(() => {
-        if (!cancelled) setForecast(null)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [currentSeason?.id, ensemble, section, waiting])
-
   // Seasons the person is on, oldest first, so the block can say "3rd season".
   const ordinals = useMemo(() => {
     const on = data.seasons
@@ -106,6 +72,41 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
     if (!row || row.role !== 'member') return false
     return !data.user.seasons_users.find(r => r.season_id === season.id)?.has_schedule
   })
+
+  // Preview the season a schedule is actually being created for, NOT the
+  // current season. On edit those differ: a 2026 member viewed during the 2027
+  // season would otherwise read a 2027 forecast next to a panel promising a
+  // 2026 schedule. Newest first, so a multi-season save previews the latest.
+  const previewSeason = schedulesToCreate[0] ?? null
+  const previewRow = previewSeason ? rows[previewSeason.id] : null
+  const ensemble = previewRow?.ensemble ?? ''
+  const section = previewRow?.section ?? ''
+  const waiting = !ensemble || !section
+
+  useEffect(() => {
+    if (!previewSeason || waiting) {
+      setForecast(null)
+      return
+    }
+    const params = new URLSearchParams({
+      season_id: String(previewSeason.id),
+      ensemble,
+      section,
+      vet: String(previewSeason.vet),
+    })
+    let cancelled = false
+    fetch(`/api/admin/schedule-forecast?${params}`)
+      .then(resp => (resp.ok ? resp.json() : Promise.reject(resp)))
+      .then(json => {
+        if (!cancelled) setForecast(json)
+      })
+      .catch(() => {
+        if (!cancelled) setForecast(null)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [previewSeason?.id, ensemble, section, waiting])
 
 
   // Posted as its own form so it can't be confused with saving the record.
@@ -281,8 +282,12 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
             </ol>
           </section>
 
-          {currentRow?.role === 'member' && (
-            <SchedulePreviewPanel forecast={forecast} waiting={waiting} />
+          {previewSeason && (
+            <SchedulePreviewPanel
+              forecast={forecast}
+              waiting={waiting}
+              seasonYear={previewSeason.year}
+            />
           )}
 
           <div className="flex flex-col gap-2">

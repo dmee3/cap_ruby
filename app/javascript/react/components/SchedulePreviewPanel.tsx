@@ -15,6 +15,10 @@ type SchedulePreviewPanelProps = {
   forecast: Forecast | null
   /** True before the admin has picked enough to look a default up. */
   waiting: boolean
+  /** The season being forecast. Named in every state, because on the edit
+   *  screen this is often NOT the current season and the person can be on
+   *  several at once. */
+  seasonYear: string
 }
 
 // §4.33. Read-only, and honest that it is a forecast: these rows don't exist
@@ -25,11 +29,13 @@ type SchedulePreviewPanelProps = {
 // (the amber block, the header strip, the total row) fill the card edge to edge
 // with no padding between, so without it those square corners paint straight
 // over the card's radius.
-const SchedulePreviewPanel = ({ forecast, waiting }: SchedulePreviewPanelProps) => {
+const SchedulePreviewPanel = ({ forecast, waiting, seasonYear }: SchedulePreviewPanelProps) => {
   if (waiting) {
     return (
       <div className="rounded-md border border-dashed border-border-strong p-4" data-testid="preview-waiting">
-        <p className="m-0 text-body-sm font-semibold text-primary">Waiting on a section</p>
+        <p className="m-0 text-body-sm font-semibold text-primary">
+          Waiting on a section for {seasonYear}
+        </p>
         <p className="m-0 mt-1 text-body-sm text-secondary">
           The default schedule depends on ensemble, section and whether they&rsquo;re a vet.
         </p>
@@ -42,7 +48,7 @@ const SchedulePreviewPanel = ({ forecast, waiting }: SchedulePreviewPanelProps) 
       <div className="overflow-hidden rounded-md border border-warning-fg" data-testid="preview-no-default">
         <div className="flex flex-col gap-1 bg-warning-bg p-4">
           <p className="m-0 text-body-sm font-semibold text-warning-fg">
-            No default schedule exists for this combination
+            No default schedule exists for {seasonYear}
           </p>
           <p className="m-0 text-body-sm text-warning-fg">
             Nothing will be created, so they start with no due dates and no total, and they&rsquo;ll show up
@@ -61,7 +67,7 @@ const SchedulePreviewPanel = ({ forecast, waiting }: SchedulePreviewPanelProps) 
   return (
     <div className="overflow-hidden rounded-md border border-border-default" data-testid="preview-populated">
       <div className="flex flex-wrap items-baseline gap-2 border-b border-border-default px-4 py-2">
-        <span className="text-label text-secondary">Schedule preview</span>
+        <span className="text-label text-secondary">{seasonYear} schedule preview</span>
         {forecast.lookup_key && (
           <span className="ml-auto text-body-sm text-secondary">{forecast.lookup_key}</span>
         )}
@@ -94,9 +100,6 @@ const SchedulePreviewPanel = ({ forecast, waiting }: SchedulePreviewPanelProps) 
           </span>
         </div>
       )}
-      <p className="m-0 px-4 py-2 text-body-sm text-secondary">
-        A forecast, not a record. It&rsquo;s created on save, and the dates can change afterwards.
-      </p>
     </div>
   )
 }
