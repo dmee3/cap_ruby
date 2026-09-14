@@ -6,6 +6,23 @@ RSpec.describe Admin::UserFormPresenter do
   let(:season) { create(:season, year: '2026') }
   let(:current_season) { season.attributes }
 
+  describe 'season rows' do
+    # The form promises "a payment schedule is created for X" and must not
+    # promise it for a season that already has one.
+    it 'flags which seasons already have a payment schedule' do
+      user = create(:user)
+      other = create(:season, year: '2025')
+      create(:seasons_user, user: user, season: season, role: 'member')
+      create(:seasons_user, user: user, season: other, role: 'member')
+      create(:payment_schedule, user: user, season: season)
+
+      rows = described_class.call(user.reload, current_season)[:user][:seasons_users]
+
+      expect(rows.find { |r| r[:season_id] == season.id }[:has_schedule]).to be(true)
+      expect(rows.find { |r| r[:season_id] == other.id }[:has_schedule]).to be(false)
+    end
+  end
+
   describe 'the edit header card summary' do
     it 'reads username, season count, vet status and this season section' do
       user = create(:user, first_name: 'Gus', last_name: 'Halloway', username: 'ghalloway')

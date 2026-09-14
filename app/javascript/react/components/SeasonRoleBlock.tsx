@@ -8,6 +8,9 @@ export type SeasonRow = {
   role: string
   ensemble: string
   section: string
+  /** Whether this season ALREADY has a payment schedule, so the form can say
+   *  "already has one" rather than promising to create a duplicate. */
+  has_schedule?: boolean
 }
 
 export type SeasonOption = {

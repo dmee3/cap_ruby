@@ -129,6 +129,67 @@ describe('UserForm', () => {
     expect(screen.queryByRole('link', { name: /open member 360/i })).toBeNull()
   })
 
+  // The panel used to say "2027 only. Past seasons create nothing", which was
+  // create-screen framing AND factually wrong: ensure_payment_schedules_for_user
+  // walks every member season, so adding someone to a past season does create
+  // a schedule for it.
+  describe('the what-happens panel on edit', () => {
+    const editing = (seasonsUsers: UserFormData['user']['seasons_users']) =>
+      clone({
+        user: { ...base.user, id: 42, seasons_users: seasonsUsers },
+        seasons: [
+          { id: 3, year: '2027', current: true, vet: true },
+          { id: 2, year: '2026', current: false, vet: false },
+        ],
+        current_season_id: 3,
+      })
+
+    it('names the season a schedule is actually created for, not the current one', () => {
+      // On 2027 already (with a schedule); the admin adds 2026 as well.
+      render(
+        <UserForm
+          data={editing([
+            { id: 9, season_id: 3, role: 'member', ensemble: 'World', section: 'Snare', has_schedule: true },
+            { id: 10, season_id: 2, role: 'member', ensemble: 'World', section: 'Snare', has_schedule: false },
+          ])}
+          csrfToken="tok"
+        />
+      )
+
+      expect(screen.getByText(/A payment schedule is created for 2026\./)).toBeTruthy()
+      expect(screen.queryByText(/Past seasons create nothing/)).toBeNull()
+    })
+
+    it('says nothing new is created when every member season already has one', () => {
+      render(
+        <UserForm
+          data={editing([
+            { id: 9, season_id: 3, role: 'member', ensemble: 'World', section: 'Snare', has_schedule: true },
+          ])}
+          csrfToken="tok"
+        />
+      )
+
+      expect(screen.getByText(/No new payment schedule/)).toBeTruthy()
+    })
+
+    it('calls out a season the save takes them off', () => {
+      const { container } = render(
+        <UserForm
+          data={editing([
+            { id: 9, season_id: 3, role: 'member', ensemble: 'World', section: 'Snare', has_schedule: true },
+          ])}
+          csrfToken="tok"
+        />
+      )
+
+      // Toggle 2027 (the first block) off.
+      fireEvent.click(container.querySelectorAll('[role="switch"]')[0])
+
+      expect(screen.getByText(/They come off the 2027 roster\./)).toBeTruthy()
+    })
+  })
+
   it('pluralises a single error', () => {
     render(<UserForm data={clone({ errors: [{ field: 'email', message: 'Email is invalid' }] })} csrfToken="tok" />)
 

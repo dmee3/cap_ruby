@@ -110,9 +110,17 @@ module Admin
           season_id: su.season_id,
           role: su.role,
           ensemble: su.ensemble,
-          section: su.section
+          section: su.section,
+          # Lets the form say "already has a schedule" rather than promising to
+          # create one that exists. ensure_payment_schedules_for_user skips any
+          # season that already has one.
+          has_schedule: scheduled_season_ids.include?(su.season_id)
         }
       end
+    end
+
+    def scheduled_season_ids
+      @scheduled_season_ids ||= @user.id ? @user.payment_schedules.map(&:season_id) : []
     end
 
     # Newest first, matching the form's "one block per season, newest first".
