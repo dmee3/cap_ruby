@@ -54,6 +54,15 @@ module Admin
       end
     end
 
+    # Sends Devise's own reset email and stamps reset_password_sent_at, so the
+    # edit screen can answer "did I already send this".
+    def send_reset
+      user = User.find(params[:id])
+      user.send_reset_password_instructions
+      flash[:success] = "Reset link sent to #{user.email}"
+      redirect_to("/admin/users/#{user.id}/edit")
+    end
+
     def destroy
       @user = User.find params[:id]
       if @user.destroy

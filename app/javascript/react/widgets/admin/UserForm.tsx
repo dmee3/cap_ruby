@@ -11,6 +11,7 @@ export type UserFormData = {
     username: string | null
     email: string | null
     phone: string | null
+    reset_sent_at: string | null
     seasons_users: SeasonRow[]
   }
   seasons: SeasonOption[]
@@ -94,6 +95,20 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
 
   const onCount = data.seasons.filter(s => rows[s.id]).length
 
+  // Posted as its own form so it can't be confused with saving the record.
+  const sendReset = () => {
+    const form = document.createElement('form')
+    form.method = 'post'
+    form.action = `/admin/users/${data.user.id}/send-reset`
+    const token = document.createElement('input')
+    token.type = 'hidden'
+    token.name = 'authenticity_token'
+    token.value = csrfToken
+    form.appendChild(token)
+    document.body.appendChild(form)
+    form.submit()
+  }
+
   return (
     <form action={isEdit ? `/admin/users/${data.user.id}` : '/admin/users'} method="post">
       {isEdit && <input type="hidden" name="_method" value="put" />}
@@ -122,6 +137,17 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
             </div>
           )}
 
+          {isEdit && (
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href={`/admin/users/${data.user.id}`}
+                className="text-body-sm font-semibold text-accent-primary"
+              >
+                Open Member 360
+              </a>
+            </div>
+          )}
+
           <section className="rounded-md border border-border-default bg-surface p-5">
             <h2 className="mt-0 mb-1 text-body font-bold">Basic info</h2>
             <p className="m-0 mb-4 text-body-sm text-secondary">
@@ -142,6 +168,28 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
                 />
               )}
             </div>
+
+            {isEdit && (
+              <div className="mt-4 flex flex-wrap items-center gap-2 rounded-sm bg-sunken p-3">
+                <div className="flex flex-col">
+                  <span className="text-body-sm font-semibold text-primary">Password</span>
+                  <span className="text-body-sm text-secondary">
+                    Only they can set this.
+                    {data.user.reset_sent_at
+                      ? ` Last reset link sent ${formatDate(data.user.reset_sent_at)}.`
+                      : ' No reset link has been sent from here.'}
+                  </span>
+                </div>
+                {/* A real form post, not a link — it sends mail. */}
+                <button
+                  type="button"
+                  onClick={sendReset}
+                  className="ml-auto text-body-sm font-semibold text-accent-primary underline"
+                >
+                  Send reset link
+                </button>
+              </div>
+            )}
           </section>
 
           <section className="rounded-md border border-border-default bg-surface p-5">
@@ -277,5 +325,10 @@ const Field = ({ label, name, defaultValue, type = 'text', hint, optional, mono,
     {hint && <span className="text-body-sm text-secondary">{hint}</span>}
   </label>
 )
+
+const formatDate = (iso: string) => {
+  const d = new Date(iso)
+  return `${d.getMonth() + 1}/${d.getDate()}/${String(d.getFullYear()).slice(2)}`
+}
 
 export default UserForm

@@ -73,6 +73,11 @@ Rails.application.routes.draw do
     put 'payments/restore/:id', to: 'payments#restore'
     resources :payments
 
+    # Admin-triggered password reset. Devise's own flow is user-initiated, and
+    # the welcome email only links to it, so nothing ever set
+    # reset_password_sent_at before this.
+    post 'users/:id/send-reset', to: 'users#send_reset', as: 'send_reset_admin_user'
+
     resources :users
 
     resources :payment_schedules, only: %i[edit]

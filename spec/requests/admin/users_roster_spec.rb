@@ -110,6 +110,31 @@ RSpec.describe 'Admin::Users roster and onboarding', type: :request do
     end
   end
 
+  describe 'POST /admin/users/:id/send-reset' do
+    let(:member) do
+      create(:user, first_name: 'Gus', last_name: 'Halloway').tap do |u|
+        create(:seasons_user, user: u, season: season, role: 'member')
+      end
+    end
+
+    # Nothing set reset_password_sent_at before this: the welcome email only
+    # links to the reset form, it never calls Devise's own sender.
+    it 'sends the reset email and stamps when it went' do
+      expect(member.reset_password_sent_at).to be_nil
+
+      post "/admin/users/#{member.id}/send-reset"
+
+      expect(response).to redirect_to("/admin/users/#{member.id}/edit")
+      expect(member.reload.reset_password_sent_at).to be_present
+    end
+
+    it 'denies non-admins' do
+      sign_in_as_member(season: season)
+      post "/admin/users/#{member.id}/send-reset"
+      expect(member.reload.reset_password_sent_at).to be_nil
+    end
+  end
+
   describe 'GET /api/admin/users' do
     it 'flags a member whose schedule exists but has no entries' do
       member = create(:user)

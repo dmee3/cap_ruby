@@ -42,6 +42,10 @@ module Admin
         username: @user.username,
         email: @user.email,
         phone: @user.phone,
+        # Answers "did I already send this" on the edit screen. Null until
+        # someone uses the reset action — the welcome email only links to the
+        # reset form, it never calls send_reset_password_instructions.
+        reset_sent_at: @user.reset_password_sent_at&.iso8601,
         seasons_users: season_rows
       }
     end
