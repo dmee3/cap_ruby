@@ -12,6 +12,8 @@ export type UserFormData = {
     email: string | null
     phone: string | null
     reset_sent_at: string | null
+    initials: string | null
+    summary: string[]
     seasons_users: SeasonRow[]
   }
   seasons: SeasonOption[]
@@ -144,14 +146,25 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
           )}
 
           {isEdit && (
-            <div className="flex flex-wrap items-center gap-3">
+            <section className="flex flex-wrap items-center gap-4 rounded-md border border-border-default bg-surface p-5">
+              <span className="flex h-12 w-12 flex-none items-center justify-center rounded-full bg-ocean text-body font-bold text-on-brand">
+                {data.user.initials}
+              </span>
+              <span className="flex flex-col gap-0.5">
+                <span className="text-h3 font-bold text-primary">
+                  {[data.user.first_name, data.user.last_name].filter(Boolean).join(' ')}
+                </span>
+                {data.user.summary.length > 0 && (
+                  <span className="text-body-sm text-secondary">{data.user.summary.join(' · ')}</span>
+                )}
+              </span>
               <a
                 href={`/admin/users/${data.user.id}`}
-                className="text-body-sm font-semibold text-accent-primary"
+                className="ml-auto inline-flex h-9 items-center rounded-sm border border-border-strong bg-surface px-3.5 text-body-sm font-semibold text-primary no-underline"
               >
                 Open Member 360
               </a>
-            </div>
+            </section>
           )}
 
           <section className="rounded-md border border-border-default bg-surface p-5">

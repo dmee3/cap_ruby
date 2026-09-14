@@ -12,6 +12,8 @@ const base: UserFormData = {
     email: 'iris@example.com',
     phone: null,
     reset_sent_at: null,
+    initials: 'IN',
+    summary: [],
     seasons_users: [],
   },
   seasons: [
@@ -53,6 +55,8 @@ describe('UserForm', () => {
     )
 
     expect(container.querySelector('form')!.getAttribute('action')).toBe('/admin/users/42')
+    // Member 360 lives in the header card as a button, not a bare link.
+    expect(screen.getByRole('link', { name: /open member 360/i })).toBeTruthy()
     expect(container.querySelector<HTMLInputElement>('input[name="_method"]')!.value).toBe('put')
     // Edit never sets a password; a reset link is the only outward action.
     expect(screen.queryByText('Temporary password')).toBeNull()
@@ -99,6 +103,30 @@ describe('UserForm', () => {
 
     expect(screen.getByText('2 things to fix')).toBeTruthy()
     expect(screen.getByText(/everything else you typed is still here/i)).toBeTruthy()
+  })
+
+  it('shows the header card with initials and derived summary when editing', () => {
+    const data = clone({
+      user: {
+        ...base.user,
+        id: 42,
+        initials: 'GH',
+        first_name: 'Gus',
+        last_name: 'Halloway',
+        summary: ['@ghalloway', '4th season', 'Vet', 'World / Metals'],
+      },
+    })
+    render(<UserForm data={data} csrfToken="tok" />)
+
+    expect(screen.getByText('GH')).toBeTruthy()
+    expect(screen.getByText('Gus Halloway')).toBeTruthy()
+    expect(screen.getByText('@ghalloway · 4th season · Vet · World / Metals')).toBeTruthy()
+  })
+
+  it('has no header card on the create screen', () => {
+    render(<UserForm data={base} csrfToken="tok" />)
+
+    expect(screen.queryByRole('link', { name: /open member 360/i })).toBeNull()
   })
 
   it('pluralises a single error', () => {

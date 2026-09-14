@@ -46,8 +46,59 @@ module Admin
         # someone uses the reset action — the welcome email only links to the
         # reset form, it never calls send_reset_password_instructions.
         reset_sent_at: @user.reset_password_sent_at&.iso8601,
+        initials: initials,
+        # The header card's one-line summary: "@ghalloway · 4th season · Vet ·
+        # World / Metals this year". Derived, not stored — season count and vet
+        # status both come off the seasons_users rows.
+        summary: summary_parts,
         seasons_users: season_rows
       }
+    end
+
+    def initials
+      [@user.first_name, @user.last_name].compact.map { |n| n[0] }.join.upcase.presence
+    end
+
+    def summary_parts
+      return [] if @user.id.nil?
+
+      season_id = @current_season && @current_season['id']
+      current_row = @user.seasons_users.find { |su| su.season_id == season_id }
+      [
+        @user.username && "@#{@user.username}",
+        season_ordinal,
+        vet_label(season_id),
+        section_label(current_row)
+      ].compact_blank
+    end
+
+    # Only members have an ensemble and section. A staff row can still carry
+    # stale values from a season when they were a member, so key off the role
+    # rather than on the columns being blank.
+    def section_label(row)
+      return nil if row.nil? || row.role != 'member'
+
+      [row.ensemble, row.section].compact_blank.join(' / ').presence
+    end
+
+    def vet_label(season_id)
+      return nil if season_id.nil?
+
+      @user.vet_in?(season_id) ? 'Vet' : nil
+    end
+
+    # "4th season" — counts every season they're on, not just this one.
+    def season_ordinal
+      count = @user.seasons_users.size
+      return nil if count.zero?
+
+      "#{count}#{ordinal_suffix(count)} season"
+    end
+
+    def ordinal_suffix(num)
+      return 'th' if (11..13).cover?(num % 100)
+
+      { 1 => 'st', 2 => 'nd', 3 => 'rd' }.fetch(num % 10, 'th')
     end
 
     # Rows come off the in-memory association so unsaved edits survive a failed
