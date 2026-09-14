@@ -14,7 +14,10 @@
 #  index_payment_schedules_on_user_id    (user_id)
 #
 class PaymentSchedule < ApplicationRecord
-  belongs_to :user
+  # with_deleted: a schedule outlives its user's soft delete, and admin
+  # screens still need to read the owner. Without it schedule.user is nil and
+  # every presenter that calls user.payments_for / amount_paid_for blows up.
+  belongs_to :user, -> { with_deleted }
   has_many :payment_schedule_entries, dependent: :destroy
   alias entries payment_schedule_entries
   belongs_to :season
