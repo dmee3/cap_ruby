@@ -50,7 +50,10 @@ Rails.application.routes.draw do
     # Public fundraiser (Flow 7), unauthenticated. Performers are addressed by
     # their opaque public_token, never by id.
     namespace :fundraiser do
-      resources :payment_intents, only: %i[create]
+      # `update` attaches the donor's name to an intent already created: the
+      # Payment Element needs the intent to exist before it can render, so the
+      # name is captured afterwards.
+      resources :payment_intents, only: %i[create update]
       get 'performers', to: 'performers#index'
       get 'performers/:token/dates', to: 'performers#dates'
     end

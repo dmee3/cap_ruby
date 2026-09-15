@@ -22,20 +22,27 @@ class FundraiserController < PublicController
   # GET /fundraiser/:token — pick dates for one performer.
   # Also GET /f/:token, the short share link.
   def show
-    set_stripe_public_key
-    @claimed_dates = Fundraiser::ClaimedDatesQuery.call(
-      user_id: @performer.id, season_id: public_season&.id
-    )
-    @season_label = season_label
+    load_performer_context
   end
 
   # GET /fundraiser/:token/checkout
+  #
+  # The dates ride in the query string rather than a session, so the back
+  # button and a refresh both behave, and a donor can't lose a selection by
+  # opening the link in a second tab.
   def checkout
     set_stripe_public_key
-    @claimed_dates = Fundraiser::ClaimedDatesQuery.call(
-      user_id: @performer.id, season_id: public_season&.id
-    )
-    @season_label = season_label
+    load_performer_context
+
+    @selected_dates = parse_selected_dates
+    # Anything already claimed while the donor was deciding is dropped here,
+    # so checkout can never show a date that's no longer available.
+    @taken_since = @selected_dates & @claimed_dates
+    @selected_dates -= @claimed_dates
+
+    return redirect_to(performer_fundraiser_path(@performer.public_token)) if @selected_dates.empty?
+
+    @total_cents = @selected_dates.sum * 100
   end
 
   # GET /fundraiser/thanks — where Stripe returns the donor.
@@ -61,5 +68,27 @@ class FundraiserController < PublicController
     # A stale or mistyped share link shouldn't look like a crash to someone who
     # was only trying to donate.
     redirect_to(fundraiser_path, alert: "We couldn't find that performer's calendar.")
+  end
+
+  def load_performer_context
+    @season_id = public_season&.id
+    @season_label = season_label
+
+    presenter = Fundraiser::PerformerPresenter.new(@performer, @season_id)
+    @performer_json = presenter.call
+    @claimed_dates = presenter.claimed_dates
+    @dates_left = presenter.dates_left
+    @raised_cents = @performer_json[:raised_cents]
+    @goal_cents = @performer_json[:goal_cents]
+  end
+
+  # Dates arrive as "3,12,17". Sanitized here as well as in the payment-intent
+  # endpoint, because the query string is trivially editable.
+  def parse_selected_dates
+    params[:dates].to_s.split(',')
+                  .map(&:to_i)
+                  .select { |date| date.between?(1, Fundraiser::TOTAL_DATES) }
+                  .uniq
+                  .sort
   end
 end

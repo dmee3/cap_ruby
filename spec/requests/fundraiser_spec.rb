@@ -104,6 +104,91 @@ RSpec.describe 'Public fundraiser', type: :request do
     end
   end
 
+  describe 'the date picker' do
+    it 'leads with the performer and the mechanic in one line' do
+      get "/fundraiser/#{performer.public_token}"
+
+      expect(response.body).to include('Support Elena Sokol')
+      expect(response.body).to include('The 3rd is $3, the 17th is $17.')
+    end
+
+    it 'hands the claimed dates to the grid' do
+      sponsor(performer, 3)
+      sponsor(performer, 17, intent: 'pi_other')
+
+      get "/fundraiser/#{performer.public_token}"
+
+      expect(response.body).to include('id="date-picker"')
+      expect(response.body).to include('[3,17]')
+    end
+
+    it 'counts the dates still available' do
+      sponsor(performer, 3)
+
+      get "/fundraiser/#{performer.public_token}"
+
+      expect(response.body).to include('30 dates left')
+    end
+
+    it 'names no month here either' do
+      get "/fundraiser/#{performer.public_token}"
+
+      expect(response.body).not_to match(/March/i)
+    end
+  end
+
+  describe 'checkout' do
+    it 'totals the picked dates' do
+      get "/fundraiser/#{performer.public_token}/checkout?dates=3,12,17"
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('id="donation-checkout"')
+      # 3 + 12 + 17 = $32, in cents.
+      expect(response.body).to include('data-total-cents="3200"')
+      expect(response.body).to include('[3,12,17]')
+    end
+
+    it 'sends a donor with no dates back to the grid' do
+      get "/fundraiser/#{performer.public_token}/checkout"
+
+      expect(response).to redirect_to("/fundraiser/#{performer.public_token}")
+    end
+
+    it 'ignores junk in the query string rather than charging for it' do
+      get "/fundraiser/#{performer.public_token}/checkout?dates=3,0,99,abc,3"
+
+      expect(response.body).to include('data-total-cents="300"')
+      expect(response.body).to include('[3]')
+    end
+
+    # A date can go while the donor is on the grid deciding.
+    it 'drops a date claimed since the donor picked it' do
+      sponsor(performer, 12)
+
+      get "/fundraiser/#{performer.public_token}/checkout?dates=3,12"
+
+      expect(response.body).to include('data-total-cents="300"')
+      expect(response.body).to include('[3]')
+    end
+
+    # Not a style point: this is the guard that keeps a development or test run
+    # from putting a live publishable key on a public page.
+    it 'reads the Stripe TEST key outside production, never the live one' do
+      old_test = ENV.fetch('STRIPE_PUBLIC_TEST_KEY', nil)
+      old_live = ENV.fetch('STRIPE_PUBLIC_KEY', nil)
+      ENV['STRIPE_PUBLIC_TEST_KEY'] = 'pk_test_sentinel'
+      ENV['STRIPE_PUBLIC_KEY'] = 'pk_live_should_never_appear'
+
+      get "/fundraiser/#{performer.public_token}/checkout?dates=3"
+
+      expect(response.body).to include('data-stripe-key="pk_test_sentinel"')
+      expect(response.body).not_to include('pk_live_should_never_appear')
+    ensure
+      ENV['STRIPE_PUBLIC_TEST_KEY'] = old_test
+      ENV['STRIPE_PUBLIC_KEY'] = old_live
+    end
+  end
+
   describe 'old shared links' do
     # These are on refrigerators and in group texts.
     it 'redirects the old donate page to the picker' do
@@ -309,6 +394,73 @@ RSpec.describe 'Public fundraiser', type: :request do
       expect(response.parsed_body['claimed_dates']).to eq([17])
       expect(response.parsed_body['available_dates']).to eq([3])
       expect(Stripe::PaymentIntent).not_to have_received(:create)
+    end
+  end
+
+  # The donor types their name after the Payment Element has mounted, and the
+  # webhook reads the byline off the intent's metadata, so it's attached just
+  # before the card is confirmed.
+  describe 'PATCH /api/fundraiser/payment_intents/:id' do
+    let(:calendar_intent) do
+      { id: 'pi_1', status: 'requires_payment_method', metadata: { charge_type: 'calendar' } }
+    end
+
+    before do
+      allow(Stripe::PaymentIntent).to receive(:retrieve).and_return(calendar_intent)
+      allow(Stripe::PaymentIntent).to receive(:update)
+    end
+
+    it 'attaches the donor name to the intent' do
+      patch '/api/fundraiser/payment_intents/pi_1', params: { donor_name: 'The Sokol Family' },
+                                                    as: :json
+
+      expect(response).to have_http_status(:no_content)
+      expect(Stripe::PaymentIntent).to have_received(:update).with(
+        'pi_1', metadata: { donor_name: 'The Sokol Family' }
+      )
+    end
+
+    it 'stores a blank name as nil, so the receipt can say Anonymous' do
+      patch '/api/fundraiser/payment_intents/pi_1', params: { donor_name: '' }, as: :json
+
+      expect(Stripe::PaymentIntent).to have_received(:update).with(
+        'pi_1', metadata: { donor_name: nil }
+      )
+    end
+
+    # The endpoint is public, so it must not be usable to rewrite the metadata
+    # of a dues payment or anything else that isn't this flow.
+    it 'refuses an intent that is not a calendar donation' do
+      allow(Stripe::PaymentIntent).to receive(:retrieve).and_return(
+        { id: 'pi_dues', status: 'requires_payment_method',
+          metadata: { charge_type: 'dues_payment' } }
+      )
+
+      patch '/api/fundraiser/payment_intents/pi_dues', params: { donor_name: 'Nope' }, as: :json
+
+      expect(response).to have_http_status(:not_found)
+      expect(Stripe::PaymentIntent).not_to have_received(:update)
+    end
+
+    it 'refuses an intent that has already been paid' do
+      allow(Stripe::PaymentIntent).to receive(:retrieve).and_return(
+        { id: 'pi_1', status: 'succeeded', metadata: { charge_type: 'calendar' } }
+      )
+
+      patch '/api/fundraiser/payment_intents/pi_1', params: { donor_name: 'Too late' }, as: :json
+
+      expect(response).to have_http_status(:conflict)
+      expect(Stripe::PaymentIntent).not_to have_received(:update)
+    end
+
+    it 'never fails the donation over a byline' do
+      allow(Stripe::PaymentIntent).to receive(:retrieve)
+        .and_raise(Stripe::InvalidRequestError.new('no such intent', 'id'))
+      allow(Rollbar).to receive(:warning)
+
+      patch '/api/fundraiser/payment_intents/pi_gone', params: { donor_name: 'X' }, as: :json
+
+      expect(response).to have_http_status(:no_content)
     end
   end
 end

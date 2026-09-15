@@ -1,2 +1,18 @@
-% placeholder, built in a later phase
-<h1>Fundraiser checkout</h1>
+<% content_for :page_title, 'Finish your donation' %>
+
+<%= render 'fundraiser/app_bar',
+           back_path: performer_fundraiser_path(@performer.public_token),
+           back_label: 'Back to dates' %>
+
+<div class="mx-auto w-full max-w-[1100px] px-0 py-6 sm:px-6">
+  <div
+    id="donation-checkout"
+    data-performer="<%= @performer_json.to_json %>"
+    data-dates="<%= @selected_dates.to_json %>"
+    data-total-cents="<%= @total_cents %>"
+    data-stripe-key="<%= @stripe_public_key %>"
+    data-dates-path="<%= performer_fundraiser_path(@performer.public_token) %>"
+  ></div>
+</div>
+
+<%= vite_typescript_tag 'entrypoints/fundraiser/checkout.tsx' %>

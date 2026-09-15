@@ -3,6 +3,10 @@
 module Api
   module Fundraiser
     class PaymentIntentsController < ApiController
+      # An intent that hasn't been paid for yet. Anything further along is
+      # finished business and its byline is already on the donation rows.
+      UNPAID_STATUSES = %w[requires_payment_method requires_confirmation].freeze
+
       before_action :set_stripe_secret_key
 
       # The amount is derived from the dates, server-side. It used to be
@@ -32,7 +36,36 @@ module Api
           }
         )
 
-        render json: { clientSecret: payment_intent['client_secret'] }
+        render json: {
+          clientSecret: payment_intent['client_secret'],
+          paymentIntentId: payment_intent['id']
+        }
+      end
+
+      # PATCH /api/fundraiser/payment_intents/:id
+      #
+      # The donor types their name after the Payment Element has already
+      # mounted (the intent has to exist for the element to render), and the
+      # webhook reads the name from the intent's metadata. So the name is
+      # attached just before the card is confirmed, rather than at create time
+      # when the field is still empty — otherwise every donation would be
+      # recorded as anonymous.
+      #
+      # This endpoint is public, so it only ever writes `donor_name`, and only
+      # on an intent that is still unpaid and belongs to this flow. It can't be
+      # used to rewrite the dates, the amount, or a dues payment's metadata.
+      def update
+        intent = Stripe::PaymentIntent.retrieve(params[:id])
+        return head(:not_found) unless intent[:metadata].to_h[:charge_type] == 'calendar'
+        return head(:conflict) unless UNPAID_STATUSES.include?(intent[:status])
+
+        Stripe::PaymentIntent.update(params[:id], metadata: { donor_name: donor_name })
+
+        head :no_content
+      rescue Stripe::StripeError => e
+        # Not fatal: the donation still lands, just without the byline.
+        Rollbar.warning(e, payment_intent: params[:id])
+        head :no_content
       end
 
       private
