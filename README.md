@@ -159,9 +159,9 @@ written.
 Locally and in test you are always on Stripe **test** keys, and this is
 enforced in code rather than by convention:
 `ApplicationController#set_stripe_secret_key` and `#set_stripe_public_key` fall
-back to the `*_TEST_KEY` variables unless `Rails.env.production?` and `STAGING`
-is unset. A request spec pins that the public fundraiser renders the test
-publishable key and never the live one.
+back to the `*_TEST_KEY` variables unless `DeployEnv.real_production?`. A request
+spec pins that the public fundraiser renders the test publishable key and never
+the live one.
 
 The variable names the app reads:
 
@@ -170,6 +170,34 @@ The variable names the app reads:
 | `STRIPE_PUBLIC_TEST_KEY` / `STRIPE_SECRET_TEST_KEY` | everywhere except the real production deploy |
 | `STRIPE_PUBLIC_KEY` / `STRIPE_SECRET_KEY` | the production deploy only |
 | `STRIPE_WEBHOOK_SECRET` | verifying webhook signatures |
+
+### Staging is not production
+
+`DeployEnv` (`lib/deploy_env.rb`) is the single source of truth for "is this the
+real production deploy?". It exists because staging runs with
+`RAILS_ENV=production` **and** `STAGING` set, so `Rails.env.production?` is true
+there and cannot gate anything that must only happen for real members.
+
+Everything that could reach a real member's inbox or a live Stripe key goes
+through `DeployEnv.real_production?`:
+
+| Guard | Behaviour off real production |
+|---|---|
+| `MailerInterceptor` | installed, redirects every recipient to `EMAIL_DAN` and tags the subject `[NOT PROD] … TO <original>` |
+| `PostOffice#client` | Mailgun **test mode stays on**, so nothing is delivered |
+| `PostOffice.send_email` | subject prefixed `[STAGING - ignore]` when `STAGING` is set |
+| Stripe keys | `*_TEST_KEY` |
+
+If `EMAIL_DAN` is unset on staging there is nowhere safe to redirect to, so the
+delivery is **suppressed** rather than allowed through to the real recipient —
+unconfigured must never mean "send for real". Development differs deliberately:
+it delivers via `:letter_opener`, so the recipient is left untouched and mail is
+simply opened in the browser.
+
+There is currently no staging deploy, so these paths are latent rather than
+live; they matter the moment one exists. Note also that `PostOffice` talks to
+Mailgun directly and so never passes through `MailerInterceptor` — test mode is
+the only safeguard on that path, which includes whistleblower reports.
 
 Values live in `.env`, which is gitignored and **must stay that way** — a local
 `.env` may hold real production credentials, so never commit it, paste it into

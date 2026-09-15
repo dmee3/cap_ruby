@@ -3,7 +3,10 @@
 class PostOffice
   class << self
     def send_email(recipients, subject, text)
-      subject = "[STAGING - ignore] #{subject}" if ENV['STAGING'] == true
+      # Truthiness via DeployEnv, not ENV['STAGING'] == true: the env var is a
+      # String, so the old boolean comparison never matched and this prefix had
+      # never once fired (cap_ruby-b3a.31).
+      subject = "[STAGING - ignore] #{subject}" if DeployEnv.staging?
 
       email_args = format_email_args(recipients, subject, text)
       client.send_message(
@@ -38,7 +41,12 @@ class PostOffice
 
     def client
       @client = Mailgun::Client.new(ENV.fetch('MAILGUN_API_KEY', nil))
-      if Rails.env.production?
+
+      # Real production only. PostOffice talks to Mailgun directly and so bypasses
+      # ActionMailer entirely, which means MailerInterceptor never sees these
+      # messages — test mode is the ONLY thing standing between staging and real
+      # members' inboxes here, including whistleblower reports (cap_ruby-b3a.31).
+      if DeployEnv.real_production?
         @client.disable_test_mode!
       else
         @client.enable_test_mode!
