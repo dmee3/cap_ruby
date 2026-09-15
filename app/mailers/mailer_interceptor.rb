@@ -11,9 +11,14 @@ class MailerInterceptor
     message.subject = "[NOT PROD] #{message.subject} | TO #{message.to}"
 
     # With no redirect address configured, leave the recipient alone rather
-    # than blanking it: delivery would raise "SMTP To address may not be
-    # blank" and the caller would look broken. Nothing outside production
-    # delivers for real anyway.
+    # than blanking it: blanking made delivery raise "SMTP To address may not
+    # be blank" and the caller look broken. In the environments this
+    # interceptor actually runs in, development uses :letter_opener and test
+    # uses :test, so neither sends.
+    #
+    # NB this guard does NOT cover staging, which runs RAILS_ENV=production
+    # with STAGING set and therefore delivers through Mailgun for real. See
+    # cap_ruby-b3a.31.
     redirect_to = ENV.fetch('EMAIL_DAN', nil)
     message.to = redirect_to if redirect_to.present?
   end
