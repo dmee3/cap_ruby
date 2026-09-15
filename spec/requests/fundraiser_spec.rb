@@ -39,6 +39,45 @@ RSpec.describe 'Public fundraiser', type: :request do
       expect(response.body).not_to include('class="app-sidebar"')
       expect(response.body).not_to include('app-drawer')
     end
+
+    it 'leads with the mechanic, since that is the whole design problem' do
+      performer
+
+      get '/fundraiser'
+
+      expect(response.body).to include('Pick a date. Donate that many dollars.')
+      expect(response.body).to include("#{season.year} calendar fundraiser")
+    end
+
+    it 'hands the performers to the widget as a JSON blob' do
+      sponsor(performer, 3)
+
+      get '/fundraiser'
+
+      # data-* attributes, so `<%=` escaping is correct here (unlike a
+      # window.foo = ... script tag, which needs the raw `<%==`).
+      expect(response.body).to include('id="performer-picker"')
+      expect(response.body).to include(performer.public_token)
+      expect(response.body).to include('Front Ensemble')
+    end
+
+    it 'never names a month, because the tiles are prices not appointments' do
+      performer
+
+      get '/fundraiser'
+
+      expect(response.body).not_to match(/March/i)
+    end
+
+    # A season exists for months before anyone starts a calendar, so this is a
+    # real state rather than an edge case.
+    it 'says so plainly when no one has started a calendar' do
+      get '/fundraiser'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("The calendar isn't open yet")
+      expect(response.body).not_to include('id="performer-picker"')
+    end
   end
 
   describe 'a performer page' do
