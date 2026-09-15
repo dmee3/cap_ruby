@@ -1,9 +1,20 @@
 AllCops:
   Exclude:
     - Gemfile
+    - '**/Gemfile'
     - bin/**/*
-    - config/**
-    - db/**
+    # These were written `config/**` and `db/**`, which match the directories
+    # themselves but not the files inside them, so neither was actually
+    # excluded — generated code (db/schema.rb alone accounts for ~206) and
+    # Rails boilerplate made `bundle exec rubocop` fail on every commit,
+    # including main. `/**/*` is the form that matches the contents.
+    - config/**/*
+    - db/**/*
+    # One-off analysis scripts, kept for reference rather than maintained.
+    - scripts/**/*
+    # Editor tooling, gitignored. CI never checks it out, so excluding it keeps
+    # a local `bundle exec rubocop` honest about what CI will say.
+    - .ruby-lsp/**/*
     # https://github.com/rubocop/rubocop/issues/9832
     - vendor/bundle/**/*
   TargetRubyVersion:
