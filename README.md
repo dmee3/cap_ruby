@@ -94,3 +94,32 @@ There are seeds included with the codebase, but sometimes it's better to have re
 ## Stripe Quick Reference
 ### Stripe CLI for Development
 Follow instructions [here](https://docs.stripe.com/stripe-cli/overview)
+
+### Forwarding webhooks locally (required to test any payment end to end)
+
+Stripe can't reach `localhost`, so without a forwarder the charge succeeds and
+then **nothing else happens**. Both payment flows depend on the webhook:
+
+- Calendar fundraiser donations — `Calendar::Donation` rows are written *only*
+  by `StripeController#process_calendar`, and `CalendarMailer` fires from
+  inside it.
+- Member dues payments — `Payment` rows are written *only* by
+  `#process_dues_payment`.
+
+So with no forwarder running, a test donation looks like it worked, but the
+performer's progress never moves, the donation never appears, and Letter Opener
+never pops the notification email. Nothing is broken; the write half never ran.
+
+```bash
+stripe login
+stripe listen --forward-to localhost:3000/stripe/webhook
+```
+
+That prints a signing secret (`whsec_…`). Put it in `.env` as
+`STRIPE_WEBHOOK_SECRET` and restart the server — `StripeController#webhook`
+verifies every event against it and returns 400 on a mismatch, so a stale
+secret fails the same silent way.
+
+Leave `stripe listen` running in its own terminal while testing. It logs each
+forwarded event, which is the quickest way to tell "the webhook didn't fire"
+from "the webhook fired and errored".

@@ -88,7 +88,7 @@ module Fundraiser
 
       Result.new(
         status: :succeeded,
-        performer: performer_for(metadata[:member_id]),
+        performer: performer_for(metadata[:member_id], dates),
         dates: dates,
         # Derived from the dates, the same way the charge itself is, so the
         # receipt can never disagree with what the dates add up to.
@@ -113,7 +113,7 @@ module Fundraiser
       raw.to_s.split(',').map(&:to_i).select { |d| d.between?(1, Fundraiser::TOTAL_DATES) }.uniq.sort
     end
 
-    def performer_for(member_id)
+    def performer_for(member_id, dates)
       return nil if member_id.blank?
 
       user = User.find_by(id: member_id)
@@ -125,16 +125,24 @@ module Fundraiser
         initials: user.initials,
         ensemble: DisplayLabels.ensemble(user.ensemble_for(@season_id)),
         section: DisplayLabels.section(user.section_for(@season_id)),
-        raised_cents: raised_cents_for(user),
+        raised_cents: raised_cents_for(user, dates),
         goal_cents: Fundraiser::COMPLETE_DOLLARS * 100
       }
     end
 
-    # Read after the fact, so this may or may not yet include the donation the
-    # donor just made, depending on whether the webhook has landed. The share
-    # card's "needs $X more" is therefore a floor, never an overstatement.
-    def raised_cents_for(user)
-      Calendar::Donation.where(user_id: user.id, season_id: @season_id).sum(:donation_date) * 100
+    # The donation that brought the donor here is written by the webhook, which
+    # is a separate async request and may not have landed yet — so the stored
+    # rows alone would tell a donor who just gave $41 that the performer still
+    # needs the full $496. The dates being paid for are added in, and any row
+    # the webhook already wrote for them is excluded so the two can't
+    # double-count.
+    def raised_cents_for(user, dates)
+      stored = Calendar::Donation
+               .where(user_id: user.id, season_id: @season_id)
+               .where.not(donation_date: dates)
+               .sum(:donation_date)
+
+      (stored + dates.sum) * 100
     end
   end
 end

@@ -265,6 +265,43 @@ RSpec.describe 'Public fundraiser', type: :request do
       expect(response.body).to include('data-email=""')
     end
 
+    # The webhook writes the donation rows and may not have landed when the
+    # donor arrives, so counting only stored rows told someone who had just
+    # given $32 that the performer still needed the whole $496.
+    describe 'the share card figure' do
+      it 'counts the donation just made, even before the webhook lands' do
+        allow(Stripe::PaymentIntent).to receive(:retrieve).and_return(succeeded_intent)
+
+        expect(Calendar::Donation.count).to eq(0)
+
+        get '/fundraiser/thanks?payment_intent=pi_ok&redirect_status=succeeded'
+
+        # 3 + 12 + 17 = $32 of $496, so $464 left, not $496.
+        expect(response.body).to include('needs $464 more')
+      end
+
+      it 'does not double-count once the webhook has written those rows' do
+        sponsor(performer, 3)
+        sponsor(performer, 12, intent: 'pi_b')
+        sponsor(performer, 17, intent: 'pi_c')
+        allow(Stripe::PaymentIntent).to receive(:retrieve).and_return(succeeded_intent)
+
+        get '/fundraiser/thanks?payment_intent=pi_ok&redirect_status=succeeded'
+
+        expect(response.body).to include('needs $464 more')
+      end
+
+      it 'adds the new donation on top of earlier ones' do
+        sponsor(performer, 31)
+        allow(Stripe::PaymentIntent).to receive(:retrieve).and_return(succeeded_intent)
+
+        get '/fundraiser/thanks?payment_intent=pi_ok&redirect_status=succeeded'
+
+        # $31 already in + $32 just now = $63, so $433 left.
+        expect(response.body).to include('needs $433 more')
+      end
+    end
+
     it 'carries no invented receipt number' do
       allow(Stripe::PaymentIntent).to receive(:retrieve).and_return(succeeded_intent)
 
