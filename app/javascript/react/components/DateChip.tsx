@@ -8,17 +8,16 @@ type DateChipProps = {
 }
 
 /**
- * One picked date, with what it costs. The removable variant carries an ✕; the
- * static one separates the date and the amount with a middot instead, and is
- * used on checkout and the receipt where "Change dates" is the way back.
+ * One picked date. The removable variant carries an ✕; the static one is used
+ * on checkout, where "Change dates" is the way back.
+ *
+ * The amount is deliberately NOT repeated here: the tile a donor tapped
+ * already showed it, and the total sits directly below the chips, so per-chip
+ * amounts were the same number three times.
  */
 const DateChip = ({ date, onRemove }: DateChipProps) => (
   <span className="inline-flex items-center gap-1.5 rounded-full border border-[color:rgb(var(--accent-primary))] bg-ocean-lightest/20 px-3 py-[7px] text-[14px] font-semibold leading-[18px] text-ocean-dark">
-    <span>
-      the {ordinal(date)}
-      {!onRemove && ' · '}
-    </span>
-    <span className="font-mono font-bold">${date}</span>
+    <span>the {ordinal(date)}</span>
 
     {onRemove && (
       <button

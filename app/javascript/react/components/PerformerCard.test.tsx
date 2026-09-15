@@ -47,7 +47,7 @@ describe('PerformerCard', () => {
     it('reads as good news rather than a dead end', () => {
       render(<PerformerCard performer={done} />)
 
-      expect(screen.getByText(/All 31 dates claimed\. Elena is fully funded\./)).toBeInTheDocument()
+      expect(screen.getByText(/Calendar complete\. All 31 dates claimed\./)).toBeInTheDocument()
     })
 
     it('stops being tappable', () => {

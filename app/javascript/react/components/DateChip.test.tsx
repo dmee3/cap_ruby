@@ -4,11 +4,18 @@ import { describe, it, expect, vi } from 'vitest'
 import DateChip from './DateChip'
 
 describe('DateChip', () => {
-  it('shows the date and what it costs', () => {
+  it('names the date', () => {
     render(<DateChip date={17} />)
 
     expect(screen.getByText(/the 17th/)).toBeInTheDocument()
-    expect(screen.getByText('$17')).toBeInTheDocument()
+  })
+
+  // The tile the donor tapped already showed the amount, and the total sits
+  // right below the chips, so repeating it here said the same number thrice.
+  it('does not repeat the amount', () => {
+    const { container } = render(<DateChip date={17} />)
+
+    expect(container.textContent).not.toContain('$17')
   })
 
   it('is static by default, with no remove control', () => {

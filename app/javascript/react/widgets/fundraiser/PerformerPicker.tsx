@@ -32,15 +32,9 @@ const PerformerPicker = ({ performers }: PerformerPickerProps) => {
 
   return (
     <div className="flex flex-col gap-[18px]">
-      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h2 className="m-0 text-[24px] font-bold leading-[30px] tracking-tight text-primary">
-          Who are you supporting?
-        </h2>
-        <span className="text-body text-secondary">
-          {performers.length} {performers.length === 1 ? 'performer' : 'performers'} raising money
-          this season
-        </span>
-      </div>
+      <h2 className="m-0 text-[24px] font-bold leading-[30px] tracking-tight text-primary">
+        Who are you supporting?
+      </h2>
 
       {/* A real labelled input: the canvas drew a styled div, which nothing can
           type into and no screen reader can name. */}
@@ -81,11 +75,6 @@ const PerformerPicker = ({ performers }: PerformerPickerProps) => {
           </button>
         </div>
       )}
-
-      <p className="m-0 max-w-[560px] text-body-sm text-secondary">
-        Every date can only be sponsored once, so a finished calendar adds up to $496. Donations go
-        straight to that performer's season dues.
-      </p>
     </div>
   )
 }

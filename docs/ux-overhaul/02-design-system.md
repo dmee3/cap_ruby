@@ -899,7 +899,8 @@ avatar, name, `Ensemble · Section`, a progress bar, then a status line.
 
 - **Three states**, not two: **with progress** (`$312 of $496 · 18 of 31 dates
   claimed`), **brand new** (`$46 of $496 · just getting started`), and
-  **complete** (`✓ All 31 dates claimed. Nia is fully funded.`).
+  **complete** (`✓ Calendar complete. All 31 dates claimed.`). Complete means
+  the calendar is full, **not** that the performer owes nothing.
 - **Complete stops being tappable** — muted surface (`bg.sunken`), name drops to
   `text.secondary`, progress renders as a solid full `moss` bar with no track,
   and there is no hover or pointer cursor. It "reads as good news instead of a
@@ -926,15 +927,17 @@ stays legible to a donor who scrolled past the hero.
 |---|---|---|---|
 | `available` | `$7` | `bg.surface` + `border.strong` hairline | yes |
 | `selected` | `✓ $7` | `ocean` fill (`ocean.light` on dark), `text.on-brand` number | yes |
-| `taken` | the word `taken` | `bg.sunken`, **`line-through`** | no, and **not focusable** |
+| `taken` | the word `taken` | `bg.sunken` | no, and **not focusable** |
 | `focused` | `$7` | available fill + a 2px page-bg spacer ring then a 2px `ocean` ring **outside** the tile | — |
 
 - Sizes: desktop `min-height 64px`, number `text-[22px]/[24px]` weight 700;
   mobile `min-height 44px`, number `16px/18px`. **44px is the touch-target
-  floor** — at 390px the 7-column grid yields ~46px tiles, which is why the
-  column count holds on mobile. Below ~360px it would breach the floor.
-- Status is never color-only: `taken` carries both a strikethrough **and** the
-  literal word. `selected` carries a `✓` glyph as real text.
+  floor** — at 390px the 7-column grid yields ~48px tiles, which is why the
+  column count holds on mobile. Below ~375px it would breach the floor.
+- Status is never color-only: `taken` is **labelled `taken` in words**, and
+  `selected` carries a `✓` glyph as real text. *(The tile originally also
+  struck the number through; the canvas dropped that in its second revision,
+  leaving the word as the cue.)*
 - Focus is a ring *outside* the tile, never a border swap, so the tile doesn't
   shift on focus.
 - Real `<button>`s with `aria-pressed` and an accessible name that says what the
@@ -945,12 +948,16 @@ stays legible to a donor who scrolled past the hero.
 ### 4.37 Date chip *(added — Flow 7, as `DateChip.tsx`)*
 
 Pill, `radius.full`, `ocean.lightest` tint fill with an `ocean` border, holding
-`the 3rd` plus the amount in mono. Two variants:
+just `the 3rd`. Two variants:
 
 - **removable** — carries a `✕` with an accessible name (`Remove the 3rd`). Used
   in the desktop summary rail.
-- **static** — `the 3rd · $3`, no `✕`. Used on checkout and the receipt, where
-  the edit path is a `Change dates` link instead.
+- **static** — no `✕`. Used on checkout, where the edit path is a
+  `Change dates` link instead.
+
+The chip carries **no dollar amount**: the tile the donor tapped already showed
+it and the total sits directly beneath the chips, so per-chip amounts stated the
+same number three times. *(Dropped in the canvas's second revision.)*
 
 Dark: deeper `ocean.dark` tint, `ocean.light` border.
 

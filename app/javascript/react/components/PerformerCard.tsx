@@ -53,7 +53,7 @@ const PerformerCard = ({ performer, compact = false }: PerformerCardProps) => {
     if (complete) {
       return (
         <span className="text-caption font-semibold text-success-fg">
-          ✓ All {totalDates} dates claimed. {firstName} is fully funded.
+          ✓ Calendar complete. All {totalDates} dates claimed.
         </span>
       )
     }

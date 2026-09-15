@@ -42,12 +42,13 @@ describe('DateTile', () => {
     expect(screen.getByText('✓ $3')).toBeInTheDocument()
   })
 
-  // Never color alone: a taken date says so in words and is struck through.
-  it('says "taken" and strikes through a claimed date', () => {
+  // Never color alone: the word "taken" is the cue. The strikethrough the
+  // design originally carried was dropped, so the word has to stay.
+  it('labels a claimed date "taken" in words', () => {
     const { container } = render(<DateTile date={9} state="taken" />)
 
     expect(screen.getByText('taken')).toBeInTheDocument()
-    expect(container.querySelector('button')).toHaveClass('line-through')
+    expect(container.querySelector('button')).not.toHaveClass('line-through')
   })
 
   it('makes a taken date unfocusable, since there is nothing to do with it', () => {

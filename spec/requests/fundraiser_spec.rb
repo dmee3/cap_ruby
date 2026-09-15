@@ -47,6 +47,8 @@ RSpec.describe 'Public fundraiser', type: :request do
 
       expect(response.body).to include('Pick a date. Donate that many dollars.')
       expect(response.body).to include("#{season.year} calendar fundraiser")
+      expect(response.body).to include('our performers cover the cost of')
+      expect(response.body).to include('keep performing')
     end
 
     it 'hands the performers to the widget as a JSON blob' do

@@ -18,8 +18,9 @@ const STATE_CLASSES: Record<DateTileState, string> = {
     'bg-surface border-border-strong text-primary hover:border-[color:rgb(var(--accent-primary))] cursor-pointer',
   selected:
     'bg-[color:rgb(var(--accent-primary))] border-ocean-dark text-on-brand cursor-pointer',
-  // Reads as absent rather than dimmed.
-  taken: 'bg-sunken border-border-default text-secondary line-through cursor-default',
+  // Reads as absent rather than dimmed. The word 'taken' in the sub-line is
+  // the non-color cue, so the number itself isn't struck through.
+  taken: 'bg-sunken border-border-default text-secondary cursor-default',
 }
 
 const SUB_CLASSES: Record<DateTileState, string> = {
@@ -33,8 +34,8 @@ const SUB_CLASSES: Record<DateTileState, string> = {
  * sponsoring it costs, because the amount IS the number and a donor who
  * scrolled past the explainer still needs that to land.
  *
- * States never depend on color alone — `taken` carries a strikethrough and the
- * literal word, and `selected` carries a check glyph as real text.
+ * States never depend on color alone — `taken` is labelled `taken` in words,
+ * and `selected` carries a check glyph as real text.
  *
  * Focus is a ring OUTSIDE the tile (a page-colored spacer ring, then an ocean
  * ring) rather than a border swap, so the tile doesn't shift when focused.

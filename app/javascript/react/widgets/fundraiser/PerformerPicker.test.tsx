@@ -25,12 +25,12 @@ const roster = [
 ]
 
 describe('PerformerPicker', () => {
-  it('lists everyone with a count', () => {
+  it('lists everyone', () => {
     render(<PerformerPicker performers={roster} />)
 
     expect(screen.getByText('Elena Sokol')).toBeInTheDocument()
     expect(screen.getByText('Marcus Webb')).toBeInTheDocument()
-    expect(screen.getByText(/3 performers raising money this season/)).toBeInTheDocument()
+    expect(screen.getByText('Nia Fletcher')).toBeInTheDocument()
   })
 
   // Deliberate: a finished calendar reads as good news, not a dead end, and
@@ -81,9 +81,13 @@ describe('PerformerPicker', () => {
     expect(screen.getByText('Elena Sokol')).toBeInTheDocument()
   })
 
-  it('says the $496 rule once, where a donor can see it', () => {
-    render(<PerformerPicker performers={roster} />)
+  // The count line and the footer legend explaining the $496 rule were both
+  // dropped: the hero's 3 + 17 = $20 card teaches the mechanic, and every card
+  // already carries "of $496".
+  it('carries no performer count or footer legend', () => {
+    const { container } = render(<PerformerPicker performers={roster} />)
 
-    expect(screen.getByText(/a finished calendar adds up to \$496/)).toBeInTheDocument()
+    expect(container.textContent).not.toMatch(/performers raising money/)
+    expect(container.textContent).not.toMatch(/adds up to \$496/)
   })
 })

@@ -61,8 +61,8 @@ const DatePicker = ({ performer, claimedDates, checkoutPath }: DatePickerProps) 
           />
 
           <p className="m-0 text-body-sm text-secondary">
-            Small dates are small donations, and they help just as much. Three early dates cover a
-            pair of sticks. Tap a date again to take it off.
+            Small dates are small donations, and they help just as much. Three early dates buy a
+            pair of sticks, and we're grateful for every one. Tap a date again to take it off.
           </p>
         </div>
       </div>
@@ -75,7 +75,7 @@ const DatePicker = ({ performer, claimedDates, checkoutPath }: DatePickerProps) 
           {selected.length === 0 ? (
             <p className="m-0 text-body-sm text-secondary">
               Nothing picked yet. Pick a few small dates or one big one. Either way it goes
-              straight to {firstName}.
+              straight to {firstName}, who'll know it was you.
             </p>
           ) : (
             <div className="flex flex-wrap gap-2">
