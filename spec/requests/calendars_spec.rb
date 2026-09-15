@@ -17,6 +17,22 @@ RSpec.describe 'Calendar Fundraiser donations', type: :request do
     create(:seasons_user, user: member, season: season, role: 'member')
   end
 
+  # Built from real Stripe classes rather than doubles. A double with method
+  # access can't reproduce the two things that actually bite here: Stripe omits
+  # metadata keys whose value is nil, and StripeObject raises NoMethodError on
+  # a missing key instead of returning nil.
+  def stripe_event(intent_id, charge_type: 'calendar', **metadata)
+    Stripe::Event.construct_from(
+      type: 'payment_intent.succeeded',
+      data: {
+        object: {
+          id: intent_id,
+          metadata: { charge_type: charge_type }.merge(metadata.compact)
+        }
+      }
+    )
+  end
+
   describe 'Webhook processes calendar donation' do
     let!(:fundraiser) do
       Calendar::Fundraiser.create!(
@@ -31,21 +47,8 @@ RSpec.describe 'Calendar Fundraiser donations', type: :request do
 
       # Stub Stripe webhook signature verification
       allow(Stripe::Webhook).to receive(:construct_event).and_return(
-        double(
-          type: 'payment_intent.succeeded',
-          data: double(
-            object: {
-              'id' => 'pi_calendar_456',
-              'metadata' => double(
-                charge_type: 'calendar',
-                dates: '5,10,15',
-                donor_name: 'Jane Smith',
-                member_id: member.id.to_s,
-                respond_to?: ->(method) { method == :charge_type }
-              )
-            }
-          )
-        )
+        stripe_event('pi_calendar_456', dates: '5,10,15', donor_name: 'Jane Smith',
+                                        member_id: member.id.to_s)
       )
     end
 
@@ -93,29 +96,59 @@ RSpec.describe 'Calendar Fundraiser donations', type: :request do
 
     before do
       allow(CalendarMailer).to receive_message_chain(:with, :calendar_email, :deliver_later)
+      # An anonymous donor: the intent endpoint sends donor_name: nil, and
+      # Stripe DROPS nil metadata keys, so the key is absent entirely. That
+      # crashed the webhook when it used method access (StripeObject raises
+      # NoMethodError on a missing key), so the stub must omit it too.
       allow(Stripe::Webhook).to receive(:construct_event).and_return(
-        double(
-          type: 'payment_intent.succeeded',
-          data: double(
-            object: {
-              'id' => 'pi_anon_1',
-              'metadata' => double(
-                charge_type: 'calendar',
-                dates: '7',
-                donor_name: '',
-                member_id: member.id.to_s,
-                respond_to?: ->(method) { method == :charge_type }
-              )
-            }
-          )
-        )
+        stripe_event('pi_anon_1', dates: '7', member_id: member.id.to_s)
       )
+    end
+
+    it 'still records the donation' do
+      # The regression: this 500'd with NoMethodError and wrote nothing, so an
+      # anonymous donor was charged and the performer got no credit.
+      expect do
+        post '/stripe/webhook', params: {}, as: :json
+      end.to change(Calendar::Donation, :count).by(1)
+
+      expect(response).to have_http_status(:success)
     end
 
     it 'stores a blank donor name as nil' do
       post '/stripe/webhook', params: {}, as: :json
 
       expect(Calendar::Donation.last.donor_name).to be_nil
+    end
+
+    it 'still emails the performer' do
+      post '/stripe/webhook', params: {}, as: :json
+
+      expect(CalendarMailer).to have_received(:with).with(
+        user_id: member.id.to_s, donation_dates: [7], donor_name: nil
+      )
+    end
+  end
+
+  # Stripe sends many event types to one endpoint; only the payment ones are
+  # ours to act on.
+  describe 'an event type the app does not handle' do
+    before do
+      allow(Stripe::Webhook).to receive(:construct_event).and_return(
+        Stripe::Event.construct_from(
+          type: 'customer.created',
+          data: { object: { id: 'cus_1' } }
+        )
+      )
+      allow(Rollbar).to receive(:info)
+    end
+
+    it 'acknowledges it without writing anything' do
+      expect do
+        post '/stripe/webhook', params: {}, as: :json
+      end.not_to change(Calendar::Donation, :count)
+
+      expect(response).to have_http_status(:success)
     end
   end
 

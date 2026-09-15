@@ -98,19 +98,14 @@ RSpec.describe 'Payments Workflow', type: :request do
       create(:seasons_user, user: member, season: season, role: 'member')
       stripe_payment_type # Ensure Stripe payment type exists
 
-      # Stub Stripe webhook signature verification
+      # Stub Stripe webhook signature verification. Built from real Stripe
+      # classes, not a double: the app reads metadata with [], which a
+      # method-access double doesn't support, and StripeObject's behaviour on
+      # missing keys is the thing worth exercising.
       allow(Stripe::Webhook).to receive(:construct_event).and_return(
-        double(
+        Stripe::Event.construct_from(
           type: 'payment_intent.succeeded',
-          data: double(
-            object: {
-              'id' => 'pi_test_456',
-              'metadata' => double(
-                charge_type: 'dues_payment',
-                respond_to?: ->(method) { method == :charge_type }
-              )
-            }
-          )
+          data: { object: { id: 'pi_test_456', metadata: { charge_type: 'dues_payment' } } }
         )
       )
     end
