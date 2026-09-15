@@ -12,6 +12,7 @@
 #  inventory_access       :boolean          default(FALSE)
 #  last_name              :string
 #  phone                  :string
+#  public_token           :string
 #  remember_created_at    :datetime
 #  reset_password_sent_at :datetime
 #  reset_password_token   :string
@@ -23,6 +24,7 @@
 #
 #  index_users_on_deleted_at            (deleted_at)
 #  index_users_on_email                 (email) UNIQUE
+#  index_users_on_public_token          (public_token) UNIQUE
 #  index_users_on_reset_password_token  (reset_password_token) UNIQUE
 #  index_users_on_username              (username) UNIQUE
 #
@@ -215,6 +217,56 @@ RSpec.describe User, type: :model do
         user.save
         expect(user.username).to eq(username.downcase)
       end
+    end
+  end
+
+  # The public fundraiser addresses a performer by this token. It ends up in
+  # URLs that get forwarded through group texts, so it must not be guessable
+  # from the roster or leak who the performer is.
+  describe '#public_token' do
+    it 'is assigned on create' do
+      user = create(:user)
+
+      expect(user.public_token).to be_present
+      expect(user.public_token.length).to eq(User::PUBLIC_TOKEN_LENGTH)
+    end
+
+    it 'is unique across users' do
+      tokens = Array.new(5) { create(:user).public_token }
+
+      expect(tokens.uniq.length).to eq(5)
+    end
+
+    it 'carries no part of the name and is not the id' do
+      user = create(:user, first_name: 'Elena', last_name: 'Sokol')
+
+      expect(user.public_token.downcase).not_to include('elena')
+      expect(user.public_token.downcase).not_to include('sokol')
+      expect(user.public_token).not_to eq(user.id.to_s)
+    end
+
+    it 'avoids characters that are ambiguous when read aloud' do
+      # base58: no 0/O/I/l, since someone may type this off a phone screen.
+      expect(create(:user).public_token).not_to match(/[0OIl]/)
+    end
+
+    it 'is left alone on later saves, so a shared link keeps working' do
+      user = create(:user)
+      original = user.public_token
+
+      user.update!(first_name: 'Renamed')
+
+      expect(user.reload.public_token).to eq(original)
+    end
+  end
+
+  describe '#initials' do
+    it 'uses the first letter of each name' do
+      expect(build(:user, first_name: 'Elena', last_name: 'Sokol').initials).to eq('ES')
+    end
+
+    it 'handles a missing last name' do
+      expect(build(:user, first_name: 'Elena', last_name: nil).initials).to eq('E')
     end
   end
 end

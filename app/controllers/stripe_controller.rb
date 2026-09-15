@@ -38,10 +38,11 @@ class StripeController < ApplicationController
 
   private
 
+  # Metadata is read with [] throughout: Stripe omits keys whose value is nil,
+  # and StripeObject raises NoMethodError on a missing key rather than
+  # returning nil, so method access only works for keys guaranteed to be set.
   def process_payment_intent_success(payment_intent)
-    return unless payment_intent['metadata'].respond_to?(:charge_type)
-
-    case payment_intent['metadata']&.charge_type
+    case payment_intent['metadata']&.[](:charge_type)
     when 'dues_payment'
       process_dues_payment(payment_intent)
     when 'calendar'
@@ -56,24 +57,34 @@ class StripeController < ApplicationController
     # Stripe can redeliver an event; skip if this payment intent is already recorded.
     return if Calendar::Donation.exists?(notes: "Stripe: #{pi_id}")
 
-    fundraiser = Calendar::Fundraiser.find_or_create_incomplete_for_user(metadata.member_id)
-    metadata.dates.split(',').each do |date|
+    # Read with [] rather than method access. Stripe drops metadata keys whose
+    # value is nil, so an anonymous donation arrives with no `donor_name` key
+    # at all, and StripeObject raises NoMethodError on a missing key instead of
+    # returning nil.
+    donor_name = metadata[:donor_name].presence
+    dates = metadata[:dates].to_s.split(',')
+
+    fundraiser = Calendar::Fundraiser.find_or_create_incomplete_for_user(metadata[:member_id])
+    dates.each do |date|
       Calendar::Donation.create(
-        user_id: metadata.member_id,
+        user_id: metadata[:member_id],
         amount: date.to_i * 100,
         notes: "Stripe: #{pi_id}",
         donation_date: date.to_i,
-        donor_name: metadata.donor_name,
-        season_id: Season.last.id,
+        # Nil means the donor chose to be anonymous, so the receipt and the
+        # performer's email can both say "Anonymous" rather than rendering an
+        # empty byline.
+        donor_name: donor_name,
+        season_id: Fundraiser.public_season.id,
         calendar_fundraiser_id: fundraiser.id
       )
     end
 
     begin
       CalendarMailer.with(
-        user_id: metadata.member_id,
-        donation_dates: metadata.dates.split(',').map(&:to_i),
-        donor_name: metadata.donor_name
+        user_id: metadata[:member_id],
+        donation_dates: dates.map(&:to_i),
+        donor_name: donor_name
       ).calendar_email.deliver_later
     rescue StandardError => e
       Rollbar.error(e)

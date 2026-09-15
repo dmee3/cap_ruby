@@ -12,6 +12,7 @@
 #  inventory_access       :boolean          default(FALSE)
 #  last_name              :string
 #  phone                  :string
+#  public_token           :string
 #  remember_created_at    :datetime
 #  reset_password_sent_at :datetime
 #  reset_password_token   :string
@@ -23,6 +24,7 @@
 #
 #  index_users_on_deleted_at            (deleted_at)
 #  index_users_on_email                 (email) UNIQUE
+#  index_users_on_public_token          (public_token) UNIQUE
 #  index_users_on_reset_password_token  (reset_password_token) UNIQUE
 #  index_users_on_username              (username) UNIQUE
 #
@@ -36,6 +38,20 @@ class User < ApplicationRecord
          password_length: 8..128
 
   acts_as_paranoid
+
+  # The public fundraiser addresses a performer by this token, never by id or
+  # name: the share URL travels through group texts and social posts, so it
+  # mustn't publish a minor's name, and a sequential id would let anyone walk
+  # the roster. Generated for every user, not just members, so someone who
+  # joins a roster later already has a stable link.
+  #
+  # Rolled by hand rather than with `has_secure_token`, which enforces a
+  # 24-character minimum — far longer than a link someone reads aloud or types
+  # off a phone needs to be. 12 base58 characters is ~70 bits, and base58 keeps
+  # the ambiguous 0/O/I/l out of it.
+  PUBLIC_TOKEN_LENGTH = 12
+
+  before_create :assign_public_token
 
   has_many :activities
   has_many :conflicts, dependent: :destroy
@@ -174,5 +190,27 @@ class User < ApplicationRecord
 
   def welcome
     UserMailer.with(user: self).welcome_email.deliver_later
+  end
+
+  # Initials for the public fundraiser's avatar, which shows them until there
+  # are performer photos.
+  def initials
+    [first_name, last_name].compact_blank.map { |n| n[0] }.join.upcase
+  end
+
+  # Uniqueness has to be checked `with_deleted`: the column is uniquely indexed
+  # across the whole table, so colliding with a soft-deleted user's token would
+  # raise rather than quietly reassign.
+  def self.generate_public_token
+    loop do
+      token = SecureRandom.base58(PUBLIC_TOKEN_LENGTH)
+      return token unless with_deleted.exists?(public_token: token)
+    end
+  end
+
+  private
+
+  def assign_public_token
+    self.public_token = self.class.generate_public_token if public_token.blank?
   end
 end

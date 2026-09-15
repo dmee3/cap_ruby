@@ -1,0 +1,73 @@
+<% content_for :page_title, 'Calendar fundraiser' %>
+<% content_for :full_bleed, true %>
+
+<%= render 'fundraiser/app_bar', right: "#{@season_label} calendar fundraiser" %>
+
+<div class="flex flex-col">
+  <%# Hero. One sentence a stranger understands, then the mechanic shown rather
+      than explained: a donor who scrolls straight past this still gets it,
+      because every tile in the grid carries its dollar amount too. %>
+  <div class="bg-ocean-dark px-6 py-8 sm:px-10 sm:py-11">
+    <div class="mx-auto flex max-w-[1100px] flex-col items-start gap-8 lg:flex-row lg:items-center lg:gap-10">
+      <div class="flex flex-1 flex-col gap-3.5">
+        <h1 class="m-0 text-[28px] font-extrabold leading-[32px] tracking-tight text-white sm:text-[40px] sm:leading-[44px]">
+          Pick a date. Donate that many dollars.
+        </h1>
+        <p class="m-0 max-w-[520px] text-body text-ocean-lightest sm:text-[17px] sm:leading-[26px]">
+          <span class="hidden sm:inline">
+            Cap City is a competitive percussion ensemble, and our performers cover the cost of
+            their own season. Sponsor a date and it's yours on their calendar. Every date helps
+            someone keep performing.
+          </span>
+          <span class="sm:hidden">
+            Cap City is a competitive percussion ensemble, and our performers cover the cost of
+            their own season. Every date helps someone keep performing.
+          </span>
+        </p>
+      </div>
+
+      <%# 3 + 17 = $20. The mechanic as arithmetic. %>
+      <div class="flex flex-none items-center justify-center gap-2.5 rounded-md border border-ocean bg-ocean-dark p-3.5 sm:gap-3.5 sm:px-6 sm:py-[22px]">
+        <% [3, 17].each_with_index do |date, index| %>
+          <% if index.positive? %>
+            <span class="text-[22px] font-semibold leading-none text-ocean-lightest" aria-hidden="true">+</span>
+          <% end %>
+          <span class="flex w-[50px] flex-col items-center gap-0.5 rounded-[9px] border border-ocean-lightest bg-ocean px-0 py-2 sm:w-[62px] sm:rounded-sm sm:py-2.5">
+            <span class="text-[19px] font-bold leading-[21px] text-white sm:text-[24px] sm:leading-[26px]"><%= date %></span>
+            <span class="font-mono text-[10px] font-medium leading-[11px] text-flash sm:text-[11px] sm:leading-[12px]">$<%= date %></span>
+          </span>
+        <% end %>
+
+        <span class="text-[22px] font-semibold leading-none text-ocean-lightest" aria-hidden="true">=</span>
+
+        <span class="flex flex-col">
+          <span class="text-[26px] font-extrabold leading-[28px] tracking-tight text-moss-lightest sm:text-[30px] sm:leading-[32px]">$20</span>
+          <span class="hidden text-caption font-medium text-ocean-lightest sm:inline">two dates, one donation</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mx-auto w-full max-w-[1100px] px-4 py-8 sm:px-10">
+    <% if @performers.any? %>
+      <div
+        id="performer-picker"
+        data-performers="<%= @performers.to_json %>"
+      ></div>
+      <%= vite_typescript_tag 'entrypoints/fundraiser/index.tsx' %>
+    <% else %>
+      <%# No roster yet for the newest season. Real state, not an edge case:
+          a season exists for months before anyone starts a calendar. %>
+      <div class="card flex max-w-[560px] flex-col items-start gap-2.5">
+        <h2 class="m-0 text-h3 text-primary">The calendar isn't open yet</h2>
+        <p class="m-0 text-body text-secondary">
+          Nobody has started a calendar for this season. Check back soon, or give to the ensemble
+          directly and we'll put it to work.
+        </p>
+        <a class="btn-primary btn-lg" href="https://www.capcitypercussion.com/donate">
+          Give to the ensemble
+        </a>
+      </div>
+    <% end %>
+  </div>
+</div>

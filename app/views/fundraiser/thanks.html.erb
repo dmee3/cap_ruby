@@ -1,0 +1,96 @@
+<% content_for :page_title, @receipt.succeeded? ? 'Thank you' : 'Payment' %>
+<% content_for :full_bleed, true %>
+
+<%= render 'fundraiser/app_bar' %>
+
+<div class="mx-auto flex w-full max-w-[560px] flex-col gap-5 px-4 py-6 sm:px-10">
+  <% if @receipt.succeeded? %>
+    <% performer = @receipt.performer %>
+    <% first_name = performer ? performer[:name].split(' ').first : 'your performer' %>
+
+    <div class="flex flex-col gap-2.5">
+      <span class="flex h-11 w-11 items-center justify-center rounded-full bg-moss text-[20px] font-bold text-on-brand" aria-hidden="true">✓</span>
+      <h1 class="m-0 text-[26px] font-extrabold leading-[30px] tracking-tight text-primary sm:text-[34px] sm:leading-[38px]">
+        Thank you. <%= first_name %>'s calendar just got fuller.
+      </h1>
+      <p class="m-0 text-body text-secondary sm:text-[16px] sm:leading-6">
+        We're emailing <%= first_name %> to let them know
+        <%= @receipt.display_donor_name %> took <%= @receipt_date_list %>.
+        <span class="hidden sm:inline">
+          Your card was charged <%= number_to_currency(@receipt.total_cents / 100.0, precision: 0) %>.
+        </span>
+      </p>
+    </div>
+
+    <div id="donation-receipt"
+         data-dates="<%= @receipt.dates.to_json %>"
+         data-total-cents="<%= @receipt.total_cents %>"
+         data-donor-name="<%= @receipt.donor_name %>"
+         data-card-brand="<%= @receipt.card_brand %>"
+         data-card-last4="<%= @receipt.card_last4 %>"
+         data-email="<%= @receipt.email %>"
+         data-charged-on="<%= @receipt.charged_on&.strftime('%-m/%-d/%y') %>"></div>
+
+    <div class="flex flex-wrap gap-2.5">
+      <% if performer %>
+        <%# Share is the highest-leverage thing on this page: it's what produces
+            the next donation. So it's a button, not a footnote. %>
+        <div id="share-calendar"
+             data-share-url="<%= share_fundraiser_url(performer[:token]) %>"
+             data-first-name="<%= first_name %>"></div>
+      <% end %>
+      <a href="<%= fundraiser_path %>" class="btn-gray btn-lg">Support someone else</a>
+    </div>
+
+    <% if performer && performer[:raised_cents] < performer[:goal_cents] %>
+      <% remaining = performer[:goal_cents] - performer[:raised_cents] %>
+      <div class="card flex flex-col gap-2.5">
+        <span class="text-body font-semibold text-primary">Pass it on</span>
+        <p class="m-0 text-body-sm text-secondary">
+          <%= first_name %> needs <%= number_to_currency(remaining / 100.0, precision: 0) %> more to
+          fill their calendar. Send this to an aunt, an uncle, a neighbor.
+        </p>
+      </div>
+    <% end %>
+
+  <% elsif @receipt.pending? %>
+    <%# The charge went through but we can't read it back yet. Say so plainly
+        rather than invent a receipt. %>
+    <div class="card flex flex-col gap-2.5">
+      <h1 class="m-0 text-h2 text-primary">Your donation went through</h1>
+      <p class="m-0 text-body text-secondary">
+        Your card was charged and we're still writing down which dates you took. That usually
+        takes a few seconds. The performer will get an email either way.
+      </p>
+      <a href="<%= fundraiser_path %>" class="btn-primary btn-lg self-start">
+        Back to the fundraiser
+      </a>
+    </div>
+
+  <% else %>
+    <%# Payment failed. Nothing was charged and no dates changed. %>
+    <div class="flex flex-col gap-3.5">
+      <span class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-raspberry text-[18px] font-bold text-danger-fg" aria-hidden="true">!</span>
+      <h1 class="m-0 text-[24px] font-extrabold leading-7 tracking-tight text-primary">
+        That didn't go through
+      </h1>
+      <p class="m-0 text-body text-secondary">
+        Your card wasn't charged and nobody's dates changed, so you can pick up right where you
+        left off.
+      </p>
+
+      <div class="flex flex-col gap-2.5 sm:flex-row">
+        <a href="<%= fundraiser_path %>" class="btn-primary btn-lg">Try again</a>
+      </div>
+
+      <%# No support address here on purpose: the canvas suggested one that
+          doesn't exist, and a dead mailto on the one page an outsider sees is
+          worse than no contact route at all. %>
+      <p class="m-0 text-body-sm text-secondary">
+        Still stuck? Wait a few minutes and try again.
+      </p>
+    </div>
+  <% end %>
+</div>
+
+<%= vite_typescript_tag 'entrypoints/fundraiser/thanks.tsx' %>

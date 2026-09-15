@@ -1,0 +1,54 @@
+<% content_for :page_title, "Support #{@performer.first_name}" %>
+<% content_for :full_bleed, true %>
+
+<%= render 'fundraiser/app_bar', back_path: fundraiser_path, back_label: 'All performers' %>
+
+<%# Performer hero. A donor arriving by a shared link sees who they're here for
+    before anything else, and the explainer states the mechanic in one line. %>
+<div class="bg-ocean-dark px-4 py-6 sm:px-10 sm:py-8">
+  <div class="mx-auto flex max-w-[1100px] flex-col gap-3.5">
+    <div class="flex items-center gap-3.5">
+      <span class="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-white text-[20px] font-bold text-ocean-dark" aria-hidden="true">
+        <%= @performer.initials %>
+      </span>
+      <div class="flex flex-col">
+        <h1 class="m-0 text-[24px] font-extrabold leading-7 tracking-tight text-white sm:text-[28px] sm:leading-8">
+          Support <%= @performer.full_name %>
+        </h1>
+        <span class="text-body-sm text-ocean-lightest">
+          <%= [Fundraiser::DisplayLabels.combined(
+                ensemble: @performer.ensemble_for(@season_id),
+                section: @performer.section_for(@season_id)
+              ), @season_label].compact.join(' · ') %>
+        </span>
+      </div>
+    </div>
+
+    <p class="m-0 max-w-[560px] text-body text-ocean-lightest sm:text-[15px]">
+      Pick a date below and donate that many dollars. The 3rd is $3, the 17th is $17.
+    </p>
+
+    <div class="flex max-w-[420px] flex-col gap-1.5">
+      <div id="performer-progress"
+           data-raised-cents="<%= @raised_cents %>"
+           data-goal-cents="<%= @goal_cents %>"></div>
+      <span class="text-body-sm text-ocean-lightest">
+        <span class="font-mono font-bold text-moss-lightest">
+          <%= number_to_currency(@raised_cents / 100.0, precision: 0) %> of <%= number_to_currency(@goal_cents / 100.0, precision: 0) %>
+        </span>
+        raised · <%= @dates_left %> <%= 'date'.pluralize(@dates_left) %> left
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="mx-auto w-full max-w-[1100px] px-0 py-6 sm:px-6">
+  <div
+    id="date-picker"
+    data-performer="<%= @performer_json.to_json %>"
+    data-claimed="<%= @claimed_dates.to_json %>"
+    data-checkout-path="<%= performer_fundraiser_checkout_path(@performer.public_token) %>"
+  ></div>
+</div>
+
+<%= vite_typescript_tag 'entrypoints/fundraiser/dates.tsx' %>

@@ -51,8 +51,9 @@ class ApplicationController < ActionController::Base
 
   # The app shell for every authenticated screen; a minimal centered card for
   # Devise (login / password). Public, unauthenticated routes opt out by
-  # inheriting from PublicController (layout 'public'); CalendarsController
-  # sets 'calendar' explicitly. Both bypass this method entirely.
+  # inheriting from PublicController (layout 'public'), which bypasses this
+  # method entirely. Those three are the whole layout set — Flow 7 folded away
+  # the last per-controller `layout` call (the fundraiser's one-off 'calendar').
   def app_or_auth_layout
     devise_controller? ? 'auth' : 'application'
   end
