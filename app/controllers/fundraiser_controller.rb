@@ -58,6 +58,7 @@ class FundraiserController < PublicController
       redirect_status: params[:redirect_status],
       season_id: public_season&.id
     )
+    @receipt_date_list = Fundraiser::DateList.call(@receipt.dates) if @receipt.succeeded?
   end
 
   private

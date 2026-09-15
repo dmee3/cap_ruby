@@ -189,6 +189,94 @@ RSpec.describe 'Public fundraiser', type: :request do
     end
   end
 
+  # The confirmation page reads the Stripe PaymentIntent rather than the
+  # donation rows, because the webhook that writes those rows is a separate
+  # async request that the donor can easily outrun.
+  describe 'the confirmation page' do
+    let(:succeeded_intent) do
+      {
+        id: 'pi_ok',
+        metadata: { dates: '3,12,17', donor_name: 'The Sokol Family', member_id: performer.id.to_s },
+        latest_charge: {
+          created: Time.zone.parse('2026-03-14 12:00').to_i,
+          payment_method_details: { card: { brand: 'visa', last4: '4242' } },
+          billing_details: { email: 'j.sokol@example.com' }
+        }
+      }
+    end
+
+    it 'shows the receipt from the intent, before the webhook has written anything' do
+      allow(Stripe::PaymentIntent).to receive(:retrieve).and_return(succeeded_intent)
+
+      expect(Calendar::Donation.count).to eq(0)
+
+      get '/fundraiser/thanks?payment_intent=pi_ok&redirect_status=succeeded'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Elena's calendar just got fuller")
+      expect(response.body).to include('The Sokol Family took the 3rd, 12th and 17th')
+      # 3 + 12 + 17
+      expect(response.body).to include('data-total-cents="3200"')
+      expect(response.body).to include('j.sokol@example.com')
+    end
+
+    it 'offers the share link, which is what produces the next donation' do
+      allow(Stripe::PaymentIntent).to receive(:retrieve).and_return(succeeded_intent)
+
+      get '/fundraiser/thanks?payment_intent=pi_ok&redirect_status=succeeded'
+
+      expect(response.body).to include('id="share-calendar"')
+      expect(response.body).to include("/f/#{performer.public_token}")
+    end
+
+    it 'names a blank donor Anonymous rather than leaving a gap' do
+      allow(Stripe::PaymentIntent).to receive(:retrieve).and_return(
+        succeeded_intent.merge(metadata: succeeded_intent[:metadata].merge(donor_name: ''))
+      )
+
+      get '/fundraiser/thanks?payment_intent=pi_ok&redirect_status=succeeded'
+
+      expect(response.body).to include('Anonymous took the 3rd, 12th and 17th')
+    end
+
+    it 'carries no invented receipt number' do
+      allow(Stripe::PaymentIntent).to receive(:retrieve).and_return(succeeded_intent)
+
+      get '/fundraiser/thanks?payment_intent=pi_ok&redirect_status=succeeded'
+
+      expect(response.body).not_to match(/#CC-/)
+      expect(response.body).to include('data-charged-on="3/14/26"')
+    end
+
+    # Honest about the timing rather than inventing a receipt.
+    it 'acknowledges the charge when the intent cannot be read back' do
+      allow(Stripe::PaymentIntent).to receive(:retrieve)
+        .and_raise(Stripe::APIConnectionError.new('down'))
+      allow(Rollbar).to receive(:error)
+
+      get '/fundraiser/thanks?payment_intent=pi_ok&redirect_status=succeeded'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('Your donation went through')
+      expect(response.body).not_to include('just got fuller')
+    end
+
+    it 'says nothing was charged when the payment failed' do
+      get '/fundraiser/thanks?payment_intent=pi_no&redirect_status=failed'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("That didn't go through")
+      expect(response.body).to include("wasn't charged and nobody's dates changed")
+    end
+
+    it 'treats a bare visit with no Stripe params as a failure, not a receipt' do
+      get '/fundraiser/thanks'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("That didn't go through")
+    end
+  end
+
   describe 'old shared links' do
     # These are on refrigerators and in group texts.
     it 'redirects the old donate page to the picker' do
