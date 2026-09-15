@@ -75,7 +75,7 @@ const DatePicker = ({ performer, claimedDates, checkoutPath }: DatePickerProps) 
           {selected.length === 0 ? (
             <p className="m-0 text-body-sm text-secondary">
               Nothing picked yet. Pick a few small dates or one big one. Either way it goes
-              straight to {firstName}, who'll know it was you.
+              straight to {firstName}, and they'll know it was you.
             </p>
           ) : (
             <div className="flex flex-wrap gap-2">
