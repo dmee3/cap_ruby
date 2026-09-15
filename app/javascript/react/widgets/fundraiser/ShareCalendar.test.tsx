@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import ShareCalendar from './ShareCalendar'
 
-const url = 'https://capcitypercussion.org/f/k7m2xq'
+const url = 'https://members.capcitypercussion.com/f/k7m2xq'
 
 afterEach(() => {
   vi.unstubAllGlobals()

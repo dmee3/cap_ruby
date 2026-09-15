@@ -263,6 +263,17 @@ RSpec.describe 'Public fundraiser', type: :request do
       expect(response.body).not_to include('just got fuller')
     end
 
+    # The canvas suggested a support address that doesn't exist. A dead mailto
+    # on the one page an outsider ever sees is worse than no contact route, so
+    # the failure screen sends people back to try again instead.
+    it 'offers no invented support address' do
+      get '/fundraiser/thanks?redirect_status=failed'
+
+      expect(response.body).not_to include('mailto:')
+      expect(response.body).not_to include('boosters@')
+      expect(response.body).to include('Wait a few minutes and try again')
+    end
+
     it 'says nothing was charged when the payment failed' do
       get '/fundraiser/thanks?payment_intent=pi_no&redirect_status=failed'
 

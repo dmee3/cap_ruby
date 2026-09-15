@@ -83,10 +83,11 @@
         <a href="<%= fundraiser_path %>" class="btn-primary btn-lg">Try again</a>
       </div>
 
+      <%# No support address here on purpose: the canvas suggested one that
+          doesn't exist, and a dead mailto on the one page an outsider sees is
+          worse than no contact route at all. %>
       <p class="m-0 text-body-sm text-secondary">
-        Still stuck? Email
-        <a class="link" href="mailto:boosters@capcitypercussion.org">boosters@capcitypercussion.org</a>
-        and we'll sort it out with you.
+        Still stuck? Wait a few minutes and try again.
       </p>
     </div>
   <% end %>
