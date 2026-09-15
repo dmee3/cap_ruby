@@ -1,8 +1,9 @@
 <% content_for :page_title, 'Calendar fundraiser' %>
+<% content_for :full_bleed, true %>
 
 <%= render 'fundraiser/app_bar', right: "#{@season_label} calendar fundraiser" %>
 
-<div class="-mx-4 flex flex-col">
+<div class="flex flex-col">
   <%# Hero. One sentence a stranger understands, then the mechanic shown rather
       than explained: a donor who scrolls straight past this still gets it,
       because every tile in the grid carries its dollar amount too. %>

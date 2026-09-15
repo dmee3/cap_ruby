@@ -1,10 +1,11 @@
 <% content_for :page_title, 'Finish your donation' %>
+<% content_for :full_bleed, true %>
 
 <%= render 'fundraiser/app_bar',
            back_path: performer_fundraiser_path(@performer.public_token),
            back_label: 'Back to dates' %>
 
-<div class="mx-auto w-full max-w-[1100px] px-0 py-6 sm:px-6">
+<div class="mx-auto w-full max-w-[1100px] px-4 py-6 sm:px-10">
   <div
     id="donation-checkout"
     data-performer="<%= @performer_json.to_json %>"

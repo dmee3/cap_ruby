@@ -13,9 +13,16 @@
 
   <body class="bg-page text-primary min-h-screen">
     <% if current_user %>
-      <%# A signed-in staffer landed here from a link — give them a way back to the shell. %>
-      <div class="p-4">
-        <%= link_to root_path, class: 'link inline-flex items-center gap-1 text-body-sm' do %>
+      <%# A signed-in staffer landed here from a link — give them a way back to
+          the shell.
+
+          Fixed rather than in normal flow: in flow it pushed the page down by
+          its own height, so any full-bleed page (the fundraiser's app bar and
+          hero) started below a gutter instead of at the top edge, and looked
+          boxed in. Only signed-in staff ever see this, and it sits above a
+          page that has its own top chrome, so overlaying is the lesser evil. %>
+      <div class="fixed left-0 top-0 z-50 p-4">
+        <%= link_to root_path, class: 'link inline-flex items-center gap-1 rounded-sm bg-page/90 px-2 py-1 text-body-sm backdrop-blur' do %>
           <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
           </svg>
@@ -24,7 +31,11 @@
       </div>
     <% end %>
 
-    <main id="main-content" class="p-4 pt-0">
+    <%# Most public pages are a single column that wants a gutter. A page with
+        full-bleed bands (the fundraiser's app bar and hero) sets :full_bleed
+        and manages its own horizontal padding, which beats every band having
+        to cancel this one out with a negative margin. %>
+    <main id="main-content" class="<%= content_for?(:full_bleed) ? '' : 'p-4 pt-0' %>">
       <%= render 'flashes' %>
       <%= yield %>
     </main>

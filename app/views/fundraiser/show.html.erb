@@ -1,10 +1,11 @@
 <% content_for :page_title, "Support #{@performer.first_name}" %>
+<% content_for :full_bleed, true %>
 
 <%= render 'fundraiser/app_bar', back_path: fundraiser_path, back_label: 'All performers' %>
 
 <%# Performer hero. A donor arriving by a shared link sees who they're here for
     before anything else, and the explainer states the mechanic in one line. %>
-<div class="-mx-4 bg-ocean-dark px-4 py-6 sm:px-10 sm:py-8">
+<div class="bg-ocean-dark px-4 py-6 sm:px-10 sm:py-8">
   <div class="mx-auto flex max-w-[1100px] flex-col gap-3.5">
     <div class="flex items-center gap-3.5">
       <span class="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-white text-[20px] font-bold text-ocean-dark" aria-hidden="true">

@@ -1,8 +1,9 @@
 <% content_for :page_title, @receipt.succeeded? ? 'Thank you' : 'Payment' %>
+<% content_for :full_bleed, true %>
 
 <%= render 'fundraiser/app_bar' %>
 
-<div class="mx-auto flex w-full max-w-[560px] flex-col gap-5 py-6">
+<div class="mx-auto flex w-full max-w-[560px] flex-col gap-5 px-4 py-6 sm:px-10">
   <% if @receipt.succeeded? %>
     <% performer = @receipt.performer %>
     <% first_name = performer ? performer[:name].split(' ').first : 'your performer' %>
