@@ -41,7 +41,12 @@ const DatePicker = ({ performer, claimedDates, checkoutPath }: DatePickerProps) 
   return (
     <div className="flex min-h-0 flex-1 flex-col lg:flex-row lg:gap-7">
       <div className="flex min-w-0 flex-1 flex-col gap-4">
-        <div className="card flex flex-col gap-4">
+        {/* The grid card breaks out of the layout's 16px gutter on mobile and
+            runs a tighter inset. Inside the default padding the 7-column grid
+            at 390px yields 41px tiles, under the 44px touch floor; this gets
+            it to ~46px. The canvas assumed that figure but didn't account for
+            a card inset. */}
+        <div className="card -mx-2 flex flex-col gap-4 rounded-none px-3 sm:mx-0 sm:rounded-md sm:px-5">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <h2 className="m-0 text-[18px] font-bold leading-6 text-primary">
               Tap a date, donate that many dollars

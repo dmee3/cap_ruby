@@ -20,6 +20,10 @@ RSpec.describe 'Public pages', type: :request do
   include_examples 'a shell-free public page', '/auditions-spreadsheet'
   include_examples 'a shell-free public page', '/rhythm-converter'
   include_examples 'a shell-free public page', '/tarp-grid-tool'
+  # The fundraiser joined this list in Flow 7, which folded away the one-off
+  # `calendar` layout it used to carry.
+  include_examples 'a shell-free public page', '/fundraiser'
+  include_examples 'a shell-free public page', '/fundraiser/thanks'
 
   context 'for a signed-in visitor' do
     before do

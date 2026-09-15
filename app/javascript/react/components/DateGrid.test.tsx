@@ -58,6 +58,17 @@ describe('DateGrid', () => {
     expect(onToggle).toHaveBeenCalledWith(17)
   })
 
+  // The grid is the one thing that has to survive a phone: donors arrive from
+  // shared links. 44px is the touch floor, and at 390px seven columns only
+  // clear it because the card runs a tighter inset there.
+  it('keeps every tile at the 44px touch floor when compact', () => {
+    render(<DateGrid claimed={[]} selected={[]} onToggle={noop} compact />)
+
+    screen.getAllByRole('button').forEach((tile) => {
+      expect(tile).toHaveClass('min-h-[44px]')
+    })
+  })
+
   it('shows the legend only when asked, since it is desktop-only', () => {
     const { queryByText } = render(<DateGrid claimed={[]} selected={[]} onToggle={noop} />)
     expect(queryByText('Taken')).toBeNull()

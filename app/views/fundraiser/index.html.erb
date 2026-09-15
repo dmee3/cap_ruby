@@ -26,22 +26,22 @@
       </div>
 
       <%# 3 + 17 = $20. The mechanic as arithmetic. %>
-      <div class="flex flex-none items-center justify-center gap-2.5 rounded-md border border-[#2f5665] bg-[#1a2f37] p-3.5 sm:gap-3.5 sm:px-6 sm:py-[22px]">
+      <div class="flex flex-none items-center justify-center gap-2.5 rounded-md border border-ocean bg-ocean-dark p-3.5 sm:gap-3.5 sm:px-6 sm:py-[22px]">
         <% [3, 17].each_with_index do |date, index| %>
           <% if index.positive? %>
-            <span class="text-[22px] font-semibold leading-none text-[#8ba7b3]" aria-hidden="true">+</span>
+            <span class="text-[22px] font-semibold leading-none text-ocean-lightest" aria-hidden="true">+</span>
           <% end %>
           <span class="flex w-[50px] flex-col items-center gap-0.5 rounded-[9px] border border-ocean-lightest bg-ocean px-0 py-2 sm:w-[62px] sm:rounded-sm sm:py-2.5">
             <span class="text-[19px] font-bold leading-[21px] text-white sm:text-[24px] sm:leading-[26px]"><%= date %></span>
-            <span class="font-mono text-[10px] font-medium leading-[11px] text-[#dfe9ee] sm:text-[11px] sm:leading-[12px]">$<%= date %></span>
+            <span class="font-mono text-[10px] font-medium leading-[11px] text-flash sm:text-[11px] sm:leading-[12px]">$<%= date %></span>
           </span>
         <% end %>
 
-        <span class="text-[22px] font-semibold leading-none text-[#8ba7b3]" aria-hidden="true">=</span>
+        <span class="text-[22px] font-semibold leading-none text-ocean-lightest" aria-hidden="true">=</span>
 
         <span class="flex flex-col">
           <span class="text-[26px] font-extrabold leading-[28px] tracking-tight text-moss-lightest sm:text-[30px] sm:leading-[32px]">$20</span>
-          <span class="hidden text-caption font-medium text-[#8ba7b3] sm:inline">two dates, one donation</span>
+          <span class="hidden text-caption font-medium text-ocean-lightest sm:inline">two dates, one donation</span>
         </span>
       </div>
     </div>
