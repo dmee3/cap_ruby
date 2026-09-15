@@ -195,17 +195,28 @@ RSpec.describe 'Public fundraiser', type: :request do
   # donation rows, because the webhook that writes those rows is a separate
   # async request that the donor can easily outrun.
   describe 'the confirmation page' do
-    let(:succeeded_intent) do
-      {
+    # Built as real Stripe objects, not Hashes. `expand: ['latest_charge']`
+    # returns a Stripe::Charge, and a StripeObject supports [] and method
+    # access but NOT dig — a Hash stub hid a live NoMethodError on this page.
+    def stripe_intent(charge_attrs: {}, metadata: {})
+      Stripe::PaymentIntent.construct_from(
         id: 'pi_ok',
-        metadata: { dates: '3,12,17', donor_name: 'The Sokol Family', member_id: performer.id.to_s },
-        latest_charge: {
-          created: Time.zone.parse('2026-03-14 12:00').to_i,
-          payment_method_details: { card: { brand: 'visa', last4: '4242' } },
-          billing_details: { email: 'j.sokol@example.com' }
-        }
-      }
+        receipt_email: nil,
+        metadata: {
+          dates: '3,12,17', donor_name: 'The Sokol Family', member_id: performer.id.to_s
+        }.merge(metadata),
+        latest_charge: Stripe::Charge.construct_from(
+          {
+            id: 'ch_ok',
+            created: Time.zone.parse('2026-03-14 12:00').to_i,
+            payment_method_details: { card: { brand: 'visa', last4: '4242' } },
+            billing_details: { email: 'j.sokol@example.com' }
+          }.merge(charge_attrs)
+        )
+      )
     end
+
+    let(:succeeded_intent) { stripe_intent }
 
     it 'shows the receipt from the intent, before the webhook has written anything' do
       allow(Stripe::PaymentIntent).to receive(:retrieve).and_return(succeeded_intent)
@@ -232,13 +243,26 @@ RSpec.describe 'Public fundraiser', type: :request do
     end
 
     it 'names a blank donor Anonymous rather than leaving a gap' do
-      allow(Stripe::PaymentIntent).to receive(:retrieve).and_return(
-        succeeded_intent.merge(metadata: succeeded_intent[:metadata].merge(donor_name: ''))
-      )
+      allow(Stripe::PaymentIntent).to receive(:retrieve)
+        .and_return(stripe_intent(metadata: { donor_name: '' }))
 
       get '/fundraiser/thanks?payment_intent=pi_ok&redirect_status=succeeded'
 
       expect(response.body).to include('Anonymous took the 3rd, 12th and 17th')
+    end
+
+    # Stripe sandbox doesn't collect a billing email by default, so both
+    # billing_details.email and receipt_email come back null. The receipt has
+    # to render anyway and just omit the line.
+    it 'renders without an email when Stripe has none' do
+      allow(Stripe::PaymentIntent).to receive(:retrieve)
+        .and_return(stripe_intent(charge_attrs: { billing_details: { email: nil } }))
+
+      get '/fundraiser/thanks?payment_intent=pi_ok&redirect_status=succeeded'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Elena's calendar just got fuller")
+      expect(response.body).to include('data-email=""')
     end
 
     it 'carries no invented receipt number' do

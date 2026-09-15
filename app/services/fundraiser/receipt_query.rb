@@ -79,8 +79,12 @@ module Fundraiser
       dates = parse_dates(metadata[:dates])
       return Result.new(status: :pending) if dates.empty?
 
+      # `expand: ['latest_charge']` hands back a Stripe::Charge, which is a
+      # StripeObject: it supports [] and method access but NOT dig, so chained
+      # [] with safe navigation is what works against both a real charge and a
+      # plain Hash in specs.
       charge = intent[:latest_charge]
-      card = charge&.dig(:payment_method_details, :card)
+      card = charge && charge[:payment_method_details] && charge[:payment_method_details][:card]
 
       Result.new(
         status: :succeeded,
@@ -90,11 +94,19 @@ module Fundraiser
         # receipt can never disagree with what the dates add up to.
         total_cents: dates.sum * 100,
         donor_name: metadata[:donor_name],
-        card_brand: card&.dig(:brand),
-        card_last4: card&.dig(:last4),
-        email: charge&.dig(:billing_details, :email) || intent[:receipt_email],
+        card_brand: card && card[:brand],
+        card_last4: card && card[:last4],
+        email: charge_email(charge) || intent[:receipt_email],
         charged_on: charge && Time.zone.at(charge[:created]).to_date
       )
+    end
+
+    # Stripe only has an email here if the Payment Element was configured to
+    # collect one, so this is frequently nil (it is in sandbox by default) and
+    # the receipt omits the line rather than inventing an address.
+    def charge_email(charge)
+      details = charge && charge[:billing_details]
+      details && details[:email]
     end
 
     def parse_dates(raw)
