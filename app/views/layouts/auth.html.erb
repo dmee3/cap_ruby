@@ -15,8 +15,8 @@
     <%= render 'flashes' %>
 
     <div class="min-h-screen flex items-center justify-center p-4">
-      <main class="card w-full max-w-sm">
-        <div class="flex justify-center mb-6">
+      <main class="auth-card">
+        <div class="flex flex-col items-center gap-3 mb-6">
           <%= image_tag vite_asset_path('images/full_logo_small.png'), alt: 'Cap City Percussion', class: 'max-h-12 w-auto' %>
         </div>
         <%= yield %>

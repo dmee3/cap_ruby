@@ -130,7 +130,7 @@ RSpec.describe 'App shell', type: :request do
 
       expect(response).to have_http_status(:success)
       expect(response.body).not_to include('class="app-sidebar"')
-      expect(response.body).to include('max-w-sm') # centered auth card
+      expect(response.body).to include('auth-card')
     end
   end
 end

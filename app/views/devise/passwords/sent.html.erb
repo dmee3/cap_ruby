@@ -1,0 +1,26 @@
+<div class="flex flex-col items-center text-center">
+  <span class="flex items-center justify-center w-12 h-12 rounded-full bg-success-bg text-success-fg" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+    </svg>
+  </span>
+
+  <h1 class="auth-card-heading mt-4">Check your email</h1>
+  <p class="auth-card-lede">
+    We sent a reset link to <span class="font-semibold text-primary"><%= @sent_to %></span>.
+    It should land within a minute or two.
+  </p>
+  <p class="text-caption text-secondary mt-3">
+    Nothing yet? Look in spam, then try again. If that email isn't the one on
+    your account, an admin can tell you which is.
+  </p>
+</div>
+
+<div class="flex flex-col gap-3 mt-6">
+  <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+    <%= f.hidden_field :email, value: @sent_to %>
+    <%= f.submit 'Send again', class: 'btn-primary btn-lg w-full sm:w-full' %>
+  <% end %>
+  <%= link_to 'Back to log in', new_session_path(resource_name),
+              class: 'btn-gray btn-md w-full sm:w-full' %>
+</div>

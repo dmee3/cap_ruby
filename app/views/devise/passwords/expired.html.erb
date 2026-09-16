@@ -1,0 +1,23 @@
+<h1 class="auth-card-heading">That link has already been used or has expired.</h1>
+<p class="auth-card-lede">
+  Reset links work once and expire after 24 hours. Nothing is wrong with your account.
+</p>
+
+<h2 class="text-h3 text-primary mt-6">Start again</h2>
+<p class="text-body-sm text-secondary mt-1">We'll send a fresh link to the same address.</p>
+
+<%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+  <div class="flex flex-col mt-4">
+    <%= f.label :email, class: 'input-label' %>
+    <%= f.email_field :email, autofocus: true, autocomplete: 'email', class: 'input-text' %>
+  </div>
+
+  <div class="mt-6">
+    <%= f.submit 'Send a new link', class: 'btn-primary btn-lg w-full sm:w-full' %>
+  </div>
+<% end %>
+
+<div class="auth-footer-strip">
+  <%= link_to 'Back to log in', new_session_path(resource_name),
+              class: 'btn-gray btn-md w-full sm:w-full' %>
+</div>

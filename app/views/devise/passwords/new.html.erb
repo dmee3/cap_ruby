@@ -1,16 +1,20 @@
-<h1>Forgot Your Password?</h1>
+<%= link_to '← Back to log in', new_session_path(resource_name), class: 'btn-link text-body-sm' %>
+
+<h1 class="auth-card-heading mt-4">Reset your password</h1>
+<p class="auth-card-lede">
+  Tell us the email on your account and we'll send a link that sets a new
+  password. The link works once and expires after 24 hours.
+</p>
 
 <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+  <%= render 'devise/shared/error_messages', resource: resource %>
 
-  <div class="flex flex-col mb-4">
+  <div class="flex flex-col mt-6">
     <%= f.label :email, class: 'input-label' %>
     <%= f.email_field :email, autofocus: true, autocomplete: 'email', class: 'input-text' %>
   </div>
 
-  <div class="p-4 flex justify-center">
-    <%= f.submit 'Send reset password instructions', class: 'btn-primary btn-lg' %>
+  <div class="mt-6">
+    <%= f.submit 'Send the link', class: 'btn-primary btn-lg w-full sm:w-full' %>
   </div>
 <% end %>
-
-<%= render "devise/shared/links" %>
