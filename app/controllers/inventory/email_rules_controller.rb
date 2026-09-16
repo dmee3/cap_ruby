@@ -3,15 +3,23 @@
 module Inventory
   class EmailRulesController < InventoryController
     before_action -> { redirect_if_not('admin', 'coordinator') }
-    before_action :set_form_variables, only: %i[new edit]
+    # create/update re-render the form on failure, so they need its collections
+    # too or the rejected submit raises instead of showing what to fix.
+    before_action :set_form_variables, only: %i[new edit create update]
     before_action :set_email_rule, only: %i[edit update destroy]
 
     def index
-      @rules = EmailRule.all
+      @rules = EmailRule.includes(:user, :inventory_item).sort_by { |r| r.inventory_item.name.downcase }
+      watched_ids = @rules.map(&:inventory_item_id).uniq
+      @watched_item_count = watched_ids.length
+      @unwatched_count = Item.where.not(id: watched_ids).count
+      # The prompt names a real gap rather than a hypothetical one: something
+      # already at zero that nobody is being told about.
+      @unwatched_zero = Item.where.not(id: watched_ids).find_by(quantity: 0)
     end
 
     def new
-      @rule = EmailRule.new
+      @rule = EmailRule.new(inventory_item_id: params[:inventory_item_id])
     end
 
     def create

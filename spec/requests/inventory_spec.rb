@@ -348,6 +348,89 @@ RSpec.describe 'Inventory Access Control', type: :request do
     end
   end
 
+  describe 'Low-stock alerts' do
+    let(:admin_user) { create(:user) }
+    let(:item) do
+      Inventory::Item.create!(name: 'Keyboard mallets', quantity: 6, inventory_category_id: category.id)
+    end
+
+    before do
+      create(:seasons_user, user: admin_user, season: season, role: 'admin')
+      sign_in admin_user
+      cookies[:cap_season_id] = season.id
+    end
+
+    def rule_for(operator, threshold)
+      Inventory::EmailRule.create!(
+        inventory_item_id: item.id, operator: operator, threshold: threshold,
+        mail_to_user_id: admin_user.id
+      )
+    end
+
+    it 'reads each rule as a sentence, never as an enum name' do
+      rule_for('lt_eq', 8)
+
+      get '/inventory/email_rules'
+
+      expect(response.body).to include('is at or below')
+      expect(response.body).not_to include('lt_eq')
+    end
+
+    it 'marks a rule whose condition is true right now' do
+      rule_for('lt_eq', 8)
+
+      get '/inventory/email_rules'
+
+      expect(response.body).to include('Firing now')
+    end
+
+    it 'leaves a rule that is not currently met unmarked' do
+      rule_for('lt_eq', 2)
+
+      get '/inventory/email_rules'
+
+      expect(response.body).not_to include('Firing now')
+    end
+
+    it 'invites a first alert when none exist' do
+      get '/inventory/email_rules'
+
+      expect(response.body).to include('No alerts set up')
+    end
+
+    it 'offers the five conditions in plain language on the form' do
+      get '/inventory/email_rules/new'
+
+      expect(response.body).to include('is exactly', 'is below', 'is at or below',
+                                       'is above', 'is at or above')
+    end
+
+    it 'pre-selects an item when the prompt names one' do
+      get "/inventory/email_rules/new?inventory_item_id=#{item.id}"
+
+      expect(response.body).to match(/<option[^>]*selected[^>]*value="#{item.id}"[^>]*>Keyboard mallets/)
+    end
+
+    it 'keeps the form filled in and says what to fix when it is rejected' do
+      post '/inventory/email_rules',
+           params: { inventory_email_rule: { inventory_item_id: item.id, operator: 'lt_eq',
+                                             threshold: '', mail_to_user_id: admin_user.id } }
+
+      expect(response.body).to include('thing to fix').or include('things to fix')
+      expect(Inventory::EmailRule.count).to eq(0)
+    end
+
+    it 'offers delete from inside the edit form, not the list' do
+      rule = rule_for('lt_eq', 8)
+
+      get '/inventory/email_rules'
+      expect(response.body).not_to include('Delete this alert')
+
+      get "/inventory/email_rules/#{rule.id}/edit"
+      expect(response.body).to include('Delete this alert')
+    end
+  end
+
   describe 'Unauthenticated users' do
     it 'redirects to login for inventory pages' do
       get '/inventory/categories'
