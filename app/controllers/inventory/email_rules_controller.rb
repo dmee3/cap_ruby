@@ -4,7 +4,7 @@ module Inventory
   class EmailRulesController < InventoryController
     before_action -> { redirect_if_not('admin', 'coordinator') }
     before_action :set_form_variables, only: %i[new edit]
-    before_action :set_email_rule, only: %i[edit update]
+    before_action :set_email_rule, only: %i[edit update destroy]
 
     def index
       @rules = EmailRule.all
@@ -20,19 +20,27 @@ module Inventory
         flash[:success] = 'Created rule'
         redirect_to inventory_email_rules_path
       else
-        flash.now[:error] = @rule.errors.full_messages
+        flash.now[:error] = @rule.errors.full_messages.to_sentence
         render :new
       end
     end
 
     def edit; end
 
+    # Linked only from inside the edit form, so a delete always follows a
+    # deliberate open rather than sitting next to a list row.
+    def destroy
+      @rule.destroy
+      flash[:success] = 'Deleted alert'
+      redirect_to inventory_email_rules_path
+    end
+
     def update
       if @rule.update(rule_params)
         flash[:success] = 'Updated rule'
         redirect_to inventory_email_rules_path
       else
-        flash.now[:error] = @rule.errors.full_messages
+        flash.now[:error] = @rule.errors.full_messages.to_sentence
         render :edit
       end
     end

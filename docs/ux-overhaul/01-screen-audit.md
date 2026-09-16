@@ -130,12 +130,12 @@ Admin inherits coordinator + staff, plus:
 Design in **flows**, not isolated screens — shared components carry across a flow so
 each one is faster than the last.
 
-**Progress:** Flows 1–6 merged (PR #221 shell/tokens, #226 member dues,
+**Progress:** Flows 1–7 merged (PR #221 shell/tokens, #226 member dues,
 #230 member conflicts, #234 admin financial command center, #240 conflict
-triage, #241 admin roster & onboarding). Flow 7 (public fundraiser) is built and
-awaiting a visual pass — it was the last 🔴 P1 flow, so what remains is Flow 8
-(inventory) and Flow 9 (supporting screens), both 🟡. (Authoritative status:
-`bd ready`.)
+triage, #241 admin roster & onboarding, #242 public fundraiser). Flow 7 was the
+last 🔴 P1 flow. **Flow 8 (inventory) is in progress**, shipping as two PRs — a
+backend prerequisite then the UI — which leaves Flow 9 (supporting screens) as
+the last one. (Authoritative status: `bd ready`.)
 
 Along the way, the layout set collapsed to three — `application` / `auth` /
 `public`, with public controllers inheriting `PublicController` (PR #229), and
@@ -263,10 +263,20 @@ editable at `/admin/season/edit`) is the seasonal on/off switch coordinators use
   never disabled; and a payment-intent endpoint that trusted a client-supplied
   total, so a crafted request could charge $1 and credit $31
 
-### Flow 8 — Inventory 🟡
-- Category + item list with inline quantity edit
-- Add category / add item
-- Low-stock email rules
+### Flow 8 — Inventory 🟡 *(in progress — two PRs)*
+- Category + item list, with **adjustment as a delta** (`−` / `+` stepper), not
+  an absolute retyped into a text field. The phone layout is the primary one:
+  this screen is used standing in a storage room, one-handed.
+- Add category (inline row) / add item (drawer); rename and delete behind a row
+  menu, off the counting surface
+- Item history as a real **audit trail** — the four years of `user_id` the app
+  already stores but has never shown
+- Low-stock email rules rewritten as **sentences** ("When Keyboard mallets is at
+  or below 8, email Dana Reyes"), admin/coordinator only
+- **PR 1 (backend prerequisite):** transaction→user association, item
+  soft-delete, non-negative quantities, destroy for items/categories/rules, real
+  API error responses, and an authorization guard the `api/inventory/*`
+  namespace never had. See `flow8-design-review.md`.
 
 ### Flow 9 — Supporting screens 🟡 / ⚪
 - Login + password recovery

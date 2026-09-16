@@ -20,6 +20,12 @@
 #
 module Inventory
   class Transaction < ApplicationRecord
-    belongs_to :item, class_name: 'Inventory::Item', foreign_key: :inventory_item_id
+    # with_deleted on both: User and Item are paranoid, and history has to keep
+    # naming a departed quartermaster and a deleted item.
+    belongs_to :user, -> { with_deleted }
+    belongs_to :item, -> { with_deleted }, class_name: 'Inventory::Item',
+                                           foreign_key: :inventory_item_id
+
+    scope :newest_first, -> { order(performed_on: :desc, created_at: :desc) }
   end
 end

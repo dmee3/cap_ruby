@@ -37,8 +37,8 @@ Rails.application.routes.draw do
     end
 
     namespace :inventory do
-      resources :categories, only: %i[index create update] do
-        resources :items, only: %i[create update show]
+      resources :categories, only: %i[index create update destroy] do
+        resources :items, only: %i[create update show destroy]
       end
     end
 
@@ -116,11 +116,11 @@ Rails.application.routes.draw do
   end
 
   namespace :inventory do
-    resources :categories, only: %i[index new create] do
-      resources :items, only: %i[new create show]
+    resources :categories, only: %i[index new create destroy] do
+      resources :items, only: %i[new create show destroy]
     end
 
-    resources :email_rules, except: %i[show destroy]
+    resources :email_rules, except: %i[show]
   end
 
   resources :files, only: %i[index]

@@ -10,12 +10,14 @@ The **Tokens** and **Components** sections are the Claude Design project's desig
 system. The **Principles** and **Voice** sections are guidance for how screens
 should feel.
 
-**Status:** Flows 1–6 merged (shell/tokens #221, member dues #226, member
-conflicts #230, admin financials #234, conflict triage #240, admin roster #241)
-— §4.32 + §4.33 added in Flow 6, §4.34 specced but deferred to
-`cap_ruby-b3a.21`. Flow 7 (public fundraiser) in progress: §4.13 **corrected**
-(it said 100 days, a `<canvas>` picker, and a fee line — all three wrong) and
-§4.35–§4.39 added. **The layout set is now finished at three** —
+**Status:** Flows 1–7 merged (shell/tokens #221, member dues #226, member
+conflicts #230, admin financials #234, conflict triage #240, admin roster #241,
+public fundraiser #242) — §4.32 + §4.33 added in Flow 6, §4.34 specced but
+deferred to `cap_ruby-b3a.21`, and Flow 7 **corrected** §4.13 (it said 100 days,
+a `<canvas>` picker, and a fee line — all three wrong) while adding
+§4.35–§4.39. Flow 8 (inventory) in progress: §4.40 + §4.41 added and §4.6
+extended with an audit-trail row variant. **The layout set is now finished at
+three** —
 `application` / `auth` / `public` (#229) — Flow 7 folded in the last one-off
 `calendar` layout. Full flow list: `01-screen-audit.md`. Live task status:
 **beads** — `bd show cap_ruby-b3a`.
@@ -338,6 +340,24 @@ each one superseded.
   not the current per-widget chevron counters.
 - Replaces: `.custom-table`, `.table-header`, `.table-cell`, and the four
   separate paginated list widgets on the admin dashboard.
+
+**Audit-trail row variant** *(added — Flow 8)*. Not a new component: the Flow 8
+canvas graded it itself — *"the §4.6 table row with a person on the left and a
+status pill in the middle"* — so it ships here rather than as its own §.
+
+- Structure, left → right: **avatar** (30px, initials, colour deterministic per
+  user) → **identity cell** (name at `text.body` 600; an action sub-label below
+  at `text.caption` — `Added stock` / `Took stock out` / `First count`) →
+  **delta pill** (§4.8 with a **mono numeral** and an always-visible sign:
+  `+24`, `−6` — U+2212, not a hyphen) → **before→after pair**, right-aligned,
+  the after value in mono ink (`18 → 42`) → **date**, right-aligned.
+- **Mobile:** the before→after and the date collapse onto one sub-line
+  (`10 → 6 · Thu 3/12`) and the action sub-label is dropped.
+- **Dates follow the app's two-format rule** — weekday inside 14 days
+  (`Sat 3/7`), bare `M/D/YY` beyond (`2/14/26`). No times: `performed_on` is a
+  date, with `created_at` breaking same-day ties.
+- The identity cell is the roster row's shape and the right-aligned numeric pair
+  is the dues row's, so an audit trail reads like the rest of the app.
 
 ### 4.7 Form row
 - Horizontal on `sm+` (label column ~160px, field fills rest), stacked below.
@@ -993,6 +1013,73 @@ and an attribution line beneath. Same row rhythm as the Flow 6 schedule preview
 - **Must survive at 340px and in plain text** — this component is also the body
   of the performer's notification email, so it can't depend on the grid tricks
   the desktop web version uses for hairlines.
+
+### 4.40 Quantity stepper *(added — Flow 8)*
+
+The flow's most-used control, and the one the phone layout is built around:
+someone standing in a storage room, one hand in a box, recording what changed.
+**An adjustment is a delta, never an absolute** — `−` / `+` flanking a mono
+count, not a text field someone retypes.
+
+- **Sizes:** **36px desktop, 44px touch.** (The canvas drew five desktop sizes —
+  34/36/38/40/42 — and its own spec card said 36; 36 is also what the live rows
+  use. Settled at 36.) The glyph is U+2212 MINUS SIGN `−`, never a hyphen.
+- **Five states:**
+  - `idle` — no commit bar until something changes.
+  - `adjusting` — a delta pill (`−6`), a `42 → 36` before/after run, `Save −6` /
+    `Cancel`, and a **"Type a total instead"** escape hatch.
+  - `recount` — the value becomes a number input. A typed absolute still **saves
+    as a delta**, so the trail never has a gap: *"The number the person typed is
+    what they see; the arithmetic is ours."*
+  - `committing` — **no optimistic update.** Both buttons disable, the stepper
+    dims, a spinner shows `Saving…` until the server answers.
+  - `failed` — reverts and names the unchanged value ("Didn't save. Snare sticks
+    is still 42.") with a `Retry −6`.
+- **Floor at zero.** The minus disables at 0; the plus never disables. A
+  correction that would go below zero is recorded as a recount to 0.
+- **Success** is a toast — "Saved. Snare sticks: 36, logged to you." — with an
+  **Undo** that writes a *compensating delta* (visible in the trail), offered
+  for the toast's lifetime only. Undo never deletes a transaction row; that
+  would contradict the audit trail the flow exists to surface.
+- **Touch:** 44×44 with the steppers in the right-edge thumb zone and the item
+  name flexing left. Press-and-hold repeats at 4/second, coalesced into **one**
+  transaction per commit, not one per tap.
+- **Concurrency:** the client sends the delta *and* the quantity it was computed
+  against; a stale base is rejected with the current value rather than written
+  ("Someone else counted this. It's 38 now."). One row adjusts at a time, so a
+  pocket tap can't overwrite a count.
+- The canvas draws **no focus or hover state** for it; focus rings come from the
+  token set (2px `focus.ring`, offset 2px) like every other control.
+
+### 4.41 Rule sentence *(added — Flow 8)*
+
+A low-stock alert rendered as one readable line instead of four selects in a
+grid, so the list of rules is a list of sentences:
+
+> When **Keyboard mallets** is **at or below 8**, email **Dana Reyes**.
+
+- **Four slots** — item, operator, threshold, recipient — edited **inline, in
+  place**, with the sentence keeping its shape.
+- **Operators are plain language only, never `eq` / `lt_eq`:** `is exactly`,
+  `is below`, `is at or below`, `is above`, `is at or above`.
+- **Native controls.** The canvas draws every slot as a `<span>` with a `⌄` and
+  the operator as a row of custom pill chips; both ship as native `<select>`
+  (and a native number input for the threshold), per the §4.21 decision. Drawing
+  a select *and* a pill row for one value is redundant — keep the select.
+- **Live evaluation** under the sentence tells you what saving does right now
+  ("there are 6 keyboard mallets, so saving this emails Dana"). A **Firing now**
+  pill on a listed rule means the condition is *currently true* — it describes a
+  state, not a send.
+- **Delete lives inside the edit form**, never on a list row, so a delete always
+  follows a deliberate open. It reuses the payment-delete dialog shape.
+- Reachable from an item row as well as from `/inventory/email_rules` — "no
+  alert · set one" opens the same sentence pre-filled and focused on the number.
+- **Admin and coordinator only.** A quartermaster member sees a threshold on the
+  stock list but cannot reach this screen — the one place inside a granted
+  feature that `inventory_access` doesn't unlock.
+- Undrawn on the canvas and invented at build time: **the mobile layout** (a
+  wrapping four-slot sentence at 390px) and **all validation copy**. Both need a
+  visual pass.
 
 ---
 
