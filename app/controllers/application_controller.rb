@@ -32,7 +32,7 @@ class ApplicationController < ActionController::Base
   helper_method :current_user_role
 
   def set_stripe_public_key
-    if Rails.env.production? && !ENV['STAGING']
+    if DeployEnv.real_production?
       @stripe_public_key = ENV.fetch('STRIPE_PUBLIC_KEY', nil)
     else
       @stripe_public_key = ENV.fetch('STRIPE_PUBLIC_TEST_KEY', nil)
@@ -40,7 +40,7 @@ class ApplicationController < ActionController::Base
   end
 
   def set_stripe_secret_key
-    if Rails.env.production? && !ENV['STAGING']
+    if DeployEnv.real_production?
       Stripe.api_key = ENV.fetch('STRIPE_SECRET_KEY', nil)
     else
       Stripe.api_key = ENV.fetch('STRIPE_SECRET_TEST_KEY', nil)

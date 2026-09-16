@@ -3,7 +3,7 @@
 class PostOffice
   class << self
     def send_email(recipients, subject, text)
-      subject = "[STAGING - ignore] #{subject}" if ENV['STAGING'] == true
+      subject = "[STAGING - ignore] #{subject}" if DeployEnv.staging?
 
       email_args = format_email_args(recipients, subject, text)
       client.send_message(
@@ -38,7 +38,10 @@ class PostOffice
 
     def client
       @client = Mailgun::Client.new(ENV.fetch('MAILGUN_API_KEY', nil))
-      if Rails.env.production?
+
+      # PostOffice calls Mailgun directly, bypassing ActionMailer and therefore
+      # MailerInterceptor, so test mode is the only safeguard on this path.
+      if DeployEnv.real_production?
         @client.disable_test_mode!
       else
         @client.enable_test_mode!
