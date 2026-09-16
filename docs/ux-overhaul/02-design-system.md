@@ -15,7 +15,7 @@ conflicts #230, admin financials #234, conflict triage #240, admin roster #241,
 public fundraiser #242) — §4.32 + §4.33 added in Flow 6, §4.34 specced but
 deferred to `cap_ruby-b3a.21`, and Flow 7 **corrected** §4.13 (it said 100 days,
 a `<canvas>` picker, and a fee line — all three wrong) while adding
-§4.35–§4.39. Flow 8 (inventory) in progress: §4.40 + §4.41 added and §4.6
+§4.35–§4.39. Flow 8 (inventory) in progress: §4.40–§4.42 added and §4.6
 extended with an audit-trail row variant. **The layout set is now finished at
 three** —
 `application` / `auth` / `public` (#229) — Flow 7 folded in the last one-off
@@ -1080,6 +1080,30 @@ grid, so the list of rules is a list of sentences:
 - Undrawn on the canvas and invented at build time: **the mobile layout** (a
   wrapping four-slot sentence at 390px) and **all validation copy**. Both need a
   visual pass.
+- **What shipped for those two gaps:** the sentence is a wrapping flex row, so
+  at 390px it breaks between slots and keeps reading as a sentence rather than
+  scrolling sideways. Validation is the §4.18 summary card, counted
+  ("One thing to fix" / "3 things to fix"), with the form repopulated — a
+  rejected submit used to raise, because the collections the form needs were
+  only loaded on `new` and `edit`.
+
+### 4.42 Destructive affordance placement *(added — Flow 8)*
+
+Not a component, a placement rule the flow kept running into: **put a delete
+where its constraint is already visible, and never on the surface people use
+for the routine job.**
+
+- **Item delete** sits at the foot of the item's own page, well away from the
+  steppers. Counting and destroying are different jobs; a mis-tap on a phone
+  shouldn't be able to reach the destructive one.
+- **Category delete** appears *inside the empty state* — the only condition the
+  server will accept it in. So the affordance shows up exactly when it's valid,
+  instead of being greyed out with an explanation or failing after the fact.
+- **Alert delete** lives inside the edit form, never on a list row, so a delete
+  always follows a deliberate open.
+- Each confirms in place (no modal) and says what survives: "Its 3 recorded
+  changes stay, and an admin can restore it" for a soft delete, "It's empty, so
+  nothing else goes with it" for a category.
 
 ---
 
