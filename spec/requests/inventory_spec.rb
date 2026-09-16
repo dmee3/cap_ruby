@@ -306,11 +306,131 @@ RSpec.describe 'Inventory Access Control', type: :request do
       expect(transaction.user).to eq(admin_user)
     end
 
-    it 'shows validation errors as a sentence rather than an array' do
+    it 'says what to fix and keeps what was typed' do
       post "/inventory/categories/#{category.id}/items",
            params: { inventory_item: { name: '', quantity: -1 } }
 
-      expect(flash[:error]).to be_a(String)
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.body).to include('things to fix').or include('thing to fix')
+      # The form repopulates rather than resetting to blank.
+      expect(response.body).to include('value="-1"')
+    end
+  end
+
+  describe 'Item history' do
+    let(:admin_user) { create(:user) }
+    let(:item) do
+      Inventory::Item.create!(name: 'Snare sticks', quantity: 42, inventory_category_id: category.id)
+    end
+
+    before do
+      create(:seasons_user, user: admin_user, season: season, role: 'admin')
+      sign_in admin_user
+      cookies[:cap_season_id] = season.id
+    end
+
+    it 'renders the trail with the counter named' do
+      Inventory::Transaction.create!(
+        inventory_item_id: item.id, user_id: admin_user.id,
+        change: -6, previous_quantity: 48, performed_on: Date.today
+      )
+
+      get "/inventory/categories/#{category.id}/items/#{item.id}"
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include(admin_user.full_name)
+    end
+
+    # '<%=' would double-escape the blob and the widget would never mount.
+    it 'embeds the payload as parseable JSON' do
+      get "/inventory/categories/#{category.id}/items/#{item.id}"
+
+      blob = response.body[/window\.itemHistory = (.*?);/m, 1]
+      expect { JSON.parse(blob) }.not_to raise_error
+      expect(JSON.parse(blob).dig('item', 'name')).to eq('Snare sticks')
+    end
+  end
+
+  describe 'Low-stock alerts' do
+    let(:admin_user) { create(:user) }
+    let(:item) do
+      Inventory::Item.create!(name: 'Keyboard mallets', quantity: 6, inventory_category_id: category.id)
+    end
+
+    before do
+      create(:seasons_user, user: admin_user, season: season, role: 'admin')
+      sign_in admin_user
+      cookies[:cap_season_id] = season.id
+    end
+
+    def rule_for(operator, threshold)
+      Inventory::EmailRule.create!(
+        inventory_item_id: item.id, operator: operator, threshold: threshold,
+        mail_to_user_id: admin_user.id
+      )
+    end
+
+    it 'reads each rule as a sentence, never as an enum name' do
+      rule_for('lt_eq', 8)
+
+      get '/inventory/email_rules'
+
+      expect(response.body).to include('is at or below')
+      expect(response.body).not_to include('lt_eq')
+    end
+
+    it 'marks a rule whose condition is true right now' do
+      rule_for('lt_eq', 8)
+
+      get '/inventory/email_rules'
+
+      expect(response.body).to include('Firing now')
+    end
+
+    it 'leaves a rule that is not currently met unmarked' do
+      rule_for('lt_eq', 2)
+
+      get '/inventory/email_rules'
+
+      expect(response.body).not_to include('Firing now')
+    end
+
+    it 'invites a first alert when none exist' do
+      get '/inventory/email_rules'
+
+      expect(response.body).to include('No alerts set up')
+    end
+
+    it 'offers the five conditions in plain language on the form' do
+      get '/inventory/email_rules/new'
+
+      expect(response.body).to include('is exactly', 'is below', 'is at or below',
+                                       'is above', 'is at or above')
+    end
+
+    it 'pre-selects an item when the prompt names one' do
+      get "/inventory/email_rules/new?inventory_item_id=#{item.id}"
+
+      expect(response.body).to match(/<option[^>]*selected[^>]*value="#{item.id}"[^>]*>Keyboard mallets/)
+    end
+
+    it 'keeps the form filled in and says what to fix when it is rejected' do
+      post '/inventory/email_rules',
+           params: { inventory_email_rule: { inventory_item_id: item.id, operator: 'lt_eq',
+                                             threshold: '', mail_to_user_id: admin_user.id } }
+
+      expect(response.body).to include('thing to fix').or include('things to fix')
+      expect(Inventory::EmailRule.count).to eq(0)
+    end
+
+    it 'offers delete from inside the edit form, not the list' do
+      rule = rule_for('lt_eq', 8)
+
+      get '/inventory/email_rules'
+      expect(response.body).not_to include('Delete this alert')
+
+      get "/inventory/email_rules/#{rule.id}/edit"
+      expect(response.body).to include('Delete this alert')
     end
   end
 

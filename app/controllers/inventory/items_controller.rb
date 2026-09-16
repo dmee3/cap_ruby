@@ -5,7 +5,12 @@ module Inventory
     before_action :set_category
     before_action :set_item, only: %i[show destroy]
 
-    def show; end
+    def show
+      @history = ItemHistoryPresenter.call(
+        item: @item,
+        manage_alerts: %w[admin coordinator].include?(current_user_role)
+      )
+    end
 
     def new
       @item = Item.new
@@ -15,11 +20,10 @@ module Inventory
       @item = Inventory::Item.new(item_params)
       if @item.save
         log_first_count
-        flash[:success] = "Created #{@item.name} item"
+        flash[:success] = "Added #{@item.name}"
         redirect_to inventory_categories_path
       else
-        flash.now[:error] = @item.errors.full_messages.to_sentence
-        render :new
+        render :new, status: :unprocessable_entity
       end
     end
 

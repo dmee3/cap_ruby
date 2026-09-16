@@ -1,4 +1,25 @@
-<div class="flex flex-col">
-  <h1>Edit Email Rule</h1>
+<div class="flex flex-col gap-4">
+  <nav class="text-body-sm text-secondary">
+    <%= link_to 'Low-stock alerts', inventory_email_rules_path,
+                class: 'text-accent-primary underline underline-offset-2' %>
+    / Edit alert
+  </nav>
+
+  <h1 class="m-0 text-h1 text-primary">Edit alert</h1>
+
   <%= render 'form' %>
+
+  <%# Delete lives here rather than on a list row, so it always follows a
+      deliberate open. %>
+  <div class="border-t border-border-default pt-4">
+    <p class="m-0 text-body-sm text-secondary">
+      Retired the gear? Remove the alert so it stops emailing. The count itself and its history stay.
+    </p>
+    <%= button_to 'Delete this alert',
+                  inventory_email_rule_path(@rule),
+                  method: :delete,
+                  form: { data: { turbo_confirm: "Delete this alert? Nobody will be emailed when #{@rule.inventory_item.name.downcase} runs low." } },
+                  data: { confirm: "Delete this alert? Nobody will be emailed when #{@rule.inventory_item.name.downcase} runs low." },
+                  class: 'btn-red btn-md mt-3' %>
+  </div>
 </div>

@@ -166,4 +166,35 @@ describe('StockList', () => {
 
     expect(await screen.findByText('Nothing in Hardware yet')).toBeInTheDocument()
   })
+
+  // A non-empty category can't be deleted, so the affordance only appears in
+  // the one state the server accepts.
+  describe('deleting a category', () => {
+    const emptyOnly = () =>
+      payload({ categories: [{ id: 3, name: 'Hardware', item_count: 0, items: [] }] })
+
+    it('offers delete only on an empty category', async () => {
+      mockFetch(() => ok(emptyOnly()))
+      render(<StockList />)
+
+      expect(await screen.findByRole('button', { name: 'Delete category' })).toBeInTheDocument()
+    })
+
+    it('does not offer it on a category holding items', async () => {
+      mockFetch(() => ok(payload()))
+      render(<StockList />)
+
+      await screen.findByText('Snare sticks')
+      expect(screen.queryByRole('button', { name: 'Delete category' })).not.toBeInTheDocument()
+    })
+
+    it('asks first', async () => {
+      mockFetch(() => ok(emptyOnly()))
+      render(<StockList />)
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Delete category' }))
+
+      expect(screen.getByText(/It's empty, so nothing else goes with it/)).toBeInTheDocument()
+    })
+  })
 })
