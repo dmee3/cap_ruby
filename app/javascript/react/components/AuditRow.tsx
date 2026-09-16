@@ -1,5 +1,6 @@
 import React from 'react'
 import { historyDate } from '../../utilities/history_dates'
+import { avatarTone, initialsFor } from '../../utilities/avatars'
 
 export type AuditEntry = {
   id: number
@@ -10,22 +11,6 @@ export type AuditEntry = {
 }
 
 const MINUS = '−'
-
-const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? '')
-    .join('')
-
-// Deterministic per person, so the same name is the same color on every row
-// rather than changing between light and dark as the canvas's mockup did.
-const AVATAR_TONES = ['bg-ocean', 'bg-moss', 'bg-raspberry', 'bg-ocean-light', 'bg-moss-dark']
-const avatarTone = (name: string) => {
-  const sum = [...name].reduce((total, char) => total + char.charCodeAt(0), 0)
-  return AVATAR_TONES[sum % AVATAR_TONES.length]
-}
 
 // "First count" is the opening balance written when the item was created.
 const actionLabel = (entry: AuditEntry) => {
@@ -55,7 +40,7 @@ const AuditRow = ({ entry, today }: { entry: AuditEntry; today?: Date }) => {
           avatarTone(entry.userName),
         ].join(' ')}
       >
-        {initials(entry.userName)}
+        {initialsFor(entry.userName)}
       </span>
 
       <span className="flex min-w-0 flex-1 flex-col">

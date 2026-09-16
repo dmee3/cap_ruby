@@ -1,6 +1,7 @@
 import React from 'react'
 import DuesMeter, { DuesState } from './DuesMeter'
 import Pill from './Pill'
+import { initialsFor } from '../../utilities/avatars'
 
 type HeaderVariant = 'on-track' | 'past-due' | 'no-schedule'
 
@@ -24,14 +25,6 @@ type Member360HeaderProps = {
   scheduleHref?: string
   className?: string
 }
-
-const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase())
-    .join('')
 
 // The landing target of every money link on the admin side. §4.12.
 const Member360Header = ({
@@ -59,7 +52,7 @@ const Member360Header = ({
           }`}
           aria-hidden="true"
         >
-          {initials(name) || '—'}
+          {initialsFor(name) || '—'}
         </span>
         <div className="flex flex-wrap items-baseline gap-2.5">
           <span className="text-[22px] font-extrabold leading-[26px] tracking-tight text-primary">
