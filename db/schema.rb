@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_14_190000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_15_120000) do
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
     t.string "description"
@@ -112,6 +112,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_14_190000) do
     t.integer "inventory_category_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "deleted_at"
+    t.index ["deleted_at"], name: "index_inventory_items_on_deleted_at"
     t.index ["inventory_category_id"], name: "index_inventory_items_on_inventory_category_id"
   end
 
