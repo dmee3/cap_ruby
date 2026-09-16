@@ -2247,7 +2247,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"baseline-browser-mapping@npm:^2.11.12, baseline-browser-mapping@npm:^2.8.25":
+"baseline-browser-mapping@npm:^2.11.12":
   version: 2.11.21
   resolution: "baseline-browser-mapping@npm:2.11.21"
   bin:
