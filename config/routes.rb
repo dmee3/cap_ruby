@@ -37,8 +37,8 @@ Rails.application.routes.draw do
     end
 
     namespace :inventory do
-      resources :categories, only: %i[index create update] do
-        resources :items, only: %i[create update show]
+      resources :categories, only: %i[index create update destroy] do
+        resources :items, only: %i[create update show destroy]
       end
     end
 
