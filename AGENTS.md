@@ -47,6 +47,28 @@ cp -rf source dest          # NOT: cp -r source dest
 - `apt-get` - use `-y` flag
 - `brew` - use `HOMEBREW_NO_AUTO_UPDATE=1` env var
 
+## Comments
+
+One test, applied to every comment before it's committed:
+
+> **Does it explain something the code can't say, or does it just narrate the diff?**
+
+Keep the first kind. Delete the second — it belongs in the commit message, where
+it's attached to the change rather than left behind in a file someone reads a
+year later, long after "used to" stopped meaning anything.
+
+**Worth keeping:** why a decision went the way it did (especially one that looks
+wrong), a constraint enforced elsewhere, a non-obvious consequence, a deliberate
+omission so nobody "fixes" it back.
+
+**Delete:** what the code used to do, which flow or PR added something, a
+restatement of the line below it, and counts that will go stale.
+
+The same test applies to test names and spec comments: describe the behaviour
+being protected, not the bug that prompted the spec.
+
+See `CLAUDE.md` § Code Style for worked examples.
+
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:970c3bf2 -->
 ## Beads Issue Tracker
 
