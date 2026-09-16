@@ -271,9 +271,6 @@ const CategoryCard = ({
                 saving={savingId === item.id}
                 canManageAlerts={canManageAlerts}
                 onCommit={onCommit}
-                onOpenMenu={() =>
-                  (window.location.href = `/inventory/categories/${item.category_id}/items/${item.id}`)
-                }
               />
             ))}
           </ul>

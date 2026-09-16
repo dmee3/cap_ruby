@@ -8,7 +8,6 @@ type StockRowProps = {
   saving: boolean
   canManageAlerts: boolean
   onCommit: (item: StockItem, delta: number) => void
-  onOpenMenu: (item: StockItem) => void
 }
 
 // Never colour alone: each state carries a word. The tinted row and left rail
@@ -19,7 +18,7 @@ const ROW_TONE: Record<StockItem['status'], string> = {
   out: 'bg-danger-bg/40 border-l-[3px] border-l-danger-fg',
 }
 
-const StockRow = ({ item, saving, canManageAlerts, onCommit, onOpenMenu }: StockRowProps) => {
+const StockRow = ({ item, saving, canManageAlerts, onCommit }: StockRowProps) => {
   const alertText = item.alert
     ? `${operatorLabel(item.alert.operator).replace(/^is /, '')} ${item.alert.threshold}`
     : null
@@ -54,22 +53,15 @@ const StockRow = ({ item, saving, canManageAlerts, onCommit, onOpenMenu }: Stock
         className="basis-full sm:basis-auto"
       />
 
-      <span className="flex items-center gap-1">
-        <a
-          href={`/inventory/categories/${item.category_id}/items/${item.id}`}
-          className="rounded-sm px-2 py-1 text-body-sm text-accent-primary underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2"
-        >
-          History
-        </a>
-        <button
-          type="button"
-          aria-label={`More actions for ${item.name}`}
-          onClick={() => onOpenMenu(item)}
-          className="inline-flex h-[36px] w-[36px] items-center justify-center rounded-sm text-secondary transition hover:bg-sunken focus-visible:outline-none focus-visible:ring-2"
-        >
-          <span aria-hidden="true">⋯</span>
-        </button>
-      </span>
+      {/* Rename, alerts, and delete land here as a row menu in a later phase;
+          keeping counting and destroying on separate surfaces. */}
+      <a
+        href={`/inventory/categories/${item.category_id}/items/${item.id}`}
+        aria-label={`History for ${item.name}`}
+        className="inline-flex min-h-[44px] items-center rounded-sm px-2 text-body-sm text-accent-primary underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2"
+      >
+        History
+      </a>
     </li>
   )
 }
