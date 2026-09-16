@@ -125,15 +125,15 @@ stripe login
 stripe listen --forward-to localhost:3000/stripe/webhook
 ```
 
-`stripe listen` prints a webhook signing secret (it starts with `whsec_`). Add
-it to your local `.env` as `STRIPE_WEBHOOK_SECRET` and restart the server.
-`#webhook` verifies every event against that secret via
-`Stripe::Webhook.construct_event` and returns **400** if it doesn't match, so a
-missing or stale secret fails exactly as silently as no forwarder at all.
-
 Leave `stripe listen` running in its own terminal while you test. It logs every
 forwarded event and the app's response, which is the fastest way to tell
 "the webhook never fired" from "it fired and the app 400'd or raised".
+
+`stripe listen` prints a webhook signing secret (it starts with `whsec_`). If
+it's not already in your local `.env`, add it as `STRIPE_WEBHOOK_SECRET`
+and restart the server. `#webhook` verifies every event against that secret via
+`Stripe::Webhook.construct_event` and returns **400** if it doesn't match, so a
+missing or stale secret fails exactly as silently as no forwarder at all.
 
 #### Testing a fundraiser donation
 
