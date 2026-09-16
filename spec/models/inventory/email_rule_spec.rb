@@ -51,6 +51,54 @@ RSpec.describe Inventory::EmailRule, type: :model do
     end
   end
 
+  describe '#applies_to?' do
+    let(:rule) do
+      Inventory::EmailRule.create(
+        mail_to_user_id: user.id, inventory_item_id: item.id,
+        threshold: 8, operator: operator
+      )
+    end
+
+    {
+      'eq' => { 8 => true, 7 => false, 9 => false },
+      'lt' => { 7 => true, 8 => false, 9 => false },
+      'lt_eq' => { 7 => true, 8 => true, 9 => false },
+      'gt' => { 9 => true, 8 => false, 7 => false },
+      'gt_eq' => { 9 => true, 8 => true, 7 => false }
+    }.each do |op, cases|
+      context "with the #{op} operator" do
+        let(:operator) { op }
+
+        cases.each do |qty, expected|
+          it "is #{expected} at #{qty}" do
+            expect(rule.applies_to?(qty)).to be(expected)
+          end
+        end
+      end
+    end
+
+    # The stock list asks this question on every page load; an unrecognised
+    # operator must not raise there.
+    context 'with an operator that is not one of the five' do
+      let(:operator) { '<' }
+
+      it 'is false rather than raising' do
+        expect(rule.applies_to?(1)).to be(false)
+      end
+    end
+
+    # Asking must never send: the list would email everyone on page load.
+    it 'does not notify' do
+      allow(InventoryMailer).to receive(:with)
+      Inventory::EmailRule.create(
+        mail_to_user_id: user.id, inventory_item_id: item.id,
+        threshold: 8, operator: 'lt_eq'
+      ).applies_to?(1)
+
+      expect(InventoryMailer).not_to have_received(:with)
+    end
+  end
+
   describe '#notify_if_applicable' do
     let(:rule) do
       Inventory::EmailRule.create(

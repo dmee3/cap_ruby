@@ -7,6 +7,7 @@ import Button from '../../components/Button'
 import EmptyState from '../../components/EmptyState'
 import ConflictPopover, { ConflictPopoverData } from '../../components/ConflictPopover'
 import Utilities from '../../../utilities/utilities'
+import { initialsFor } from '../../../utilities/avatars'
 
 export type CalendarConflict = {
   id: number
@@ -40,13 +41,6 @@ const CHIP: Record<string, { bg: string; border: string; text: string }> = {
   Denied: { bg: '#fbe9ec', border: '#cc2f44', text: '#962231' },
   Resolved: { bg: '#eceef0', border: '#b9bec4', text: '#5b6166' },
 }
-
-const initialsFor = (name: string) =>
-  name
-    .split(' ')
-    .filter(Boolean)
-    .map(part => part[0]?.toUpperCase() ?? '')
-    .join('')
 
 const ConflictCalendarView = ({
   conflicts,

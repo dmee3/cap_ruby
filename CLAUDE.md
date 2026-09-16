@@ -440,6 +440,34 @@ app/models/
 - Integration tests still needed across most of the app before major refactoring (e.g., adding Sorbet)
 - When adding a feature, check whether the surrounding code has specs and match that bar
 
+## Code Style
+
+### Comments
+
+One test, applied to every comment before it's committed:
+
+> **Does it explain something the code can't say, or does it just narrate the diff?**
+
+Keep the first kind. Delete the second — it belongs in the commit message, where
+it's attached to the change rather than left behind in a file someone reads a
+year later, long after "used to" stopped meaning anything.
+
+**Worth keeping** — a reader can't recover these from the code:
+- Why a decision went the way it did, especially one that looks wrong:
+  `with_deleted on both: User and Item are paranoid, and history has to keep naming a departed quartermaster`
+- A constraint enforced somewhere else: `The FK from inventory_items refuses this at the database anyway; the check turns that into a sentence rather than a 500`
+- A non-obvious consequence: `asking by calling the notifying version would email everyone on page load`
+- A deliberate omission, so nobody "fixes" it back
+
+**Delete** — the diff, the ticket, or the code already says it:
+- What the code used to do: `The return value used to be discarded and the method returned true unconditionally`
+- Which flow, PR, or ticket added something: `Destroy is new in Flow 8`
+- A restatement of the line below it: `# destroy the rule` over `@rule.destroy`
+- Numbers that will go stale: `108 of the 132 items carry history`
+
+The same test applies to test names and spec comments: describe the behaviour
+being protected, not the bug that prompted the spec.
+
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:970c3bf2 -->
 ## Beads Issue Tracker
 

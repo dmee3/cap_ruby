@@ -20,6 +20,16 @@ module Api
                status: :internal_server_error
       end
 
+      def create
+        @item = ::Inventory::Item.new(create_params)
+        if @item.save
+          log_first_count
+          render json: item_json, status: :created
+        else
+          render json: { errors: @item.errors.full_messages }, status: :unprocessable_entity
+        end
+      end
+
       def destroy
         @item = ::Inventory::Item.find(params[:id])
         @item.destroy
@@ -63,6 +73,25 @@ module Api
           log_change(old_quantity) if @item.quantity != old_quantity
         end
         saved
+      end
+
+      # The opening balance is a change like any other, so the history trail's
+      # first row isn't a number that appears from nowhere.
+      def log_first_count
+        ::Inventory::Transaction.create!(
+          change: @item.quantity,
+          previous_quantity: 0,
+          performed_on: Date.today,
+          inventory_item_id: @item.id,
+          user_id: current_user.id
+        )
+      end
+
+      def create_params
+        params
+          .require(:item)
+          .permit(:name, :quantity)
+          .merge(inventory_category_id: params[:category_id])
       end
 
       def log_change(old_quantity)
