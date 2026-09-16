@@ -15,11 +15,10 @@ module Inventory
     def create
       @category = Inventory::Category.new(category_params)
       if @category.save
-        flash[:success] = "Created #{@category.name} category"
+        flash[:success] = "Added #{@category.name}"
         redirect_to inventory_categories_path
       else
-        flash.now[:error] = @category.errors.full_messages.to_sentence
-        render :new
+        render :new, status: :unprocessable_entity
       end
     end
 

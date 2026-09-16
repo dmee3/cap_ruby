@@ -190,6 +190,7 @@ const StockList = () => {
             setCollapsed((current) => ({ ...current, [category.id]: !current[category.id] }))
           }
           onCommit={commit}
+          onDeleted={load}
         />
       ))}
 
@@ -207,6 +208,7 @@ const CategoryCard = ({
   savingId,
   onToggle,
   onCommit,
+  onDeleted,
 }: {
   category: StockCategory
   collapsed: boolean
@@ -214,6 +216,7 @@ const CategoryCard = ({
   savingId: number | null
   onToggle: () => void
   onCommit: (item: StockItem, delta: number) => void
+  onDeleted: () => void
 }) => {
   const lows = category.items.filter((i) => i.status === 'low').length
   const outs = category.items.filter((i) => i.status === 'out').length
@@ -252,14 +255,19 @@ const CategoryCard = ({
             title={`Nothing in ${category.name} yet`}
             body="Add carriers, stands, or whatever lives on this shelf."
             action={
-              <Button
-                size="sm"
-                onClick={() =>
-                  (window.location.href = `/inventory/categories/${category.id}/items/new`)
-                }
-              >
-                Add an item
-              </Button>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    (window.location.href = `/inventory/categories/${category.id}/items/new`)
+                  }
+                >
+                  Add an item
+                </Button>
+                {/* Only offered while the category is empty, which is the only
+                    state the server will delete one in. */}
+                <DeleteCategory category={category} onDeleted={onDeleted} />
+              </div>
             }
           />
         ) : (
@@ -276,6 +284,64 @@ const CategoryCard = ({
           </ul>
         ))}
     </Card>
+  )
+}
+
+const DeleteCategory = ({
+  category,
+  onDeleted,
+}: {
+  category: StockCategory
+  onDeleted: () => void
+}) => {
+  const [confirming, setConfirming] = useState(false)
+  const [busy, setBusy] = useState(false)
+
+  const remove = () => {
+    setBusy(true)
+    fetch(`/api/inventory/categories/${category.id}`, {
+      method: 'DELETE',
+      headers: jsonHeaders(),
+    })
+      .then(async (resp) => {
+        if (!resp.ok) {
+          const body = await resp.json().catch(() => ({}))
+          throw body
+        }
+        toast(`Deleted ${category.name}`, { variant: 'success' })
+        onDeleted()
+      })
+      .catch((body) => {
+        toast(body?.errors?.[0] ?? `Couldn't delete ${category.name}.`, { variant: 'error' })
+        setBusy(false)
+        setConfirming(false)
+      })
+  }
+
+  if (!confirming) {
+    return (
+      <button
+        type="button"
+        onClick={() => setConfirming(true)}
+        className="min-h-[44px] px-2 text-body-sm text-danger-fg underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2"
+      >
+        Delete category
+      </button>
+    )
+  }
+
+  return (
+    <span className="flex flex-wrap items-center gap-2">
+      <span className="text-body-sm text-primary">
+        Delete {category.name}? It's empty, so nothing else goes with it.
+      </span>
+      <button type="button" onClick={remove} disabled={busy} className="btn-red btn-sm disabled:opacity-40">
+        {busy ? 'Deleting…' : 'Delete'}
+      </button>
+      <button type="button" onClick={() => setConfirming(false)} className="btn-secondary btn-sm">
+        Keep it
+      </button>
+    </span>
   )
 }
 

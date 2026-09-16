@@ -1,25 +1,44 @@
-<div class="flex flex-col">
-  <h1>New Item</h1>
+<div class="flex max-w-[640px] flex-col gap-4">
+  <nav class="text-body-sm text-secondary">
+    <%= link_to 'Stock', inventory_categories_path,
+                class: 'text-accent-primary underline underline-offset-2' %>
+    / <%= @category.name %>
+  </nav>
+
+  <h1 class="m-0 text-h1 text-primary">Add an item</h1>
+  <p class="m-0 text-body-sm text-secondary">It'll land in <%= @category.name %>.</p>
+
+  <%= form_with model: [@category, @item], url: inventory_category_items_path(@category),
+                class: 'flex flex-col gap-4' do |f| %>
+    <% if @item.errors.any? %>
+      <div class="card border-l-[3px] border-l-danger-fg">
+        <p class="m-0 text-body font-semibold text-danger-fg">
+          <%= @item.errors.count == 1 ? 'One thing to fix' : "#{@item.errors.count} things to fix" %>
+        </p>
+        <ul class="mt-2 flex list-none flex-col gap-1 p-0">
+          <% @item.errors.full_messages.each do |message| %>
+            <li class="text-body-sm text-danger-fg"><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="flex flex-col gap-1.5">
+      <%= f.label :name, 'Item name', class: 'text-label uppercase text-secondary' %>
+      <%= f.text_field :name, placeholder: 'e.g. Tenor batter heads', class: 'input-text' %>
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <%= f.label :quantity, 'Starting count', class: 'text-label uppercase text-secondary' %>
+      <%= f.number_field :quantity, min: 0, class: 'input-text w-[140px] font-mono' %>
+      <p class="m-0 text-caption text-secondary">
+        Count what's on the shelf right now. You can adjust it any time, and zero is fine.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <%= f.submit 'Add item', class: 'btn-primary btn-lg' %>
+      <%= link_to 'Cancel', inventory_categories_path, class: 'btn-secondary btn-lg' %>
+    </div>
+  <% end %>
 </div>
-
-<%= form_with model: [@category, @item], url: inventory_category_items_path(@category) do |f| %>
-  <div class="grid grid-cols-5 gap-x-6 gap-y-4">
-    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
-      <%= f.label :name, class: 'input-label' %>
-    </div>
-    <div class="col-span-5 sm:col-span-4 flex items-center">
-      <%= f.text_field :name, class: 'input-text' %>
-    </div>
-
-    <div class="col-span-5 sm:col-span-1 -mb-2 sm:mb-0 flex items-center">
-      <%= f.label :quantity, class: 'input-label' %>
-    </div>
-    <div class="col-span-5 sm:col-span-4 flex items-center">
-      <%= f.number_field :quantity, class: 'input-text' %>
-    </div>
-  </div>
-
-  <div class="mt-4 flex flex-row justify-end">
-    <%= f.submit 'Submit', class: 'btn-primary btn-lg' %>
-  </div>
-<% end %>
