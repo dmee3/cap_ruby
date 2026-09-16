@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import ItemHistory, { ItemHistoryPayload } from './ItemHistory'
 
 const payload = (overrides: Partial<ItemHistoryPayload> = {}): ItemHistoryPayload => ({
@@ -12,6 +13,10 @@ const payload = (overrides: Partial<ItemHistoryPayload> = {}): ItemHistoryPayloa
     { id: 1, change: 24, previous_quantity: 0, performed_on: '2026-02-14', user_name: 'Dana Reyes' },
   ],
   ...overrides,
+})
+
+beforeEach(() => {
+  document.head.innerHTML = '<meta name="csrf-token" content="t" />'
 })
 
 describe('ItemHistory', () => {
@@ -67,5 +72,42 @@ describe('ItemHistory', () => {
     render(<ItemHistory payload={payload()} />)
 
     expect(screen.getByText(/started at 24 when Dana Reyes added it/)).toBeInTheDocument()
+  })
+
+  // Counting and destroying are different jobs, so delete asks first and sits
+  // at the bottom of the item's own page rather than beside a stepper.
+  describe('deleting', () => {
+    it('asks before it deletes, and says the history survives', async () => {
+      render(<ItemHistory payload={payload()} />)
+
+      await userEvent.click(screen.getByRole('button', { name: /Delete Snare sticks/ }))
+
+      expect(screen.getByText(/3 recorded changes stay/)).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Delete item' })).toBeInTheDocument()
+    })
+
+    it('backs out without calling anything', async () => {
+      const fetchSpy = vi.fn()
+      vi.stubGlobal('fetch', fetchSpy)
+      render(<ItemHistory payload={payload()} />)
+
+      await userEvent.click(screen.getByRole('button', { name: /Delete Snare sticks/ }))
+      await userEvent.click(screen.getByRole('button', { name: 'Keep it' }))
+
+      expect(fetchSpy).not.toHaveBeenCalled()
+      expect(screen.getByRole('button', { name: /Delete Snare sticks/ })).toBeInTheDocument()
+      vi.unstubAllGlobals()
+    })
+
+    it('says so when the delete fails rather than looking like it worked', async () => {
+      vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({ ok: false } as Response)))
+      render(<ItemHistory payload={payload()} />)
+
+      await userEvent.click(screen.getByRole('button', { name: /Delete Snare sticks/ }))
+      await userEvent.click(screen.getByRole('button', { name: 'Delete item' }))
+
+      expect(await screen.findByText(/Couldn't delete Snare sticks/)).toBeInTheDocument()
+      vi.unstubAllGlobals()
+    })
   })
 })

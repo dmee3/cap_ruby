@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Card from '../../components/Card'
 import EmptyState from '../../components/EmptyState'
 import AuditRow, { AuditEntry } from '../../components/AuditRow'
@@ -110,6 +110,77 @@ const ItemHistory = ({ payload }: { payload: ItemHistoryPayload }) => {
           This item started at {first.previous_quantity + first.change} when {first.user_name} added
           it on {historyDate(first.performed_on)}.
         </p>
+      )}
+
+      <DeleteItem item={item} entryCount={entries.length} />
+    </div>
+  )
+}
+
+// Deleting sits at the bottom of the item's own page, never beside a stepper:
+// counting and destroying are different jobs and shouldn't share a surface.
+const DeleteItem = ({
+  item,
+  entryCount,
+}: {
+  item: ItemHistoryPayload['item']
+  entryCount: number
+}) => {
+  const [confirming, setConfirming] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const remove = () => {
+    setBusy(true)
+    const token =
+      (document.getElementsByName('csrf-token')[0] as HTMLMetaElement | undefined)?.content ?? ''
+
+    fetch(`/api/inventory/categories/${item.category_id}/items/${item.id}`, {
+      method: 'DELETE',
+      headers: { 'X-CSRF-TOKEN': token },
+    })
+      .then((resp) => {
+        if (!resp.ok) throw resp
+        window.location.href = '/inventory/categories'
+      })
+      .catch(() => {
+        setError(`Couldn't delete ${item.name}. Try again, and tell an admin if it keeps failing.`)
+        setBusy(false)
+      })
+  }
+
+  return (
+    <div className="border-t border-border-default pt-4">
+      {!confirming ? (
+        <button
+          type="button"
+          onClick={() => setConfirming(true)}
+          className="min-h-[44px] text-body-sm font-semibold text-danger-fg underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2"
+        >
+          Delete {item.name}
+        </button>
+      ) : (
+        <div className="flex flex-col gap-3">
+          <p className="m-0 text-body text-primary">
+            Delete {item.name}? It leaves the stock list.
+            {entryCount > 0 &&
+              ` Its ${entryCount} recorded ${entryCount === 1 ? 'change stays' : 'changes stay'}, and an admin can restore it.`}
+          </p>
+          {error && <p className="m-0 text-body-sm text-danger-fg">{error}</p>}
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={remove}
+              disabled={busy}
+              className="btn-red btn-lg disabled:opacity-40"
+            >
+              {busy ? 'Deleting…' : 'Delete item'}
+            </button>
+            <button type="button" onClick={() => setConfirming(false)} className="btn-secondary btn-lg">
+              Keep it
+            </button>
+          </div>
+        </div>
       )}
     </div>
   )
