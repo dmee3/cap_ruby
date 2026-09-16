@@ -10,17 +10,20 @@ The **Tokens** and **Components** sections are the Claude Design project's desig
 system. The **Principles** and **Voice** sections are guidance for how screens
 should feel.
 
-**Status:** Flows 1–7 merged (shell/tokens #221, member dues #226, member
+**Status:** Flows 1–8 merged (shell/tokens #221, member dues #226, member
 conflicts #230, admin financials #234, conflict triage #240, admin roster #241,
-public fundraiser #242) — §4.32 + §4.33 added in Flow 6, §4.34 specced but
-deferred to `cap_ruby-b3a.21`, and Flow 7 **corrected** §4.13 (it said 100 days,
-a `<canvas>` picker, and a fee line — all three wrong) while adding
-§4.35–§4.39. Flow 8 (inventory) in progress: §4.40–§4.42 added and §4.6
-extended with an audit-trail row variant. **The layout set is now finished at
-three** —
-`application` / `auth` / `public` (#229) — Flow 7 folded in the last one-off
-`calendar` layout. Full flow list: `01-screen-audit.md`. Live task status:
-**beads** — `bd show cap_ruby-b3a`.
+public fundraiser #242, inventory #246) — §4.32 + §4.33 added in Flow 6, §4.34
+specced but deferred to `cap_ruby-b3a.21`, Flow 7 **corrected** §4.13 (it said
+100 days, a `<canvas>` picker, and a fee line — all three wrong) while adding
+§4.35–§4.39, and Flow 8 added §4.40–§4.42 plus an audit-trail variant on §4.6.
+Flow 9 (supporting screens) in progress: §4.43 + §4.44 added, §4.6 extended
+with a file-row variant, §3.2 **corrected** (dark `bg.nav` collided with
+`bg.page`) and given the separation rule, and §4.1 extended with prefix-matched
+active state and grant-based nav membership. **The layout set is finished at
+three** — `application` / `auth` / `public` (#229), Flow 7 having folded in the
+last one-off `calendar` layout — and **Flow 9 is the last screen-level flow**.
+Full flow list: `01-screen-audit.md`. Live task status: **beads** —
+`bd show cap_ruby-b3a`.
 
 ---
 
@@ -101,7 +104,7 @@ Define each as a light value and a dark value.
 | `bg.surface` | `#ffffff` | `#26272a` | Cards, panels, table |
 | `bg.surface-raised` | `#ffffff` + shadow | `#2f3033` | Menus, popovers, modals |
 | `bg.sunken` | `#f1f2f3` | `#1a1b1d` | Inset areas, input fields at rest |
-| `bg.nav` | `jet` `#1d1e20` | `jet` `#1d1e20` | Sidebar (dark in both themes — brand anchor) |
+| `bg.nav` | `jet` `#1d1e20` | `bg.sunken` `#1a1b1d` | Sidebar. Dark in both themes as the brand anchor, but **not the same value as `bg.page`** — see below *(corrected — Flow 9)* |
 | `text.primary` | `#1d1e20` | `#e9ebec` | Body |
 | `text.secondary` | `#5b6166` | `#9aa0a6` | Labels, metadata, captions |
 | `text.on-brand` | `#ffffff` | `#ffffff` | Text on ocean/moss/raspberry fills |
@@ -117,6 +120,17 @@ Define each as a light value and a dark value.
 | `status.warning.bg` | `#faf1dc` | `#3a3320` | Warning pill background |
 | `status.neutral.fg` | `#5b6166` | `#9aa0a6` | "Draft", "Archived" |
 | `status.neutral.bg` | `#eceef0` | `#33353a` | Neutral pill background |
+
+**Separation is by surface and border, never by shadow** *(established — Flow
+9)*. Shadows are reserved for things that genuinely float (§3.5 `elevation.2`
+and up: menus, popovers, modals, toasts). Structural edges between two resting
+surfaces come from a value difference plus a 1px `border.default`.
+
+This is what `cap_ruby-b3a.14` was: dark mode set `bg.nav` and `bg.page` to the
+same jet, and `.app-sidebar` carried no border, so the sidebar's right edge
+disappeared and the active pill floated in a void. The fix is both halves — the
+nav drops to `bg.sunken` **and** takes a 1px `border.default` right edge. Light
+mode is unchanged, where jet-on-flash already draws the edge for free.
 
 ### 3.3 Data-viz palette
 
@@ -215,6 +229,16 @@ each one superseded.
   On mobile: hamburger + logo + season chip.
 - **Mobile nav** — the *same* nav list in a slide-over sheet. One source of truth,
   not a separate markup block.
+- **Active is a path prefix, deepest match wins** *(added — Flow 9)*. An item is
+  active when the current path equals its path or is a child of it, so a nested
+  route stops orphaning its parent and no item needs a hand-written `match:`
+  regex to behave like its neighbours. Previously each item either carried its
+  own regex or fell back to an exact `current_page?`, which worked only as long
+  as no nested route existed under it.
+- **Nav membership can come from a grant, not just a role** *(added — Flow 9)*.
+  **Inventory** appears whenever `inventory_access` is true, independent of
+  role — the same condition the screen itself is guarded by. A quartermaster on
+  the staff roster previously had the screen but no link to it.
 - Replaces: all 5 ERB layouts + both `_sidebar` partials + duplicated mobile menus.
 - **Layout set: three. Complete as of Flow 7.** `application` — the shell, every
   authenticated screen. `auth` — Devise (login / password recovery), a centered
@@ -231,6 +255,14 @@ each one superseded.
   `return unless current_user` guard as defense-in-depth — a stray shell render
   degrades to no-chrome, never a 500. *(Established in the PublicController PR;
   see `01-screen-audit.md` "How the app is built today".)*
+- **Layout consolidation is complete, and so is the screen-level overhaul**
+  *(Flow 9)*. Flow 7 finished the layout work at three; Flow 9 is the last
+  screen-level flow, so every screen in the app has now been through the
+  overhaul. The four settings templates (`admin/`, `coordinators/`, `staff/`,
+  `members/settings/index`) were the last pre-Flow-1 role-duplicated views —
+  byte-identical to each other — and collapse to one. What remains after this
+  flow is follow-up beads and the Flow 10 staff-dashboard touch-up, not new
+  screen surface.
 
 ### 4.2 Button
 - Variants: `primary` (ocean fill), `success` (moss fill), `danger` (raspberry
@@ -1104,6 +1136,75 @@ for the routine job.**
 - Each confirms in place (no modal) and says what survives: "Its 3 recorded
   changes stay, and an admin can restore it" for a soft delete, "It's empty, so
   nothing else goes with it" for a category.
+
+### 4.43 Recipient picker *(added — Flow 9)*
+
+Multi-select with a **stated minimum**, for the whistleblower report. The only
+picker in the app with a floor — Flow 6's member lookups are single-select and
+its role control is a plain select, so neither covers this.
+
+- **The counter is the constraint's entire UI**: "0 of 3 picked" → "2 of 3
+  picked · one more" → "4 picked · minimum met". Stating progress toward the
+  rule makes it read as reassurance rather than a rejection, which is why there
+  is no separate "you must pick 3" warning sitting on the screen at rest.
+- Option rows are **44px** (touch), initials avatar + name + a subtitle
+  identifying the person beyond a first name.
+- **The subtitle is role plus ensemble/section**, the only descriptors that
+  exist on `seasons_users`. The canvas drew hand-written ones ("Admin · runs
+  dues"); there is no field for those and they are not derivable. Last names
+  alone already carry most of the intent, which was that a reporter shouldn't
+  have to choose between first names they may not recognise.
+- **Error-after-submit** is a distinct state: the picker keeps every selection
+  and the summary above names what's missing ("Pick one more person: two of
+  three so far").
+- **Empty / under-strength pool is a designed state, not an edge case.** When
+  nobody carries the `whistleblower_recipient` flag, the picker does not render
+  an empty checkbox list above a doomed submit button — the section says in
+  plain language that reports can't be routed yet and an admin needs to
+  configure recipients. This is reachable on day one: the flag ships with no
+  backfill by deliberate choice.
+- **The minimum is three, or the whole pool when the pool is smaller**, so the
+  rule degrades honestly instead of becoming unsatisfiable.
+- Props: `minimum`, `options`, `error-after-submit`.
+
+Recipients are whoever carries the **`whistleblower_recipient`** flag — not a
+role, and not season-scoped. See `flow9-design-review.md` §4 for why
+season-scoping was rejected.
+
+### 4.44 Auth card family *(added — Flow 9)*
+
+Not a new primitive — a **documented layout** over §4.3 Card, §4.7 form row and
+§4.2 Button, so the four auth screens stop drifting from each other.
+
+- Shared: **440px max width**, `radius.lg`, 28–32px padding, logo + product name
+  at the top, **one full-width primary** at the bottom.
+- **Optional sunken footer strip** for the single secondary route out. On login
+  that's recovery — which is the point of the family: "Forgot your password?"
+  stops being a 12px link in a row of links and becomes a strip with its own
+  sentence and an outlined button. After a failed attempt the strip's button
+  picks up an accent border, so the obvious next step looks like it.
+- Four contents: **log in** (two fields, remember-me, footer strip), **request a
+  link** (back link, one field, link lifetime stated, no strip), **check your
+  email** (success glyph, address in bold, back + resend), **set a new password**
+  (two fields, the eight-character floor in the hint, "Save and log in").
+- The §4.18 validation summary slots **directly under the logo**, above the
+  fields, in all four.
+- Replaces Devise's `shared/_links` partial, four of whose six branches are
+  dead for this app (no registerable/confirmable/lockable/omniauthable).
+
+### 4.6 — file row variant *(extended — Flow 9)*
+
+Files needed no new component: it's the §4.6 table row with a **three-letter
+type chip** in the avatar slot instead of initials, the name, and one metadata
+column. No icon set to maintain. The chevron-versus-external-arrow affordance
+carries the folder/file distinction.
+
+One correction the canvas didn't have: `file_type` from the Drive API is a
+**symbol** for four mapped MIME types (`:document`, `:folder`, `:audio`,
+`:pdf`) and the **raw MIME string** otherwise, so the chip needs a real mapping
+on the client — `XLS`/`DOC` as drawn aren't labels the backend returns. And
+there is **no modified time** in the response, which is why the date column is
+absent by design rather than pending.
 
 ---
 
