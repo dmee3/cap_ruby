@@ -23,13 +23,12 @@
 #
 module Inventory
   class Item < ApplicationRecord
-    # Soft delete, so removing an item from the shelf doesn't destroy the audit
-    # trail of who counted it. Matches Payment / Conflict / User.
+    # Soft delete so an item's transaction history survives its removal.
     acts_as_paranoid
 
     validates :name, presence: true
-    # A count of things on a shelf has no negative. Zero is a real state — ten
-    # items sit there today, and the one live email rule fires at exactly 0.
+    # Zero is a real state, not an error: items sit at zero on the shelf, and an
+    # email rule can be set to fire at exactly 0.
     validates :quantity, presence: true,
                          numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 

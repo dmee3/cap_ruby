@@ -54,8 +54,6 @@ RSpec.describe Inventory::Transaction, type: :model do
       expect(orphan).not_to be_valid
     end
 
-    # User is paranoid, so without `with_deleted` a departed quartermaster's
-    # counts would render unattributed — the one thing history exists to show.
     it 'still names a user who has since been deleted' do
       transaction
       user.destroy

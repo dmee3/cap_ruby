@@ -80,8 +80,6 @@ RSpec.describe 'Api::Inventory::Items', type: :request do
         expect(response.parsed_body['errors']).to be_present
       end
 
-      # The old action discarded @item.update's return value and returned true
-      # unconditionally, so a rejected change still logged and still emailed.
       it 'writes no transaction and leaves the quantity alone' do
         expect do
           patch "/api/inventory/categories/#{category.id}/items/#{item.id}",
@@ -134,8 +132,6 @@ RSpec.describe 'Api::Inventory::Items', type: :request do
     end
   end
 
-  # Until Flow 8 the api/inventory namespace had no authorization at all: the
-  # HTML screens were guarded but the endpoint that mutates stock was not.
   describe 'authorization' do
     let(:member) { create(:user, inventory_access: false) }
     let(:quartermaster) { create(:user, inventory_access: true) }

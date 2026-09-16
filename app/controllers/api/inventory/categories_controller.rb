@@ -28,8 +28,8 @@ module Api
 
       private
 
-      # The FK from inventory_items already refuses this at the database, so the
-      # check is about giving the UI a sentence rather than a 500.
+      # The FK from inventory_items refuses this at the database anyway; the
+      # check turns that into a sentence rather than a 500.
       def render_not_empty
         count = @category.items.count
         render json: {

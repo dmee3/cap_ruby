@@ -20,11 +20,9 @@
 #
 module Inventory
   class Transaction < ApplicationRecord
-    # with_deleted: every row has a user_id and always has, but User is
-    # paranoid — without this a departed quartermaster's counts would show up
-    # unattributed, which is the one thing the history screen exists to show.
+    # with_deleted on both: User and Item are paranoid, and history has to keep
+    # naming a departed quartermaster and a deleted item.
     belongs_to :user, -> { with_deleted }
-    # with_deleted: an item's history outlives the item's soft delete.
     belongs_to :item, -> { with_deleted }, class_name: 'Inventory::Item',
                                            foreign_key: :inventory_item_id
 

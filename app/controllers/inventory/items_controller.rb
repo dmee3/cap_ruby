@@ -32,8 +32,8 @@ module Inventory
 
     private
 
-    # The opening balance is a change like any other, and a trail whose first
-    # number appears from nowhere is the gap this screen exists to close.
+    # The opening balance is a change like any other, so the history trail's
+    # first row isn't a number that appears from nowhere.
     def log_first_count
       Inventory::Transaction.create!(
         change: @item.quantity,

@@ -185,9 +185,9 @@ RSpec.describe 'Inventory Access Control', type: :request do
     end
   end
 
-  # Destroy is new in Flow 8. Items and categories follow InventoryController
-  # (admin / coordinator / quartermaster); email rules keep the extra
-  # admin-or-coordinator guard the rest of that screen already has.
+  # Items and categories follow InventoryController (admin / coordinator /
+  # quartermaster); email rules keep the extra admin-or-coordinator guard the
+  # rest of that screen already has.
   describe 'Destroy permissions' do
     let(:item) do
       Inventory::Item.create(name: 'Snare sticks', quantity: 42, inventory_category_id: category.id)

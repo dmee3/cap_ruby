@@ -23,9 +23,7 @@ module Inventory
       end
     end
 
-    # Only when empty, so nobody wipes a shelf of gear with one tap. The FK from
-    # inventory_items enforces this at the database too; the check is here to
-    # give a sentence rather than a 500.
+    # Only when empty, so nobody wipes a shelf of gear with one tap.
     def destroy
       count = @category.items.count
       if count.positive?

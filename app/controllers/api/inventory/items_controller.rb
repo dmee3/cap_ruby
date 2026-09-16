@@ -13,8 +13,8 @@ module Api
           render json: { errors: @item.errors.full_messages }, status: :unprocessable_entity
         end
       rescue StandardError => e
-        # Rollbar keeps the genuine exceptions; a validation failure is not one
-        # and no longer takes this path.
+        # Validation failures render 422 above, so anything reaching here is a
+        # genuine exception worth reporting.
         Rollbar.error(e)
         render json: { errors: ['Something went wrong saving that count.'] },
                status: :internal_server_error
@@ -28,10 +28,9 @@ module Api
 
       private
 
-      # The stock list computes its own arithmetic (an adjustment is a delta,
-      # never an absolute), so it also tells us what it counted from. If the
-      # shelf moved underneath it — two quartermasters counting at once — the
-      # write is refused rather than silently overwriting the other count.
+      # The client computes the new quantity from a count it read earlier, so it
+      # sends that base back. Two quartermasters counting one shelf would
+      # otherwise have the slower save silently overwrite the faster one.
       def stale_base?
         expected = expected_previous_quantity
         return false if expected.nil?
@@ -58,10 +57,6 @@ module Api
         saved = false
         ActiveRecord::Base.transaction do
           old_quantity = @item.quantity
-          # The return value used to be discarded and the method returned true
-          # unconditionally, so a rejected update answered 200 and still wrote a
-          # transaction and fired low-stock emails for a change that never
-          # persisted.
           saved = @item.update(item_params)
           raise ActiveRecord::Rollback unless saved
 

@@ -27,9 +27,8 @@ module Inventory
 
     def edit; end
 
-    # Reached only from inside the edit form, so a delete always follows a
-    # deliberate open. A rule is configuration: deleting it stops the emails and
-    # leaves the count and its history untouched.
+    # Linked only from inside the edit form, so a delete always follows a
+    # deliberate open rather than sitting next to a list row.
     def destroy
       @rule.destroy
       flash[:success] = 'Deleted alert'
