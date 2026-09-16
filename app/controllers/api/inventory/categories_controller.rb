@@ -4,8 +4,18 @@ module Api
   module Inventory
     class CategoriesController < Api::InventoryController
       def index
-        @categories = ::Inventory::Category.includes(:items).all
-        render json: @categories.to_json(include: :items)
+        render json: ::Inventory::StockListPresenter.call(manage_alerts: manage_alerts?)
+      end
+
+      def create
+        @category = ::Inventory::Category.new(category_params)
+        if @category.save
+          render json: { id: @category.id, name: @category.name, item_count: 0, items: [] },
+                 status: :created
+        else
+          render json: { errors: @category.errors.full_messages },
+                 status: :unprocessable_entity
+        end
       end
 
       def update
@@ -27,6 +37,13 @@ module Api
       end
 
       private
+
+      # Alerts are the one screen inside a granted feature that a quartermaster
+      # member still can't reach, so the list hides the links rather than
+      # offering a route to a redirect.
+      def manage_alerts?
+        %w[admin coordinator].include?(current_user_role)
+      end
 
       # The FK from inventory_items refuses this at the database anyway; the
       # check turns that into a sentence rather than a 500.

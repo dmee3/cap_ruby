@@ -1,25 +1,22 @@
 import React from 'react'
-import { render } from 'react-dom'
-import { PlusSmallIcon } from '@heroicons/react/24/outline'
-import InventoryList from '../../../react/widgets/inventory/InventoryList'
+import { createRoot } from 'react-dom/client'
+import StockList from '../../../react/widgets/inventory/StockList'
 
-const Inventory = () => {
-  render(
-    <div className="flex flex-col">
-      <div className="flex flex-row items-center justify-between mt-4 mb-2">
-        <h1 className="m-0">Inventory</h1>
-        <div className="shrink">
-          <a href="/inventory/categories/new" className="btn-green btn-lg">
-            <PlusSmallIcon className="mr-2 h-6 w-6" />
-            Category
+const mount = document.getElementById('inventory')
+
+if (mount) {
+  createRoot(mount).render(
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="m-0 text-h1 text-primary">Stock</h1>
+        <div className="flex items-center gap-2">
+          <a href="/inventory/categories/new" className="btn-secondary btn-lg">
+            Add category
           </a>
         </div>
       </div>
 
-      <InventoryList />
+      <StockList />
     </div>,
-    document.getElementById('inventory')
   )
 }
-
-Inventory()

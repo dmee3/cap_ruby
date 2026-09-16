@@ -25,17 +25,22 @@ module Inventory
     belongs_to :inventory_item, class_name: 'Inventory::Item', foreign_key: :inventory_item_id
 
     def notify_if_applicable(qty)
-      case operator.to_sym
-      when :eq
-        notify if qty == threshold
-      when :lt
-        notify if qty < threshold
-      when :lt_eq
-        notify if qty <= threshold
-      when :gt
-        notify if qty > threshold
-      when :gt_eq
-        notify if qty >= threshold
+      notify if applies_to?(qty)
+    end
+
+    # The same question without the side effect: the stock list has to show
+    # which items are under their alert, and asking by calling the notifying
+    # version would email everyone on page load.
+    def applies_to?(qty)
+      return false if qty.nil? || threshold.nil?
+
+      case operator.to_s
+      when 'eq' then qty == threshold
+      when 'lt' then qty < threshold
+      when 'lt_eq' then qty <= threshold
+      when 'gt' then qty > threshold
+      when 'gt_eq' then qty >= threshold
+      else false
       end
     end
 
