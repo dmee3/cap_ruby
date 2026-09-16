@@ -314,6 +314,40 @@ RSpec.describe 'Inventory Access Control', type: :request do
     end
   end
 
+  describe 'Item history' do
+    let(:admin_user) { create(:user) }
+    let(:item) do
+      Inventory::Item.create!(name: 'Snare sticks', quantity: 42, inventory_category_id: category.id)
+    end
+
+    before do
+      create(:seasons_user, user: admin_user, season: season, role: 'admin')
+      sign_in admin_user
+      cookies[:cap_season_id] = season.id
+    end
+
+    it 'renders the trail with the counter named' do
+      Inventory::Transaction.create!(
+        inventory_item_id: item.id, user_id: admin_user.id,
+        change: -6, previous_quantity: 48, performed_on: Date.today
+      )
+
+      get "/inventory/categories/#{category.id}/items/#{item.id}"
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include(admin_user.full_name)
+    end
+
+    # '<%=' would double-escape the blob and the widget would never mount.
+    it 'embeds the payload as parseable JSON' do
+      get "/inventory/categories/#{category.id}/items/#{item.id}"
+
+      blob = response.body[/window\.itemHistory = (.*?);/m, 1]
+      expect { JSON.parse(blob) }.not_to raise_error
+      expect(JSON.parse(blob).dig('item', 'name')).to eq('Snare sticks')
+    end
+  end
+
   describe 'Unauthenticated users' do
     it 'redirects to login for inventory pages' do
       get '/inventory/categories'

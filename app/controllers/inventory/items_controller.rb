@@ -5,7 +5,12 @@ module Inventory
     before_action :set_category
     before_action :set_item, only: %i[show destroy]
 
-    def show; end
+    def show
+      @history = ItemHistoryPresenter.call(
+        item: @item,
+        manage_alerts: %w[admin coordinator].include?(current_user_role)
+      )
+    end
 
     def new
       @item = Item.new
