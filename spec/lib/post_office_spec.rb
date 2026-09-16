@@ -81,10 +81,8 @@ RSpec.describe PostOffice do
     end
   end
 
-  # PostOffice talks to Mailgun directly, bypassing ActionMailer and therefore
-  # MailerInterceptor, so Mailgun's test mode is the only safeguard on this path
-  # — and it used to key on Rails.env.production?, which is true on staging
-  # (cap_ruby-b3a.31). EmailService routes whistleblower reports through here.
+  # Mailgun's test mode is the only safeguard on this path: PostOffice bypasses
+  # ActionMailer and therefore MailerInterceptor.
   describe 'test mode by deploy environment' do
     let(:fake_client) { instance_double(Mailgun::Client) }
 
@@ -93,8 +91,6 @@ RSpec.describe PostOffice do
       allow(fake_client).to receive(:send_message)
     end
 
-    # Env is stubbed, not read, so the result is the same with or without a
-    # local .env.
     def stub_staging(value)
       allow(ENV).to receive(:[]).and_call_original
       allow(ENV).to receive(:[]).with('STAGING').and_return(value)
@@ -126,8 +122,6 @@ RSpec.describe PostOffice do
       end
     end
 
-    # Never previously tested, and the reason this bug existed: staging is
-    # RAILS_ENV=production with STAGING set.
     context 'on staging (production Rails env with STAGING set)' do
       before do
         in_rails_env('production')

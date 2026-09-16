@@ -11,8 +11,6 @@ RSpec.describe MailerInterceptor do
     )
   end
 
-  # Both env inputs are stubbed, never read, so these pass identically with and
-  # without a local .env — the trap that let a mail spec through CI in PR #242.
   def stub_env(staging: nil, email_dan: nil)
     allow(ENV).to receive(:[]).and_call_original
     allow(ENV).to receive(:fetch).and_call_original
@@ -39,9 +37,6 @@ RSpec.describe MailerInterceptor do
     end
   end
 
-  # The case that had never been tested, and the whole point of the fix: staging
-  # is RAILS_ENV=production with STAGING set, so it used to sail past the
-  # interceptor's Rails.env.production? guard and mail real members for real.
   context 'on staging (production Rails env with STAGING set)' do
     before { in_rails_env('production') }
 
@@ -70,9 +65,6 @@ RSpec.describe MailerInterceptor do
     context 'with EMAIL_DAN unset' do
       before { stub_env(staging: 'true', email_dan: nil) }
 
-      # Fails closed. There is nowhere safe to redirect to, and staging delivers
-      # through Mailgun for real, so the delivery is dropped rather than allowed
-      # to reach the real recipient.
       it 'suppresses the delivery entirely' do
         described_class.delivering_email(message)
 
@@ -105,10 +97,8 @@ RSpec.describe MailerInterceptor do
     context 'with EMAIL_DAN unset' do
       before { stub_env(staging: nil, email_dan: nil) }
 
-      # Deliberately different from staging: development delivers via
-      # :letter_opener, so nothing leaves the machine and suppressing would only
-      # break the local workflow of previewing mail. Blanking the recipient is
-      # what broke Devise's reset spec, so the address is left untouched.
+      # Deliberately unlike staging: :letter_opener sends nothing, and blanking
+      # the recipient is what broke Devise's reset spec.
       it 'leaves the recipient alone and still delivers' do
         described_class.delivering_email(message)
 
