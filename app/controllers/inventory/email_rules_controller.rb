@@ -25,11 +25,10 @@ module Inventory
     def create
       @rule = EmailRule.new(rule_params)
       if @rule.save
-        flash[:success] = 'Created rule'
+        flash[:success] = 'Added alert'
         redirect_to inventory_email_rules_path
       else
-        flash.now[:error] = @rule.errors.full_messages.to_sentence
-        render :new
+        render :new, status: :unprocessable_entity
       end
     end
 
@@ -45,11 +44,10 @@ module Inventory
 
     def update
       if @rule.update(rule_params)
-        flash[:success] = 'Updated rule'
+        flash[:success] = 'Saved alert'
         redirect_to inventory_email_rules_path
       else
-        flash.now[:error] = @rule.errors.full_messages.to_sentence
-        render :edit
+        render :edit, status: :unprocessable_entity
       end
     end
 

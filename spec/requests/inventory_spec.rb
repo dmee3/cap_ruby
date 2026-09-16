@@ -306,11 +306,14 @@ RSpec.describe 'Inventory Access Control', type: :request do
       expect(transaction.user).to eq(admin_user)
     end
 
-    it 'shows validation errors as a sentence rather than an array' do
+    it 'says what to fix and keeps what was typed' do
       post "/inventory/categories/#{category.id}/items",
            params: { inventory_item: { name: '', quantity: -1 } }
 
-      expect(flash[:error]).to be_a(String)
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.body).to include('things to fix').or include('thing to fix')
+      # The form repopulates rather than resetting to blank.
+      expect(response.body).to include('value="-1"')
     end
   end
 
