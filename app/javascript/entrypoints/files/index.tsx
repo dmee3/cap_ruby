@@ -6,5 +6,9 @@ const el = document.getElementById('files')
 
 if (el) {
   const season = el.dataset.season
-  render(<FilesList expanded seasonLabel={season ? `the ${season} season` : undefined} />, el)
+  const limit = el.dataset.limit ? Number(el.dataset.limit) : undefined
+  render(
+    <FilesList expanded seasonLabel={season ? `the ${season} season` : undefined} limit={limit} />,
+    el
+  )
 }
