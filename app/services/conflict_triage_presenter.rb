@@ -42,16 +42,20 @@ class ConflictTriagePresenter
     # The triage queue groups by the date the conflict falls on, soonest first —
     # a coordinator works through "what's coming up", not "whose is this".
     # Each row still names its member, since the group header no longer does.
+    #
+    # `attribution: false` skips the Activity lookup outright, for read-only
+    # audiences who see where a decision landed but not who made it (Flow 10).
     sig do
       params(
         conflicts: T::Enumerable[Conflict],
         season_id: Integer,
-        viewer: T.nilable(User)
+        viewer: T.nilable(User),
+        attribution: T::Boolean
       ).returns(T::Array[T::Hash[Symbol, T.untyped]])
     end
-    def date_groups_for(conflicts, season_id, viewer = nil)
+    def date_groups_for(conflicts, season_id, viewer = nil, attribution: true)
       conflicts = conflicts.to_a
-      attributions = attributions_for(conflicts, viewer)
+      attributions = attribution ? attributions_for(conflicts, viewer) : {}
 
       conflicts
         .group_by { |conflict| conflict.start_date.to_date }
