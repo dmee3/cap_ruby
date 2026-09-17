@@ -30,6 +30,12 @@ export type DashboardBlankScheduleMember = {
   schedule_edit_path: string | null
 }
 
+export type DashboardWhistleblowerCoverage = {
+  count: number
+  threshold: number
+  users_path: string
+}
+
 export type DashboardConflict = {
   id: number
   member: string
@@ -59,6 +65,7 @@ type AdminDashboardProps = {
   recentPayments: DashboardRecentPayment[]
   blankScheduleMembers: DashboardBlankScheduleMember[]
   conflictsToReview: DashboardConflict[]
+  whistleblowerCoverage: DashboardWhistleblowerCoverage
 }
 
 /** Whole dollars, no cents — headline figures never show cents. */
@@ -79,6 +86,19 @@ const fmtLong = (iso: string) =>
     day: 'numeric',
     year: '2-digit',
   })
+
+// A report is meant to reach several people so no single one decides what
+// happens to it. Below the target the form silently asks for fewer picks
+// instead of refusing, so the dashboard is the only place that says so.
+const recipientAlertBody = (count: number, threshold: number) => {
+  if (count === 0) {
+    return 'Reports cannot be submitted until someone is flagged as a recipient.'
+  }
+  if (count < threshold) {
+    return `Reports are meant to reach ${threshold} people; right now the form can only ask for ${count}.`
+  }
+  return `Reports reach all ${threshold}, so losing one person drops coverage below the intended ${threshold}.`
+}
 
 const rowLink =
   'flex items-center gap-3 px-4 py-3 no-underline transition hover:bg-sunken'
@@ -101,9 +121,14 @@ const AdminDashboard = ({
   recentPayments,
   blankScheduleMembers,
   conflictsToReview,
+  whistleblowerCoverage,
 }: AdminDashboardProps) => {
   const [range, setRange] = useState<Range>('season-to-date')
-  const [dismissedAlert, setDismissedAlert] = useState(false)
+  const [dismissedScheduleAlert, setDismissedScheduleAlert] = useState(false)
+  const [dismissedRecipientAlert, setDismissedRecipientAlert] = useState(false)
+
+  const { count: wbCount, threshold: wbThreshold } = whistleblowerCoverage
+  const showRecipientAlert = wbCount <= wbThreshold && !dismissedRecipientAlert
 
   const scheduled = sliceRange(burndown.scheduled, range, burndown.today)
   const actual = sliceRange(burndown.actual, range, burndown.today)
@@ -112,18 +137,39 @@ const AdminDashboard = ({
 
   return (
     <div className="flex flex-col gap-5">
-      {blankScheduleMembers.length > 0 && !dismissedAlert && (
+      {blankScheduleMembers.length > 0 && !dismissedScheduleAlert && (
         <AlertBanner
           headline={`${blankScheduleMembers.length} ${
             blankScheduleMembers.length === 1 ? 'member has' : 'members have'
           } no payment schedule`}
           body="They're missing from the burndown and won't be flagged as behind."
-          onDismiss={() => setDismissedAlert(true)}
+          onDismiss={() => setDismissedScheduleAlert(true)}
           actions={blankScheduleMembers.map((m) => ({
             label: m.name,
             meta: m.meta,
             href: m.schedule_edit_path ?? '#',
           }))}
+        />
+      )}
+
+      {showRecipientAlert && (
+        <AlertBanner
+          tone={wbCount < wbThreshold ? 'danger' : 'warning'}
+          headline={
+            wbCount === 0
+              ? 'Nobody can receive a whistleblower report'
+              : `${wbCount} ${wbCount === 1 ? 'person' : 'people'} can receive a whistleblower report`
+          }
+          body={recipientAlertBody(wbCount, wbThreshold)}
+          onDismiss={() => setDismissedRecipientAlert(true)}
+          actions={[
+            {
+              label: 'Whistleblower recipients',
+              meta: `${wbCount} of ${wbThreshold}`,
+              href: whistleblowerCoverage.users_path || '#',
+              linkLabel: 'Manage users',
+            },
+          ]}
         />
       )}
 

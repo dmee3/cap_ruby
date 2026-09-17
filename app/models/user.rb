@@ -189,17 +189,20 @@ class User < ApplicationRecord
     inventory_access
   end
 
+  # How many recipients a report should reach: enough that no one person
+  # decides what happens to it.
+  WHISTLEBLOWER_TARGET = 3
+
   # Ordered by name because the whistleblower picker is a list someone reads
   # under stress and chooses three from.
   scope :whistleblower_recipients, lambda {
     where(whistleblower_recipient: true).order(:first_name, :last_name)
   }
 
-  # How many recipients a report must reach. Three keeps any one person from
-  # deciding what happens to it, but a pool smaller than three would otherwise
-  # make the form unsubmittable, so the floor drops to the whole pool.
+  # A pool smaller than the target would otherwise make the form
+  # unsubmittable, so the floor drops to the whole pool.
   def self.whistleblower_minimum
-    [whistleblower_recipients.count, 3].min
+    [whistleblower_recipients.count, WHISTLEBLOWER_TARGET].min
   end
 
   def welcome

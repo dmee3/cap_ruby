@@ -23,6 +23,7 @@ module Admin
       @recent_payments = recent_payment_rows(season_id)
       @blank_schedule_members = blank_schedule_members(season_id)
       @conflicts_to_review = conflicts_to_review(season_id)
+      @whistleblower_coverage = whistleblower_coverage
     end
 
     private
@@ -62,6 +63,19 @@ module Admin
           schedule_edit_path: schedule && edit_admin_payment_schedule_path(schedule)
         }
       end
+    end
+
+    # A report has to reach somebody. `whistleblower_minimum` caps the required
+    # picks at however many recipients exist, so a thin roster doesn't block the
+    # form — it quietly lowers the bar instead, and nothing else says so.
+    def whistleblower_coverage
+      count = User.whistleblower_recipients.count
+
+      {
+        count: count,
+        threshold: User::WHISTLEBLOWER_TARGET,
+        users_path: admin_users_path
+      }
     end
 
     # Pending conflicts still ahead of us — the "needs a decision" queue, in the
