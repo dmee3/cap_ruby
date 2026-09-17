@@ -13,6 +13,8 @@ type FilesListProps = {
   expanded: boolean
   /** The season the list is scoped to, for the empty state's sentence. */
   seasonLabel?: string
+  /** Caps a dashboard peek at a few rows; /files itself passes nothing. */
+  limit?: number
 }
 
 type Status = 'loading' | 'ready' | 'error' | 'unconfigured'
@@ -31,7 +33,7 @@ const SkeletonRow = () => (
   </li>
 )
 
-const FilesList = ({ folderId, expanded, seasonLabel }: FilesListProps) => {
+const FilesList = ({ folderId, expanded, seasonLabel, limit }: FilesListProps) => {
   const [files, setFiles] = useState<DriveFile[]>([])
   const [status, setStatus] = useState<Status>('loading')
 
@@ -112,9 +114,11 @@ const FilesList = ({ folderId, expanded, seasonLabel }: FilesListProps) => {
     )
   }
 
+  const shown = limit ? files.slice(0, limit) : files
+
   return (
     <ul className="divide-y divide-border-default">
-      {files.map(file => (
+      {shown.map(file => (
         <li key={file.id}>
           <FilesListItem fileType={file.fileType} id={file.id} name={file.name} />
         </li>

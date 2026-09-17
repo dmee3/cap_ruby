@@ -1,39 +1,37 @@
+<% content_for :page_title, 'Dashboard' %>
 <%= vite_typescript_tag 'entrypoints/files/index.tsx' %>
+<%= vite_typescript_tag 'entrypoints/staff/index.tsx' %>
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-  <div class="md:col-span-3 lg:order-2 space-y-4">
-    <div class="card-flat hidden lg:block">
-      <div class="card-title">FILES</div>
-      <div id="files"></div>
-    </div>
+<div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-5">
+  <h1 class="m-0 text-h3 text-primary">Dashboard</h1>
+  <span class="text-body-sm text-secondary"><%= "#{current_season['year']} season" %></span>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div class="lg:col-span-2">
+    <div
+      id="staff-conflicts"
+      data-groups="<%= @date_groups.to_json %>"
+      data-out-count="<%= @out_count %>"
+      data-window-label="<%= @window_label %>"
+    ></div>
   </div>
 
-  <div class="md:col-span-2">
-    <div class="card-flat card--danger">
-      <div class="flex flex-col">
-        <div class="card-title text-danger-fg">UPCOMING CONFLICTS</div>
-        <% if @upcoming_conflicts.present? %>
-          <ul class="divide-y divide-border-default">
-            <% @upcoming_conflicts.each do |c| %>
-              <li class="flex flex-col py-2">
-                <div class="flex justify-between items-center">
-                  <%= c.user.full_name %>
-                  <%= render 'conflict_status_icon', status: c.status %>
-                </div>
-                <div class="mx-6 mt-0 mb-2 text-sm flex flex-col text-secondary">
-                  <% if c.start_date.day == c.end_date.day %>
-                    <%= c.start_date.strftime('%a, %-m/%-d %l:%M %p') %> to <%= c.end_date.strftime('%l:%M %p') %>
-                  <% else %>
-                    <%= c.start_date.strftime('%a, %-m/%-d %l:%M %p') %> to<br/><%= c.end_date.strftime('%a, %-m/%-d %l:%M %p') %>
-                  <% end %>
-                </div>
-              </li>
-            <% end %>
-          </ul>
-        <% else %>
-          <span class="text-metric font-mono text-secondary">None</span>
-        <% end %>
+  <div class="flex flex-col gap-4">
+    <div class="bg-surface border border-border-default rounded-md overflow-hidden">
+      <div class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1 border-b border-border-default px-4 py-3.5">
+        <span class="text-h3 text-primary">Season files</span>
+        <%= link_to 'All files', files_path, class: 'link text-body-sm ml-auto shrink-0' %>
       </div>
+      <div id="files" data-season="<%= current_season['year'] %>" data-limit="3"></div>
+    </div>
+
+    <div class="card flex flex-col gap-1.5">
+      <span class="text-body font-semibold text-primary">Something feels wrong?</span>
+      <span class="text-body-sm text-secondary">
+        You can report a concern without your name attached.
+      </span>
+      <%= link_to 'Report a concern', whistleblowers_path, class: 'link text-body-sm mt-0.5 self-start' %>
     </div>
   </div>
 </div>

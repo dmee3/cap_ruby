@@ -91,4 +91,20 @@ describe('FilesList', () => {
     expect(container.textContent).not.toMatch(/Drive/i)
     expect(screen.getByText('Open')).toBeInTheDocument()
   })
+
+  it('shows only the first few rows when a dashboard asks for a peek', async () => {
+    vi.mocked(fetch).mockReturnValue(
+      jsonResponse([
+        { id: '1', name: 'Drill Charts', file_type: 'folder' },
+        { id: '2', name: 'Show Music.pdf', file_type: 'pdf' },
+        { id: '3', name: 'Rehearsal Schedule.xlsx', file_type: 'sheet' },
+        { id: '4', name: 'Uniform Sizes.xlsx', file_type: 'sheet' }
+      ])
+    )
+
+    render(<FilesList expanded limit={3} />)
+
+    await waitFor(() => expect(screen.getByText('Drill Charts')).toBeInTheDocument())
+    expect(screen.queryByText('Uniform Sizes.xlsx')).not.toBeInTheDocument()
+  })
 })
