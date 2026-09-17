@@ -144,15 +144,7 @@ module Admin
     end
 
     def burndown_chart
-      season_id = current_season['id']
-      render(
-        json: {
-          scheduled: DashboardUtilities.season_scheduled_series(season_id),
-          actual: DashboardUtilities.season_actual_series(season_id),
-          today: Date.current.iso8601,
-          currency: 'USD'
-        }
-      )
+      render(json: DashboardUtilities.burndown_payload(current_season['id']))
     end
 
     private

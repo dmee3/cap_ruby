@@ -7,11 +7,26 @@ let instanceSeq = 0
 /** [ISO date, dollars] — cumulative, already summed server-side. */
 export type BurndownPoint = [string, number]
 
+/** Payments that landed after the collected line stops (a past season's stragglers). */
+export type AfterCutoff = {
+  cents: number
+  count: number
+  after: string | null
+}
+
 type BurndownChartProps = {
   scheduled: BurndownPoint[]
   actual: BurndownPoint[]
   /** ISO date of "today" — where the dashed rule and the collected line end. */
   today: string
+  /**
+   * ISO date where the collected line actually stops. Equal to `today` while
+   * the season runs; the last due date once it has ended, so a past season's
+   * marker reads as the season's end rather than a "Today" pinned to the edge.
+   */
+  asOf?: string
+  /** Late money, summarised below the plot instead of stretching the x-axis. */
+  afterCutoff?: AfterCutoff
   currency?: string
   /** Optional href for the no-data state's "set up schedules" link. */
   setupHref?: string
@@ -48,6 +63,8 @@ const BurndownChart = ({
   scheduled,
   actual,
   today,
+  asOf,
+  afterCutoff,
   currency = 'USD',
   setupHref = '/admin/users',
   showCaption = true,
@@ -94,13 +111,17 @@ const BurndownChart = ({
   // Behind-schedule band: between the two lines, over the range the collected
   // line covers, only where collected trails scheduled.
   const behindArea = buildBehindArea(scheduled, actual, x, y)
-  // Measure the shortfall AS OF TODAY, not as of the last weekly sample —
-  // otherwise an installment falling between the last sample and today makes
-  // this disagree with the "expected by today" stat card, and can even flip
-  // its sign.
-  const behindCents = lastActual ? valueAt(scheduled, today) - valueAt(actual, today) : 0
+  // The marker date: today mid-season, the season's end once it has passed.
+  // Falling back to `today` keeps this working for callers that predate `asOf`.
+  const markerIso = asOf ?? today
+  const ended = markerIso < today
+  // Measure the shortfall AS OF THE MARKER, not as of the last weekly sample —
+  // otherwise an installment falling between the last sample and the marker
+  // makes this disagree with the "expected by today" stat card, and can even
+  // flip its sign.
+  const behindCents = lastActual ? valueAt(scheduled, markerIso) - valueAt(actual, markerIso) : 0
 
-  const todayX = x(clampIso(today, allDates[0], allDates[allDates.length - 1]))
+  const markerX = x(clampIso(markerIso, allDates[0], allDates[allDates.length - 1]))
   const gridValues = [0, axisMax / 3, (axisMax * 2) / 3, axisMax]
 
   return (
@@ -125,7 +146,7 @@ const BurndownChart = ({
         role="img"
         aria-label={`Dues collected against plan. ${
           behindCents > 0
-            ? `${fmtMoney(behindCents, currency)} behind schedule as of ${fmtLong(today)}.`
+            ? `${fmtMoney(behindCents, currency)} behind schedule as of ${fmtLong(markerIso)}.`
             : 'Collections are keeping pace with the plan.'
         }`}
       >
@@ -190,8 +211,8 @@ const BurndownChart = ({
         )}
 
         <line
-          x1={todayX}
-          x2={todayX}
+          x1={markerX}
+          x2={markerX}
           y1={PLOT.top - 6}
           y2={PLOT.bottom}
           className="stroke-secondary"
@@ -199,13 +220,13 @@ const BurndownChart = ({
           strokeDasharray="3 3"
         />
         <text
-          x={todayX}
+          x={markerX}
           y={PLOT.top - 12}
-          textAnchor="middle"
+          textAnchor={ended ? 'end' : 'middle'}
           className="fill-primary"
           style={{ fontSize: 11, fontWeight: 600 }}
         >
-          Today
+          {ended ? 'Season end' : 'Today'}
         </text>
 
         <text x={PLOT.left} y={PLOT.bottom + 18} className="fill-secondary font-mono" style={{ fontSize: 11 }}>
@@ -228,14 +249,27 @@ const BurndownChart = ({
             <span className="text-body font-semibold text-danger-fg">
               {fmtMoney(behindCents, currency)} short of the plan
             </span>
-            <span className="text-body-sm text-secondary">as of {fmtLong(today)}.</span>
+            <span className="text-body-sm text-secondary">as of {fmtLong(markerIso)}.</span>
           </>
         ) : (
           <span className="text-body-sm text-secondary">
-            Collections are keeping pace with the plan as of {fmtLong(today)}.
+            Collections are keeping pace with the plan as of {fmtLong(markerIso)}.
           </span>
         )}
       </p>
+
+      {/* Shown even when the caption is off: this money is genuinely absent
+          from the plot, so nothing else on the card accounts for it. */}
+      {afterCutoff && afterCutoff.count > 0 && (
+        <p className="m-0 text-body-sm text-secondary">
+          Collected after the season:{' '}
+          <span className="font-semibold text-primary">
+            {fmtMoney(afterCutoff.cents / 100, currency)}
+          </span>{' '}
+          ({afterCutoff.count} {afterCutoff.count === 1 ? 'payment' : 'payments'}
+          {afterCutoff.after ? ` after ${fmtTick(afterCutoff.after)}` : ''}), not plotted.
+        </p>
+      )}
     </div>
   )
 }

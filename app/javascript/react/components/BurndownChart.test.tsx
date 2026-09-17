@@ -70,4 +70,60 @@ describe('BurndownChart', () => {
     render(<BurndownChart scheduled={scheduled} actual={actual} today="2026-01-18" />)
     expect(screen.getByText('Today')).toBeInTheDocument()
   })
+
+  it('marks the season end instead of today once the season has passed', () => {
+    render(
+      <BurndownChart scheduled={scheduled} actual={actual} today="2026-09-17" asOf="2026-01-25" />,
+    )
+    expect(screen.getByText('Season end')).toBeInTheDocument()
+    expect(screen.queryByText('Today')).not.toBeInTheDocument()
+  })
+
+  it('measures the shortfall as of the season end, not as of today', () => {
+    render(
+      <BurndownChart scheduled={scheduled} actual={actual} today="2026-09-17" asOf="2026-01-18" />,
+    )
+    expect(screen.getByText('$200 short of the plan')).toBeInTheDocument()
+  })
+
+  it('footnotes money collected after the season rather than plotting it', () => {
+    render(
+      <BurndownChart
+        scheduled={scheduled}
+        actual={actual}
+        today="2026-09-17"
+        asOf="2026-01-25"
+        afterCutoff={{ cents: 331_500, count: 8, after: '2026-01-25' }}
+      />,
+    )
+    expect(screen.getByText(/Collected after the season/)).toBeInTheDocument()
+    expect(screen.getByText('$3,315')).toBeInTheDocument()
+    expect(screen.getByText(/8 payments/)).toBeInTheDocument()
+  })
+
+  it('keeps the after-season footnote visible when the caption is hidden', () => {
+    render(
+      <BurndownChart
+        scheduled={scheduled}
+        actual={actual}
+        today="2026-09-17"
+        asOf="2026-01-25"
+        showCaption={false}
+        afterCutoff={{ cents: 331_500, count: 8, after: '2026-01-25' }}
+      />,
+    )
+    expect(screen.getByText(/Collected after the season/).closest('p')).not.toHaveClass('hidden')
+  })
+
+  it('omits the footnote when nothing landed after the season', () => {
+    render(
+      <BurndownChart
+        scheduled={scheduled}
+        actual={actual}
+        today="2026-01-18"
+        afterCutoff={{ cents: 0, count: 0, after: '2026-01-25' }}
+      />,
+    )
+    expect(screen.queryByText(/Collected after the season/)).not.toBeInTheDocument()
+  })
 })

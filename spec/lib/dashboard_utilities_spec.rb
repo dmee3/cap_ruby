@@ -207,6 +207,20 @@ RSpec.describe DashboardUtilities do
         expect(described_class.season_actual_series(future.id)).to eq([])
       end
 
+      it 'stops at the last due date for a season that has already ended' do
+        past = create(:season, year: '2019')
+        pu = create(:user)
+        create(:seasons_user, user: pu, season: past, role: 'member')
+        ps = create(:payment_schedule, season: past, user: pu)
+        last_due = Date.new(2019, 4, 11)
+        create(:payment_schedule_entry, payment_schedule: ps, pay_date: Date.new(2019, 1, 12), amount: 30_000)
+        create(:payment_schedule_entry, payment_schedule: ps, pay_date: last_due, amount: 20_000)
+
+        series = described_class.season_actual_series(past.id)
+
+        expect(series.last.first).to eq(last_due.iso8601)
+      end
+
       it 'accumulates non-deleted payments and stops at today' do
         create(:payment, user: user, season: season, amount: 10_000, date_paid: week1 + 2.days)
         deleted = create(:payment, user: user, season: season, amount: 5000, date_paid: week1 + 2.days)
@@ -216,6 +230,70 @@ RSpec.describe DashboardUtilities do
 
         expect(series.map(&:first).max).to be <= Date.current.iso8601
         expect(series.find { |d, _| d == '2026-01-11' }&.last).to eq(100.0)
+      end
+    end
+
+    describe '.season_after_cutoff_payments' do
+      let(:past) { create(:season, year: '2019') }
+      let(:last_due) { Date.new(2019, 4, 11) }
+
+      before do
+        pu = create(:user)
+        create(:seasons_user, user: pu, season: past, role: 'member')
+        ps = create(:payment_schedule, season: past, user: pu)
+        create(:payment_schedule_entry, payment_schedule: ps, pay_date: Date.new(2019, 1, 12), amount: 30_000)
+        create(:payment_schedule_entry, payment_schedule: ps, pay_date: last_due, amount: 20_000)
+        @member = pu
+      end
+
+      it 'totals the payments that landed after the collected line stops' do
+        create(:payment, user: @member, season: past, amount: 20_000, date_paid: last_due - 5.days)
+        create(:payment, user: @member, season: past, amount: 25_000, date_paid: last_due + 3.days)
+        create(:payment, user: @member, season: past, amount: 8_500, date_paid: last_due + 18.days)
+
+        result = described_class.season_after_cutoff_payments(past.id)
+
+        expect(result).to eq(cents: 33_500, count: 2, after: last_due.iso8601)
+      end
+
+      it 'reports nothing when every payment landed inside the season' do
+        create(:payment, user: @member, season: past, amount: 20_000, date_paid: last_due - 5.days)
+
+        expect(described_class.season_after_cutoff_payments(past.id)).to include(cents: 0, count: 0)
+      end
+
+      it 'is empty for a season with no schedule entries' do
+        result = described_class.season_after_cutoff_payments(create(:season, year: '2088').id)
+
+        expect(result).to eq(cents: 0, count: 0, after: nil)
+      end
+    end
+
+    describe '.burndown_payload' do
+      it 'stops as_of at the last due date once the season has ended' do
+        past = create(:season, year: '2019')
+        pu = create(:user)
+        create(:seasons_user, user: pu, season: past, role: 'member')
+        ps = create(:payment_schedule, season: past, user: pu)
+        create(:payment_schedule_entry, payment_schedule: ps, pay_date: Date.new(2019, 4, 11), amount: 20_000)
+
+        payload = described_class.burndown_payload(past.id)
+
+        expect(payload[:as_of]).to eq('2019-04-11')
+        expect(payload[:today]).to eq(Date.current.iso8601)
+      end
+
+      it 'keeps as_of at today while the season is still running' do
+        running = create(:season, year: '2033')
+        ru = create(:user)
+        create(:seasons_user, user: ru, season: running, role: 'member')
+        rs = create(:payment_schedule, season: running, user: ru)
+        create(:payment_schedule_entry, payment_schedule: rs, pay_date: Date.current - 20.days, amount: 10_000)
+        create(:payment_schedule_entry, payment_schedule: rs, pay_date: Date.current + 40.days, amount: 10_000)
+
+        payload = described_class.burndown_payload(running.id)
+
+        expect(payload[:as_of]).to eq(Date.current.iso8601)
       end
     end
   end

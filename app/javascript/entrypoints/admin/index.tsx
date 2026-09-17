@@ -7,7 +7,7 @@ import AdminDashboard, {
   DashboardConflict,
   DashboardWhistleblowerCoverage,
 } from '../../react/widgets/admin/AdminDashboard'
-import { BurndownPoint } from '../../react/components/BurndownChart'
+import { AfterCutoff, BurndownPoint } from '../../react/components/BurndownChart'
 
 const el = document.getElementById('admin-dashboard')
 
@@ -35,6 +35,8 @@ if (el) {
         scheduled: BurndownPoint[]
         actual: BurndownPoint[]
         today: string
+        as_of?: string
+        after_cutoff?: AfterCutoff
         currency: string
       }>(d.burndown, {
         scheduled: [],
