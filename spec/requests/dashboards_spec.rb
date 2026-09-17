@@ -53,14 +53,10 @@ RSpec.describe 'Dashboard Data Accuracy', type: :request do
       )
     end
 
-    it 'titles the page "Where you stand" with the member details as a subline' do
+    it 'titles the page "Where you stand"' do
       get '/members'
 
       expect(response.body).to include('<h1 class="mb-0">Where you stand</h1>')
-      # Unescaped because Faker hands out surnames like O'Conner, which the view
-      # correctly renders as O&#39;Conner — comparing against the raw name made
-      # this spec a coin flip on the random order seed.
-      expect(CGI.unescapeHTML(response.body)).to include(member.full_name)
     end
 
     it 'shows the dues meter with real totals' do
