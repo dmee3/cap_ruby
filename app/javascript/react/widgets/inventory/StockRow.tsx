@@ -26,13 +26,16 @@ const StockRow = ({ item, saving, canManageAlerts, onCommit }: StockRowProps) =>
   return (
     <li
       className={[
-        'flex flex-wrap items-center gap-3 border-b border-border-default px-4 py-3 last:border-b-0',
+        // items-start, not items-center: the stepper grows downward when it
+        // surfaces Save/Cancel, and centring would slide the -/+ buttons up
+        // out from under the finger that just tapped one.
+        'flex flex-wrap items-start gap-3 border-b border-border-default px-4 py-3 last:border-b-0',
         ROW_TONE[item.status],
       ]
         .filter(Boolean)
         .join(' ')}
     >
-      <span className="flex min-w-0 flex-1 basis-[160px] flex-col">
+      <span className="flex min-h-[36px] min-w-0 flex-1 basis-[160px] flex-col justify-center gap-0.5">
         <span className="truncate text-body font-semibold text-primary">{item.name}</span>
         <span className="flex items-center gap-2 text-caption text-secondary">
           {item.status === 'out' && <span className="font-semibold text-danger-fg">Out of stock</span>}
@@ -58,7 +61,9 @@ const StockRow = ({ item, saving, canManageAlerts, onCommit }: StockRowProps) =>
       <a
         href={`/inventory/categories/${item.category_id}/items/${item.id}`}
         aria-label={`History for ${item.name}`}
-        className="inline-flex min-h-[44px] items-center rounded-sm px-2 text-body-sm text-accent-primary underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2"
+        // 44px tall for the thumb, pulled up 4px so that box centres on the
+        // stepper's 36px button line rather than on the whole expanded row.
+        className="my-[-4px] inline-flex h-[44px] items-center rounded-sm px-2 text-body-sm text-accent-primary underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2"
       >
         History
       </a>

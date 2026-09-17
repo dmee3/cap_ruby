@@ -197,4 +197,47 @@ describe('StockList', () => {
       expect(screen.getByText(/It's empty, so nothing else goes with it/)).toBeInTheDocument()
     })
   })
+
+  // jsdom has no layout engine, so these assert the structure that keeps the
+  // controls still rather than measured positions.
+  describe('the row while an adjustment is pending', () => {
+    it('keeps the stepper buttons in their own group, above the commit row', async () => {
+      mockFetch(() => ok(payload()))
+      render(<StockList />)
+
+      const plus = await screen.findByRole('button', { name: 'Add one Snare sticks' })
+      const group = plus.parentElement as HTMLElement
+
+      await userEvent.click(plus)
+
+      const save = screen.getByRole('button', { name: /Save \+1/ })
+
+      // Save lands in a sibling of the button group, never inside it, so the
+      // group's own height and the buttons' place in it do not change.
+      expect(group.contains(save)).toBe(false)
+      expect(group.contains(screen.getByRole('button', { name: 'Remove one Snare sticks' }))).toBe(true)
+      expect(group.compareDocumentPosition(save) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    })
+
+    it('anchors the row to the top so the row grows downward', async () => {
+      mockFetch(() => ok(payload()))
+      render(<StockList />)
+
+      const plus = await screen.findByRole('button', { name: 'Add one Snare sticks' })
+      const row = plus.closest('li') as HTMLElement
+
+      expect(row.className).toContain('items-start')
+      expect(row.className).not.toContain('items-center')
+    })
+
+    it('lines History up with the stepper rather than the whole expanded row', async () => {
+      mockFetch(() => ok(payload()))
+      render(<StockList />)
+
+      const history = await screen.findByRole('link', { name: 'History for Snare sticks' })
+
+      expect(history.className).toContain('h-[44px]')
+      expect(history.className).toContain('my-[-4px]')
+    })
+  })
 })
