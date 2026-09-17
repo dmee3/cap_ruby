@@ -1,10 +1,16 @@
 @layer components {
-  /* App shell. Sidebar is `bg-nav` (jet) in both themes as the brand anchor. */
+  /* App shell. Sidebar is `bg-nav` (jet) in both themes as the brand anchor.
+     No overflow here, and a z-index above the content column: the season
+     switcher's menu is a descendant wider than the sidebar, so overflow
+     clips it and sticky's stacking context lets the page paint over it.
+     Scrolling lives on .app-sidebar-scroll instead. */
   .app-sidebar {
     @apply hidden md:flex flex-col w-[220px] shrink-0 bg-nav text-flash
-           h-screen sticky top-0 p-2 overflow-y-auto
+           h-screen sticky top-0 z-30 p-2
            border-r border-border-default;
   }
+
+  .app-sidebar-scroll { @apply flex-1 min-h-0 flex flex-col overflow-y-auto; }
 
   .sidebar-logo { @apply flex items-center justify-center py-3 px-4; }
 
