@@ -191,19 +191,4 @@ RSpec.describe 'Admin::Payments', type: :request do
       expect(response.body).to include('id="edit-payment"')
     end
   end
-
-  describe 'GET /admin/payments/burndown-chart' do
-    it 'returns weekly season-scoped scheduled and actual series' do
-      schedule = create(:payment_schedule, season: season, user: member)
-      create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.new(2026, 1, 5), amount: 30_000)
-
-      get '/admin/payments/burndown-chart'
-
-      body = response.parsed_body
-      expect(body['scheduled']).to be_an(Array)
-      expect(body['actual']).to be_an(Array)
-      expect(body['today']).to eq(Date.current.iso8601)
-      expect(body['currency']).to eq('USD')
-    end
-  end
 end

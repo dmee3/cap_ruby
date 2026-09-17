@@ -143,10 +143,6 @@ module Admin
       render(json: { members: DashboardUtilities.behind_members(current_season['id']) })
     end
 
-    def burndown_chart
-      render(json: DashboardUtilities.burndown_payload(current_season['id']))
-    end
-
     private
 
     def payments_query_params

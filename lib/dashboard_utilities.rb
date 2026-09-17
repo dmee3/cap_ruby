@@ -96,9 +96,8 @@ class DashboardUtilities
       actual_points(sundays, payments)
     end
 
-    # Everything the burndown chart needs, in one shape. The admin dashboard
-    # renders it inline and the payments endpoint serves it as JSON; they drifted
-    # apart once already.
+    # Everything the burndown chart needs, in one shape, loading the frame once
+    # rather than once per series.
     def burndown_payload(season_id)
       sundays, entries, payments = burndown_frame(season_id)
       cutoff = sundays.empty? ? Date.current : actual_cutoff(sundays)
