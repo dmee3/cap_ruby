@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import AlertBanner from '../../components/AlertBanner'
+import CopyButton from '../../components/CopyButton'
 import EmptyState from '../../components/EmptyState'
 import Pill, { PillTone } from '../../components/Pill'
 import Skeleton from '../../components/Skeleton'
@@ -291,7 +292,10 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
                           <Pill tone="warning">No schedule</Pill>
                         )}
                       </div>
-                      <div className="text-body-sm text-secondary">{row.email}</div>
+                      <div className="flex items-center gap-1 text-body-sm text-secondary">
+                        <span className="truncate">{row.email}</span>
+                        <CopyButton value={row.email} label="Copy email" />
+                      </div>
                     </td>
                     {population === 'members' && (
                       <td className="px-4 py-2 text-body-sm text-primary">
@@ -330,7 +334,10 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
                       {row.vet ? ' · Vet' : ''}
                     </p>
                   )}
-                  <p className="m-0 mt-1 text-body-sm text-secondary">{row.email}</p>
+                  <p className="m-0 mt-1 flex items-center gap-1 text-body-sm text-secondary">
+                    <span className="truncate">{row.email}</span>
+                    <CopyButton value={row.email} label="Copy email" />
+                  </p>
                   {!row.has_schedule && row.role === 'member' && (
                     <Pill tone="warning" className="mt-2">No schedule</Pill>
                   )}
@@ -422,7 +429,10 @@ const OffRosterView = ({
                 <a href={`/admin/users/${row.id}`} className="text-body-sm font-semibold text-accent-primary">
                   {row.full_name}
                 </a>
-                <span className="text-body-sm text-secondary">{row.email}</span>
+                <span className="flex items-center gap-1 text-body-sm text-secondary">
+                  <span className="truncate">{row.email}</span>
+                  <CopyButton value={row.email} label="Copy email" />
+                </span>
               </div>
               <span className="ml-auto font-mono text-body-sm text-primary">
                 {dollars(row.paid_all_time_cents)} paid
