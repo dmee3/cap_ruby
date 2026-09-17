@@ -546,13 +546,59 @@ Building it on both.
 12. **No backfill** — Dan sets the flags manually, so the empty-pool state is a
     designed screen, not an edge case. §4.
 
-### Filed as beads rather than built
+### Fixed in this flow rather than filed
 
-- Rollbar `scrub_fields` for `:report` (§5) — filed, but small enough and close
-  enough to the brief's explicit anonymity instruction that it ships in this
-  flow rather than waiting.
+- Rollbar `scrub_fields` for `:report` (§5).
 - `BASE_DRIVE_FOLDER_ID_<year>` raising `KeyError` for an unconfigured season
-  (§7) — fixed alongside the Files error state, same code path.
-- `cc:` vs `bcc:` for report delivery (§6) — keeping `cc:` deliberately;
-  recorded rather than filed, since mutual visibility is part of what makes the
-  multi-recipient rule mean anything.
+  (§7), fixed alongside the Files error state — same code path.
+- `cc:` vs `bcc:` for report delivery (§6) — keeping `cc:` deliberately, since
+  mutual visibility is part of what makes the multi-recipient rule mean
+  anything.
+- Two smaller things found while building: `app/views/files/index.html.erb`
+  used `className` in an ERB template, so every utility class on the container
+  was inert; and `SettingsController` called the deprecated
+  `sign_in(user, bypass: true)`, which had been printing a Devise deprecation
+  warning on every test run.
+
+### Filed as beads
+
+- Whistleblower recipient **management view**, if the pool ever grows past what
+  the user edit form handles comfortably.
+- **Devise reset confirms whether an account exists** (`config.paranoid` is
+  off). Pre-existing, noticed while building the recovery screens; the Flow 9
+  copy already reads correctly for the paranoid behaviour, so only the config
+  would change. Left alone because it also removes a real signal for someone
+  who mistypes their own address.
+
+---
+
+## 11. What shipped
+
+Seven commits on `worktree-flow9-supporting-screens`, one per phase, each at a
+four-gate green checkpoint.
+
+1. **Chrome** — dark `bg.nav` to `bg.sunken` plus a 1px sidebar border;
+   nav active state resolved once across the whole set by deepest path prefix;
+   Inventory nav membership keyed on `inventory_access`. Closes `.14` and `.34`.
+2. **Auth** — §4.44 card family, recovery as a footer strip with an
+   accent-after-failure state, the error partial `sessions/new` never had, and
+   two screens that did not exist (check-your-email, expired link). Devise's
+   `shared/_links` deleted, four of its six branches being dead here.
+3. **Whistleblower backend** — the `whistleblower_recipient` flag, a pool that
+   ignores role and season, under-delivery raising rather than shrinking the
+   list, the Rollbar scrub, and the admin checkbox.
+4. **Whistleblower screen** — §4.43 picker, preamble moved into per-field help,
+   real per-field validation, a confirmation screen, and the empty-pool state.
+5. **Files** — the error state (a failed fetch used to shimmer forever), the
+   unconfigured-season path, MIME-aware type chips, and no mention of Drive.
+6. **Settings** — four byte-identical views collapsed to one, both `raw()`
+   calls gone, per-section errors, 422 on failure, phone editable, and
+   `devise.rb` levelled with the floor that actually applies.
+7. **Polish** — error summaries announced and tied to their fields.
+
+Final gates: **935 rspec** (green both with and without `.env`), **764 vitest**,
+**228 files rubocop clean**, vite build clean.
+
+**Still wants a human visual pass**, which is normal for this overhaul rather
+than a sign something is wrong. The light-mode sidebar gains a right border it
+did not have before, which is the most likely thing to want an opinion.
