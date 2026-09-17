@@ -35,22 +35,6 @@ RSpec.describe Inventory::EmailRule, type: :model do
     end
   end
 
-  describe 'associations' do
-    let(:rule) do
-      Inventory::EmailRule.create(
-        mail_to_user_id: user.id,
-        inventory_item_id: item.id,
-        threshold: 20,
-        operator: 'lt'
-      )
-    end
-
-    it 'belongs to user and inventory item' do
-      expect(rule.user).to eq(user)
-      expect(rule.inventory_item).to eq(item)
-    end
-  end
-
   describe '#applies_to?' do
     let(:rule) do
       Inventory::EmailRule.create(

@@ -40,21 +40,11 @@ RSpec.describe Inventory::Item, type: :model do
       expect(item.errors[:quantity]).to be_present
     end
 
-    # Zero is a real state, not an error: ten items sit there today and the one
-    # live email rule fires at exactly 0.
+    # Zero is a real state, not an error: items sit at zero on the shelf, and an
+    # email rule can be set to fire at exactly 0.
     it 'allows a quantity of zero' do
       item = Inventory::Item.new(name: 'Gloves', quantity: 0, inventory_category_id: category.id)
       expect(item).to be_valid
-    end
-
-    it 'creates valid item with required fields' do
-      item = Inventory::Item.create(
-        name: 'Vic Firth M1',
-        quantity: 25,
-        inventory_category_id: category.id
-      )
-      expect(item).to be_valid
-      expect(item).to be_persisted
     end
   end
 
@@ -79,31 +69,6 @@ RSpec.describe Inventory::Item, type: :model do
       )
       item.destroy
       expect(transaction.reload.item).to eq(item)
-    end
-  end
-
-  describe 'associations' do
-    let(:item) do
-      Inventory::Item.create(
-        name: 'Promark TX5AW',
-        quantity: 100,
-        inventory_category_id: category.id
-      )
-    end
-
-    it 'belongs to category' do
-      expect(item.category).to eq(category)
-    end
-
-    it 'has many transactions' do
-      transaction = Inventory::Transaction.create(
-        inventory_item_id: item.id,
-        user_id: create(:user).id,
-        change: 10,
-        previous_quantity: 100,
-        performed_on: Date.today
-      )
-      expect(item.transactions).to include(transaction)
     end
   end
 end

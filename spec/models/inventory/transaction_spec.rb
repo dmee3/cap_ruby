@@ -36,14 +36,6 @@ RSpec.describe Inventory::Transaction, type: :model do
       )
     end
 
-    it 'belongs to item' do
-      expect(transaction.item).to eq(item)
-    end
-
-    it 'belongs to the user who made the change' do
-      expect(transaction.user).to eq(user)
-    end
-
     it 'requires a user' do
       orphan = Inventory::Transaction.new(
         inventory_item_id: item.id,

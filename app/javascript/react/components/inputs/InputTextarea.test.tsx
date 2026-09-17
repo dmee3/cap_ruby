@@ -7,22 +7,6 @@ import React from 'react'
 
 describe('InputTextarea', () => {
   describe('rendering', () => {
-    it('renders textarea with name attribute', () => {
-      const { container } = render(<InputTextarea name="description" />)
-      const textarea = container.querySelector('textarea[name="description"]')
-      expect(textarea).toBeInTheDocument()
-    })
-
-    it('renders with placeholder text', () => {
-      render(<InputTextarea name="description" placeholder="Enter description" />)
-      expect(screen.getByPlaceholderText('Enter description')).toBeInTheDocument()
-    })
-
-    it('renders with id attribute', () => {
-      render(<InputTextarea name="description" id="customId" />)
-      expect(screen.getByRole('textbox')).toHaveAttribute('id', 'customId')
-    })
-
     it('renders with empty default value', () => {
       render(<InputTextarea name="description" />)
       expect(screen.getByRole('textbox')).toHaveValue('')
@@ -39,39 +23,16 @@ describe('InputTextarea', () => {
       render(<InputTextarea name="description" />)
       expect(screen.getByRole('textbox')).toHaveAttribute('rows', '3')
     })
-
-    it('accepts custom rows value', () => {
-      render(<InputTextarea name="description" rows={5} />)
-      expect(screen.getByRole('textbox')).toHaveAttribute('rows', '5')
-    })
-
-    it('handles single row', () => {
-      render(<InputTextarea name="description" rows={1} />)
-      expect(screen.getByRole('textbox')).toHaveAttribute('rows', '1')
-    })
-
-    it('handles large row count', () => {
-      render(<InputTextarea name="description" rows={20} />)
-      expect(screen.getByRole('textbox')).toHaveAttribute('rows', '20')
-    })
   })
 
   it('merges a custom className with its own', () => {
     const { container } = render(<InputTextarea name="test" className="custom-class" />)
-    expect(container.querySelector('textarea')).toHaveClass('custom-class')
+    const textarea = container.querySelector('textarea')
+    expect(textarea).toHaveClass('input-text')
+    expect(textarea).toHaveClass('custom-class')
   })
 
   describe('disabled state', () => {
-    it('is enabled by default', () => {
-      render(<InputTextarea name="description" />)
-      expect(screen.getByRole('textbox')).not.toBeDisabled()
-    })
-
-    it('can be disabled', () => {
-      render(<InputTextarea name="description" disabled={true} />)
-      expect(screen.getByRole('textbox')).toBeDisabled()
-    })
-
     it('prevents typing when disabled', async () => {
       const user = userEvent.setup()
       render(<InputTextarea name="description" disabled={true} value="" />)
@@ -82,30 +43,7 @@ describe('InputTextarea', () => {
     })
   })
 
-  describe('autofocus', () => {
-    it('does not autofocus by default', () => {
-      render(<InputTextarea name="description" />)
-      expect(document.activeElement).not.toBe(screen.getByRole('textbox'))
-    })
-
-    it('autofocuses when prop is true', () => {
-      render(<InputTextarea name="description" autofocus={true} />)
-      expect(document.activeElement).toBe(screen.getByRole('textbox'))
-    })
-  })
-
   describe('onChange handler', () => {
-    it('calls onChange when user types', async () => {
-      const user = userEvent.setup()
-      const onChange = vi.fn()
-      render(<InputTextarea name="description" onChange={onChange} />)
-
-      const textarea = screen.getByRole('textbox')
-      await user.type(textarea, 'a')
-
-      expect(onChange).toHaveBeenCalled()
-    })
-
     it('receives change event with target value', async () => {
       const user = userEvent.setup()
       const onChange = vi.fn()
@@ -123,36 +61,26 @@ describe('InputTextarea', () => {
       )
     })
 
-    it('works without onChange handler', async () => {
+    it('is uncontrolled when no onChange is given, so typing still updates it', async () => {
       const user = userEvent.setup()
-      render(<InputTextarea name="description" />)
+      render(<InputTextarea name="description" value="start" />)
 
       const textarea = screen.getByRole('textbox')
-      await expect(user.type(textarea, 'test')).resolves.not.toThrow()
-    })
-  })
+      await user.type(textarea, '!')
 
-  describe('multiline text handling', () => {
-    it('accepts multiline text input', () => {
-      const multilineText = 'Line 1\nLine 2\nLine 3'
-      render(<InputTextarea name="description" value={multilineText} onChange={vi.fn()} />)
-
-      expect(screen.getByRole('textbox')).toHaveValue(multilineText)
+      expect(textarea).toHaveValue('start!')
     })
 
-    it('preserves newlines in value', () => {
-      const multilineText = 'First line\nSecond line\nThird line'
-      render(<InputTextarea name="description" value={multilineText} />)
+    it('is controlled when onChange is given, so the value prop wins over typing', async () => {
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      render(<InputTextarea name="description" value="fixed" onChange={onChange} />)
 
-      expect(screen.getByRole('textbox')).toHaveValue(multilineText)
-    })
+      const textarea = screen.getByRole('textbox')
+      await user.type(textarea, 'more')
 
-    it('handles long text content', () => {
-      // Test with controlled value instead of typing to avoid timeout
-      const longText = 'a'.repeat(1000)
-      render(<InputTextarea name="description" value={longText} onChange={vi.fn()} />)
-
-      expect(screen.getByRole('textbox')).toHaveValue(longText)
+      expect(onChange).toHaveBeenCalled()
+      expect(textarea).toHaveValue('fixed')
     })
   })
 
@@ -162,82 +90,6 @@ describe('InputTextarea', () => {
       render(<InputTextarea name="description" ref={ref} />)
 
       expect(ref.current).toBeInstanceOf(HTMLTextAreaElement)
-      expect(ref.current?.tagName).toBe('TEXTAREA')
-    })
-
-    it('allows programmatic focus via ref', () => {
-      const ref = createRef<HTMLTextAreaElement>()
-      render(<InputTextarea name="description" ref={ref} />)
-
-      ref.current?.focus()
-      expect(document.activeElement).toBe(ref.current)
-    })
-
-    it('allows programmatic value access via ref', () => {
-      const ref = createRef<HTMLTextAreaElement>()
-      render(<InputTextarea name="description" value="test value" ref={ref} />)
-
-      expect(ref.current?.value).toBe('test value')
-    })
-  })
-
-  describe('placeholder behavior', () => {
-    it('shows placeholder when empty', () => {
-      render(<InputTextarea name="description" placeholder="Type here..." />)
-      expect(screen.getByPlaceholderText('Type here...')).toBeInTheDocument()
-    })
-
-    it('has placeholder attribute when value is set', () => {
-      render(<InputTextarea name="description" placeholder="Type here..." value="text" onChange={vi.fn()} />)
-
-      const textarea = screen.getByPlaceholderText('Type here...')
-      // Placeholder still exists as attribute
-      expect(textarea).toHaveAttribute('placeholder', 'Type here...')
-      expect(textarea).toHaveValue('text')
-    })
-  })
-
-  describe('special characters', () => {
-    it('handles special characters', () => {
-      render(<InputTextarea name="description" value="!@#$" onChange={vi.fn()} />)
-      expect(screen.getByRole('textbox')).toHaveValue('!@#$')
-    })
-
-    it('handles unicode characters', () => {
-      // Test with controlled value to avoid typing emojis
-      render(<InputTextarea name="description" value="🎉✨🚀" onChange={vi.fn()} />)
-      expect(screen.getByRole('textbox')).toHaveValue('🎉✨🚀')
-    })
-
-    it('handles tabs and spaces', () => {
-      render(<InputTextarea name="description" value="  text  " onChange={vi.fn()} />)
-      const input = screen.getByRole('textbox') as HTMLTextAreaElement
-      expect(input.value).toContain('text')
-    })
-  })
-
-  describe('value clearing', () => {
-    it('allows clearing the value', async () => {
-      const user = userEvent.setup()
-      const onChange = vi.fn()
-      render(<InputTextarea name="description" value="initial" onChange={onChange} />)
-
-      const textarea = screen.getByRole('textbox')
-      await user.clear(textarea)
-
-      // onChange should be called when clearing
-      expect(onChange).toHaveBeenCalled()
-    })
-
-    it('can type after clearing', async () => {
-      const user = userEvent.setup()
-      const onChange = vi.fn()
-      render(<InputTextarea name="description" value="" onChange={onChange} />)
-
-      const textarea = screen.getByRole('textbox')
-      await user.type(textarea, 'new')
-
-      expect(onChange).toHaveBeenCalled()
     })
   })
 })

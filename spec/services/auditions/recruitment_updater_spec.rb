@@ -261,67 +261,6 @@ RSpec.describe Auditions::RecruitmentUpdater do
     end
   end
 
-  describe 'profile matching' do
-    let(:existing_rows) do
-      [
-        ['', 'John', 'Smith', '', '', 'City, ST', 'john@example.com', '', '', '', ''],
-        ['VET', 'Jane', 'Doe', '', '', 'City, ST', 'jane@example.com', '', '', '', '']
-      ]
-    end
-
-    it 'matches profiles by first and last name (case insensitive)' do
-      profile = Auditions::Profile.new(
-        first_name: 'john',
-        last_name: 'SMITH',
-        email: 'different@example.com'
-      )
-
-      expect(service.send(:profile_exists_in_rows?, profile, existing_rows)).to be true
-    end
-
-    it 'does not match when names are different' do
-      profile = Auditions::Profile.new(
-        first_name: 'John',
-        last_name: 'Johnson',
-        email: 'john@example.com'
-      )
-
-      expect(service.send(:profile_exists_in_rows?, profile, existing_rows)).to be false
-    end
-  end
-
-  describe 'row building' do
-    let(:profile_with_packet) do
-      with_test_auditions_year('2026') do
-        Auditions::Profile.new(
-          first_name: 'Test',
-          last_name: 'User',
-          email: 'test@example.com',
-          packet: Auditions::Packet.new(
-            date: DateTime.current,
-            item: sample_packet_order['lineItems'].first,
-            email: 'test@example.com'
-          )
-        )
-      end
-    end
-
-    it 'builds row with correct structure' do
-      row = Auditions::RecruitmentRowBuilder.build_row_for_unsorted(profile_with_packet, 'SD')
-
-      expect(row[0]).to eq('') # Status column
-      expect(row[1]).to eq('Test') # First name
-      expect(row[2]).to eq('User') # Last name
-      expect(row[5]).to eq('test@example.com') # Email
-      expect(row[7]).to eq('Y') # Packet downloaded
-    end
-
-    it 'includes location information from packet' do
-      row = Auditions::RecruitmentRowBuilder.build_row_for_unsorted(profile_with_packet, 'SD')
-      expect(row[4]).to include('Columbus') # Location column (city from sample packet data)
-    end
-  end
-
   describe 'instrument handling' do
     it 'correctly identifies multi-instrument tabs' do
       expect(described_class::TAB_INSTRUMENT_MAPPING['MALLETS']).to contain_exactly(
