@@ -42,6 +42,8 @@ module Admin
         username: @user.username,
         email: @user.email,
         phone: @user.phone,
+        inventory_access: @user.inventory_access,
+        whistleblower_recipient: @user.whistleblower_recipient,
         # Answers "did I already send this" on the edit screen. Null until
         # someone uses the reset action — the welcome email only links to the
         # reset form, it never calls send_reset_password_instructions.

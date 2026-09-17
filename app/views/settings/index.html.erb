@@ -1,0 +1,87 @@
+<% content_for :page_title, 'Settings' %>
+<%
+  profile_errors = @profile_errors || []
+  password_errors = @password_errors || []
+  season_row = current_season && current_user.seasons_users.find { |su| su.season_id == current_season['id'] }
+  position = [season_row&.ensemble, season_row&.section].compact_blank.join(' / ').presence
+%>
+
+<div class="flex flex-col gap-5 max-w-[760px]">
+  <h1>Your settings</h1>
+
+  <section class="card">
+    <h2 class="text-h3 text-primary">Profile</h2>
+    <p class="text-body-sm text-secondary mt-1">How you sign in and where we email you.</p>
+
+    <%= render 'settings/errors', errors: profile_errors, lead: "We didn't save your profile." %>
+
+    <%= form_with url: settings_path, method: :post, class: 'mt-4' do %>
+      <div class="flex flex-col gap-4">
+        <%= render 'settings/field',
+                   name: :username, label: 'Username', value: current_user.username,
+                   errors: profile_errors %>
+        <%= render 'settings/field',
+                   name: :email, label: 'Email', value: current_user.email, type: 'email',
+                   hint: 'Dues reminders go here', errors: profile_errors %>
+        <%= render 'settings/field',
+                   name: :phone, label: 'Phone', value: current_user.phone, type: 'tel',
+                   optional: true, errors: profile_errors %>
+      </div>
+
+      <div class="mt-5">
+        <%= submit_tag 'Save profile', class: 'btn-primary btn-lg' %>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="card">
+    <h2 class="text-h3 text-primary">Password</h2>
+    <p class="text-body-sm text-secondary mt-1">Changing it keeps you logged in here.</p>
+
+    <%= render 'settings/errors', errors: password_errors, lead: "We didn't change your password." %>
+
+    <%= form_with url: settings_password_path, method: :post, class: 'mt-4' do %>
+      <div class="flex flex-col gap-4">
+        <%= render 'settings/field',
+                   name: :old_password, label: 'Current password', type: 'password',
+                   errors: password_errors %>
+        <%= render 'settings/field',
+                   name: :new_password, label: 'New password', type: 'password',
+                   hint: 'Eight characters or more', errors: password_errors %>
+        <%= render 'settings/field',
+                   name: :new_password_confirmation, label: 'New password again', type: 'password',
+                   errors: password_errors %>
+      </div>
+
+      <div class="mt-5">
+        <%= submit_tag 'Change password', class: 'btn-primary btn-lg' %>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="card">
+    <h2 class="text-h3 text-primary">Set by an admin</h2>
+    <p class="text-body-sm text-secondary mt-1">
+      Listed rather than hidden, so nobody hunts for a field that was never here.
+    </p>
+
+    <dl class="mt-4 flex flex-col gap-3">
+      <div class="flex flex-row justify-between gap-4">
+        <dt class="text-body-sm text-secondary">Name</dt>
+        <dd class="text-body-sm text-primary"><%= current_user.full_name %></dd>
+      </div>
+      <div class="flex flex-row justify-between gap-4">
+        <dt class="text-body-sm text-secondary">Role</dt>
+        <dd class="text-body-sm text-primary"><%= current_user_role&.capitalize || 'Not on this season' %></dd>
+      </div>
+      <% if position %>
+        <div class="flex flex-row justify-between gap-4">
+          <dt class="text-body-sm text-secondary">Position</dt>
+          <dd class="text-body-sm text-primary"><%= position %></dd>
+        </div>
+      <% end %>
+    </dl>
+
+    <p class="text-caption text-secondary mt-4">Something wrong here? Ask an admin to fix it.</p>
+  </section>
+</div>

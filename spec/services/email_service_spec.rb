@@ -130,52 +130,51 @@ RSpec.describe EmailService do
 
   describe '.send_whistleblower_email' do
     let(:report) { 'This is a test whistleblower report about inappropriate behavior.' }
-    let(:recipients) { %w[aaron dan] }
+    let(:dana) { create(:user, email: 'dana@example.com', whistleblower_recipient: true) }
+    let(:juli) { create(:user, email: 'juli@example.com', whistleblower_recipient: true) }
+    let(:recipient_ids) { [dana.id, juli.id] }
 
-    before do
-      allow(ENV).to receive(:fetch).with('EMAIL_AARON', nil).and_return('aaron@example.com')
-      allow(ENV).to receive(:fetch).with('EMAIL_DAN', nil).and_return('dan@example.com')
-    end
+    it 'sends the report to the chosen recipients' do
+      EmailService.send_whistleblower_email('reporter@example.com', report, recipient_ids)
 
-    it 'sends email with report content' do
-      EmailService.send_whistleblower_email('reporter@example.com', report, recipients)
-
-      expect(PostOffice).to have_received(:send_email) do |_emails, subject, text|
+      expect(PostOffice).to have_received(:send_email) do |emails, subject, text|
+        expect(emails).to match_array(['dana@example.com', 'juli@example.com'])
         expect(subject).to eq('Whistleblower Report')
         expect(text).to include('reporter@example.com')
         expect(text).to include(report)
       end
     end
 
-    it 'marks email as anonymous if not provided' do
-      EmailService.send_whistleblower_email('', report, recipients)
+    it 'marks the report anonymous when no contact address is given' do
+      EmailService.send_whistleblower_email('', report, recipient_ids)
 
       expect(PostOffice).to have_received(:send_email) do |_emails, _subject, text|
         expect(text).to include('(Anonymous)')
       end
     end
 
-    it 'sends to mapped admin emails from environment' do
-      EmailService.send_whistleblower_email('reporter@example.com', report, recipients)
+    # The old version mapped each name to an EMAIL_<NAME> variable and compacted
+    # the result, so an unset variable quietly shrank the list and a report the
+    # reporter sent to three people could reach two.
+    it 'refuses to send at all when a chosen recipient has no address' do
+      unreachable = create(:user, whistleblower_recipient: true)
+      unreachable.update_column(:email, '')
 
-      expect(PostOffice).to have_received(:send_email).with(
-        ['aaron@example.com', 'dan@example.com'],
-        anything,
-        anything
-      )
+      expect do
+        EmailService.send_whistleblower_email('r@example.com', report, [dana.id, unreachable.id])
+      end.to raise_error(EmailService::UndeliverableReport, /1 of 2/)
+
+      expect(PostOffice).not_to have_received(:send_email)
     end
 
-    it 'filters out missing environment variables' do
-      allow(ENV).to receive(:fetch).with('EMAIL_AARON', nil).and_return(nil)
-      allow(ENV).to receive(:fetch).with('EMAIL_DAN', nil).and_return('dan@example.com')
+    it 'refuses to route a report to someone outside the recipient pool' do
+      outsider = create(:user, whistleblower_recipient: false)
 
-      EmailService.send_whistleblower_email('reporter@example.com', report, recipients)
+      expect do
+        EmailService.send_whistleblower_email('r@example.com', report, [dana.id, outsider.id])
+      end.to raise_error(EmailService::UndeliverableReport)
 
-      expect(PostOffice).to have_received(:send_email).with(
-        ['dan@example.com'], # Only Dan's email
-        anything,
-        anything
-      )
+      expect(PostOffice).not_to have_received(:send_email)
     end
   end
 end

@@ -31,7 +31,7 @@ RSpec.describe 'Settings', type: :request do
           username: "#{role}_username"
         }
 
-        expect(response).to redirect_to(root_url)
+        expect(response).to redirect_to(settings_path)
         user.reload
         expect(user.email).to eq("#{role}@example.com")
       end
@@ -48,7 +48,7 @@ RSpec.describe 'Settings', type: :request do
           new_password_confirmation: 'newpassword456'
         }
 
-        expect(response).to redirect_to(root_url)
+        expect(response).to redirect_to(settings_path)
       end
     end
   end
@@ -66,7 +66,7 @@ RSpec.describe 'Settings', type: :request do
           username: 'new_username'
         }
 
-        expect(response).to redirect_to(root_url)
+        expect(response).to redirect_to(settings_path)
         expect(flash[:success]).to include('settings have been updated')
 
         user.reload
@@ -82,8 +82,7 @@ RSpec.describe 'Settings', type: :request do
           username: 'valid_username'
         }
 
-        expect(response).to have_http_status(:success)
-        # Page re-renders on error instead of redirecting
+        expect(response).to have_http_status(:unprocessable_entity)
         user.reload
         expect(user.email).to eq('original@example.com') # Unchanged
       end
@@ -96,7 +95,7 @@ RSpec.describe 'Settings', type: :request do
           username: 'taken_username'
         }
 
-        expect(response).to have_http_status(:success)
+        expect(response).to have_http_status(:unprocessable_entity)
         user.reload
         expect(user.username).to eq('original_user') # Unchanged
       end
@@ -109,7 +108,7 @@ RSpec.describe 'Settings', type: :request do
           username: 'new_username'
         }
 
-        expect(response).to have_http_status(:success)
+        expect(response).to have_http_status(:unprocessable_entity)
         user.reload
         expect(user.email).to eq('original@example.com') # Unchanged
       end
@@ -134,8 +133,8 @@ RSpec.describe 'Settings', type: :request do
           new_password_confirmation: new_password
         }
 
-        expect(response).to redirect_to(root_url)
-        expect(flash[:success]).to include('Password updated')
+        expect(response).to redirect_to(settings_path)
+        expect(flash[:success]).to include('Password changed')
 
         # Verify user can sign in with new password
         user.reload
@@ -152,8 +151,8 @@ RSpec.describe 'Settings', type: :request do
           new_password_confirmation: new_password
         }
 
-        expect(response).to have_http_status(:success)
-        expect(response.body).to include('Old password was incorrect')
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.body).to include('That is not your current password')
 
         user.reload
         expect(user.valid_password?(old_password)).to be true
@@ -168,8 +167,8 @@ RSpec.describe 'Settings', type: :request do
           new_password_confirmation: 'different_password'
         }
 
-        expect(response).to have_http_status(:success)
-        expect(response.body).to include('Password confirmation does not match')
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(CGI.unescapeHTML(response.body)).to include("The two new passwords don't match")
 
         user.reload
         expect(user.valid_password?(old_password)).to be true
@@ -184,13 +183,90 @@ RSpec.describe 'Settings', type: :request do
           new_password_confirmation: 'short'
         }
 
-        expect(response).to have_http_status(:success)
-        # Password validation error is shown
-        expect(response.body).to include('Password')
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.body).to include('minimum is 8 characters')
 
         user.reload
         expect(user.valid_password?(old_password)).to be true
       end
+    end
+  end
+
+  # Four byte-identical role templates collapsed into one, which changes the
+  # controller's render path for every role at once. Nothing on the screen
+  # varies by role, so the guard is that all four still reach it.
+  describe 'one view for every role' do
+    %w[member staff coordinator admin].each do |role|
+      it "renders the shared settings view for a #{role}" do
+        user.seasons_users.first.update(role: role)
+        sign_in user
+        cookies[:cap_season_id] = season.id
+
+        get '/settings'
+
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include('Your settings')
+        expect(response.body).to include('Set by an admin')
+      end
+    end
+
+    it 'shows a member the position an admin set for them' do
+      user.seasons_users.first.update(role: 'member', ensemble: 'World', section: 'Snare')
+      sign_in user
+      cookies[:cap_season_id] = season.id
+
+      get '/settings'
+
+      expect(response.body).to include('World / Snare')
+    end
+  end
+
+  describe 'each section owns its errors' do
+    before do
+      user.update(password: 'password123')
+      sign_in user
+      cookies[:cap_season_id] = season.id
+    end
+
+    it 'leaves the password section alone when the profile fails' do
+      create(:user, username: 'taken_username')
+
+      post '/settings', params: { email: user.email, username: 'taken_username' }
+
+      body = CGI.unescapeHTML(response.body)
+      expect(body).to include("We didn't save your profile")
+      expect(body).not_to include("We didn't change your password")
+    end
+
+    it 'leaves the profile section alone when the password fails' do
+      post '/settings-password', params: {
+        old_password: 'wrong', new_password: 'newpassword1',
+        new_password_confirmation: 'newpassword1'
+      }
+
+      body = CGI.unescapeHTML(response.body)
+      expect(body).to include("We didn't change your password")
+      expect(body).not_to include("We didn't save your profile")
+    end
+
+    # Both used to be joined with <br /> and printed through raw().
+    it 'renders an error message as text, not as markup' do
+      create(:user, username: 'taken_username')
+
+      post '/settings', params: { email: user.email, username: 'taken_username' }
+
+      expect(response.body).not_to include('<br />')
+    end
+  end
+
+  describe 'POST /settings with a phone number' do
+    it 'lets a member set their own phone' do
+      sign_in user
+      cookies[:cap_season_id] = season.id
+
+      post '/settings', params: { email: user.email, username: user.username, phone: '555-0100' }
+
+      expect(user.reload.phone).to eq('555-0100')
     end
   end
 end

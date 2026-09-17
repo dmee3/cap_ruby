@@ -4,6 +4,11 @@
 class EmailService
   extend T::Sig
 
+  # Raised rather than rescued: a report that reached two of the three people
+  # the reporter chose is not a partial success, and the screen has to be able
+  # to say so instead of thanking them.
+  class UndeliverableReport < StandardError; end
+
   class << self
     extend T::Sig
 
@@ -60,8 +65,16 @@ class EmailService
       Rollbar.error(e, user: user)
     end
 
-    sig { params(email: String, report: String, recipients: T::Array[String]).void }
-    def send_whistleblower_email(email, report, recipients)
+    sig { params(email: String, report: String, recipient_ids: T::Array[T.untyped]).void }
+    def send_whistleblower_email(email, report, recipient_ids)
+      recipients = User.whistleblower_recipients.where(id: recipient_ids)
+      addresses = recipients.filter_map { |user| user.email.presence }
+
+      if addresses.length != recipient_ids.uniq.length
+        raise UndeliverableReport,
+              "report would reach #{addresses.length} of #{recipient_ids.uniq.length} chosen recipients"
+      end
+
       email = '(Anonymous)' unless email.present?
       subject = 'Whistleblower Report'
       text = <<~TEXT
@@ -70,8 +83,7 @@ class EmailService
         Report:\n\n#{report}
       TEXT
 
-      emails = recipients.map { |name| ENV.fetch("EMAIL_#{name.upcase}", nil) }.compact
-      PostOffice.send_email(emails, subject, text)
+      PostOffice.send_email(addresses, subject, text)
     end
   end
 end

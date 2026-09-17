@@ -66,13 +66,71 @@ RSpec.describe 'App shell', type: :request do
     end
   end
 
+  describe 'nav active state' do
+    let(:category) { create(:inventory_category) }
+
+    before { sign_in_as_admin(season: season) }
+
+    # The nav renders twice, once in the sidebar and once in the mobile drawer,
+    # so the one active item legitimately produces two marked rows. Asserting
+    # the raw list rather than uniq'ing it keeps a second active item visible.
+    def active_labels
+      response.body
+              .scan(/sidebar-link--active[^>]*>.*?<span class="text-body-sm">([^<]+)</m)
+              .flatten
+    end
+
+    it 'marks exactly one item active on a nested route' do
+      get "/inventory/categories/#{category.id}/items/new"
+
+      expect(active_labels).to eq(%w[Inventory Inventory])
+    end
+
+    it 'keeps the home item inactive on a child route' do
+      get '/admin/users'
+
+      expect(active_labels).to eq(%w[Users Users])
+    end
+
+    it 'activates the email rules item on its own page' do
+      get '/inventory/email_rules'
+
+      expect(active_labels).to eq(%w[Emails Emails])
+    end
+
+    it 'activates home only on the dashboard itself' do
+      get '/admin'
+
+      expect(active_labels).to eq(%w[Home Home])
+    end
+  end
+
+  describe 'inventory access is a grant, not a role' do
+    it 'gives a quartermaster on the staff roster an inventory link' do
+      user = sign_in_as_staff(season: season)
+      user.update!(inventory_access: true)
+
+      get '/staff'
+
+      expect(response.body).to include('>Inventory<')
+    end
+
+    it 'leaves the link out for staff without the grant' do
+      sign_in_as_staff(season: season)
+
+      get '/staff'
+
+      expect(response.body).not_to include('>Inventory<')
+    end
+  end
+
   describe 'Devise pages use the auth layout, not the shell' do
     it 'renders /login without the shell' do
       get '/login'
 
       expect(response).to have_http_status(:success)
       expect(response.body).not_to include('class="app-sidebar"')
-      expect(response.body).to include('max-w-sm') # centered auth card
+      expect(response.body).to include('auth-card')
     end
   end
 end

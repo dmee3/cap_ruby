@@ -23,7 +23,7 @@ markers below are kept only as a rough at-a-glance; beads is authoritative.
 | Layouts | *Was* 6 near-duplicate ERB layouts (`application`, `admin`, `members`, `coordinators`, `staff`, `calendar`). **Now three** — `application` / `auth` / `public` — after Flow 1 collapsed the role layouts, PR #229 added `PublicController`, and Flow 7 folded in the last `calendar` one | Done. One shell, role-driven nav; each remaining layout has a declared audience. |
 | Navigation | Fixed 160px left sidebar (icon + label), separate mobile hamburger + slide-in, season dropdown + profile dropdown in a thin top bar | Nav model is sound but visually dated and the mobile/desktop split is fully duplicated markup |
 | Rendering | Mix of server-rendered ERB and React "widgets" mounted into `<div id="...">` holes | Redesign can standardize on one interaction model per screen type |
-| Styling | WindiCSS utilities + ~10 hand-written `@apply` component classes (`.card`, `.btn-primary`, `.custom-table`, `.input-text`, …) | These hand-rolled classes *are* the current design system — small, inconsistent, worth replacing wholesale |
+| Styling | **Tailwind** (`tailwind.config.js`) utilities + hand-written `@apply` component classes (`.card`, `.btn-primary`, `.custom-table`, `.input-text`, …). *(Corrected in Flow 9: this said WindiCSS, as CLAUDE.md still does. The config extends colors and typography but adds **no spacing scale**, so an off-scale utility like `w-88` silently emits no CSS — use arbitrary values, `w-[352px]`.)* | These hand-rolled classes *are* the current design system — small, inconsistent, worth replacing wholesale |
 | Color | Brand palette: `raspberry` (red), `ocean` (teal/blue), `moss` (green), `jet` (near-black), `flash` (near-white). In practice screens use generic Tailwind `green-*`, `red-*`, `gray-*` far more than the brand colors | Redesign should make the brand palette actually load-bearing |
 | Dark mode | `darkMode: 'media'` — every component carries `dark:` variants | Keep, but define it once in tokens instead of per-element |
 | Charts | Chart.js (dues burndown) | — |
@@ -53,8 +53,8 @@ Legend for **Priority**: 🔴 High (painful + high traffic) · 🟡 Medium · �
 
 | Screen | Route | Job to be done | Current friction | Priority |
 |---|---|---|---|---|
-| **Login** | `/login` | Member/staff signs in | Bare form on a background image; no branding story, no "forgot password" prominence | 🟡 |
-| Forgot / reset password | `/password/new`, `/settings-password` etc. | Recover access | Devise default styling, minimal | ⚪ |
+| **Login** | `/login` | Member/staff signs in | *(Corrected in Flow 9: an earlier version of this line said "bare form on a background image, no branding story". Flow 1 had already replaced that — `layouts/auth.html.erb` is a centered card on brand tokens, with the logo and dark mode.)* What's actually left: recovery is a 12px link in a row of links, and a failed login has nowhere to render an error, since `sessions/new` is the one Devise view that renders no error partial | 🟡 |
+| Forgot / reset password | `/password/new`, `/password/edit` | Recover access | Devise default styling. "Check your email" and "expired link" aren't screens at all — both are a redirect plus a flash | ⚪ |
 | **Calendar fundraiser — donate** | `/fundraiser`, `/fundraiser/:token` | A donor (often a parent/relative, not a member) picks a performer, selects calendar dates, pays via Stripe | ✅ rebuilt in Flow 7 as four routes on the `public` layout: picker, 31-tile date grid, checkout, confirmation. Replaced a separate visual world with its own layout and CSS file, a date grid misaligned for any year but 2025, a dead `POST /calendars` form carrying a pre-Payment-Intents `stripe_token`, and a checkout button whose disabled logic was inverted so it never disabled. Mobile is now a first-class layout, not an afterthought | ✅ |
 | Fundraiser — confirmation / failed | `/fundraiser/thanks` | Confirm the donation, and get the next one | ✅ rebuilt in Flow 7: a real receipt, "support someone else", and a share link, which is the highest-leverage thing on the page. Reads the Stripe PaymentIntent rather than the webhook, so a donor who lands before the webhook fires still sees their receipt. Replaced a static "Success!" line linking off-site, plus an `error.html.erb` that had no route to it at all | ✅ |
 | Auditions spreadsheet page | `/auditions-spreadsheet` | Staff triggers a Squarespace→Sheets sync | Utility page, ~6 weeks/year use. Low design value | ⚪ |
@@ -69,9 +69,9 @@ Legend for **Priority**: 🔴 High (painful + high traffic) · 🟡 Medium · �
 | **Submit a conflict** | `/members/conflicts/new` | Tell coordinators "I can't be at rehearsal on these dates" | 5-col grid form; start/end datetime via flatpickr; disclaimer text about "this is not approval"; no preview of existing conflicts or the rehearsal calendar while submitting | 🔴 |
 | Conflict submission disabled | `/members/conflicts/new_disabled` | Explains why submissions are closed | Static message | ⚪ |
 | **Personal calendar fundraiser** | `/members/calendars` | "How much have I raised? Which dates are sponsored? Download calendar images to share" | Total in a gradient card; donations list; a canvas-based calendar image builder + download; the "build/download" feature is powerful but hidden and clunky | 🟡 |
-| Files | `/files` | Browse shared Google Drive files for the season | React list; fine but plain | ⚪ |
-| Settings | `/settings` | Change username / email / password | Standard form | ⚪ |
-| Whistleblower report | `/whistleblowers` | Anonymously (or not) report a concern to ≥3 admins | Long wall of explanatory text; admin picker is a hardcoded list of first names with checkboxes; client-side "pick 3" validation | 🟡 |
+| Files | `/files` | Browse shared Drive files for the season | React list with folder drill-down, a skeleton and an empty state — but **no error state**: the `.catch` only `console.error`s and never clears `loading`, so a failed fetch shimmers forever. The API returns `{id, name, file_type}` and no modified time | ⚪ |
+| Settings | `/settings` | Change username / email / password | Four byte-identical role views behind a `case` on role; two operations sharing `<br />`-joined HTML error strings rendered with `raw()`; `phone` exists on the user but isn't on the form | ⚪ |
+| Whistleblower report | `/whistleblowers` | Anonymously (or not) report a concern to ≥3 admins | Long wall of explanatory text; admin picker is a hardcoded list of first names with checkboxes; client-side "pick 3" validation. **The ≥3 guarantee doesn't hold**: each name maps to an `EMAIL_<NAME>` env var and the result is `.compact`ed, so an unset var silently drops that recipient | 🟡 |
 | Inventory (if quartermaster) | `/inventory/categories` | Manage equipment stock | Shared with coordinator/admin — see below | 🟡 |
 
 ### Staff
@@ -130,12 +130,13 @@ Admin inherits coordinator + staff, plus:
 Design in **flows**, not isolated screens — shared components carry across a flow so
 each one is faster than the last.
 
-**Progress:** Flows 1–7 merged (PR #221 shell/tokens, #226 member dues,
+**Progress:** Flows 1–8 merged (PR #221 shell/tokens, #226 member dues,
 #230 member conflicts, #234 admin financial command center, #240 conflict
-triage, #241 admin roster & onboarding, #242 public fundraiser). Flow 7 was the
-last 🔴 P1 flow. **Flow 8 (inventory) is in progress**, shipping as two PRs — a
-backend prerequisite then the UI — which leaves Flow 9 (supporting screens) as
-the last one. (Authoritative status: `bd ready`.)
+triage, #241 admin roster & onboarding, #242 public fundraiser, #246 inventory).
+Flow 7 was the last 🔴 P1 flow. **Flow 9 (supporting screens) is in progress**
+and is the last screen-level flow; after it, the only screen work left is the
+Flow 10 staff-dashboard touch-up (`cap_ruby-b3a.35`) and follow-up beads.
+(Authoritative status: `bd ready`.)
 
 Along the way, the layout set collapsed to three — `application` / `auth` /
 `public`, with public controllers inheriting `PublicController` (PR #229), and
@@ -278,12 +279,31 @@ editable at `/admin/season/edit`) is the seasonal on/off switch coordinators use
   API error responses, and an authorization guard the `api/inventory/*`
   namespace never had. See `flow8-design-review.md`.
 
-### Flow 9 — Supporting screens 🟡 / ⚪
-- Login + password recovery
-- Whistleblower report (better admin picker, less wall-of-text)
-- Files browser
-- Settings
-- Staff & coordinator dashboards (if not fully covered by Flows 2/5)
+### Flow 9 — Supporting screens 🟡 / ⚪ *(in progress — the last screen-level flow)*
+- **Login + password recovery** — the §4.44 auth card family. Flow 1 already
+  gave these the card and the tokens, so the work is recovery prominence (a
+  footer strip, not a link in a row) and the two states that don't exist:
+  "check your email" and the expired link
+- **Whistleblower report** — the wall of text moves into per-field help, and the
+  hardcoded seven first names become a §4.43 recipient picker over real users.
+  Recipients resolve from a `whistleblower_recipient` flag, not from role and
+  not season-scoped; see `flow9-design-review.md` §4 for why
+- **Files browser** — it already has a skeleton and an empty state; what it has
+  never had is an **error state**, and a failed fetch currently leaves the
+  skeleton shimmering forever
+- **Settings** — four byte-identical role views collapse to one, and the two
+  operations stop sharing `<br />`-joined HTML error strings rendered with `raw`
+- **The two shell bugs**, since this is the last screen-level flow:
+  `cap_ruby-b3a.14` (dark sidebar has no right edge) and `.34` (quartermaster
+  staff have no inventory link; nav active state isn't prefix-matched)
+- *(Corrected in Flow 9: this list used to end with "Staff & coordinator
+  dashboards". The coordinator dashboard was rebuilt in Flow 5; the staff
+  dashboard is `cap_ruby-b3a.35`, Flow 10. Neither is in this flow.)*
+
+### Flow 10 — Staff dashboard touch-up 🟡
+- `cap_ruby-b3a.35`. Expected to be a touch-up rather than a redesign — the
+  staff dashboard is the thinnest screen in the app and the only screen-level
+  surface the overhaul hasn't reached.
 
 ---
 

@@ -2,13 +2,9 @@ import React from 'react'
 import { render } from 'react-dom'
 import FilesList from '../../react/widgets/files/FilesList'
 
-const Files = () => {
-  render(
-    <FilesList
-      expanded={true}
-    />,
-    document.getElementById('files')
-  )
-}
+const el = document.getElementById('files')
 
-Files()
+if (el) {
+  const season = el.dataset.season
+  render(<FilesList expanded seasonLabel={season ? `the ${season} season` : undefined} />, el)
+}

@@ -1,87 +1,125 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import FilesListItem from './FilesListItem'
+import { isFolder } from './fileType'
 
-type FilesListProps = {
-  folderId?: string,
-  expanded: boolean,
+export type DriveFile = {
+  id: string
+  name: string
+  fileType: string
 }
 
-const FilesList = ({
-  folderId,
-  expanded
-}: FilesListProps) => {
-  const [files, setFiles] = useState([])
-  const [loading, setLoading] = useState(true)
+type FilesListProps = {
+  folderId?: string
+  expanded: boolean
+  /** The season the list is scoped to, for the empty state's sentence. */
+  seasonLabel?: string
+}
 
-  const sortFiles = array => {
-    return array.sort((a, b) => {
-      if (a.fileType === 'folder' && b.fileType !== 'folder') {
-        return -1
-      }
-      if (a.fileType !== 'folder' && b.fileType === 'folder') {
-        return 1
-      }
-      return a.name.localeCompare(b.name)
-    })
-  }
+type Status = 'loading' | 'ready' | 'error' | 'unconfigured'
 
-  useEffect(() => {
-    if (!expanded || files.length > 0) { return }
+const sortFiles = (files: DriveFile[]) =>
+  [...files].sort((a, b) => {
+    if (isFolder(a.fileType) && !isFolder(b.fileType)) return -1
+    if (!isFolder(a.fileType) && isFolder(b.fileType)) return 1
+    return a.name.localeCompare(b.name)
+  })
+
+const SkeletonRow = () => (
+  <li className="flex items-center gap-3 px-2 py-4">
+    <div className="h-8 w-8 animate-pulse rounded-sm bg-sunken" />
+    <div className="h-4 w-48 animate-pulse rounded-sm bg-sunken" />
+  </li>
+)
+
+const FilesList = ({ folderId, expanded, seasonLabel }: FilesListProps) => {
+  const [files, setFiles] = useState<DriveFile[]>([])
+  const [status, setStatus] = useState<Status>('loading')
+
+  const load = useCallback(() => {
+    setStatus('loading')
 
     fetch(`/api/files/${folderId || ''}`)
       .then(resp => {
-        if (resp.ok) {
-          return resp.json()
-        }
-        throw resp
+        if (resp.ok) return resp.json()
+        // A season with no folder set up is somebody's configuration to fix,
+        // not a failure to retry, so it gets its own sentence.
+        if (resp.status === 404) throw new Error('unconfigured')
+        throw new Error('unavailable')
       })
-      .then(data => {
-        setFiles(sortFiles(data.map(f => ({
-          id: f.id,
-          name: f.name,
-          fileType: f.file_type
-        }))))
-        setLoading(false)
+      .then((data: { id: string; name: string; file_type: string }[]) => {
+        setFiles(
+          sortFiles(data.map(f => ({ id: f.id, name: f.name, fileType: f.file_type })))
+        )
+        setStatus('ready')
       })
-      .catch(error => {
-        console.error(error)
+      .catch((error: Error) => {
+        // The old handler only logged, and never cleared loading, so a failed
+        // fetch left the skeleton shimmering for as long as the tab was open.
+        setStatus(error.message === 'unconfigured' ? 'unconfigured' : 'error')
       })
-  }, [expanded])
+  }, [folderId])
 
-  const loadingElement = (
-      <li className="pl-9 py-4 flex flex-col">
-      <div className="flex justify-start">
-        <div className="rounded-full bg-gray-300 dark:bg-gray-600 h-6 w-6 animate-pulse"></div>
-        <div className="ml-2 w-48 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+  useEffect(() => {
+    if (!expanded) return
+    load()
+  }, [expanded, load])
+
+  if (status === 'loading') {
+    return (
+      <ul className="divide-y divide-border-default">
+        <SkeletonRow />
+        <SkeletonRow />
+        <SkeletonRow />
+      </ul>
+    )
+  }
+
+  if (status === 'error') {
+    return (
+      <div className="rounded-md border border-border-default bg-surface p-5">
+        <h2 className="mt-0 mb-1 text-body font-bold">Can't load</h2>
+        <p className="m-0 mb-3 text-body-sm text-secondary">
+          We couldn't load your files. Try again in a moment. If it keeps failing, tell an admin.
+        </p>
+        <button type="button" onClick={load} className="btn-gray btn-md">
+          Try again
+        </button>
       </div>
-    </li>
-  )
+    )
+  }
+
+  if (status === 'unconfigured') {
+    return (
+      <div className="rounded-md border border-border-default bg-surface p-5">
+        <p className="m-0 text-body-sm text-secondary">
+          {seasonLabel
+            ? `No files have been set up for ${seasonLabel} yet.`
+            : 'No files have been set up for this season yet.'}{' '}
+          An admin needs to connect a folder before anything shows up here.
+        </p>
+      </div>
+    )
+  }
+
+  if (files.length === 0) {
+    return (
+      <div className="rounded-md border border-border-default bg-surface p-5">
+        <p className="m-0 text-body-sm text-secondary">
+          {seasonLabel ? `Nothing here for ${seasonLabel} yet.` : 'Nothing here yet.'}{' '}
+          Music, drill, and other files will show up once the staff uploads them.
+        </p>
+      </div>
+    )
+  }
 
   return (
-    <>
-      {loading &&
-        <ul className="divide-y divide-gray-300">
-          {loadingElement}
-          {loadingElement}
-        </ul>
-      }
-      {files.length === 0 && !loading &&
-        <div className="px-9 py-4">
-          <span className="italic text-gray-500">Nothing Here</span>
-        </div>
-      }
-      <ul className="divide-y divide-gray-500">
-        {files.map(file => {
-          return <li key={file.id}>
-            <FilesListItem
-              fileType={file.fileType}
-              id={file.id}
-              name={file.name}
-            />
-          </li>
-        })}
-      </ul>
-    </>
+    <ul className="divide-y divide-border-default">
+      {files.map(file => (
+        <li key={file.id}>
+          <FilesListItem fileType={file.fileType} id={file.id} name={file.name} />
+        </li>
+      ))}
+    </ul>
   )
 }
 

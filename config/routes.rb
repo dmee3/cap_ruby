@@ -4,7 +4,12 @@ Rails.application.routes.draw do
   devise_for :users,
              path: '',
              path_names: { sign_in: 'login', sign_out: 'logout' },
-             controllers: { sessions: 'users/sessions' }
+             controllers: { sessions: 'users/sessions', passwords: 'users/passwords' }
+
+  devise_scope :user do
+    get 'password/sent',    to: 'users/passwords#sent',    as: :sent_password
+    get 'password/expired', to: 'users/passwords#expired', as: :expired_password
+  end
 
   root to: 'home#index'
 
@@ -148,7 +153,9 @@ Rails.application.routes.draw do
   get 'calendars/new', to: redirect('/fundraiser')
   get 'calendars/payment-confirmed', to: redirect { |_, request| "/fundraiser/thanks?#{request.query_string}" }
 
-  resources :whistleblowers, only: %i[index create]
+  resources :whistleblowers, only: %i[index create] do
+    get 'sent', on: :collection
+  end
 
   post 'stripe/webhook', to: 'stripe#webhook'
 end

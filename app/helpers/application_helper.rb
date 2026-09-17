@@ -22,7 +22,7 @@ module ApplicationHelper
   end
 
   # One nav list per role, rendered two ways (sidebar + mobile drawer).
-  NavItem = Struct.new(:label, :path, :icon, :badge, :match, keyword_init: true)
+  NavItem = Struct.new(:label, :path, :icon, :badge, :match, :exact, keyword_init: true)
 
   def shell_nav_for(role)
     case role
@@ -41,10 +41,47 @@ module ApplicationHelper
     ]
   end
 
+  # Active is a path prefix, and the deepest match wins, so a nested route
+  # lights up its own item rather than an ancestor's. Resolved once against the
+  # whole nav set: which item wins is a property of the set, not of one row, and
+  # asking an item in isolation is what left a nested route highlighting nothing.
+  #
+  # Two opt-outs. `exact: true` is for the role home items — /admin is a prefix
+  # of every admin route, so it would otherwise never turn off. `match:` is for
+  # the items whose section isn't a path prefix of their own link
+  # (/admin/payments doesn't contain /admin/payment_schedules).
   def active_nav?(item)
-    return request.path.match?(item.match) if item.match
+    active_nav_item.present? && active_nav_item == item
+  end
 
-    current_page?(item.path)
+  def active_nav_item
+    return @active_nav_item if defined?(@active_nav_item)
+
+    items = shell_nav_for(current_user_role) + shell_utility_nav
+
+    @active_nav_item = matched_nav_item(items) ||
+                       exact_nav_item(items) ||
+                       deepest_nav_item(items)
+  end
+
+  def matched_nav_item(items)
+    items.find { |item| item.match && request.path.match?(item.match) }
+  end
+
+  def exact_nav_item(items)
+    items.find { |item| item.exact && current_page?(item.path) }
+  end
+
+  def deepest_nav_item(items)
+    items.reject { |item| item.match || item.exact }
+         .select { |item| path_within?(item.path) }
+         .max_by { |item| item.path.length }
+  end
+
+  def path_within?(item_path)
+    return false if item_path.blank?
+
+    request.path == item_path || request.path.start_with?("#{item_path}/")
   end
 
   def user_initials(user)
@@ -75,18 +112,25 @@ module ApplicationHelper
     end
   end
 
+  # Inventory is a grant, not a role: InventoryController admits any
+  # quartermaster whatever their season role, so the link has to follow the
+  # same condition or a staff quartermaster has to be sent the URL.
+  def inventory_nav_items
+    return [] unless current_user&.quartermaster?
+
+    [NavItem.new(label: 'Inventory', path: inventory_categories_path, icon: :cube)]
+  end
+
   def admin_nav
     [
-      NavItem.new(label: 'Home',      path: admin_home_path,            icon: :home, match: %r{\A/admin\z}),
-      NavItem.new(label: 'Users',     path: admin_users_path,           icon: :users,
-                  match: %r{\A/admin/users}),
+      NavItem.new(label: 'Home',      path: admin_home_path,            icon: :home, exact: true),
+      NavItem.new(label: 'Users',     path: admin_users_path,           icon: :users),
       NavItem.new(label: 'Payments',  path: admin_payments_path,        icon: :cash,
                   match: %r{\A/admin/payment}),
       NavItem.new(label: 'Conflicts', path: admin_conflicts_path,       icon: :calendar,
-                  badge: pending_conflict_badge, match: %r{\A/admin/conflicts}),
+                  badge: pending_conflict_badge),
       NavItem.new(label: 'Files',     path: files_path,                 icon: :folder),
-      NavItem.new(label: 'Inventory', path: inventory_categories_path,  icon: :cube,
-                  match: %r{\A/inventory/categor}),
+      NavItem.new(label: 'Inventory', path: inventory_categories_path,  icon: :cube),
       NavItem.new(label: 'Emails',    path: inventory_email_rules_path, icon: :mail),
       NavItem.new(label: 'Calendars', path: admin_calendars_path,       icon: :calendar_days),
       NavItem.new(label: 'Season',    path: edit_admin_season_path,     icon: :cog,
@@ -96,39 +140,31 @@ module ApplicationHelper
 
   def coordinator_nav
     [
-      NavItem.new(label: 'Home',      path: coordinators_home_path,      icon: :home, match: %r{\A/coordinators\z}),
+      NavItem.new(label: 'Home',      path: coordinators_home_path,      icon: :home, exact: true),
       NavItem.new(label: 'Conflicts', path: coordinators_conflicts_path, icon: :calendar,
-                  badge: pending_conflict_badge, match: %r{\A/coordinators/conflicts}),
+                  badge: pending_conflict_badge),
       NavItem.new(label: 'Files',     path: files_path,                  icon: :folder),
-      NavItem.new(label: 'Inventory', path: inventory_categories_path,   icon: :cube,
-                  match: %r{\A/inventory/categor}),
+      NavItem.new(label: 'Inventory', path: inventory_categories_path,   icon: :cube),
       NavItem.new(label: 'Emails',    path: inventory_email_rules_path,  icon: :mail)
     ]
   end
 
   def staff_nav
     [
-      NavItem.new(label: 'Home',  path: staff_home_path, icon: :home),
+      NavItem.new(label: 'Home',  path: staff_home_path, icon: :home, exact: true),
       NavItem.new(label: 'Files', path: files_path,      icon: :folder)
-    ]
+    ] + inventory_nav_items
   end
 
   def member_nav
-    items = [
-      NavItem.new(label: 'Home',      path: members_home_path,         icon: :home, match: %r{\A/members\z}),
+    [
+      NavItem.new(label: 'Home',      path: members_home_path,         icon: :home, exact: true),
       NavItem.new(label: 'Pay Dues',  path: new_members_payment_path,  icon: :cash),
       # Lands on the list, not the form — reading is the common case, and the
-      # list's own New button covers submitting. `match` keeps the item active
-      # on /new and /edit too, which an exact current_page? wouldn't.
-      NavItem.new(label: 'See Conflicts', path: members_conflicts_path, icon: :calendar,
-                  match: %r{\A/members/conflicts}),
+      # list's own New button covers submitting.
+      NavItem.new(label: 'See Conflicts', path: members_conflicts_path, icon: :calendar),
       NavItem.new(label: 'Files',           path: files_path,             icon: :folder),
       NavItem.new(label: 'My Fundraisers',  path: members_calendars_path, icon: :calendar_days)
-    ]
-    if current_user&.quartermaster?
-      items << NavItem.new(label: 'Inventory', path: inventory_categories_path, icon: :cube,
-                           match: %r{\A/inventory/categor})
-    end
-    items
+    ] + inventory_nav_items
   end
 end

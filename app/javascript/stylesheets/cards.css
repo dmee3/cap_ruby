@@ -15,3 +15,26 @@
   .card--danger  { @apply border-l-[3px] border-l-[color:rgb(var(--status-danger-fg))]; }
   .card--warning { @apply border-l-[3px] border-l-[color:rgb(var(--status-warning-fg))]; }
 }
+
+@layer components {
+  /*
+   * Auth card family (design-system §4.44) — login, request a reset, check your
+   * email, set a new password. A layout over .card rather than a new component:
+   * fixed width, logo above, one full-width primary below, and an optional
+   * sunken footer strip carrying the single secondary route out.
+   */
+  .auth-card { @apply card w-full max-w-[440px] rounded-lg p-7 sm:p-8; }
+
+  .auth-card-heading { @apply text-h2 text-primary; }
+  .auth-card-lede { @apply text-body-sm text-secondary mt-2; }
+
+  /* Bleeds to the card's edges, so it reads as a separate deck rather than a
+     row inside the form. */
+  .auth-footer-strip {
+    @apply bg-sunken border-t border-border-default
+           -mx-7 sm:-mx-8 -mb-7 sm:-mb-8 mt-7 p-5 sm:p-6 rounded-b-lg;
+  }
+  /* After a failed attempt recovery stops being the quiet option, so the
+     button picks up the accent border rather than the page growing a banner. */
+  .auth-footer-strip--accented { @apply border-t-[color:rgb(var(--accent-primary))]; }
+}

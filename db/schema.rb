@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_15_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_16_120000) do
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
     t.string "description"
@@ -208,6 +208,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_15_120000) do
     t.datetime "reset_password_sent_at", precision: nil
     t.datetime "remember_created_at", precision: nil
     t.string "public_token"
+    t.boolean "whistleblower_recipient", default: false, null: false
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["public_token"], name: "index_users_on_public_token", unique: true

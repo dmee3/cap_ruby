@@ -1,85 +1,65 @@
 import React, { useState } from 'react'
-import {
-  ChevronDownIcon,
-  ChevronRightIcon
-} from '@heroicons/react/24/outline'
-import {
-  DocumentIcon,
-  FolderIcon,
-  SpeakerWaveIcon
-} from '@heroicons/react/20/solid'
+import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import FilesList from './FilesList'
+import { typeChip, isFolder } from './fileType'
 
 type FilesListItemProps = {
-  fileType: string,
-  id: string,
+  fileType: string
+  id: string
   name: string
 }
 
-const FilesListItem = ({
-  fileType,
-  id,
-  name
-}: FilesListItemProps) => {
+const Chip = ({ label }: { label: string }) => (
+  <span
+    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-sunken text-caption font-bold text-secondary"
+    aria-hidden="true"
+  >
+    {label}
+  </span>
+)
+
+const FilesListItem = ({ fileType, id, name }: FilesListItemProps) => {
   const [expanded, setExpanded] = useState(false)
-  let icon, color = 'text-gray-700 dark:text-gray-300'
 
-  const toggleExpanded = () => {
-    setExpanded(!expanded)
-  }
-
-  switch (fileType) {
-    case 'audio':
-      icon = <SpeakerWaveIcon className="h-6 w-6" />
-      break
-    case 'document':
-    case 'pdf':
-      icon = <DocumentIcon className="h-6 w-6" />
-      break
-    case 'folder':
-      icon = <>
-        {expanded && <ChevronDownIcon className="h-6 w-6" />}
-        {!expanded && <ChevronRightIcon className="h-6 w-6" />}
-        <FolderIcon className="ml-1 h-6 w-6" />
-      </>
-      color = ''
-      break
-    default:
-      icon = <DocumentIcon className="h-6 w-6" />
-      break
-  }
-
-  if (fileType === 'folder') {
+  if (isFolder(fileType)) {
     return (
       <>
-        <div className="px-2 py-4 flex flex-col hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer" onClick={toggleExpanded}>
-          <div className="flex justify-start">
-            {icon}
-            <span className="font-medium ml-2">
-              {name}
-            </span>
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          aria-expanded={expanded}
+          className="flex w-full flex-row items-center gap-3 px-2 py-4 text-left transition hover:bg-sunken"
+        >
+          {expanded ? (
+            <ChevronDownIcon className="h-5 w-5 shrink-0 text-secondary" />
+          ) : (
+            <ChevronRightIcon className="h-5 w-5 shrink-0 text-secondary" />
+          )}
+          <Chip label="DIR" />
+          <span className="text-body-sm font-medium text-primary">{name}</span>
+        </button>
+        {expanded && (
+          <div className="ml-6">
+            <FilesList folderId={id} expanded={expanded} />
           </div>
-        </div>
-        <div className={`ml-6 ${expanded ? 'block' : 'hidden'}`}>
-          <FilesList
-            folderId={id}
-            expanded={expanded}
-          />
-        </div>
+        )}
       </>
     )
-  } else {
-    return (
-      <a target="_blank" href={`https://drive.google.com/file/d/${id}/view`} className={`pl-9 py-4 flex flex-col hover:bg-gray-100 dark:hover:bg-gray-800 ${color} transition`}>
-        <div className="flex justify-start">
-          {icon}
-          <span className="font-light ml-2">
-            {name}
-          </span>
-        </div>
-      </a>
-    )
   }
+
+  return (
+    <a
+      target="_blank"
+      rel="noopener noreferrer"
+      href={`https://drive.google.com/file/d/${id}/view`}
+      className="flex flex-row items-center gap-3 px-2 py-4 pl-9 transition hover:bg-sunken"
+    >
+      <Chip label={typeChip(fileType, name)} />
+      <span className="text-body-sm text-primary">{name}</span>
+      {/* "Open", not "Open in Drive" — where the bytes live is ours to know. */}
+      <span className="ml-auto text-body-sm text-accent-primary">Open</span>
+    </a>
+  )
 }
 
 export default FilesListItem

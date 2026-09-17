@@ -1,0 +1,49 @@
+<% content_for :page_title, 'Report sent' %>
+<%
+  recipients = Array(@sent['recipients'])
+  contactable = @sent['contactable']
+%>
+
+<div class="flex flex-col gap-5 max-w-[640px]">
+  <div class="flex flex-col items-start gap-3">
+    <span class="flex items-center justify-center w-12 h-12 rounded-full bg-success-bg text-success-fg" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+      </svg>
+    </span>
+    <h1>Your report is sent</h1>
+  </div>
+
+  <div class="card">
+    <h2 class="card-title">Sent to</h2>
+    <ul class="flex flex-col gap-2 mt-3">
+      <% recipients.each do |name| %>
+        <li class="text-body-sm text-primary"><%= name %></li>
+      <% end %>
+    </ul>
+    <p class="text-body-sm text-secondary mt-3">
+      <%= "All #{recipients.length} of them received it at the same time." %>
+    </p>
+  </div>
+
+  <div class="card">
+    <h2 class="card-title">What happens next</h2>
+    <% if contactable %>
+      <p class="text-body-sm text-primary mt-3">
+        Since you provided your email, we'll investigate and get back to you within a week.
+        We may need to ask you follow-up questions before we can come up with a solution.
+      </p>
+    <% else %>
+      <p class="text-body-sm text-primary mt-3">
+        You sent this anonymously. There's no email attached, so we can't reply to you or
+        ask follow-up questions. We'll do our best to investigate regardless. If you change
+        your mind, you can send a second report with an email on it.
+      </p>
+    <% end %>
+  </div>
+
+  <div class="flex flex-col sm:flex-row gap-3">
+    <%= link_to 'Done', root_path, class: 'btn-primary btn-lg' %>
+    <%= link_to 'Send another report', whistleblowers_path, class: 'btn-gray btn-lg' %>
+  </div>
+</div>

@@ -81,6 +81,8 @@ module Admin
         :password_confirmation,
         :phone,
         :username,
+        :inventory_access,
+        :whistleblower_recipient,
         seasons_users_attributes: %i[id _destroy season_id role ensemble section]
       )
     end
