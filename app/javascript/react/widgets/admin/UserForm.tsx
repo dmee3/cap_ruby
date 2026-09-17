@@ -74,6 +74,19 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
   const inventoryGrantedByRole =
     currentRole === 'admin' || currentRole === 'coordinator' ? currentRole : null
 
+  // Whistleblower reports are read by whoever the reporter picks, so the pool
+  // is limited to people trusted with one of the senior roles. Unlike the
+  // inventory grant this looks across every season, not the current one: the
+  // point of naming a recipient is that they stay reachable after they rotate
+  // off the role, and a report in flight shouldn't lose a reader at rollover.
+  // Saved rows count alongside live ones: switching a season off stages it for
+  // removal, and that shouldn't reach over and strip a stored recipient flag
+  // before the save has even happened.
+  const everHeldSeniorRole = [
+    ...data.seasons.map(season => rows[season.id]?.role),
+    ...data.user.seasons_users.map(r => r.role)
+  ].some(role => role === 'admin' || role === 'coordinator')
+
   // Which seasons this save will actually create a payment schedule for.
   // ensure_payment_schedules_for_user walks EVERY member season, not just the
   // current one, and skips any that already has a schedule — so adding someone
@@ -271,13 +284,21 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
                 label="Quartermaster"
                 hint="Can open inventory and adjust counts, whatever their role is."
                 defaultChecked={data.user.inventory_access}
-                grantedBy={inventoryGrantedByRole}
+                lockedReason={
+                  inventoryGrantedByRole &&
+                  `Not editable: their ${inventoryGrantedByRole} role this season already grants this. Change the role to Staff or Member to decide it here.`
+                }
               />
               <Grant
                 name="user[whistleblower_recipient]"
                 label="Receives whistleblower reports"
                 hint="Appears in the picker on the report form. Reports go to at least three people, so this needs at least three."
                 defaultChecked={data.user.whistleblower_recipient}
+                lockedReason={
+                  everHeldSeniorRole
+                    ? null
+                    : 'Not editable: reports go to admins and coordinators. Give them one of those roles in any season to decide it here.'
+                }
               />
             </div>
           </section>
@@ -408,25 +429,23 @@ type GrantProps = {
   label: string
   hint: string
   defaultChecked: boolean
-  // The role granting this access regardless of the flag, if any.
-  grantedBy?: string | null
+  // Why this grant isn't the admin's to set right now, if it isn't. A grant
+  // locks either because the role already confers it or because the role can't
+  // hold it; both read the same to the admin, so the reason is just a sentence.
+  lockedReason?: string | null
 }
 
-const Grant = ({ name, label, hint, defaultChecked, grantedBy }: GrantProps) => {
-  // Admins and coordinators reach inventory on their season role alone, so the
-  // grant has no say while they hold one. Shown, not editable — and the stored
-  // value is posted back untouched, because it's what carries them into
-  // inventory the season they're marked staff again.
-  if (grantedBy) {
+const Grant = ({ name, label, hint, defaultChecked, lockedReason }: GrantProps) => {
+  // Shown, not editable, and the stored value is posted back untouched. A
+  // disabled checkbox posts nothing, so pairing one with the hidden 0 below
+  // would revoke the grant on every save of a locked user.
+  if (lockedReason) {
     return (
       <div className="flex flex-col gap-1.5 rounded-sm bg-sunken p-3">
         <span className="text-body-sm font-semibold text-primary">{label}</span>
         <input type="hidden" name={name} value={defaultChecked ? '1' : '0'} />
         <span className="text-body-sm text-secondary">{hint}</span>
-        <span className="text-caption text-secondary">
-          Not editable: their {grantedBy} role this season already grants this. Change the role to
-          Staff or Member to decide it here.
-        </span>
+        <span className="text-caption text-secondary">{lockedReason}</span>
       </div>
     )
   }

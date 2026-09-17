@@ -2,6 +2,7 @@ import React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import UserForm, { UserFormData } from './UserForm'
+import { SeasonRow } from '../../components/SeasonRoleBlock'
 
 const base: UserFormData = {
   user: {
@@ -355,6 +356,102 @@ describe('UserForm', () => {
       )
 
       expect(container.querySelector('input[type="checkbox"][name="user[inventory_access]"]')).toBeTruthy()
+    })
+  })
+
+  describe('the whistleblower grant against roles that cannot receive reports', () => {
+    const cb = (container: HTMLElement) =>
+      container.querySelector<HTMLInputElement>(
+        'input[type="checkbox"][name="user[whistleblower_recipient]"]'
+      )
+
+    const withSeasons = (seasons_users: SeasonRow[], whistleblower_recipient = false) =>
+      clone({ user: { ...base.user, id: 42, whistleblower_recipient, seasons_users } })
+
+    it('offers it to someone who has been a coordinator', () => {
+      const { container } = render(
+        <UserForm
+          data={withSeasons([{ id: 9, season_id: 2, role: 'coordinator', ensemble: '', section: '' }])}
+          csrfToken="tok"
+        />
+      )
+
+      expect(cb(container)).toBeTruthy()
+      expect(screen.queryByText(/reports go to admins and coordinators/i)).toBeNull()
+    })
+
+    it('withholds it from someone who has only ever been staff or a member', () => {
+      const { container } = render(
+        <UserForm
+          data={withSeasons([
+            { id: 9, season_id: 2, role: 'staff', ensemble: '', section: '' },
+            { id: 8, season_id: 1, role: 'member', ensemble: '', section: '' }
+          ])}
+          csrfToken="tok"
+        />
+      )
+
+      expect(cb(container)).toBeNull()
+      expect(screen.getByText(/reports go to admins and coordinators/i)).toBeTruthy()
+    })
+
+    it('keeps a coordinator season that has since ended as qualifying', () => {
+      const { container } = render(
+        <UserForm
+          data={withSeasons([
+            { id: 9, season_id: 2, role: 'staff', ensemble: '', section: '' },
+            { id: 8, season_id: 1, role: 'coordinator', ensemble: '', section: '' }
+          ])}
+          csrfToken="tok"
+        />
+      )
+
+      expect(cb(container)).toBeTruthy()
+    })
+
+    it('posts an already-stored flag back untouched rather than revoking it', () => {
+      const { container } = render(
+        <UserForm
+          data={withSeasons([{ id: 9, season_id: 2, role: 'member', ensemble: '', section: '' }], true)}
+          csrfToken="tok"
+        />
+      )
+
+      expect(cb(container)).toBeNull()
+      expect(fields(container, 'user[whistleblower_recipient]')).toEqual(['1'])
+    })
+
+    it('offers it as soon as they are promoted, before any save', async () => {
+      const { container } = render(
+        <UserForm
+          data={withSeasons([{ id: 9, season_id: 2, role: 'staff', ensemble: '', section: '' }])}
+          csrfToken="tok"
+        />
+      )
+      expect(cb(container)).toBeNull()
+
+      const roleGroup = screen.getByRole('group', { name: 'Role for 2026' })
+      fireEvent.click(within(roleGroup).getByRole('button', { name: /^coordinator$/i }))
+
+      await waitFor(() => expect(cb(container)).toBeTruthy())
+    })
+
+    it('does not strip a stored flag just because a season is staged for removal', () => {
+      const { container } = render(
+        <UserForm
+          data={withSeasons([{ id: 9, season_id: 2, role: 'coordinator', ensemble: '', section: '' }], true)}
+          csrfToken="tok"
+        />
+      )
+
+      fireEvent.click(screen.getByRole('switch', { name: /on the roster/i }))
+
+      expect(screen.getByText(/will be removed on save/i)).toBeTruthy()
+      // Still editable, and still checked: the hidden 0 pairs with a ticked
+      // box, so the flag survives the save rather than being revoked by it.
+      expect(cb(container)).toBeTruthy()
+      expect(cb(container)!.checked).toBe(true)
+      expect(fields(container, 'user[whistleblower_recipient]')).toEqual(['0', '1'])
     })
   })
 
