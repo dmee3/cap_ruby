@@ -4,21 +4,22 @@
 #
 # Table name: users
 #
-#  id                     :integer          not null, primary key
-#  deleted_at             :datetime
-#  email                  :string           default(""), not null
-#  encrypted_password     :string           default(""), not null
-#  first_name             :string
-#  inventory_access       :boolean          default(FALSE)
-#  last_name              :string
-#  phone                  :string
-#  public_token           :string
-#  remember_created_at    :datetime
-#  reset_password_sent_at :datetime
-#  reset_password_token   :string
-#  username               :string
-#  created_at             :datetime         not null
-#  updated_at             :datetime         not null
+#  id                      :integer          not null, primary key
+#  deleted_at              :datetime
+#  email                   :string           default(""), not null
+#  encrypted_password      :string           default(""), not null
+#  first_name              :string
+#  inventory_access        :boolean          default(FALSE)
+#  last_name               :string
+#  phone                   :string
+#  public_token            :string
+#  remember_created_at     :datetime
+#  reset_password_sent_at  :datetime
+#  reset_password_token    :string
+#  username                :string
+#  whistleblower_recipient :boolean          default(FALSE), not null
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
 #
 # Indexes
 #
@@ -186,6 +187,19 @@ class User < ApplicationRecord
 
   def quartermaster?
     inventory_access
+  end
+
+  # Ordered by name because the whistleblower picker is a list someone reads
+  # under stress and chooses three from.
+  scope :whistleblower_recipients, lambda {
+    where(whistleblower_recipient: true).order(:first_name, :last_name)
+  }
+
+  # How many recipients a report must reach. Three keeps any one person from
+  # deciding what happens to it, but a pool smaller than three would otherwise
+  # make the form unsubmittable, so the floor drops to the whole pool.
+  def self.whistleblower_minimum
+    [whistleblower_recipients.count, 3].min
   end
 
   def welcome

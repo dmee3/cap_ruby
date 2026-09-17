@@ -4,21 +4,22 @@
 #
 # Table name: users
 #
-#  id                     :integer          not null, primary key
-#  deleted_at             :datetime
-#  email                  :string           default(""), not null
-#  encrypted_password     :string           default(""), not null
-#  first_name             :string
-#  inventory_access       :boolean          default(FALSE)
-#  last_name              :string
-#  phone                  :string
-#  public_token           :string
-#  remember_created_at    :datetime
-#  reset_password_sent_at :datetime
-#  reset_password_token   :string
-#  username               :string
-#  created_at             :datetime         not null
-#  updated_at             :datetime         not null
+#  id                      :integer          not null, primary key
+#  deleted_at              :datetime
+#  email                   :string           default(""), not null
+#  encrypted_password      :string           default(""), not null
+#  first_name              :string
+#  inventory_access        :boolean          default(FALSE)
+#  last_name               :string
+#  phone                   :string
+#  public_token            :string
+#  remember_created_at     :datetime
+#  reset_password_sent_at  :datetime
+#  reset_password_token    :string
+#  username                :string
+#  whistleblower_recipient :boolean          default(FALSE), not null
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
 #
 # Indexes
 #

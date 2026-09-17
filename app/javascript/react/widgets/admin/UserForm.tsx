@@ -11,6 +11,8 @@ export type UserFormData = {
     username: string | null
     email: string | null
     phone: string | null
+    inventory_access: boolean
+    whistleblower_recipient: boolean
     reset_sent_at: string | null
     initials: string | null
     summary: string[]
@@ -246,6 +248,29 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
               ))}
             </div>
           </section>
+
+          {/* Neither of these is a role, and neither follows a season: both are
+              grants that stay put while someone's role changes year to year. */}
+          <section className="rounded-md border border-border-default bg-surface p-5">
+            <h2 className="mt-0 mb-1 text-body font-bold">Access</h2>
+            <p className="m-0 mb-4 text-body-sm text-secondary">
+              Granted to the person, not to a role or a season.
+            </p>
+            <div className="flex flex-col gap-3">
+              <Grant
+                name="user[inventory_access]"
+                label="Quartermaster"
+                hint="Can open inventory and adjust counts, whatever their role is."
+                defaultChecked={data.user.inventory_access}
+              />
+              <Grant
+                name="user[whistleblower_recipient]"
+                label="Receives whistleblower reports"
+                hint="Appears in the picker on the report form. Reports go to at least three people, so this needs at least three."
+                defaultChecked={data.user.whistleblower_recipient}
+              />
+            </div>
+          </section>
         </div>
 
         <aside className="flex flex-col gap-4">
@@ -365,6 +390,32 @@ const Field = ({ label, name, defaultValue, type = 'text', hint, optional, mono,
       className={`h-10 rounded-sm border border-border-strong bg-surface px-2 text-body-sm ${mono ? 'font-mono' : ''}`}
     />
     {hint && <span className="text-body-sm text-secondary">{hint}</span>}
+  </label>
+)
+
+type GrantProps = {
+  name: string
+  label: string
+  hint: string
+  defaultChecked: boolean
+}
+
+const Grant = ({ name, label, hint, defaultChecked }: GrantProps) => (
+  <label className="flex cursor-pointer flex-row items-start gap-3 rounded-sm bg-sunken p-3">
+    {/* An unchecked checkbox posts nothing, so the hidden 0 is what makes
+        revoking a grant reach the server at all. */}
+    <input type="hidden" name={name} value="0" />
+    <input
+      type="checkbox"
+      name={name}
+      value="1"
+      defaultChecked={defaultChecked}
+      className="input-checkbox mt-0.5"
+    />
+    <span className="flex flex-col">
+      <span className="text-body-sm font-semibold text-primary">{label}</span>
+      <span className="text-body-sm text-secondary">{hint}</span>
+    </span>
   </label>
 )
 

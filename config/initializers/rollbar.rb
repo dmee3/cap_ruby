@@ -6,6 +6,12 @@ Rollbar.configure do |config|
 
   config.access_token = ENV['ROLLBAR_POST_SERVER_ITEM_TOKEN'] || ''
 
+  # Rollbar attaches request params to every report, and the whistleblower form
+  # posts the body of an anonymous concern as `report`. Rails' filter_parameters
+  # already covers `email`, so without this the one field that must never leave
+  # the app is the only one that would.
+  config.scrub_fields |= %i[report]
+
   # Here we'll disable in everything but prod:
   config.enabled = false unless Rails.env.production?
 

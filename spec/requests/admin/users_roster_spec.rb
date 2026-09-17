@@ -75,6 +75,35 @@ RSpec.describe 'Admin::Users roster and onboarding', type: :request do
       expect(response).not_to have_http_status(:found)
     end
 
+    # Posted as a literal body rather than a hash: the grants ride on a hidden
+    # 0 plus a checkbox sharing one name, and a Ruby hash can't express that
+    # pair, so a hash-built request would pass whatever the form actually
+    # renders.
+    it 'grants inventory and whistleblower access from the checkbox pair' do
+      patch "/admin/users/#{member.id}",
+            params: 'user[inventory_access]=0&user[inventory_access]=1' \
+                    '&user[whistleblower_recipient]=0&user[whistleblower_recipient]=1',
+            headers: { 'CONTENT_TYPE' => 'application/x-www-form-urlencoded' }
+
+      expect(member.reload).to have_attributes(
+        inventory_access: true,
+        whistleblower_recipient: true
+      )
+    end
+
+    it 'revokes a grant when only the hidden field is posted' do
+      member.update!(whistleblower_recipient: true, inventory_access: true)
+
+      patch "/admin/users/#{member.id}",
+            params: 'user[inventory_access]=0&user[whistleblower_recipient]=0',
+            headers: { 'CONTENT_TYPE' => 'application/x-www-form-urlencoded' }
+
+      expect(member.reload).to have_attributes(
+        inventory_access: false,
+        whistleblower_recipient: false
+      )
+    end
+
     it 'does not send a welcome email on update' do
       expect do
         patch "/admin/users/#{member.id}", params: { user: { first_name: 'Gustavo' } }
