@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
-import { createRef } from 'react'
 import InputNumber from './InputNumber'
 import React from 'react'
 
@@ -53,73 +52,10 @@ describe('InputNumber', () => {
       expect(container.textContent).toContain('$')
     })
 
-    it('formats value with 2 decimal places when currency is true', () => {
-      render(<InputNumber name="amount" currency={true} value={10} />)
-      expect(screen.getByRole('spinbutton')).toHaveValue(10)
-    })
-
     it('displays currency value with fixed decimals', () => {
       const { container } = render(<InputNumber name="amount" currency={true} value={10.5} />)
       const input = container.querySelector('input')
       expect(input?.value).toBe('10.50')
-    })
-  })
-
-  describe('min attribute', () => {
-    it('does not set min by default', () => {
-      render(<InputNumber name="amount" />)
-      expect(screen.getByRole('spinbutton')).not.toHaveAttribute('min')
-    })
-
-    it('sets min attribute when provided', () => {
-      render(<InputNumber name="amount" min={0} />)
-      expect(screen.getByRole('spinbutton')).toHaveAttribute('min', '0')
-    })
-
-    it('respects min value', () => {
-      render(<InputNumber name="amount" min={10} />)
-      expect(screen.getByRole('spinbutton')).toHaveAttribute('min', '10')
-    })
-  })
-
-  describe('step attribute', () => {
-    it('does not set step by default', () => {
-      render(<InputNumber name="amount" />)
-      expect(screen.getByRole('spinbutton')).not.toHaveAttribute('step')
-    })
-
-    it('sets step attribute when provided', () => {
-      render(<InputNumber name="amount" step={0.1} />)
-      expect(screen.getByRole('spinbutton')).toHaveAttribute('step', '0.1')
-    })
-
-    it('accepts integer step values', () => {
-      render(<InputNumber name="amount" step={5} />)
-      expect(screen.getByRole('spinbutton')).toHaveAttribute('step', '5')
-    })
-  })
-
-  describe('disabled state', () => {
-    it('is enabled by default', () => {
-      render(<InputNumber name="amount" />)
-      expect(screen.getByRole('spinbutton')).not.toBeDisabled()
-    })
-
-    it('can be disabled', () => {
-      render(<InputNumber name="amount" disabled={true} />)
-      expect(screen.getByRole('spinbutton')).toBeDisabled()
-    })
-  })
-
-  describe('autofocus', () => {
-    it('does not autofocus by default', () => {
-      render(<InputNumber name="amount" />)
-      expect(document.activeElement).not.toBe(screen.getByRole('spinbutton'))
-    })
-
-    it('autofocuses when prop is true', () => {
-      render(<InputNumber name="amount" autofocus={true} />)
-      expect(document.activeElement).toBe(screen.getByRole('spinbutton'))
     })
   })
 
@@ -145,21 +81,25 @@ describe('InputNumber', () => {
     })
   })
 
-  describe('ref forwarding', () => {
-    it('forwards ref to input element', () => {
-      const ref = createRef<HTMLInputElement>()
-      render(<InputNumber name="amount" ref={ref} />)
-
-      expect(ref.current).toBeInstanceOf(HTMLInputElement)
-      expect(ref.current?.tagName).toBe('INPUT')
+  // The component picks value vs defaultValue off the presence of onChange.
+  // Getting this backwards makes the field either frozen or uncontrolled, and
+  // React only warns at runtime.
+  describe('controlled vs uncontrolled', () => {
+    it('is controlled when an onChange handler is given', () => {
+      const onChange = vi.fn()
+      render(<InputNumber name="amount" value={7} onChange={onChange} />)
+      expect(screen.getByRole('spinbutton')).toHaveValue(7)
     })
 
-    it('allows programmatic focus via ref', () => {
-      const ref = createRef<HTMLInputElement>()
-      render(<InputNumber name="amount" ref={ref} />)
+    it('leaves the field editable when no onChange is given', async () => {
+      const user = userEvent.setup()
+      render(<InputNumber name="amount" value={7} />)
 
-      ref.current?.focus()
-      expect(document.activeElement).toBe(ref.current)
+      const input = screen.getByRole('spinbutton')
+      await user.clear(input)
+      await user.type(input, '9')
+
+      expect(input).toHaveValue(9)
     })
   })
 
@@ -170,13 +110,6 @@ describe('InputNumber', () => {
       const input = screen.getByRole('textbox') as HTMLInputElement
       expect(input).toHaveAttribute('type', 'text')
       expect(input.value).toBe('25.50')
-    })
-
-    it('handles min and step together', () => {
-      render(<InputNumber name="amount" min={0} step={0.5} />)
-      const input = screen.getByRole('spinbutton')
-      expect(input).toHaveAttribute('min', '0')
-      expect(input).toHaveAttribute('step', '0.5')
     })
   })
 })

@@ -287,5 +287,22 @@ RSpec.describe 'Dashboard Data Accuracy', type: :request do
       expect(response.body).to include('Dashboard')
       expect(response.body).to match(/#{season.year} season · \d+ members? · \d+ behind, \d+ conflicts? to review/)
     end
+
+    it 'reports the whistleblower recipient count against the target' do
+      create_list(:user, 2, whistleblower_recipient: true)
+
+      get '/admin'
+
+      expect(response).to have_http_status(:success)
+      expect(coverage_from(response.body)).to eq(
+        'count' => 2,
+        'threshold' => User::WHISTLEBLOWER_TARGET,
+        'users_path' => '/admin/users'
+      )
+    end
+
+    def coverage_from(body)
+      JSON.parse(CGI.unescapeHTML(body[/data-whistleblower-coverage="([^"]*)"/, 1]))
+    end
   end
 end

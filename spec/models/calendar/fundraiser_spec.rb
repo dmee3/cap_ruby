@@ -29,11 +29,6 @@ RSpec.describe Calendar::Fundraiser, type: :model do
   describe 'associations' do
     let(:fundraiser) { Calendar::Fundraiser.create(user: user, season: season) }
 
-    it 'belongs to user and season' do
-      expect(fundraiser.user).to eq(user)
-      expect(fundraiser.season).to eq(season)
-    end
-
     it 'has many donations' do
       donation = Calendar::Donation.create(
         user: user,

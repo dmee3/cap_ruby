@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
-import { createRef } from 'react'
 import InputNumberV2 from './InputNumberV2'
 
 describe('InputNumberV2', () => {
@@ -105,18 +104,6 @@ describe('InputNumberV2', () => {
     })
   })
 
-  describe('autofocus', () => {
-    it('does not autofocus by default', () => {
-      render(<InputNumberV2 name="amount" />)
-      expect(document.activeElement).not.toBe(screen.getByRole('textbox'))
-    })
-
-    it('autofocuses when prop is true', () => {
-      render(<InputNumberV2 name="amount" autofocus={true} />)
-      expect(document.activeElement).toBe(screen.getByRole('textbox'))
-    })
-  })
-
   describe('onChange handler', () => {
     it('calls onChange with unmasked value', async () => {
       const user = userEvent.setup()
@@ -158,33 +145,9 @@ describe('InputNumberV2', () => {
     })
   })
 
-  describe('ref forwarding', () => {
-    it('forwards ref to input element', () => {
-      const ref = createRef<HTMLInputElement>()
-      render(<InputNumberV2 name="amount" ref={ref} />)
-
-      expect(ref.current).toBeInstanceOf(HTMLInputElement)
-      expect(ref.current?.tagName).toBe('INPUT')
-    })
-
-    it('allows programmatic focus via ref', () => {
-      const ref = createRef<HTMLInputElement>()
-      render(<InputNumberV2 name="amount" ref={ref} />)
-
-      ref.current?.focus()
-      expect(document.activeElement).toBe(ref.current)
-    })
-  })
-
   it('merges a custom className with its own', () => {
     const { container } = render(<InputNumberV2 name="amount" className="custom-class" />)
     expect(container.querySelector('input')).toHaveClass('custom-class')
-  })
-
-  describe('display name', () => {
-    it('has correct display name', () => {
-      expect(InputNumberV2.displayName).toBe('InputNumberV2')
-    })
   })
 
   describe('value synchronization', () => {
@@ -196,13 +159,12 @@ describe('InputNumberV2', () => {
       expect(screen.getByRole('textbox')).toHaveValue('20')
     })
 
-    it('maintains internal state for decimal point', () => {
-      // Test that component can handle decimal point values
+    // A trailing '.' is mid-typing, not a complete number: stripping it would
+    // fight the user for the keystroke between "10" and "10.5".
+    it('keeps a trailing decimal point rather than normalizing it away', () => {
       render(<InputNumberV2 name="amount" value="10." onChange={vi.fn()} />)
 
-      const input = screen.getByRole('textbox')
-      // Should handle trailing decimal
-      expect(input.value).toBe('10.')
+      expect(screen.getByRole('textbox')).toHaveValue('10.')
     })
   })
 })

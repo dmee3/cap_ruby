@@ -5,6 +5,7 @@ import AdminDashboard, {
   DashboardRecentPayment,
   DashboardBlankScheduleMember,
   DashboardConflict,
+  DashboardWhistleblowerCoverage,
 } from '../../react/widgets/admin/AdminDashboard'
 import { BurndownPoint } from '../../react/components/BurndownChart'
 
@@ -45,6 +46,11 @@ if (el) {
       recentPayments={parse<DashboardRecentPayment[]>(d.recentPayments, [])}
       blankScheduleMembers={parse<DashboardBlankScheduleMember[]>(d.blankScheduleMembers, [])}
       conflictsToReview={parse<DashboardConflict[]>(d.conflictsToReview, [])}
+      whistleblowerCoverage={parse<DashboardWhistleblowerCoverage>(d.whistleblowerCoverage, {
+        count: 0,
+        threshold: 3,
+        users_path: '',
+      })}
     />,
     el,
   )

@@ -59,6 +59,7 @@ const base = {
       relative_subline: 'in 5 days · submitted 2 days ago',
     },
   ],
+  whistleblowerCoverage: { count: 6, threshold: 3, users_path: '/admin/users' },
 }
 
 describe('AdminDashboard', () => {
@@ -138,6 +139,51 @@ describe('AdminDashboard', () => {
     )
     await userEvent.click(screen.getByRole('button', { name: 'Dismiss ✕' }))
     expect(screen.queryByText('1 member has no payment schedule')).not.toBeInTheDocument()
+  })
+
+  describe('whistleblower recipient coverage', () => {
+    const withCount = (count: number) => ({
+      ...base,
+      whistleblowerCoverage: { ...base.whistleblowerCoverage, count },
+    })
+
+    it('stays quiet when more than the target can receive a report', () => {
+      render(<AdminDashboard {...base} />)
+      expect(screen.queryByText(/receive a whistleblower report/)).not.toBeInTheDocument()
+    })
+
+    it('warns at exactly the target, where losing one person drops coverage', () => {
+      render(<AdminDashboard {...withCount(3)} />)
+      expect(screen.getByText('3 people can receive a whistleblower report')).toBeInTheDocument()
+      expect(
+        screen.getByText(/losing one person drops coverage below the intended 3/),
+      ).toBeInTheDocument()
+    })
+
+    it('names the lowered bar when the pool is under the target', () => {
+      render(<AdminDashboard {...withCount(2)} />)
+      expect(screen.getByText('2 people can receive a whistleblower report')).toBeInTheDocument()
+      expect(screen.getByText(/the form can only ask for 2/)).toBeInTheDocument()
+    })
+
+    it('says reports cannot be submitted at all when nobody is flagged', () => {
+      render(<AdminDashboard {...withCount(0)} />)
+      expect(screen.getByText('Nobody can receive a whistleblower report')).toBeInTheDocument()
+      expect(screen.getByText(/cannot be submitted/)).toBeInTheDocument()
+    })
+
+    it('dismisses on its own, leaving the blank-schedule alert up', async () => {
+      render(<AdminDashboard {...withCount(2)} />)
+      const [scheduleDismiss, recipientDismiss] = screen.getAllByRole('button', {
+        name: 'Dismiss ✕',
+      })
+      expect(scheduleDismiss).toBeDefined()
+
+      await userEvent.click(recipientDismiss)
+
+      expect(screen.queryByText(/receive a whistleblower report/)).not.toBeInTheDocument()
+      expect(screen.getByText('1 member has no payment schedule')).toBeInTheDocument()
+    })
   })
 
   it('switches the burndown range without refetching', async () => {

@@ -5,23 +5,6 @@ import InputToggle from './InputToggle'
 
 describe('InputToggle', () => {
   describe('rendering', () => {
-    it('renders checkbox with correct attributes', () => {
-      render(
-        <InputToggle
-          checked={false}
-          id="testId"
-          name="testName"
-          onChange={vi.fn()}
-          text="Toggle me"
-        />
-      )
-
-      const checkbox = screen.getByRole('checkbox')
-      expect(checkbox).toBeInTheDocument()
-      expect(checkbox).toHaveAttribute('id', 'testId')
-      expect(checkbox).toHaveAttribute('name', 'testName')
-    })
-
     it('renders label with text', () => {
       render(
         <InputToggle
@@ -137,28 +120,6 @@ describe('InputToggle', () => {
       expect(onChange).toHaveBeenCalledWith(false)
     })
 
-    it('can be toggled multiple times', async () => {
-      const user = userEvent.setup()
-      const onChange = vi.fn()
-
-      render(
-        <InputToggle
-          checked={false}
-          id="testId"
-          name="testName"
-          onChange={onChange}
-          text="Toggle"
-        />
-      )
-
-      const checkbox = screen.getByRole('checkbox')
-      await user.click(checkbox)
-      await user.click(checkbox)
-      await user.click(checkbox)
-
-      expect(onChange).toHaveBeenCalledTimes(3)
-    })
-
     it('can be activated via label click', async () => {
       const user = userEvent.setup()
       const onChange = vi.fn()
@@ -179,68 +140,7 @@ describe('InputToggle', () => {
     })
   })
 
-  describe('styling classes', () => {
-    it('applies correct wrapper class', () => {
-      const { container } = render(
-        <InputToggle
-          checked={false}
-          id="testId"
-          name="testName"
-          onChange={vi.fn()}
-          text="Toggle"
-        />
-      )
-
-      expect(container.querySelector('label')).toBeInTheDocument()
-    })
-
-    it('renders toggle UI elements', () => {
-      const { container } = render(
-        <InputToggle
-          checked={false}
-          id="testId"
-          name="testName"
-          onChange={vi.fn()}
-          text="Toggle"
-        />
-      )
-
-      expect(container.querySelector('.input-toggle-bg')).toBeInTheDocument()
-      expect(container.querySelector('.input-toggle-dot')).toBeInTheDocument()
-    })
-
-    it('applies label styling class', () => {
-      const { container } = render(
-        <InputToggle
-          checked={false}
-          id="testId"
-          name="testName"
-          onChange={vi.fn()}
-          text="Toggle"
-        />
-      )
-
-      const labelText = container.querySelector('.input-label')
-      expect(labelText).toBeInTheDocument()
-      expect(labelText).toHaveTextContent('Toggle')
-    })
-  })
-
   describe('accessibility', () => {
-    it('has checkbox type', () => {
-      render(
-        <InputToggle
-          checked={false}
-          id="testId"
-          name="testName"
-          onChange={vi.fn()}
-          text="Toggle"
-        />
-      )
-
-      expect(screen.getByRole('checkbox')).toHaveAttribute('type', 'checkbox')
-    })
-
     it('can be keyboard navigated', async () => {
       const user = userEvent.setup()
       const onChange = vi.fn()

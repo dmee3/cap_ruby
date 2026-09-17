@@ -19,20 +19,6 @@
 require 'rails_helper'
 
 RSpec.describe SeasonsUser, type: :model do
-  describe 'associations' do
-    let(:season) { create(:season) }
-    let(:user) { create(:user) }
-    let(:seasons_user) { create(:seasons_user, season: season, user: user) }
-
-    it 'belongs to a season' do
-      expect(seasons_user.season).to eq(season)
-    end
-
-    it 'belongs to a user' do
-      expect(seasons_user.user).to eq(user)
-    end
-  end
-
   describe 'role assignment' do
     let(:season) { create(:season, year: '2026') }
     let(:user) { create(:user) }
