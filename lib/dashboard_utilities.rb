@@ -88,27 +88,40 @@ class DashboardUtilities
     # The collected series stops at today — it never returns to zero.
     def season_scheduled_series(season_id)
       sundays, entries, = burndown_frame(season_id)
-      return [] if sundays.empty?
-
-      # Carry an exact point at today (when it's inside the season) so the
-      # chart's as-of-today shortfall reads the real scheduled total rather
-      # than last Sunday's.
-      cumulative_series(with_today(sundays), entries, :pay_date)
+      scheduled_points(sundays, entries)
     end
 
     def season_actual_series(season_id)
       sundays, _entries, payments = burndown_frame(season_id)
-      return [] if sundays.empty?
+      actual_points(sundays, payments)
+    end
 
-      # Weekly samples up to today, then today itself as the final point — so
-      # the line ends where "today" actually is rather than at the last Sunday,
-      # and so its last value matches the "expected by today" stat card. The
-      # frame's trailing last-due-date point is scheduled-only; including it
-      # here would read payments past today.
-      today = Date.current
-      samples = sundays.select { |d| d <= today }
-      samples << today if samples.any? && samples.last != today
-      cumulative_series(samples, payments, :date_paid)
+    # Everything the burndown chart needs, in one shape, loading the frame once
+    # rather than once per series.
+    def burndown_payload(season_id)
+      sundays, entries, payments = burndown_frame(season_id)
+      cutoff = sundays.empty? ? Date.current : actual_cutoff(sundays)
+
+      {
+        scheduled: scheduled_points(sundays, entries),
+        actual: actual_points(sundays, payments),
+        today: Date.current.iso8601,
+        # Where the collected line stops. Equal to `today` mid-season; the last
+        # due date once the season has ended, which is what keeps the chart from
+        # running off its card.
+        as_of: cutoff.iso8601,
+        after_cutoff: after_cutoff_summary(sundays, payments),
+        currency: 'USD'
+      }
+    end
+
+    # Money that landed after the collected line stops. A past season's late
+    # payments have nowhere to sit on the plot, so without this the chart total
+    # no longer reconciles with the season total; the dashboard renders it as a
+    # footnote rather than stretching the x-axis to reach it.
+    def season_after_cutoff_payments(season_id)
+      sundays, _entries, payments = burndown_frame(season_id)
+      after_cutoff_summary(sundays, payments)
     end
 
     # For the dashboard stat: average number of days a past-due schedule entry
@@ -138,6 +151,47 @@ class DashboardUtilities
       sundays = (start..last).select { |d| d.wday.zero? }
       sundays << last unless sundays.last == last
       [sundays, entries, payments]
+    end
+
+    # Where the collected line stops: today for a season still running, the last
+    # scheduled due date for one that has already ended. Without the second
+    # clamp a past season stretches its x-axis from the last due date all the
+    # way to today — months of flat tail that squash the season into the left
+    # edge and run the plot off its card.
+    def actual_cutoff(sundays)
+      [Date.current, sundays.last].min
+    end
+
+    def scheduled_points(sundays, entries)
+      return [] if sundays.empty?
+
+      # Carry an exact point at today (when it's inside the season) so the
+      # chart's as-of-today shortfall reads the real scheduled total rather
+      # than last Sunday's.
+      cumulative_series(with_today(sundays), entries, :pay_date)
+    end
+
+    def actual_points(sundays, payments)
+      return [] if sundays.empty?
+
+      # Weekly samples up to the cutoff, then the cutoff itself as the final
+      # point — so the line ends where the season's data actually stops rather
+      # than at the last Sunday, and so its last value matches the "expected by
+      # today" stat card. The frame's trailing last-due-date point is
+      # scheduled-only; including it unclamped would read payments past today.
+      cutoff = actual_cutoff(sundays)
+      samples = sundays.select { |d| d <= cutoff }
+      samples << cutoff if samples.any? && samples.last != cutoff
+      cumulative_series(samples, payments, :date_paid)
+    end
+
+    def after_cutoff_summary(sundays, payments)
+      return { cents: 0, count: 0, after: nil } if sundays.empty?
+
+      cutoff = actual_cutoff(sundays)
+      late = payments.select { |p| p.date_paid > cutoff }
+
+      { cents: late.sum(&:amount), count: late.length, after: cutoff.iso8601 }
     end
 
     # Splice today into the weekly grid, in order, when it falls inside it.

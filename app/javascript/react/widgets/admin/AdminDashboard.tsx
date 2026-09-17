@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Card from '../../components/Card'
 import StatBlock from '../../components/StatBlock'
-import BurndownChart, { BurndownPoint } from '../../components/BurndownChart'
+import BurndownChart, { AfterCutoff, BurndownPoint } from '../../components/BurndownChart'
 import AlertBanner from '../../components/AlertBanner'
 import PaginatedList from '../../components/PaginatedList'
 import { StatusValue } from '../../components/StatusPill'
@@ -58,6 +58,9 @@ type AdminDashboardProps = {
     scheduled: BurndownPoint[]
     actual: BurndownPoint[]
     today: string
+    /** Where the collected line stops — the season's end once it has passed. */
+    as_of?: string
+    after_cutoff?: AfterCutoff
     currency: string
   }
   seasonLabel: string
@@ -130,8 +133,11 @@ const AdminDashboard = ({
   const { count: wbCount, threshold: wbThreshold } = whistleblowerCoverage
   const showRecipientAlert = wbCount <= wbThreshold && !dismissedRecipientAlert
 
-  const scheduled = sliceRange(burndown.scheduled, range, burndown.today)
-  const actual = sliceRange(burndown.actual, range, burndown.today)
+  // A past season's ranges have to hang off the season's end, not off today —
+  // "last 30 days" of a season that ended in April is otherwise empty.
+  const asOf = burndown.as_of ?? burndown.today
+  const scheduled = sliceRange(burndown.scheduled, range, asOf)
+  const actual = sliceRange(burndown.actual, range, asOf)
   // Signed: positive = behind the plan, negative = ahead of it.
   const shortfall = stats.expected_cents - stats.collected_cents
 
@@ -181,7 +187,7 @@ const AdminDashboard = ({
             </h2>
             <span className="text-body-sm text-secondary">
               {seasonLabel} · every member&rsquo;s own schedule, summed weekly · through{' '}
-              {fmtLong(burndown.today)}
+              {fmtLong(asOf)}
             </span>
           </div>
 
@@ -212,6 +218,8 @@ const AdminDashboard = ({
           scheduled={scheduled}
           actual={actual}
           today={burndown.today}
+          asOf={asOf}
+          afterCutoff={burndown.after_cutoff}
           currency={burndown.currency}
           showCaption={false}
         />
@@ -411,13 +419,13 @@ const statTone = (behindCount: number) => {
   return 'danger' as const
 }
 
-const sliceRange = (series: BurndownPoint[], range: Range, today: string): BurndownPoint[] => {
+const sliceRange = (series: BurndownPoint[], range: Range, asOf: string): BurndownPoint[] => {
   if (range === 'full-season' || series.length === 0) return series
-  if (range === 'season-to-date') return series.filter(([d]) => d <= today)
-  const cutoff = new Date(`${today}T00:00:00`)
+  if (range === 'season-to-date') return series.filter(([d]) => d <= asOf)
+  const cutoff = new Date(`${asOf}T00:00:00`)
   cutoff.setDate(cutoff.getDate() - 30)
   const cutoffIso = cutoff.toISOString().slice(0, 10)
-  return series.filter(([d]) => d >= cutoffIso && d <= today)
+  return series.filter(([d]) => d >= cutoffIso && d <= asOf)
 }
 
 export default AdminDashboard

@@ -143,18 +143,6 @@ module Admin
       render(json: { members: DashboardUtilities.behind_members(current_season['id']) })
     end
 
-    def burndown_chart
-      season_id = current_season['id']
-      render(
-        json: {
-          scheduled: DashboardUtilities.season_scheduled_series(season_id),
-          actual: DashboardUtilities.season_actual_series(season_id),
-          today: Date.current.iso8601,
-          currency: 'USD'
-        }
-      )
-    end
-
     private
 
     def payments_query_params

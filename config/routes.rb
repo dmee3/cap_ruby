@@ -80,7 +80,6 @@ Rails.application.routes.draw do
 
     get 'payments/upcoming', to: 'payments#upcoming_payments'
     get 'payments/behind-members', to: 'payments#behind_members'
-    get 'payments/burndown-chart', to: 'payments#burndown_chart'
     get 'payments/recent', to: 'payments#recent_payments'
     put 'payments/restore/:id', to: 'payments#restore'
     resources :payments

@@ -186,6 +186,39 @@ describe('AdminDashboard', () => {
     })
   })
 
+  // A past season's chart is bounded by the season's end; without that the
+  // x-axis ran months past the data and the plot overflowed its card.
+  describe('a season that has already ended', () => {
+    const past = {
+      ...base,
+      burndown: {
+        ...base.burndown,
+        today: '2026-09-17',
+        as_of: '2026-01-18',
+        after_cutoff: { cents: 331_500, count: 8, after: '2026-01-18' },
+      },
+    }
+
+    it('dates the card subtitle and the marker to the season end', () => {
+      render(<AdminDashboard {...past} />)
+      expect(screen.getByText(/through Sun, 1\/18/)).toBeInTheDocument()
+      expect(screen.getByText('Season end')).toBeInTheDocument()
+    })
+
+    it('accounts for payments that landed after the season', () => {
+      render(<AdminDashboard {...past} />)
+      expect(screen.getByText(/Collected after the season/)).toBeInTheDocument()
+      expect(screen.getByText('$3,315')).toBeInTheDocument()
+    })
+
+    it('keeps the last-30-days range anchored to the season end, not today', async () => {
+      const { container } = render(<AdminDashboard {...past} />)
+      await userEvent.click(screen.getByRole('button', { name: 'Last 30 days' }))
+      // Anchored to today the window would be empty and plot nothing.
+      expect(container.querySelectorAll('polyline').length).toBeGreaterThan(0)
+    })
+  })
+
   it('switches the burndown range without refetching', async () => {
     render(<AdminDashboard {...base} />)
     const fullSeason = screen.getByRole('button', { name: 'Full season' })

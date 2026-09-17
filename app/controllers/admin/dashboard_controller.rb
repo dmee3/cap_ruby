@@ -14,12 +14,7 @@ module Admin
       @behind_members = DashboardUtilities.behind_members(season_id)
       @stats[:behind_count] = @behind_members.length
 
-      @burndown = {
-        scheduled: DashboardUtilities.season_scheduled_series(season_id),
-        actual: DashboardUtilities.season_actual_series(season_id),
-        today: Date.current.iso8601,
-        currency: 'USD'
-      }
+      @burndown = DashboardUtilities.burndown_payload(season_id)
       @recent_payments = recent_payment_rows(season_id)
       @blank_schedule_members = blank_schedule_members(season_id)
       @conflicts_to_review = conflicts_to_review(season_id)
