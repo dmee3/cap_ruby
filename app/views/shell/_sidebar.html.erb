@@ -14,7 +14,7 @@
     <%= render 'shell/season_switcher', menu_id: 'season-menu' %>
   </div>
 
-  <nav class="flex-1 flex flex-col gap-0.5">
+  <nav class="app-sidebar-scroll gap-0.5">
     <% shell_nav_for(current_user_role).each do |item| %>
       <%= render 'shell/nav_item', item: item, variant: :sidebar %>
     <% end %>
