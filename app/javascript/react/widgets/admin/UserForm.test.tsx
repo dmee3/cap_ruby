@@ -1,6 +1,6 @@
 import React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import UserForm, { UserFormData } from './UserForm'
 
 const base: UserFormData = {
@@ -279,6 +279,82 @@ describe('UserForm', () => {
       )
 
       expect(screen.getByText(/No new payment schedules\./).textContent).not.toContain('—')
+    })
+  })
+
+  describe('the quartermaster grant against a role that already has inventory', () => {
+    const withCurrentRole = (role: string, inventory_access = false) =>
+      clone({
+        user: {
+          ...base.user,
+          id: 42,
+          inventory_access,
+          seasons_users: [{ id: 9, season_id: 2, role, ensemble: '', section: '' }],
+        },
+      })
+
+    it('lets a staff person be made a quartermaster', () => {
+      const { container } = render(<UserForm data={withCurrentRole('staff')} csrfToken="tok" />)
+
+      expect(container.querySelector('input[type="checkbox"][name="user[inventory_access]"]')).toBeTruthy()
+      expect(screen.queryByText(/already grants this/)).toBeNull()
+    })
+
+    it('takes the decision away while they are a coordinator', () => {
+      const { container } = render(<UserForm data={withCurrentRole('coordinator')} csrfToken="tok" />)
+
+      expect(container.querySelector('input[type="checkbox"][name="user[inventory_access]"]')).toBeNull()
+      expect(screen.getByText(/their coordinator role this season already grants this/i)).toBeTruthy()
+    })
+
+    it('takes the decision away while they are an admin', () => {
+      render(<UserForm data={withCurrentRole('admin')} csrfToken="tok" />)
+
+      expect(screen.getByText(/their admin role this season already grants this/i)).toBeTruthy()
+    })
+
+    it('posts a stored grant back untouched, so a coordinator keeps it for the season they step back', () => {
+      const { container } = render(<UserForm data={withCurrentRole('coordinator', true)} csrfToken="tok" />)
+
+      expect(fields(container, 'user[inventory_access]')).toEqual(['1'])
+    })
+
+    it('does not invent a grant for a coordinator who never had one', () => {
+      const { container } = render(<UserForm data={withCurrentRole('coordinator', false)} csrfToken="tok" />)
+
+      expect(fields(container, 'user[inventory_access]')).toEqual(['0'])
+    })
+
+    it('hands the decision back as soon as the role is lowered, before any save', async () => {
+      const { container } = render(<UserForm data={withCurrentRole('coordinator')} csrfToken="tok" />)
+
+      const roleGroup = screen.getByRole('group', { name: 'Role for 2026' })
+      fireEvent.click(within(roleGroup).getByRole('button', { name: /^staff$/i }))
+
+      await waitFor(() =>
+        expect(container.querySelector('input[type="checkbox"][name="user[inventory_access]"]')).toBeTruthy()
+      )
+      expect(screen.queryByText(/already grants this/)).toBeNull()
+    })
+
+    it('ignores an elevated role held only in a past season', () => {
+      const { container } = render(
+        <UserForm
+          data={clone({
+            user: {
+              ...base.user,
+              id: 42,
+              seasons_users: [
+                { id: 9, season_id: 2, role: 'staff', ensemble: '', section: '' },
+                { id: 8, season_id: 1, role: 'coordinator', ensemble: '', section: '' },
+              ],
+            },
+          })}
+          csrfToken="tok"
+        />
+      )
+
+      expect(container.querySelector('input[type="checkbox"][name="user[inventory_access]"]')).toBeTruthy()
     })
   })
 
