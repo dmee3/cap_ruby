@@ -338,7 +338,9 @@ RSpec.describe 'Inventory Access Control', type: :request do
       get "/inventory/categories/#{category.id}/items/#{item.id}"
 
       expect(response).to have_http_status(:success)
-      expect(response.body).to include(admin_user.full_name)
+      # Unescaped: a Faker surname with an apostrophe renders as &#39; and would
+      # fail against the raw name depending on the order seed.
+      expect(CGI.unescapeHTML(response.body)).to include(admin_user.full_name)
     end
 
     # '<%=' would double-escape the blob and the widget would never mount.

@@ -96,8 +96,11 @@ RSpec.describe 'Whistleblowers', type: :request do
     end
 
     # The submitter is signed in, so their identity is available throughout and
-    # has to be deliberately unused.
+    # has to be deliberately unused. Named explicitly rather than left to Faker:
+    # an absence assertion that passes because the generated value never had a
+    # chance to appear is not evidence of anything.
     it 'never carries the signed-in identity into the mail' do
+      user.update!(first_name: 'Ethan', last_name: "O'Conner", username: 'eoconner')
       sign_in_and_visit
 
       post '/whistleblowers', params: {
