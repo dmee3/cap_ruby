@@ -78,7 +78,7 @@ Legend for **Priority**: 🔴 High (painful + high traffic) · 🟡 Medium · �
 
 | Screen | Route | Job to be done | Current friction | Priority |
 |---|---|---|---|---|
-| **Staff dashboard** | `/staff` | See next event + upcoming conflicts (read-only) | Two cards; "Files" card hidden on mobile; conflicts list; overall very sparse — staff is the thinnest role and the dashboard feels unfinished | 🟡 |
+| **Staff dashboard** | `/staff` | See who is out at the next few rehearsals (read-only) | *Rebuilt in Flow 10.* The conflicts list is grouped by date on §4.19/§4.8, the files card shows at every width, and "None" is a §4.9 empty state. Next event is gone — its query ran on every load and the view never rendered it, and there is no event data to design a card against. The sparseness was the finding, not a gap: staff have one question and two cards answer it | ✅ |
 | Files, Settings, Whistleblower | as above | | | ⚪ |
 
 ### Coordinator
@@ -300,10 +300,21 @@ editable at `/admin/season/edit`) is the seasonal on/off switch coordinators use
   dashboards". The coordinator dashboard was rebuilt in Flow 5; the staff
   dashboard is `cap_ruby-b3a.35`, Flow 10. Neither is in this flow.)*
 
-### Flow 10 — Staff dashboard touch-up 🟡
-- `cap_ruby-b3a.35`. Expected to be a touch-up rather than a redesign — the
-  staff dashboard is the thinnest screen in the app and the only screen-level
-  surface the overhaul hasn't reached.
+### Flow 10 — Staff dashboard touch-up ✅
+- `cap_ruby-b3a.35`. A touch-up, as expected. The design asked whether the
+  screen needed more content and answered no: the two cards stay, nothing is
+  added, and the work is treatment plus one change to ordering.
+- Shipped: the conflict list grouped by date on §4.19/§4.8 through a read-only
+  `TriageRow`, the files card visible at every width and capped at three rows,
+  §4.9 empty states in place of the word "None", the `card--danger` treatment
+  dropped, and `@next_event` removed along with the query behind it.
+- `_conflict_status_icon` retired with its last caller, closing the §4.8
+  migration Flow 3 opened.
+- The canvas's "All conflicts" link was dropped: staff have no conflicts route
+  and no Conflicts nav item, so this card is their whole view of conflicts.
+
+**With this flow, every screen in the audit has been through the overhaul.**
+Remaining work is follow-up beads against `cap_ruby-b3a`, not new screen flows.
 
 ---
 

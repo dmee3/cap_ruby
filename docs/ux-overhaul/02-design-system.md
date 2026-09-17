@@ -16,12 +16,19 @@ public fundraiser #242, inventory #246) — §4.32 + §4.33 added in Flow 6, §4
 specced but deferred to `cap_ruby-b3a.21`, Flow 7 **corrected** §4.13 (it said
 100 days, a `<canvas>` picker, and a fee line — all three wrong) while adding
 §4.35–§4.39, and Flow 8 added §4.40–§4.42 plus an audit-trail variant on §4.6.
-Flow 9 (supporting screens) in progress: §4.43 + §4.44 added, §4.6 extended
-with a file-row variant, §3.2 **corrected** (dark `bg.nav` collided with
-`bg.page`) and given the separation rule, and §4.1 extended with prefix-matched
-active state and grant-based nav membership. **The layout set is finished at
-three** — `application` / `auth` / `public` (#229), Flow 7 having folded in the
-last one-off `calendar` layout — and **Flow 9 is the last screen-level flow**.
+Flow 9 (supporting screens, #249) added §4.43 + §4.44, extended §4.6 with a
+file-row variant, **corrected** §3.2 (dark `bg.nav` collided with `bg.page`) and
+gave it the separation rule, and extended §4.1 with prefix-matched active state
+and grant-based nav membership. Flow 10 (staff dashboard) added **nothing** —
+it consumed §4.19, §4.8, §4.9, §4.10 and §4.1 as they stood, and retired the
+last `_conflict_status_icon` caller, closing the §4.8 migration opened in
+Flow 3. **The layout set is finished at three** — `application` / `auth` /
+`public` (#229), Flow 7 having folded in the last one-off `calendar` layout.
+
+**Every screen in `01-screen-audit.md` has now been through a flow.** From here
+this document is a maintenance reference, not a work plan: it records what the
+app is built from, and changes when a screen changes — not ahead of one. New
+work arrives as beads against `cap_ruby-b3a`, not as unbuilt sections here.
 Full flow list: `01-screen-audit.md`. Live task status: **beads** —
 `bd show cap_ruby-b3a`.
 
@@ -594,6 +601,14 @@ each claimable once, so a finished calendar is **$496** (1+2+…+31).
 - *Date formatting is the presenter's, not the mock's.* The Flow 5 canvas draws
   far-out dates without a year ("3/29 · 2–6 PM"); `ConflictPresenter` renders
   `%-m/%-d/%y` ("3/29/26"). The shipped, spec'd presenter wins.
+- ***Flow 10 — the read-only variant.*** The staff dashboard renders the triage
+  row with no decision callbacks and no `editHref`, which leaves the row with
+  its member, date, pill and subline and no action cluster. Both divergences
+  Flow 5 introduced are reversed there: `reason` is withheld (which is also what
+  keeps `TriageRow` from offering its expander) and the subline carries no
+  attribution. Both are dropped in `StaffConflictPresenter`, server-side, where
+  §4.19 says that decision belongs — a read-only screen is made read-only by the
+  data it is handed, not by a disabled control on every row.
 
 ### 4.20 Alert banner with action list *(built — Flow 4, as `AlertBanner.tsx`)*
 - Replaces the admin dashboard's `flash[:error]` array ("Member found with blank

@@ -178,12 +178,48 @@ This flow also **retires `_conflict_status_icon`**. The staff dashboard is its l
 remaining caller (`grep` finds exactly one reference, `index.html.erb:21`), so the partial
 is deleted, completing a §4.8 migration the design system called for back in Flow 3.
 
+## One place the canvas outran the app
+
+The canvas draws an **"All conflicts" link** on the card header, and a **Conflicts item** in
+the sidebar. Neither exists for this role:
+
+- `config/routes.rb` routes conflicts under `admin`, `coordinators` and `members` only.
+  `namespace :staff` contains exactly one route, the dashboard.
+- `ApplicationHelper#staff_nav` is `Home` + `Files`, plus `Inventory` when the quartermaster
+  grant is set. There is no Conflicts item to highlight.
+
+So a staff member's *entire* view of conflicts is this card. Adding a staff conflicts index
+would be new surface, on the one flow whose finding was that this role needs none — so the
+link came out and the window the card shows is the window that exists. Noted in the widget,
+since the absence is the kind of thing a later reader would otherwise "fix" back in.
+
+This is the failure mode the per-flow memory warns about: verify the design's assumptions
+about app behaviour before building, rather than carrying them in.
+
 ## Deferred, with beads
 
-- The `future_conflicts` lower bound (`end_date > Date.yesterday`) letting a just-ended
-  conflict appear under a "next two weeks" heading.
-- `Coordinators::DashboardController` still renders `@next_event` inline while staff drops
-  it — revisit if event data ever lands.
+- **`cap_ruby-b3a.38`** — the `future_conflicts` lower bound (`end_date > Date.yesterday`)
+  letting a just-ended conflict appear under a "next two weeks" heading. Shared with every
+  other caller, so out of scope for a staff touch-up.
+- **`cap_ruby-b3a.39`** — `Coordinators::DashboardController` still renders `@next_event`
+  inline while staff drops it. Revisit if event data ever lands.
+
+## What shipped
+
+Two commits.
+
+1. **Controller view-model.** `@next_event` and its `EventService` call removed;
+   `StaffConflictPresenter` added, wrapping `ConflictTriagePresenter.date_groups_for`;
+   `date_groups_for` gained `attribution: false` so the `Activity` lookup is skipped at the
+   source rather than computed and discarded. Nine presenter specs.
+2. **Screen rebuild.** `StaffConflicts` widget (hero, date groups, read-only `TriageRow`,
+   §4.9 empty state); `FilesList` gained a `limit` prop and the card lost `hidden lg:block`;
+   `card--danger` dropped; `_conflict_status_icon` deleted. Eight request specs, five widget
+   specs, one `FilesList` spec.
+
+Gates at each commit: `bundle exec rspec` (929 examples), `yarn test:run` (719),
+`bin/vite build`, `bundle exec rubocop` bare (231 files) — all clean, and the suite runs in
+a worktree with no `.env`, which is the condition CI runs under.
 
 ## What this means for the build
 
