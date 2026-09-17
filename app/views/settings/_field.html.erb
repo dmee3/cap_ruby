@@ -15,17 +15,19 @@
     <%= label %><% if optional %><span class="ml-1 font-normal text-secondary">(optional)</span><% end %>
   <% end %>
 
+  <% described_by = field_error ? "#{name}-error" : (hint ? "#{name}-hint" : nil) %>
+
   <% if type == 'password' %>
     <%= password_field_tag name, nil, class: 'input-text', autocomplete: 'off',
-                           'aria-invalid': field_error.present? %>
+                           'aria-invalid': field_error.present?, 'aria-describedby': described_by %>
   <% else %>
     <%= text_field_tag name, value, class: 'input-text', type: type,
-                       'aria-invalid': field_error.present? %>
+                       'aria-invalid': field_error.present?, 'aria-describedby': described_by %>
   <% end %>
 
   <% if field_error %>
-    <span class="text-body-sm font-medium text-danger-fg mt-1"><%= field_error[:message] %></span>
+    <span id="<%= name %>-error" class="text-body-sm font-medium text-danger-fg mt-1"><%= field_error[:message] %></span>
   <% elsif hint %>
-    <span class="text-caption text-secondary mt-1"><%= hint %></span>
+    <span id="<%= name %>-hint" class="text-caption text-secondary mt-1"><%= hint %></span>
   <% end %>
 </div>

@@ -67,13 +67,18 @@ const WhistleblowerForm = ({ data, csrfToken }: WhistleblowerFormProps) => {
     <form action="/whistleblowers" method="post" onSubmit={handleSubmit} noValidate>
       <input type="hidden" name="authenticity_token" value={csrfToken} />
 
-      {showErrors && (
-        <ValidationSummaryCard
-          errors={errors}
-          lead="We didn't send this yet."
-          className="mb-5"
-        />
-      )}
+      {/* Announced on appearance: the summary is above the fields, so someone
+          who submitted from the button at the bottom would otherwise get no
+          signal that anything happened. */}
+      <div role="alert" aria-live="assertive">
+        {showErrors && (
+          <ValidationSummaryCard
+            errors={errors}
+            lead="We didn't send this yet."
+            className="mb-5"
+          />
+        )}
+      </div>
 
       <div className="flex flex-col gap-5">
         <div className="rounded-md border border-border-default bg-surface p-5">
@@ -110,10 +115,11 @@ const WhistleblowerForm = ({ data, csrfToken }: WhistleblowerFormProps) => {
             value={report}
             onChange={event => setReport(event.target.value)}
             aria-invalid={showErrors && reportMissing}
+            aria-describedby={showErrors && reportMissing ? `${REPORT_ID}-error` : undefined}
             className="input-text"
           />
           {showErrors && reportMissing && (
-            <p className="mt-2 text-body-sm font-medium text-danger-fg">
+            <p id={`${REPORT_ID}-error`} className="mt-2 text-body-sm font-medium text-danger-fg">
               This is the part we can't send without.
             </p>
           )}
