@@ -123,4 +123,18 @@ describe('UserTable', () => {
     expect(screen.getByText(/\$1,200 paid/)).toBeTruthy()
     expect(screen.getByText(/sign in until/i)).toBeTruthy()
   })
+
+  it('offers a copy button beside every email, named after the address', async () => {
+    vi.stubGlobal('fetch', mockFetch(rows))
+    render(<UserTable seasonYear="2026" />)
+
+    await waitFor(() => expect(screen.getAllByText('Jordan Pike').length).toBeGreaterThan(0))
+
+    expect(
+      screen.getAllByRole('button', { name: 'Copy email: jordan@example.com' }).length
+    ).toBeGreaterThan(0)
+    expect(
+      screen.getAllByRole('button', { name: 'Copy email: marcus@example.com' }).length
+    ).toBeGreaterThan(0)
+  })
 })
