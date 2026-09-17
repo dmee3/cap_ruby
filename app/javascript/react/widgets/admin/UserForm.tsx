@@ -65,6 +65,15 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
 
   const onCount = data.seasons.filter(s => rows[s.id]).length
 
+  // Both inventory gates admit admins and coordinators before they ever read
+  // the flag, and they ask only about the CURRENT season — a role held in a
+  // past season grants nothing today. Read off live row state, not the saved
+  // record, so demoting someone to staff hands the decision back immediately
+  // rather than after a save and a reload.
+  const currentRole = data.current_season_id ? rows[data.current_season_id]?.role : null
+  const inventoryGrantedByRole =
+    currentRole === 'admin' || currentRole === 'coordinator' ? currentRole : null
+
   // Which seasons this save will actually create a payment schedule for.
   // ensure_payment_schedules_for_user walks EVERY member season, not just the
   // current one, and skips any that already has a schedule — so adding someone
@@ -262,6 +271,7 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
                 label="Quartermaster"
                 hint="Can open inventory and adjust counts, whatever their role is."
                 defaultChecked={data.user.inventory_access}
+                grantedBy={inventoryGrantedByRole}
               />
               <Grant
                 name="user[whistleblower_recipient]"
@@ -398,26 +408,48 @@ type GrantProps = {
   label: string
   hint: string
   defaultChecked: boolean
+  // The role granting this access regardless of the flag, if any.
+  grantedBy?: string | null
 }
 
-const Grant = ({ name, label, hint, defaultChecked }: GrantProps) => (
-  <label className="flex cursor-pointer flex-row items-start gap-3 rounded-sm bg-sunken p-3">
-    {/* An unchecked checkbox posts nothing, so the hidden 0 is what makes
-        revoking a grant reach the server at all. */}
-    <input type="hidden" name={name} value="0" />
-    <input
-      type="checkbox"
-      name={name}
-      value="1"
-      defaultChecked={defaultChecked}
-      className="input-checkbox mt-0.5"
-    />
-    <span className="flex flex-col">
-      <span className="text-body-sm font-semibold text-primary">{label}</span>
-      <span className="text-body-sm text-secondary">{hint}</span>
-    </span>
-  </label>
-)
+const Grant = ({ name, label, hint, defaultChecked, grantedBy }: GrantProps) => {
+  // Admins and coordinators reach inventory on their season role alone, so the
+  // grant has no say while they hold one. Shown, not editable — and the stored
+  // value is posted back untouched, because it's what carries them into
+  // inventory the season they're marked staff again.
+  if (grantedBy) {
+    return (
+      <div className="flex flex-col gap-1.5 rounded-sm bg-sunken p-3">
+        <span className="text-body-sm font-semibold text-primary">{label}</span>
+        <input type="hidden" name={name} value={defaultChecked ? '1' : '0'} />
+        <span className="text-body-sm text-secondary">{hint}</span>
+        <span className="text-caption text-secondary">
+          Not editable: their {grantedBy} role this season already grants this. Change the role to
+          Staff or Member to decide it here.
+        </span>
+      </div>
+    )
+  }
+
+  return (
+    <label className="flex cursor-pointer flex-row items-start gap-3 rounded-sm bg-sunken p-3">
+      {/* An unchecked checkbox posts nothing, so the hidden 0 is what makes
+          revoking a grant reach the server at all. */}
+      <input type="hidden" name={name} value="0" />
+      <input
+        type="checkbox"
+        name={name}
+        value="1"
+        defaultChecked={defaultChecked}
+        className="input-checkbox mt-0.5"
+      />
+      <span className="flex flex-col">
+        <span className="text-body-sm font-semibold text-primary">{label}</span>
+        <span className="text-body-sm text-secondary">{hint}</span>
+      </span>
+    </label>
+  )
+}
 
 // "2026", "2026 and 2027", "2025, 2026 and 2027"
 const listSeasons = (seasons: SeasonOption[]) => {
