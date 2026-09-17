@@ -153,10 +153,10 @@ where §4.19 says that decision belongs ("a data-shaping decision made server-si
    failure, and a screen that is red on a normal Tuesday teaches people to ignore red. Tone
    lives on the status pill now." The card becomes neutral.
 
-2. **A small "Something feels wrong?" card** sits at the bottom of the desktop right rail,
-   linking to the whistleblower report. It is desktop-rail only; the mobile artboard stacks
-   hero → who's out → files and does not include it. Flow 9 rebuilt that screen, so this is
-   a link to it, not new surface.
+2. **A small "Something feels wrong?" card** sat at the bottom of the desktop right rail,
+   linking to the whistleblower report. *Built, then removed at Dan's request after merge:
+   the report is already a nav item on every screen, so the card restated it rather than
+   adding a way in.* The mobile artboard had omitted it anyway.
 
 ## Design-system sync
 

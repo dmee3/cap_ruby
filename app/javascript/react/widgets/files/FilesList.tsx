@@ -33,6 +33,10 @@ const SkeletonRow = () => (
   </li>
 )
 
+// Every state here renders bare, with padding but no border, background or
+// radius: both mount points (/files and the staff dashboard's Season files
+// card) already put this inside a card, so drawing one here nests a box in a
+// box.
 const FilesList = ({ folderId, expanded, seasonLabel, limit }: FilesListProps) => {
   const [files, setFiles] = useState<DriveFile[]>([])
   const [status, setStatus] = useState<Status>('loading')
@@ -78,7 +82,7 @@ const FilesList = ({ folderId, expanded, seasonLabel, limit }: FilesListProps) =
 
   if (status === 'error') {
     return (
-      <div className="rounded-md border border-border-default bg-surface p-5">
+      <div className="p-5">
         <h2 className="mt-0 mb-1 text-body font-bold">Can't load</h2>
         <p className="m-0 mb-3 text-body-sm text-secondary">
           We couldn't load your files. Try again in a moment. If it keeps failing, tell an admin.
@@ -92,7 +96,7 @@ const FilesList = ({ folderId, expanded, seasonLabel, limit }: FilesListProps) =
 
   if (status === 'unconfigured') {
     return (
-      <div className="rounded-md border border-border-default bg-surface p-5">
+      <div className="p-5">
         <p className="m-0 text-body-sm text-secondary">
           {seasonLabel
             ? `No files have been set up for ${seasonLabel} yet.`
@@ -105,7 +109,7 @@ const FilesList = ({ folderId, expanded, seasonLabel, limit }: FilesListProps) =
 
   if (files.length === 0) {
     return (
-      <div className="rounded-md border border-border-default bg-surface p-5">
+      <div className="p-5">
         <p className="m-0 text-body-sm text-secondary">
           {seasonLabel ? `Nothing here for ${seasonLabel} yet.` : 'Nothing here yet.'}{' '}
           Music, drill, and other files will show up once the staff uploads them.

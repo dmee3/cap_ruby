@@ -84,20 +84,13 @@ RSpec.describe 'Staff dashboard', type: :request do
     end
   end
 
-  describe 'GET /staff, the supporting cards' do
+  describe 'GET /staff, the files card' do
     it 'shows files at every width, capped to a peek with a way to the rest' do
       get '/staff'
 
       expect(response.body).to include('id="files"')
       expect(response.body).to include('data-limit="3"')
       expect(response.body).not_to include('hidden lg:block')
-    end
-
-    it 'points at the whistleblower form without naming it a last resort' do
-      get '/staff'
-
-      expect(response.body).to include('Report a concern')
-      expect(response.body).to include(whistleblowers_path)
     end
   end
 end
