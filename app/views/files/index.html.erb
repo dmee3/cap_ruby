@@ -1,6 +1,13 @@
+<% content_for :page_title, 'Files' %>
 <%= vite_typescript_tag 'entrypoints/files/index.tsx' %>
 
-<div className="flex flex-col">
-  <h1>Files</h1>
-  <div id="files"></div>
+<div class="flex flex-col gap-4 max-w-[760px]">
+  <div>
+    <h1>Files</h1>
+    <% if current_season %>
+      <p class="text-body-sm text-secondary mt-1"><%= current_season['year'] %> season</p>
+    <% end %>
+  </div>
+
+  <div class="card p-0 overflow-hidden" id="files" data-season="<%= current_season && current_season['year'] %>"></div>
 </div>

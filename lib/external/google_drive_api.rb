@@ -38,8 +38,17 @@ module External
       'application/pdf' => :pdf
     }.freeze
 
+    # Raised instead of returning [] so the screen can tell "this season has no
+    # folder set up" apart from "the folder is empty" — they need different
+    # sentences, and only one of them is something an admin has to fix.
+    class UnconfiguredSeason < StandardError; end
+
     def get_files(year, folder_id)
-      folder_id = ENV.fetch("BASE_DRIVE_FOLDER_ID_#{year}") if folder_id.blank?
+      if folder_id.blank?
+        folder_id = ENV.fetch("BASE_DRIVE_FOLDER_ID_#{year}", nil)
+        raise UnconfiguredSeason, "no Drive folder configured for #{year}" if folder_id.blank?
+      end
+
       result = service.list_files(q: "'#{folder_id}' in parents", page_size: 100)
       format(result.files)
     end
