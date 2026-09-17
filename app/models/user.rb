@@ -71,9 +71,9 @@ class User < ApplicationRecord
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :password, presence: true, on: :create
-  # NB: no separate length validation here. Devise's :validatable already
-  # enforces password_length (8..128) above; a second 6-character rule only
-  # ever fired alongside it, so a 5-character password produced two
+  # NB: no separate length validation here. Devise's :validatable enforces the
+  # password_length passed on the devise call above; a second 6-character rule
+  # only ever fired alongside it, so a 5-character password produced two
   # contradictory messages ("minimum is 8" and "must be at least 6").
   validates_confirmation_of :password
   validates :username, presence: true

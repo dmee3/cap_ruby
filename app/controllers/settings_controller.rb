@@ -4,55 +4,57 @@ class SettingsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    render_index
+    render :index
   end
 
   def update
-    if current_user.update(email: params[:email], username: params[:username])
+    if current_user.update(profile_params)
       flash[:success] = 'Your settings have been updated!'
-      redirect_to(root_url)
+      redirect_to(settings_path)
     else
-      @settings_errors = current_user.errors.full_messages.join('<br />')
-      render_index
+      @profile_errors = field_errors(current_user)
+      render :index, status: :unprocessable_entity
     end
   end
 
   def change_password
-    unless current_user.valid_password?(params[:old_password])
-      @pw_errors = 'Old password was incorrect'
-      render_index
-      return
-    end
-
-    unless params[:new_password] == params[:new_password_confirmation]
-      @pw_errors = 'Password confirmation does not match password'
-      render_index
-      return
-    end
+    @password_errors = password_errors
+    return render(:index, status: :unprocessable_entity) if @password_errors.any?
 
     if current_user.update(password: params[:new_password])
-      sign_in(current_user, bypass: true)
-      flash[:success] = 'Password updated'
-
-      redirect_to(root_url)
+      # It re-signs them in anyway, so bouncing to the dashboard would only
+      # lose their place on a page they may have more to do on.
+      bypass_sign_in(current_user)
+      flash[:success] = 'Password changed. You are still logged in here.'
+      redirect_to(settings_path)
     else
-      @pw_errors = current_user.errors.full_messages.join('<br />')
-      render_index
+      @password_errors = field_errors(current_user, prefix: 'new_password')
+      render :index, status: :unprocessable_entity
     end
   end
 
   private
 
-  def render_index
-    case current_user_role
-    when 'admin'
-      render 'admin/settings/index'
-    when 'coordinator'
-      render 'coordinators/settings/index'
-    when 'staff'
-      render 'staff/settings/index'
+  def profile_params
+    params.permit(:email, :username, :phone)
+  end
+
+  # Each operation owns its own errors, so a failed password change leaves the
+  # profile section alone rather than both sharing one HTML string joined with
+  # line breaks and printed through `raw`.
+  def field_errors(user, prefix: nil)
+    user.errors.map do |error|
+      { field: prefix || error.attribute.to_s, message: error.full_message }
+    end
+  end
+
+  def password_errors
+    if !current_user.valid_password?(params[:old_password])
+      [{ field: 'old_password', message: 'That is not your current password' }]
+    elsif params[:new_password] != params[:new_password_confirmation]
+      [{ field: 'new_password_confirmation', message: "The two new passwords don't match" }]
     else
-      render 'members/settings/index'
+      []
     end
   end
 end
