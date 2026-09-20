@@ -32,7 +32,8 @@ module Api
           ensemble: user.ensemble_for(season_id),
           role: user.role_for(season_id),
           vet: user.vet_in?(season_id),
-          season_count: user.seasons_users.size,
+          removed: user.seasons_users.any? { |su| su.season_id == season_id && su.removed? },
+          season_count: user.seasons_users.count { |su| !su.removed? },
           # Drives the roster's "No schedule" pill and the health alert. A
           # schedule row with no entries counts as missing, because that is
           # exactly what it is to a member: no due dates and no total.
@@ -42,8 +43,10 @@ module Api
 
       # The one place the season scope is bypassed on purpose. These accounts
       # have no seasons_users rows at all, which means they are invisible on
-      # every other screen AND cannot sign in — `active_for_authentication?`
-      # requires seasons_users.any?.
+      # every other screen. They also cannot sign in, though they are no longer
+      # the only ones: someone removed from every season they had keeps their
+      # rows and is equally locked out, and shows up on a roster rather than
+      # here.
       def off_all_rosters
         User
           .where.not(id: SeasonsUser.select(:user_id))

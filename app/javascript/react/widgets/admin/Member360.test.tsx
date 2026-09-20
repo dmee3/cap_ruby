@@ -16,6 +16,7 @@ const base: Member360Data = {
     section: 'Snare',
     role: 'Member',
     vet: true,
+    removed: false,
     member_type: 'Vet · 3rd season',
   },
   dues: { state: 'behind', paid: 240_000, total: 600_000, expected: 360_000, past_due: 120_000 },
@@ -74,6 +75,27 @@ describe('Member360', () => {
     expect(screen.getByText('Nina Park')).toBeInTheDocument()
     expect(screen.getByText('@ninap')).toBeInTheDocument()
     expect(screen.getByText('$1,200 past due')).toBeInTheDocument()
+  })
+
+  it('badges a removed member in place of their role', () => {
+    const data = { ...base, identity: { ...base.identity, removed: true } }
+    render(<Member360 data={data} csrfToken="tok" />)
+
+    expect(screen.getByText('Removed')).toBeInTheDocument()
+    expect(screen.getByText('Vet · 3rd season')).toBeInTheDocument()
+  })
+
+  // Removal cuts the schedule down to what was paid, so an empty one is the
+  // expected end state rather than something to chase.
+  it('does not ask an admin to set up a schedule for someone removed', () => {
+    const data = {
+      ...base,
+      identity: { ...base.identity, removed: true },
+      dues: { ...base.dues, state: 'no_schedule' as const },
+    }
+    render(<Member360 data={data} csrfToken="tok" />)
+
+    expect(screen.queryByText(/has no payment schedule/i)).toBeNull()
   })
 
   it('stacks the year over its assignment, with the role only on the current season', () => {

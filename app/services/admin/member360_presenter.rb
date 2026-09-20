@@ -40,6 +40,7 @@ module Admin
       def identity(user, season_id)
         member_seasons = user.seasons_users.count { |su| su.role == 'member' }
         vet = user.vet_in?(season_id)
+        removed = user.seasons_users.any? { |su| su.season_id == season_id && su.removed? }
 
         {
           id: user.id,
@@ -52,7 +53,10 @@ module Admin
           section: user.section_for(season_id),
           role: user.role_for(season_id)&.titleize,
           vet: vet,
-          # "Vet · 3rd season" reads better on the pill than a bare flag.
+          removed: removed,
+          # "Vet · 3rd season" reads better on the pill than a bare flag. A
+          # removed member keeps whichever pill they had — the Removed badge sits
+          # beside it, since "who were they on this roster" is still worth saying.
           member_type: vet ? "Vet · #{ordinal(member_seasons)} season" : 'New member'
         }
       end

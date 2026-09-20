@@ -62,6 +62,12 @@ class User < ApplicationRecord
 
   has_many :seasons_users
   has_many :seasons, through: :seasons_users
+  # The seasons this person can actually reach. Everything that answers "where
+  # does this user belong" — login, the season cookie, the switcher — goes
+  # through these, so a removed season disappears from the app rather than
+  # lingering as a season whose every page redirects.
+  has_many :active_seasons_users, -> { active }, class_name: 'SeasonsUser', inverse_of: :user
+  has_many :active_seasons, through: :active_seasons_users, source: :season
   accepts_nested_attributes_for :seasons_users, allow_destroy: true
 
   has_many :calendar_fundraisers, class_name: 'Calendar::Fundraiser'
@@ -161,11 +167,15 @@ class User < ApplicationRecord
     calendar_fundraisers.where(season_id: season_id)
   end
 
+  # Vet status counts seasons actually marched. A season someone was removed
+  # from is not one of them, so a rookie removed part-way through and back the
+  # next year returns as a rookie — and is charged the rookie schedule.
   def vet_in?(season_id)
-    role = seasons_users.select { |su| su.season_id == season_id }&.first
+    rows = seasons_users.reject(&:removed?)
+    role = rows.find { |su| su.season_id == season_id }
     return false unless role.present?
 
-    seasons_users.any? { |su| su.season.year < role.season.year }
+    rows.any? { |su| su.season.year < role.season.year }
   end
 
   def remaining_payments_for(season_id)
@@ -181,8 +191,11 @@ class User < ApplicationRecord
     end
   end
 
+  # Access follows the roster: every season they are still on, none of the ones
+  # they were removed from. Someone whose only season was removed keeps their
+  # account and their history but can no longer sign in.
   def active_for_authentication?
-    super && seasons_users.any?
+    super && seasons_users.any? { |su| !su.removed? }
   end
 
   def quartermaster?

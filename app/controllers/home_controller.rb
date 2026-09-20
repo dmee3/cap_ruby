@@ -18,11 +18,15 @@ class HomeController < ApplicationController
     end
   end
 
+  # Only seasons the user is still on can be switched to. Without the
+  # membership check the id is just a number in a form post, so someone removed
+  # from a season could put themselves back into it by hand.
   def change_season
-    if params[:season_id].present? && /\A\d+\z/.match(params[:season_id])
-      store_season_cookie(params[:season_id])
+    requested = params[:season_id]
+    if requested.present? && /\A\d+\z/.match(requested) && reachable_season?(requested)
+      store_season_cookie(requested)
     else
-      store_season_cookie(current_user.seasons.last.id)
+      store_season_cookie(default_season_id)
     end
 
     redirect_back fallback_location: root_path
@@ -34,6 +38,14 @@ class HomeController < ApplicationController
     cookies[:cap_season_id] = season_id
   end
 
+  def reachable_season?(season_id)
+    current_user.active_seasons_users.any? { |su| su.season_id.to_s == season_id.to_s }
+  end
+
+  def default_season_id
+    current_user.active_seasons.order(:year).last&.id
+  end
+
   def handle_unknown_role
     Rollbar.warning(
       'User with unknown role for current season accessed home page.',
@@ -42,8 +54,8 @@ class HomeController < ApplicationController
       role: current_user_role
     )
 
-    if current_user.seasons_users.any?
-      store_season_cookie(current_user.seasons.last.id)
+    if default_season_id.present?
+      store_season_cookie(default_season_id)
     else
       sign_out current_user
     end

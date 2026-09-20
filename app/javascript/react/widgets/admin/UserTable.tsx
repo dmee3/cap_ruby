@@ -16,6 +16,7 @@ type RosterRow = {
   ensemble: string | null
   role: string | null
   vet: boolean
+  removed: boolean
   season_count: number
   has_schedule: boolean
 }
@@ -35,6 +36,7 @@ const ROLE_TONE: Record<string, PillTone> = {
   coordinator: 'neutral',
   staff: 'success',
   member: 'neutral',
+  removed: 'warning',
 }
 
 // /admin/users. One table with a Members/Staff switch, replacing two
@@ -52,6 +54,9 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
   const [sortDir, setSortDir] = useState<SortDir>('asc')
   const [dismissed, setDismissed] = useState(false)
   const [limit, setLimit] = useState(20)
+  // Off by default: the roster answers "who is on this season" far more often
+  // than "who used to be".
+  const [showRemoved, setShowRemoved] = useState(false)
 
   const load = () => {
     setStatus('loading')
@@ -68,9 +73,21 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
 
   useEffect(load, [offRoster])
 
-  const members = useMemo(() => rows.filter(r => r.role === 'member'), [rows])
-  const staff = useMemo(() => rows.filter(r => r.role && r.role !== 'member'), [rows])
-  const pool = population === 'members' ? members : staff
+  // Removed people are their own group, not staff: they are excluded by role
+  // from `member` but they never belonged in the staff tab either.
+  const removed = useMemo(() => rows.filter(r => r.removed), [rows])
+  const members = useMemo(() => rows.filter(r => !r.removed && r.role === 'member'), [rows])
+  const staff = useMemo(
+    () => rows.filter(r => !r.removed && r.role && r.role !== 'member'),
+    [rows],
+  )
+  // Removed members sit with the members they were, so an admin looking for
+  // someone finds them where they expect rather than having to know they left.
+  const pool = useMemo(() => {
+    const base = population === 'members' ? members : staff
+    if (!showRemoved) return base
+    return population === 'members' ? [...base, ...removed] : base
+  }, [population, members, staff, removed, showRemoved])
 
   // Ensemble belongs to the members view only — staff have no ensemble, so
   // applying it there filtered every row out while the select that would clear
@@ -101,6 +118,8 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
   }, [filtered, sortKey, sortDir])
 
   const visible = sorted.slice(0, limit)
+  // A removed member's schedule was cut to what they paid, so "no schedule" is
+  // the expected end state rather than something to fix.
   const missingSchedule = members.filter(m => !m.has_schedule)
   const filtersDirty = query !== '' || activeEnsemble !== ''
 
@@ -188,6 +207,17 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
             <option value="World">World</option>
             <option value="CC2">CC2</option>
           </select>
+        )}
+        {population === 'members' && removed.length > 0 && (
+          <label className="flex items-center gap-1.5 text-body-sm text-secondary">
+            <input
+              type="checkbox"
+              checked={!showRemoved}
+              onChange={e => setShowRemoved(!e.target.checked)}
+              className="h-4 w-4"
+            />
+            Hide removed · {removed.length}
+          </label>
         )}
         <span className="text-body-sm text-secondary">
           {filtered.length} of {pool.length}
@@ -282,13 +312,18 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
               </thead>
               <tbody>
                 {visible.map(row => (
-                  <tr key={row.id} className="border-b border-border-default last:border-0 hover:bg-sunken">
+                  <tr
+                    key={row.id}
+                    className={`border-b border-border-default last:border-0 hover:bg-sunken ${
+                      row.removed ? 'opacity-60' : ''
+                    }`}
+                  >
                     <td className="px-4 py-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <a href={`/admin/users/${row.id}`} className="text-body-sm font-semibold text-accent-primary">
                           {row.full_name}
                         </a>
-                        {!row.has_schedule && row.role === 'member' && (
+                        {!row.has_schedule && row.role === 'member' && !row.removed && (
                           <Pill tone="warning">No schedule</Pill>
                         )}
                       </div>
@@ -319,7 +354,12 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
             {/* Mobile cards */}
             <ul className="m-0 flex list-none flex-col gap-2 p-3 md:hidden">
               {visible.map(row => (
-                <li key={row.id} className="rounded-md border border-border-default p-3">
+                <li
+                  key={row.id}
+                  className={`rounded-md border border-border-default p-3 ${
+                    row.removed ? 'opacity-60' : ''
+                  }`}
+                >
                   <div className="flex flex-wrap items-center gap-2">
                     <a href={`/admin/users/${row.id}`} className="text-body font-semibold text-accent-primary">
                       {row.full_name}
@@ -328,7 +368,7 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
                       {row.role}
                     </Pill>
                   </div>
-                  {row.role === 'member' && (
+                  {(row.role === 'member' || row.removed) && (
                     <p className="m-0 mt-1 text-body-sm text-secondary">
                       {[row.ensemble, row.section].filter(Boolean).join(' / ')}
                       {row.vet ? ' · Vet' : ''}
@@ -338,7 +378,7 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
                     <span className="truncate">{row.email}</span>
                     <CopyButton value={row.email} label="Copy email" />
                   </p>
-                  {!row.has_schedule && row.role === 'member' && (
+                  {!row.has_schedule && row.role === 'member' && !row.removed && (
                     <Pill tone="warning" className="mt-2">No schedule</Pill>
                   )}
                   <div className="mt-3 flex gap-2">

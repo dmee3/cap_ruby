@@ -45,16 +45,18 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
   const [forecast, setForecast] = useState<Forecast | null>(null)
 
   // Which seasons were on when the form loaded — a season that was on and is
-  // now off is staged for removal, not simply absent.
+  // now off is staged for removal, not simply absent. A season they were
+  // already removed from doesn't count: toggling it off again is a no-op, and
+  // treating it as staged would offer to remove them twice.
   const initiallyOn = useMemo(
-    () => new Set(data.user.seasons_users.map(r => r.season_id)),
+    () => new Set(data.user.seasons_users.filter(r => !r.removed).map(r => r.season_id)),
     [data.user.seasons_users]
   )
 
   // Seasons the person is on, oldest first, so the block can say "3rd season".
   const ordinals = useMemo(() => {
     const on = data.seasons
-      .filter(s => rows[s.id])
+      .filter(s => rows[s.id] && rows[s.id]?.role !== 'removed')
       .sort((a, b) => Number(a.year) - Number(b.year))
     const map: Record<number, number> = {}
     on.forEach((s, i) => {
@@ -63,7 +65,7 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
     return map
   }, [rows, data.seasons])
 
-  const onCount = data.seasons.filter(s => rows[s.id]).length
+  const onCount = data.seasons.filter(s => rows[s.id] && rows[s.id]?.role !== 'removed').length
 
   // Both inventory gates admit admins and coordinators before they ever read
   // the flag, and they ask only about the CURRENT season — a role held in a
@@ -94,6 +96,9 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
   const schedulesToCreate = data.seasons.filter(season => {
     const row = rows[season.id]
     if (!row || row.role !== 'member') return false
+    // Restoring someone keeps the schedule removal left behind, so nothing is
+    // created here and the forecast would be a promise the save doesn't keep.
+    if (data.user.seasons_users.find(r => r.season_id === season.id)?.removed) return false
     return !data.user.seasons_users.find(r => r.season_id === season.id)?.has_schedule
   })
 
