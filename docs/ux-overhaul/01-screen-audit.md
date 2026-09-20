@@ -224,8 +224,9 @@ editable at `/admin/season/edit`) is the seasonal on/off switch coordinators use
   creation now **populates** entries from the default instead of creating an
   empty schedule. See `flow6-design-review.md` §1
 - Member 360 (`/admin/users/:id`) is **not** in this flow — Flow 4 already built it
-- Delete/deactivate is **deferred** to `cap_ruby-b3a.21`; a user delete currently
-  hard-destroys the payment schedule while soft-deleting everything else
+- Delete/deactivate was **deferred** to `cap_ruby-b3a.21`, and built there: the
+  §4.34 confirm at the foot of the edit page, with `PaymentSchedule` and its
+  entries made paranoid first so a restore is a real restore
 - Canvas reviewed against the code in `flow6-design-review.md` (12 findings,
   3 decisions taken)
 - **Built:** the roster with its four missing states and a card fallback, the

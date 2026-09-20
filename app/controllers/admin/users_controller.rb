@@ -32,9 +32,12 @@ module Admin
       end
     end
 
+    # with_deleted: a delete lands back here, so the page has to be able to
+    # render the person it just deleted — that is where Restore lives.
     def edit
-      @user = User.find(params[:id])
+      @user = User.with_deleted.find(params[:id])
       @form = ::Admin::UserFormPresenter.call(@user, current_season)
+      @delete = ::Admin::UserDeletePresenter.call(@user, current_season)
     end
 
     # A failed save re-renders with everything the admin typed still in place.
@@ -52,6 +55,7 @@ module Admin
       else
         Rollbar.info('User could not be updated.', errors: @user.errors.full_messages)
         @form = ::Admin::UserFormPresenter.call(@user, current_season)
+        @delete = ::Admin::UserDeletePresenter.call(@user, current_season)
         render :edit, status: :unprocessable_entity
       end
     end
@@ -65,13 +69,33 @@ module Admin
       redirect_to("/admin/users/#{user.id}/edit")
     end
 
+    # Answers with a redirect rather than the bare head(200) this used to
+    # return: the confirm that reaches it is an ordinary form at the foot of
+    # the edit page, so the admin has to land somewhere afterwards.
+    #
+    # It lands back on the edit page, not the roster. The roster can't show a
+    # deleted person, and a delete an admin can only undo by finding a URL is
+    # not one they can undo — the edit page stays reachable and carries the
+    # Restore button.
     def destroy
-      @user = User.find params[:id]
-      if @user.destroy
-        head(200)
+      user = User.find(params[:id])
+      if user.destroy
+        flash[:success] = "#{user.full_name} deleted"
       else
-        head(422)
+        Rollbar.info('User could not be deleted.', user_id: user.id)
+        flash[:error] = "#{user.first_name} could not be deleted"
       end
+      redirect_to("/admin/users/#{user.id}/edit")
+    end
+
+    # recursive: true is what makes this a real undo — it brings back the
+    # schedule, its entries, the payments and the conflicts that went down with
+    # the user, rather than reviving a sign-in that owes nothing.
+    def restore
+      user = User.with_deleted.find(params[:id])
+      user.recover(recursive: true)
+      flash[:success] = "#{user.full_name} restored"
+      redirect_to("/admin/users/#{user.id}/edit")
     end
 
     # A season toggled off posts `_destroy`, which would delete the row and

@@ -6,15 +6,21 @@
 #
 #  id                  :integer          not null, primary key
 #  amount              :integer
+#  deleted_at          :datetime
 #  pay_date            :date
 #  payment_schedule_id :integer
 #
 # Indexes
 #
+#  index_payment_schedule_entries_on_deleted_at           (deleted_at)
 #  index_payment_schedule_entries_on_payment_schedule_id  (payment_schedule_id)
 #
 class PaymentScheduleEntry < ApplicationRecord
-  belongs_to :payment_schedule
+  acts_as_paranoid
+
+  # with_deleted: deleting a user soft-deletes the schedule and then its
+  # entries, and the restore path reads each entry's schedule to put it back.
+  belongs_to :payment_schedule, -> { with_deleted }
   alias schedule payment_schedule
 
   scope :past_entries, -> { where('pay_date <= ?', Date.today) }

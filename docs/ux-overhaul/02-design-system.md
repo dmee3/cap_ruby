@@ -13,7 +13,7 @@ should feel.
 **Status:** Flows 1–8 merged (shell/tokens #221, member dues #226, member
 conflicts #230, admin financials #234, conflict triage #240, admin roster #241,
 public fundraiser #242, inventory #246) — §4.32 + §4.33 added in Flow 6, §4.34
-specced but deferred to `cap_ruby-b3a.21`, Flow 7 **corrected** §4.13 (it said
+specced there and built in `cap_ruby-b3a.21`, Flow 7 **corrected** §4.13 (it said
 100 days, a `<canvas>` picker, and a fee line — all three wrong) while adding
 §4.35–§4.39, and Flow 8 added §4.40–§4.42 plus an audit-trail variant on §4.6.
 Flow 9 (supporting screens, #249) added §4.43 + §4.44, extended §4.6 with a
@@ -948,16 +948,31 @@ controls, because there is nothing to edit until the record exists.
   it "Battery" in three places; the code keys on `section == 'Visual' ?
   'Visual' : 'Music'`, so every non-Visual section is Music.
 
-### 4.34 Destructive confirm *(specced — Flow 6; deferred to `cap_ruby-b3a.21`)*
+### 4.34 Destructive confirm *(built — `cap_ruby-b3a.21`, as `DeleteUserPanel.tsx`)*
 
 Red hairline at the top, a **removed** list and a **stays** list, and a
 typed-name gate keeping the primary button disabled until it matches. Escape
 cancels; never the default focus; admin only.
 
-Not built this flow. Before it ships, `PaymentSchedule` needs `acts_as_paranoid`
-— today a user delete hard-destroys the schedule and its entries while
-soft-deleting everything else, so a "stays" list would be lying. See
-`flow6-design-review.md` §6.
+- **The lists are counted, not written.** `Admin::UserDeletePresenter` builds
+  both from the record, so the confirm names *this* person's 2 schedules and 14
+  payments. Rows that would read "0 payments" are left out entirely.
+- **The gate is case- and whitespace-insensitive.** It exists to make someone
+  read a name, not to test their typing.
+- **Its own `<form>`, a sibling of the edit form.** Forms can't nest, and only
+  the destructive button is wrapped — so Enter in the name field can't submit a
+  delete that the gate hasn't opened.
+- **Placement follows §4.42:** foot of the edit page, behind a disclosure, well
+  away from Save.
+- **The delete lands back on the edit page, not the roster**, which is what
+  makes it undoable: the roster can't show a deleted person, so the page keeps
+  rendering `with_deleted` and swaps the confirm for a Restore banner. A delete
+  an admin can only undo by finding a URL is not one they can undo.
+- **Restore is recursive.** `recover(recursive: true)` brings back the schedule,
+  its entries, the payments and the conflicts, so the "stays" list is true
+  rather than reassuring. This is what `acts_as_paranoid` on `PaymentSchedule`
+  and `PaymentScheduleEntry` was needed for — see `flow6-design-review.md` §6
+  for what the delete used to destroy.
 
 ### 4.35 Performer picker item *(added — Flow 7, as `PerformerCard.tsx`)*
 

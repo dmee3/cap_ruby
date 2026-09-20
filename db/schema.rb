@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_16_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_20_120000) do
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
     t.string "description"
@@ -144,12 +144,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_16_120000) do
     t.integer "payment_schedule_id"
     t.integer "amount"
     t.date "pay_date"
+    t.datetime "deleted_at"
+    t.index ["deleted_at"], name: "index_payment_schedule_entries_on_deleted_at"
     t.index ["payment_schedule_id"], name: "index_payment_schedule_entries_on_payment_schedule_id"
   end
 
   create_table "payment_schedules", force: :cascade do |t|
     t.integer "user_id"
     t.integer "season_id"
+    t.datetime "deleted_at"
+    t.index ["deleted_at"], name: "index_payment_schedules_on_deleted_at"
     t.index ["season_id"], name: "index_payment_schedules_on_season_id"
     t.index ["user_id"], name: "index_payment_schedules_on_user_id"
   end

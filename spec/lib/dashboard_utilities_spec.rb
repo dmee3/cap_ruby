@@ -326,4 +326,31 @@ RSpec.describe DashboardUtilities do
       expect(described_class.average_days_late(season.id)).to be_nil
     end
   end
+
+  # Deleting someone takes their schedule down with them, so the dues figures
+  # stop asking them for money. Every one of these reads through the default
+  # non-deleted scope, and nothing else would notice if one of them stopped.
+  describe 'a deleted member' do
+    let(:user) { create(:user, first_name: 'Ann', last_name: 'Otherton') }
+    let(:schedule) { create(:payment_schedule, season: season, user: user) }
+
+    before do
+      create(:seasons_user, user: user, season: season, role: 'member')
+      create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.today + 3.days, amount: 5000)
+      create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.current - 8.days, amount: 10_000)
+      user.reload.destroy
+    end
+
+    it 'drops out of upcoming payments' do
+      expect(described_class.upcoming_payments(Date.today, Date.today + 1.week, season.id)).to be_empty
+    end
+
+    it 'drops out of the members behind list' do
+      expect(described_class.behind_members(season.id)).to be_empty
+    end
+
+    it 'stops counting toward days late' do
+      expect(described_class.average_days_late(season.id)).to be_nil
+    end
+  end
 end

@@ -88,6 +88,7 @@ Rails.application.routes.draw do
     # the welcome email only links to it, so nothing ever set
     # reset_password_sent_at before this.
     post 'users/:id/send-reset', to: 'users#send_reset', as: 'send_reset_admin_user'
+    post 'users/:id/restore', to: 'users#restore', as: 'restore_admin_user'
 
     resources :users
 

@@ -4,16 +4,20 @@
 #
 # Table name: payment_schedules
 #
-#  id        :integer          not null, primary key
-#  season_id :integer
-#  user_id   :integer
+#  id         :integer          not null, primary key
+#  deleted_at :datetime
+#  season_id  :integer
+#  user_id    :integer
 #
 # Indexes
 #
-#  index_payment_schedules_on_season_id  (season_id)
-#  index_payment_schedules_on_user_id    (user_id)
+#  index_payment_schedules_on_deleted_at  (deleted_at)
+#  index_payment_schedules_on_season_id   (season_id)
+#  index_payment_schedules_on_user_id     (user_id)
 #
 class PaymentSchedule < ApplicationRecord
+  acts_as_paranoid
+
   # with_deleted: a schedule outlives its user's soft delete, and admin
   # screens still need to read the owner. Without it schedule.user is nil and
   # every presenter that calls user.payments_for / amount_paid_for blows up.

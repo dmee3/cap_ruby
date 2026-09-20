@@ -14,10 +14,9 @@ RSpec.describe 'records owned by a soft-deleted user' do
     end
   end
 
-  # NB: destroying the user HARD-destroys their schedule (PaymentSchedule isn't
-  # paranoid — see cap_ruby-b3a.21), so this covers the schedules that survive
-  # because the user was deleted by other means, which is the case in the
-  # production data: one schedule whose owner was soft-deleted in 2024.
+  # The user here is soft-deleted around the association rather than through
+  # `destroy`, which matches the production case this was written for: a
+  # schedule whose owner was soft-deleted in 2024 by other means.
   it 'still resolves the owner of a payment schedule' do
     schedule = create(:payment_schedule, user: user, season: season)
     User.where(id: user.id).update_all(deleted_at: Time.current)
