@@ -141,10 +141,6 @@ module Admin
       end
     end
 
-    # Any earlier season, of any role, makes someone a vet — the same rule
-    # PaymentScheduleService uses to pick between the Vet and Rookie defaults,
-    # including its exclusion of removed seasons. The two must agree: this drives
-    # the forecast the form previews, and that service picks what is really built.
     def vet_as_of(season)
       @user.seasons_users.any? do |su|
         !su.removed? && su.season.present? && su.season.year.to_i < season.year.to_i

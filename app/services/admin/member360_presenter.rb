@@ -38,10 +38,6 @@ module Admin
       private
 
       def identity(user, season_id)
-        # Seniority counts seasons marched. A season someone was removed from is
-        # not one of them however far in they got, so it is left out here, out of
-        # vet_in?, and out of the season history below — the payments stay as a
-        # financial record, but the year is not part of their time with the group.
         member_seasons = user.seasons_users.count { |su| su.role == 'member' }
         vet = user.vet_in?(season_id)
         removed = user.seasons_users.any? { |su| su.season_id == season_id && su.removed? }
@@ -58,10 +54,6 @@ module Admin
           role: user.role_for(season_id)&.titleize,
           vet: vet,
           removed: removed,
-          # "Vet · 3rd season" reads better on the pill than a bare flag. Viewing
-          # a removed season shows what they were across their other seasons: the
-          # Removed badge replaces the role, and this says whether the person
-          # standing outside this roster is new to the group or not.
           member_type: vet ? "Vet · #{ordinal(member_seasons)} season" : 'New member'
         }
       end

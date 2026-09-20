@@ -33,8 +33,6 @@ module Api
           role: user.role_for(season_id),
           vet: user.vet_in?(season_id),
           removed: user.seasons_users.any? { |su| su.season_id == season_id && su.removed? },
-          # Seasons marched, the same count the Member 360 pill uses: removed
-          # seasons are not part of someone's time with the group.
           season_count: user.seasons_users.count { |su| su.role == 'member' },
           # Drives the roster's "No schedule" pill and the health alert. A
           # schedule row with no entries counts as missing, because that is

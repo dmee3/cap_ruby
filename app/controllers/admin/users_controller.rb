@@ -75,11 +75,8 @@ module Admin
     end
 
     # A season toggled off posts `_destroy`, which would delete the row and
-    # strand its payment schedule. Those rows are pulled out of the nested
-    # attributes and handed to SeasonRemovalService, which marks them removed
-    # and settles the dues instead. A row being *restored* comes back as an
-    # ordinary role, so it is left in the normal update path and reconciled
-    # afterwards.
+    # strand its payment schedule. Those rows go to SeasonRemovalService instead.
+    # A restored row comes back as an ordinary role, so it needs no special case.
     def split_removals(attrs)
       rows = attrs[:seasons_users_attributes]
       return [[], attrs] if rows.blank?
