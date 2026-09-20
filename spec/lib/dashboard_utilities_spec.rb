@@ -187,7 +187,10 @@ RSpec.describe DashboardUtilities do
         create(:payment_schedule_entry, payment_schedule: as, pay_date: last_sunday - 14.days, amount: 30_000)
         create(:payment_schedule_entry, payment_schedule: as, pay_date: last_sunday + 1.day, amount: 20_000) if
           last_sunday + 1.day <= Date.current
-        create(:payment, user: au, season: agree, amount: 32_500, date_paid: last_sunday - 10.days)
+        # Inside the frame the entries span, which ends at the last due date —
+        # on a Sunday that is last_sunday - 14.days, since the second entry is
+        # not created. A payment after it has nowhere to sit on the plot.
+        create(:payment, user: au, season: agree, amount: 32_500, date_paid: last_sunday - 16.days)
 
         sched = described_class.season_scheduled_series(agree.id)
         actual = described_class.season_actual_series(agree.id)

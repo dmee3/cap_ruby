@@ -89,8 +89,8 @@ module Admin
       @user.vet_in?(season_id) ? 'Vet' : nil
     end
 
-    # "4th season" — counts every season they're on, not just this one, and not
-    # ones they were removed from.
+    # "4th season" — counts every season they're on, not just this one. A season
+    # they were removed from is not one of them.
     def season_ordinal
       count = @user.seasons_users.count { |su| !su.removed? }
       return nil if count.zero?
@@ -142,10 +142,12 @@ module Admin
     end
 
     # Any earlier season, of any role, makes someone a vet — the same rule
-    # PaymentScheduleService uses to pick between the Vet and Rookie defaults.
+    # PaymentScheduleService uses to pick between the Vet and Rookie defaults,
+    # including its exclusion of removed seasons. The two must agree: this drives
+    # the forecast the form previews, and that service picks what is really built.
     def vet_as_of(season)
       @user.seasons_users.any? do |su|
-        su.season.present? && su.season.year.to_i < season.year.to_i
+        !su.removed? && su.season.present? && su.season.year.to_i < season.year.to_i
       end
     end
   end
