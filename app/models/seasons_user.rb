@@ -27,9 +27,10 @@ class SeasonsUser < ApplicationRecord
   # people-facing screens can say "removed" rather than going quiet.
   REMOVED_ROLE = 'removed'
 
-  # Excluded rather than included: legacy rows carry roles this app never
-  # assigns ('None', or none at all), and they are still real memberships.
-  # Whitelisting ROLES here would quietly strip a season from those people.
+  # Excluding the one role that means "not on this roster" rather than
+  # whitelisting ROLES: a row carrying anything else is a real membership, and a
+  # whitelist would silently drop a season from anyone whose role this app
+  # stopped assigning.
   scope :active, -> { where.not(role: REMOVED_ROLE) }
 
   belongs_to :season
@@ -41,10 +42,11 @@ class SeasonsUser < ApplicationRecord
   # wins comes down to row order.
   validates :user_id, uniqueness: { scope: :season_id }
 
-  # NB: deliberately NOT validating role presence/inclusion. Legacy rows carry
-  # the literal role 'None', and assigning `user.seasons = [season]` creates a
-  # row with no role at all. The form is what guards this instead: the season
-  # role block preselects Member when a season is toggled on.
+  # NB: deliberately NOT validating role presence/inclusion. `user.seasons =
+  # [season]` builds a row with no role at all, so a validation here would turn
+  # that assignment into a failed save rather than the membership it reads as.
+  # The form guards it instead: the season role block preselects Member when a
+  # season is toggled on.
 
   def removed?
     role == REMOVED_ROLE

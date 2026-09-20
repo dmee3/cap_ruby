@@ -47,10 +47,12 @@ class HomeController < ApplicationController
   end
 
   def handle_unknown_role
+    # current_season is nil for someone with no season left to land on — the
+    # same condition that brought them here — so it cannot be subscripted.
     Rollbar.warning(
       'User with unknown role for current season accessed home page.',
       user: current_user,
-      season: current_season['id'],
+      season: current_season&.fetch('id', nil),
       role: current_user_role
     )
 

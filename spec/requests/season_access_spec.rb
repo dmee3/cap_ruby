@@ -64,5 +64,16 @@ RSpec.describe 'Season access after removal', type: :request do
     it 'has no season left to land on' do
       expect(user.reload.active_seasons).to be_empty
     end
+
+    # A session that outlived the removal is turned away at the door, without
+    # raising on the way: Devise rejects the user before any controller runs,
+    # and nothing downstream tries to name the season they no longer have.
+    it 'turns away a session that outlived the removal' do
+      sign_in user
+      cookies[:cap_season_id] = current.id
+
+      expect { get '/' }.not_to raise_error
+      expect(response).to redirect_to('/login')
+    end
   end
 end
