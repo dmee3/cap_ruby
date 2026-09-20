@@ -465,7 +465,30 @@ year later, long after "used to" stopped meaning anything.
 - A restatement of the line below it: `# destroy the rule` over `@rule.destroy`
 - Numbers that will go stale: `108 of the 132 items carry history`
 
-The same test applies to test names and spec comments: describe the behaviour
+A comment that survives the first test still has to pass a second:
+
+> **Is this the only copy of what it says?**
+
+A comment that asserts a *relationship* ("the same rule PaymentScheduleService
+uses", "matches the Member 360 pill") or restates a *rule* the code enforces
+("a removed season doesn't count towards vet status") is a duplicate. Nothing
+checks it, so when one copy moves the other quietly starts lying — and it lies
+most convincingly right where someone is deciding whether to trust it. Both of
+those examples were written and falsified inside one pull request.
+
+Put that knowledge where it fails loudly instead:
+- A rule belongs in a spec named for it. `vet_as_of` agreeing with
+  `PaymentScheduleService` is a two-line test; as a comment it was wrong within
+  the hour.
+- A cross-file constraint belongs in a test that exercises both sides.
+- A business decision with no code to hold it belongs in the bead, linked from
+  the commit.
+
+This is not licence to strip a file bare. Prefer no comment to a duplicate one,
+and prefer a comment to a reader guessing — the aim is that everything written
+down has exactly one home, and the code is the home whenever it can be.
+
+The same tests apply to test names and spec comments: describe the behaviour
 being protected, not the bug that prompted the spec.
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:970c3bf2 -->
