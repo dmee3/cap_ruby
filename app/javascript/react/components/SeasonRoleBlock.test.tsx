@@ -16,6 +16,36 @@ const props = {
 
 const memberRow: SeasonRow = { season_id: 7, role: 'member', ensemble: 'World', section: 'Snare' }
 
+describe('SeasonRoleBlock removal', () => {
+  const removedRow: SeasonRow = {
+    id: 3, season_id: 7, role: 'removed', ensemble: 'World', section: 'Snare', removed: true,
+  }
+
+  it('says dues stop here when a season is staged for removal', () => {
+    render(<SeasonRoleBlock {...props} row={null} wasOn />)
+
+    expect(screen.getByText(/Will be removed on save/i)).toBeTruthy()
+    expect(screen.getByText(/cut to what they have already paid/i)).toBeTruthy()
+  })
+
+  it('marks a season they were already removed from', () => {
+    render(<SeasonRoleBlock {...props} row={removedRow} wasOn />)
+
+    expect(screen.getByText('Removed')).toBeTruthy()
+    expect(screen.queryByText(/Will be removed on save/i)).toBeNull()
+  })
+
+  // Restoring gives back the membership, not the schedule — there is no honest
+  // way to guess what someone returning mid-season now owes.
+  it('warns that the schedule needs rebuilding when restoring someone', () => {
+    render(
+      <SeasonRoleBlock {...props} row={{ ...removedRow, role: 'member' }} wasOn />
+    )
+
+    expect(screen.getByText(/rebuild it after saving/i)).toBeTruthy()
+  })
+})
+
 describe('SeasonRoleBlock', () => {
   it('collapses to a single row when the season is off', () => {
     render(<SeasonRoleBlock {...props} row={null} />)

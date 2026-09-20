@@ -64,6 +64,7 @@ export type Member360Data = {
     section: string | null
     role: string | null
     vet: boolean
+    removed: boolean
     member_type: string
   }
   dues: DuesSummary
@@ -115,7 +116,8 @@ const Member360 = ({ data, csrfToken }: { data: Member360Data; csrfToken: string
   const tags = [
     [identity.ensemble, identity.section].filter(Boolean).join(' / '),
     identity.member_type,
-    identity.role,
+    // Leads the role, because it changes what every number below it means.
+    identity.removed ? 'Removed' : identity.role,
   ].filter(Boolean) as string[]
 
   const restore = (row: PaymentRowModel) => {
@@ -237,7 +239,7 @@ const Member360 = ({ data, csrfToken }: { data: Member360Data; csrfToken: string
         scheduleHref={scheduleHref}
       />
 
-      {dues.state === 'no_schedule' && (
+      {dues.state === 'no_schedule' && !identity.removed && (
         <AlertBanner
           headline={`${identity.first_name} has no payment schedule`}
           body={

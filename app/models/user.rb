@@ -62,6 +62,10 @@ class User < ApplicationRecord
 
   has_many :seasons_users
   has_many :seasons, through: :seasons_users
+  # The seasons this person can actually reach: login, the season cookie and the
+  # switcher all read these rather than `seasons`.
+  has_many :active_seasons_users, -> { active }, class_name: 'SeasonsUser', inverse_of: :user
+  has_many :active_seasons, through: :active_seasons_users, source: :season
   accepts_nested_attributes_for :seasons_users, allow_destroy: true
 
   has_many :calendar_fundraisers, class_name: 'Calendar::Fundraiser'
@@ -161,11 +165,14 @@ class User < ApplicationRecord
     calendar_fundraisers.where(season_id: season_id)
   end
 
+  # Seasons marched. A season someone was removed from is not one of them, and
+  # the default schedule is picked from this.
   def vet_in?(season_id)
-    role = seasons_users.select { |su| su.season_id == season_id }&.first
+    rows = seasons_users.reject(&:removed?)
+    role = rows.find { |su| su.season_id == season_id }
     return false unless role.present?
 
-    seasons_users.any? { |su| su.season.year < role.season.year }
+    rows.any? { |su| su.season.year < role.season.year }
   end
 
   def remaining_payments_for(season_id)
@@ -182,7 +189,7 @@ class User < ApplicationRecord
   end
 
   def active_for_authentication?
-    super && seasons_users.any?
+    super && seasons_users.any? { |su| !su.removed? }
   end
 
   def quartermaster?

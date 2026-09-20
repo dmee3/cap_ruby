@@ -5,13 +5,22 @@ class ApplicationController < ActionController::Base
 
   layout :app_or_auth_layout
 
+  # The season the app is currently showing. Only ever one the user is still on:
+  # a cookie left pointing at a season they were removed from (or that no longer
+  # exists) is replaced with their most recent one, so being removed mid-session
+  # lands them somewhere real instead of on a season whose every page bounces.
   def current_season
     return nil unless current_user
 
-    # Set cookie if it doesn't exist
-    cookies[:cap_season_id] = current_user.seasons.last.id if cookies[:cap_season_id].nil?
+    reachable = current_user.active_seasons.order(:year)
+    return nil if reachable.empty?
 
-    Season.find(cookies[:cap_season_id])
+    cookie_id = cookies[:cap_season_id]
+    season = reachable.find { |s| s.id.to_s == cookie_id.to_s } if cookie_id.present?
+    season ||= reachable.last
+    cookies[:cap_season_id] = season.id unless cookie_id.to_s == season.id.to_s
+
+    season
   end
   helper_method :current_season
 
@@ -27,7 +36,10 @@ class ApplicationController < ActionController::Base
   def current_user_role
     return nil unless current_user
 
-    current_user.role_for(current_season['id'])
+    season = current_season
+    return nil if season.nil?
+
+    current_user.role_for(season['id'])
   end
   helper_method :current_user_role
 

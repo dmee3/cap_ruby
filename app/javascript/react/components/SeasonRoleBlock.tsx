@@ -11,6 +11,10 @@ export type SeasonRow = {
   /** Whether this season ALREADY has a payment schedule, so the form can say
    *  "already has one" rather than promising to create a duplicate. */
   has_schedule?: boolean
+  /** Already taken off this season's roster. The row is still here — removal is
+   *  a state, not a deletion — so the block shows it rather than reading as
+   *  "never on". */
+  removed?: boolean
 }
 
 export type SeasonOption = {
@@ -51,6 +55,11 @@ const SeasonRoleBlock = ({
 }: SeasonRoleBlockProps) => {
   const on = row !== null
   const staged = wasOn && !on
+  const wasRemoved = row?.removed === true
+  // Putting someone back restores the membership only. Their schedule was cut
+  // down to what they had paid when they left, and there is no honest way to
+  // guess what they now owe, so it has to be rebuilt by hand.
+  const stagedRestore = wasRemoved && on && row?.role !== 'removed'
 
   const handleToggle = (checked: boolean) => {
     // Turning a season on preselects Member, so a toggled-on season can never
@@ -106,12 +115,23 @@ const SeasonRoleBlock = ({
           <div className="flex flex-col gap-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-body font-bold text-primary">{season.year}</span>
-              {season.current && !staged && <Pill tone="neutral">Current season</Pill>}
+              {season.current && !staged && !wasRemoved && <Pill tone="neutral">Current season</Pill>}
+              {wasRemoved && !staged && <Pill tone="warning">Removed</Pill>}
               {staged && <Pill tone="warning">Will be removed on save</Pill>}
             </div>
             {on && seniority && <span className="text-body-sm text-secondary">{seniority}</span>}
             {!on && !staged && (
               <span className="text-body-sm text-secondary">Off. They weren&rsquo;t in the org that season.</span>
+            )}
+            {staged && !wasRemoved && (
+              <span className="text-body-sm text-secondary">
+                Dues stop here: the schedule is cut to what they have already paid. Payments are kept.
+              </span>
+            )}
+            {stagedRestore && (
+              <span className="text-body-sm text-warning-fg">
+                Their schedule still ends where their payments did — rebuild it after saving.
+              </span>
             )}
           </div>
           <div className="ml-auto">

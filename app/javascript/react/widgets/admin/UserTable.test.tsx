@@ -7,19 +7,25 @@ const rows = [
   {
     id: 1, full_name: 'Jordan Pike', email: 'jordan@example.com',
     section: 'Snare', ensemble: 'World', role: 'member',
-    vet: true, season_count: 3, has_schedule: true,
+    vet: true, removed: false, season_count: 3, has_schedule: true,
   },
   {
     id: 2, full_name: 'Marcus Webb', email: 'marcus@example.com',
     section: 'Snare', ensemble: 'CC2', role: 'member',
-    vet: false, season_count: 1, has_schedule: false,
+    vet: false, removed: false, season_count: 1, has_schedule: false,
   },
   {
     id: 3, full_name: 'Dana Reyes', email: 'dana@example.com',
     section: null, ensemble: null, role: 'admin',
-    vet: true, season_count: 5, has_schedule: false,
+    vet: true, removed: false, season_count: 5, has_schedule: false,
   },
 ]
+
+const removedRow = {
+  id: 4, full_name: 'Sasha Vance', email: 'sasha@example.com',
+  section: 'Bass', ensemble: 'World', role: 'removed',
+  vet: false, removed: true, season_count: 0, has_schedule: false,
+}
 
 const mockFetch = (data: unknown, ok = true) =>
   vi.fn().mockResolvedValue({ ok, json: () => Promise.resolve(data) })
@@ -54,6 +60,44 @@ describe('UserTable', () => {
     await waitFor(() => expect(screen.getByText(/1 member has no payment schedule/i)).toBeTruthy())
     // Staff never get schedules, so Dana must not be counted.
     expect(screen.queryByText(/2 members have no payment schedule/i)).toBeNull()
+  })
+
+  describe('removed members', () => {
+    it('leaves them out of the roster and its counts by default', async () => {
+      vi.stubGlobal('fetch', mockFetch([...rows, removedRow]))
+      render(<UserTable seasonYear="2026" />)
+
+      await waitFor(() => expect(screen.getAllByText('Jordan Pike').length).toBeGreaterThan(0))
+      expect(screen.queryByText('Sasha Vance')).toBeNull()
+      // Removed people are neither members nor staff.
+      expect(screen.getByText(/2 members · 1 staff/)).toBeTruthy()
+    })
+
+    it('shows them alongside the members once asked', async () => {
+      vi.stubGlobal('fetch', mockFetch([...rows, removedRow]))
+      render(<UserTable seasonYear="2026" />)
+
+      await waitFor(() => expect(screen.getAllByText('Jordan Pike').length).toBeGreaterThan(0))
+      fireEvent.click(screen.getByRole('checkbox', { name: /hide removed/i }))
+
+      expect(screen.getAllByText('Sasha Vance').length).toBeGreaterThan(0)
+    })
+
+    it('does not nag about the schedule a removal cleared', async () => {
+      vi.stubGlobal('fetch', mockFetch([...rows, removedRow]))
+      render(<UserTable seasonYear="2026" />)
+
+      // Marcus is the only one genuinely missing a schedule.
+      await waitFor(() => expect(screen.getByText(/1 member has no payment schedule/i)).toBeTruthy())
+    })
+
+    it('offers no toggle when nobody was removed', async () => {
+      vi.stubGlobal('fetch', mockFetch(rows))
+      render(<UserTable seasonYear="2026" />)
+
+      await waitFor(() => expect(screen.getAllByText('Jordan Pike').length).toBeGreaterThan(0))
+      expect(screen.queryByRole('checkbox', { name: /hide removed/i })).toBeNull()
+    })
   })
 
   it('filters by search and clears back', async () => {

@@ -336,6 +336,7 @@ class PaymentScheduleService
     sig { params(user: User).void }
     def ensure_payment_schedules_for_user(user)
       user.seasons_users.each do |su|
+        next if su.removed?
         next if su.role != 'member' || user.payment_schedule_for(su.season_id).present?
 
         schedule = PaymentSchedule.create(user_id: user.id, season_id: su.season_id)
@@ -378,7 +379,9 @@ class PaymentScheduleService
       ).returns(T.nilable(T::Hash[String, Integer]))
     end
     def default_schedule_for(user, season)
-      all_roles = user.seasons_users
+      # Seasons someone was removed from do not make them a vet, so a rookie who
+      # leaves part-way through and returns is charged the rookie schedule.
+      all_roles = user.seasons_users.reject(&:removed?)
       role = all_roles.select { |su| su.season_id == season['id'] }.first
       return nil unless role.present?
 

@@ -78,6 +78,42 @@ RSpec.describe Admin::Member360Presenter do
     expect(present[:dues]).to include(state: :behind, paid: 10_000, past_due: 20_000)
   end
 
+  # Removal means the season was not part of their time with the group, however
+  # far into it they got. The payments stay on the books; the year does not count
+  # towards seniority anywhere it is shown.
+  describe 'a season the member was removed from' do
+    before do
+      create(:seasons_user, user: user, season: prior_season, role: 'member')
+      SeasonRemovalService.remove(user, prior_season.id)
+    end
+
+    it 'does not count towards the seasons behind them' do
+      expect(present[:identity][:member_type]).to eq('New member')
+    end
+
+    it 'does not make them a vet of the season they are still on' do
+      expect(present[:identity][:vet]).to be(false)
+    end
+
+    it 'is left out of their season history' do
+      expect(present[:roles_by_season].map { |r| r[:year] }).to eq(['2026'])
+    end
+
+    it 'shows Removed in place of the role when that season is in context' do
+      result = described_class.call(user.reload, prior_season)
+
+      expect(result[:identity][:removed]).to be(true)
+      expect(result[:identity][:role]).to eq('Removed')
+    end
+
+    it 'still counts a season they finished' do
+      finished = create(:season, year: '2024')
+      create(:seasons_user, user: user, season: finished, role: 'member')
+
+      expect(present[:identity][:member_type]).to eq('Vet · 2nd season')
+    end
+  end
+
   describe 'roles_by_season' do
     it 'lists only the seasons the user was a member, newest first' do
       create(:seasons_user, user: user, season: prior_season, role: 'member', ensemble: 'CC2', section: 'Tenors')
