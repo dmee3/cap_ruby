@@ -74,4 +74,67 @@ RSpec.describe 'Admin::Dashboard', type: :request do
     expect(response.body).to include('12300')
     expect(response.body).not_to include('99900')
   end
+
+  describe 'the last-Venmo bookmark' do
+    let(:venmo) { create(:payment_type, name: 'Venmo') }
+
+    it 'reports the most recently entered Venmo payment with its member and amount' do
+      m = member(first_name: 'Jordan', last_name: 'Pike')
+      create(:payment, user: m, season: season, payment_type: venmo,
+                       amount: 40_000, date_paid: Date.current - 3.days)
+
+      get '/admin'
+
+      bookmark = response.body[/data-last-venmo="[^"]*"/]
+      expect(bookmark).to include('Jordan Pike')
+      expect(bookmark).to include('&quot;amount_cents&quot;:40000')
+      expect(bookmark).to include('&quot;date_paid&quot;')
+    end
+
+    it 'picks the latest entry rather than the latest payment date' do
+      m = member
+      create(:payment, user: m, season: season, payment_type: venmo,
+                       amount: 11_100, date_paid: Date.current - 1.day, created_at: 10.days.ago)
+      create(:payment, user: m, season: season, payment_type: venmo,
+                       amount: 22_200, date_paid: Date.current - 30.days, created_at: 1.hour.ago)
+
+      get '/admin'
+
+      bookmark = response.body[/data-last-venmo="[^"]*"/]
+      expect(bookmark).to include('&quot;amount_cents&quot;:22200')
+      expect(bookmark).not_to include('&quot;amount_cents&quot;:11100')
+    end
+
+    it 'ignores payments made by any other method' do
+      m = member
+      create(:payment, user: m, season: season, amount: 33_300, date_paid: Date.current)
+
+      get '/admin'
+
+      expect(response.body).to include('data-last-venmo="null"')
+    end
+
+    it 'counts the days since entry, not since the payment date' do
+      m = member
+      create(:payment, user: m, season: season, payment_type: venmo,
+                       amount: 40_000, date_paid: Date.current - 60.days, created_at: 20.days.ago)
+
+      get '/admin'
+
+      expect(response.body[/data-last-venmo="[^"]*"/]).to include('&quot;entered_days_ago&quot;:20')
+    end
+
+    it 'says there is nothing to bookmark before the Venmo type even exists' do
+      get '/admin'
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('data-last-venmo="null"')
+    end
+
+    it 'points at the add-payment form with Venmo preselected' do
+      get '/admin'
+
+      expect(response.body).to include('payment_type=Venmo')
+    end
+  end
 end

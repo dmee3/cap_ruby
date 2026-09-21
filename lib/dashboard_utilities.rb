@@ -124,17 +124,6 @@ class DashboardUtilities
       after_cutoff_summary(sundays, payments)
     end
 
-    # For the dashboard stat: average number of days a past-due schedule entry
-    # went uncovered, across the season. Returns nil when nothing is past due.
-    def average_days_late(season_id)
-      schedules = PaymentSchedule.for_season(season_id)
-                                 .includes(:payment_schedule_entries, user: :payments)
-      lags = schedules.flat_map { |sched| entry_lags(sched, season_id) }
-      return nil if lags.empty?
-
-      (lags.sum.to_f / lags.length).round
-    end
-
     private
 
     # Load everything once; the burndown then buckets in Ruby.
@@ -208,34 +197,6 @@ class DashboardUtilities
         cents = records.take_while { |r| r.public_send(date_attr) <= d }.sum(&:amount)
         [d.iso8601, (cents.to_f / 100).round(2)]
       end
-    end
-
-    # For one member's schedule: for each past-due entry, how many days passed
-    # between the entry's due date and the day the member's running payment
-    # total first covered the cumulative amount scheduled through that entry.
-    # An entry never covered as of today counts its lag through today.
-    def entry_lags(schedule, season_id)
-      today = Date.current
-      due_entries = schedule.entries.select { |e| e.pay_date < today }.sort_by(&:pay_date)
-      return [] if due_entries.empty?
-
-      payments = schedule.user.payments_for(season_id).sort_by(&:date_paid)
-      running_scheduled = 0
-      due_entries.map do |entry|
-        running_scheduled += entry.amount
-        covered_on = date_running_total_reaches(payments, running_scheduled)
-        effective = covered_on && covered_on <= today ? covered_on : today
-        [(effective - entry.pay_date).to_i, 0].max
-      end
-    end
-
-    def date_running_total_reaches(payments, target_cents)
-      running = 0
-      payments.each do |payment|
-        running += payment.amount
-        return payment.date_paid if running >= target_cents
-      end
-      nil
     end
   end
 end

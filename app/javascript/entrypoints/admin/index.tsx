@@ -6,6 +6,7 @@ import AdminDashboard, {
   DashboardBlankScheduleMember,
   DashboardConflict,
   DashboardWhistleblowerCoverage,
+  DashboardLastVenmo,
 } from '../../react/widgets/admin/AdminDashboard'
 import { AfterCutoff, BurndownPoint } from '../../react/components/BurndownChart'
 
@@ -29,8 +30,9 @@ if (el) {
         collected_cents: 0,
         behind_count: 0,
         member_count: 0,
-        average_days_late: null,
       })}
+      lastVenmo={parse<DashboardLastVenmo | null>(d.lastVenmo, null)}
+      newVenmoPaymentPath={d.newVenmoPaymentPath || ''}
       burndown={parse<{
         scheduled: BurndownPoint[]
         actual: BurndownPoint[]

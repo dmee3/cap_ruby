@@ -21,6 +21,7 @@ module Admin
       @payment = Payment.new
       @payment.user_id = params[:user_id] if params[:user_id]
       @payment_types = manual_payment_types
+      @payment.payment_type_id = preselected_payment_type_id(params[:payment_type])
       @members = add_payment_member_models
       @undo_payment_id = params[:undo].presence
       render('admin/payments/new')
@@ -126,6 +127,16 @@ module Admin
     # system — Stripe rows are created by the checkout flow, never entered here.
     def manual_payment_types
       PaymentType.where.not(name: 'Stripe').order(:name).map { |t| { id: t.id, name: t.name } }
+    end
+
+    # Resolved against the types the form actually offers, so a stale or
+    # Stripe-valued link leaves the select on its placeholder instead of
+    # preselecting something the admin cannot submit. Depends on
+    # @payment_types already being built.
+    def preselected_payment_type_id(name)
+      return nil if name.blank?
+
+      @payment_types.find { |t| t[:name].casecmp?(name) }&.fetch(:id)
     end
 
     def add_payment_member_models

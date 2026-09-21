@@ -34,18 +34,6 @@ module Api
         render json: @payments
       end
 
-      # Asked for by the admins who reconcile Venmo by hand: the last Venmo
-      # payment recorded, so they can see where they left off. No UI reaches it
-      # yet (cap_ruby-dgw), so don't read the lack of callers as dead code.
-      def latest_venmo
-        @payment = Payment
-                   .for_season(current_season['id'])
-                   .where(payment_type_id: PaymentType.venmo.id)
-                   .order(created_at: :desc)
-                   .first
-        render json: @payment, include: [:user]
-      end
-
       private
 
       def payment_params

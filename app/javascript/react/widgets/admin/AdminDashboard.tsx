@@ -36,6 +36,13 @@ export type DashboardWhistleblowerCoverage = {
   users_path: string
 }
 
+export type DashboardLastVenmo = {
+  name: string
+  amount_cents: number
+  date_paid: string
+  entered_days_ago: number
+}
+
 export type DashboardConflict = {
   id: number
   member: string
@@ -52,7 +59,6 @@ type AdminDashboardProps = {
     collected_cents: number
     behind_count: number
     member_count: number
-    average_days_late: number | null
   }
   burndown: {
     scheduled: BurndownPoint[]
@@ -69,6 +75,8 @@ type AdminDashboardProps = {
   blankScheduleMembers: DashboardBlankScheduleMember[]
   conflictsToReview: DashboardConflict[]
   whistleblowerCoverage: DashboardWhistleblowerCoverage
+  lastVenmo: DashboardLastVenmo | null
+  newVenmoPaymentPath: string
 }
 
 /** Whole dollars, no cents — headline figures never show cents. */
@@ -116,6 +124,72 @@ const RANGES: [Range, string][] = [
   ['last-30', 'Last 30 days'],
 ]
 
+const STALE_AFTER_DAYS = 14
+
+// The stat row's odd one out: an operational bookmark rather than a season
+// metric, so it carries a name, an amount and a next action instead of one
+// figure. Props arrive server-rendered with the page, so there is no loading or
+// error state to draw.
+const LastVenmoTile = ({
+  lastVenmo,
+  newPaymentPath,
+}: {
+  lastVenmo: DashboardLastVenmo | null
+  newPaymentPath: string
+}) => {
+  if (lastVenmo == null) {
+    return (
+      <Card>
+        <div className="flex flex-col gap-1.5">
+          <span className="text-label uppercase text-secondary">Last Venmo entered</span>
+          <span className="text-body font-semibold text-primary">No Venmo payments yet</span>
+          <span className="text-caption text-secondary">
+            Once you key one in, the most recent one shows here so you know where to pick up.
+          </span>
+          <a
+            href={newPaymentPath}
+            className="mt-1 text-body-sm font-semibold text-accent-primary no-underline hover:underline"
+          >
+            Enter a Venmo payment
+          </a>
+        </div>
+      </Card>
+    )
+  }
+
+  const stale = lastVenmo.entered_days_ago > STALE_AFTER_DAYS
+
+  return (
+    <Card tone={stale ? 'warning' : undefined} borderTone={stale}>
+      <div className="flex flex-col gap-1.5">
+        <span className={`text-label uppercase ${stale ? 'text-warning-fg' : 'text-secondary'}`}>
+          Last Venmo entered
+        </span>
+        <span className="text-metric font-extrabold tabular-nums tracking-tight text-primary">
+          {fmtLong(lastVenmo.date_paid)}
+        </span>
+        <span className="flex flex-wrap items-baseline gap-1.5">
+          <span className="text-body-sm font-semibold text-primary">{lastVenmo.name}</span>
+          <span className="text-body-sm font-medium tabular-nums text-success-fg">
+            {money(lastVenmo.amount_cents)}
+          </span>
+        </span>
+        {stale && (
+          <span className="text-caption text-warning-fg">
+            You keyed it in {lastVenmo.entered_days_ago} days ago. There may be a backlog in Venmo.
+          </span>
+        )}
+        <a
+          href={newPaymentPath}
+          className="mt-1 text-body-sm font-semibold text-accent-primary no-underline hover:underline"
+        >
+          Enter another Venmo payment
+        </a>
+      </div>
+    </Card>
+  )
+}
+
 const AdminDashboard = ({
   stats,
   burndown,
@@ -125,6 +199,8 @@ const AdminDashboard = ({
   blankScheduleMembers,
   conflictsToReview,
   whistleblowerCoverage,
+  lastVenmo,
+  newVenmoPaymentPath,
 }: AdminDashboardProps) => {
   const [range, setRange] = useState<Range>('season-to-date')
   const [dismissedScheduleAlert, setDismissedScheduleAlert] = useState(false)
@@ -256,17 +332,7 @@ const AdminDashboard = ({
             threshold={stats.behind_count}
           />
         </Card>
-        <Card>
-          <StatBlock
-            kicker="Average days late"
-            metric={stats.average_days_late == null ? '—' : `${stats.average_days_late} days`}
-            context={
-              stats.average_days_late == null
-                ? 'Everyone current'
-                : 'Across every past due date this season'
-            }
-          />
-        </Card>
+        <LastVenmoTile lastVenmo={lastVenmo} newPaymentPath={newVenmoPaymentPath} />
       </div>
 
       <div className="grid items-start gap-5 lg:grid-cols-[1.2fr_1fr_1fr]">
