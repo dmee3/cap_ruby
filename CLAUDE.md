@@ -488,8 +488,34 @@ This is not licence to strip a file bare. Prefer no comment to a duplicate one,
 and prefer a comment to a reader guessing — the aim is that everything written
 down has exactly one home, and the code is the home whenever it can be.
 
-The same tests apply to test names and spec comments: describe the behaviour
-being protected, not the bug that prompted the spec.
+### Specs
+
+Both tests above apply to specs too — not just to what a spec is named, but to
+whether it should exist at all:
+
+> **Does this protect behaviour we wrote, or restate a fact another file already owns?**
+
+The tell is what a failure would mean. If the only way to break the spec is to
+deliberately edit the single line that states the fact, the spec isn't holding
+anything — it's a second copy, and it costs a suite run forever.
+
+Asserting that a deleted route 404s is the worked example. `resources :payments,
+except: %i[show]` already says the route is gone; nothing reintroduces it
+quietly. The spec tested Rails, not us. Same family:
+- A framework doing what it documents — routing, strong params dropping an
+  unpermitted key, a validation firing on a blank column
+- Absence asserted right where the config states absence
+- A constant equalling its own literal
+
+**Worth writing** — these hold a fact that has no single home, so they fail when
+one side moves:
+- A rule spread across files: `vet_as_of` agreeing with `PaymentScheduleService`
+  (still unwritten, and named above as the comment that was wrong within the hour)
+- A conversion at a boundary: dollars in the form, cents in the column
+- A decision that looks like a bug until you know why: `#update` refusing to
+  reassign a payment rather than absorbing it
+
+Name specs for the behaviour being protected, not the bug that prompted them.
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:970c3bf2 -->
 ## Beads Issue Tracker
