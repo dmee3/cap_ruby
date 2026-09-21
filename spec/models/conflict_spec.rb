@@ -191,8 +191,48 @@ RSpec.describe Conflict, type: :model do
     end
 
     context 'future_conflicts' do
+      def conflict_ending_at(end_date)
+        create(
+          :conflict,
+          start_date: end_date - 1.hour,
+          end_date: end_date,
+          season: season,
+          skip_future_date_validation: true
+        )
+      end
+
       it 'returns future conflicts' do
         expect(described_class.future_conflicts).to eq([current_conflict])
+      end
+
+      it 'excludes a conflict that ended yesterday afternoon' do
+        ended = conflict_ending_at(Date.yesterday.beginning_of_day + 14.hours)
+
+        expect(described_class.future_conflicts).to_not include(ended)
+      end
+
+      it 'includes a conflict still running later today' do
+        running = conflict_ending_at(Date.current.beginning_of_day + 23.hours)
+
+        expect(described_class.future_conflicts).to include(running)
+      end
+
+      it 'includes a conflict ending exactly at the start of today' do
+        boundary = conflict_ending_at(Date.current.beginning_of_day)
+
+        expect(described_class.future_conflicts).to include(boundary)
+      end
+
+      it 'splits every conflict between future_conflicts and past_conflicts' do
+        conflict_ending_at(Date.yesterday.beginning_of_day + 14.hours)
+        conflict_ending_at(Date.current.beginning_of_day)
+        conflict_ending_at(Date.current.beginning_of_day + 23.hours)
+
+        future = described_class.future_conflicts.ids
+        past = described_class.past_conflicts.ids
+
+        expect(future & past).to be_empty
+        expect((future + past).sort).to eq(described_class.all.ids.sort)
       end
     end
 

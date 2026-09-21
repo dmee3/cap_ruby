@@ -43,8 +43,8 @@ class Conflict < ApplicationRecord
   attr_accessor :skip_future_date_validation
 
   scope :for_season, ->(season_id) { where(season_id: season_id) }
-  scope :future_conflicts, -> { where('end_date > ?', Date.yesterday) }
-  scope :past_conflicts, -> { where('end_date < ?', Date.today) }
+  scope :future_conflicts, -> { where('end_date >= ?', Date.current.beginning_of_day) }
+  scope :past_conflicts, -> { where('end_date < ?', Date.current.beginning_of_day) }
   scope :with_status, ->(status_id) { where(conflict_status: status_id) }
   scope :without_status, ->(status_id) { where.not(conflict_status: status_id) }
 
