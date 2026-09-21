@@ -44,6 +44,14 @@ module AuditionsHelpers
     }
   end
 
+  def sample_canceled_registration_order
+    sample_registration_order.merge(
+      'customerEmail' => 'canceled.user@example.com',
+      'fulfillmentStatus' => 'CANCELED',
+      'orderNumber' => '6086'
+    )
+  end
+
   def sample_invalid_order
     {
       'customerEmail' => '',
