@@ -12,10 +12,5 @@ module Members
 
       @images = (1..100).map { |x| ["calendar_#{x}_thumb.jpg"] }
     end
-
-    def download
-      img = Calendar::ImageService.generate_image(current_user.id, params[:base_img])
-      send_data img.to_datastream, type: 'image/png', disposition: 'inline'
-    end
   end
 end

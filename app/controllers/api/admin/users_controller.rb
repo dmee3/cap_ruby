@@ -7,11 +7,6 @@ module Api
         render json: params[:roster] == 'none' ? off_all_rosters : roster
       end
 
-      def show
-        @user = User.includes(:seasons_users).find(params[:id])
-        render json: @user, include: [:seasons_users]
-      end
-
       private
 
       def roster

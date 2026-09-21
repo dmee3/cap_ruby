@@ -32,18 +32,17 @@ Rails.application.routes.draw do
       delete 'payment_schedules/remove-entry', to: 'payment_schedules#remove_entry'
       post 'payment_schedules/add-entry', to: 'payment_schedules#add_entry'
 
-      resources :users, only: %i[index show]
+      resources :users, only: %i[index]
 
       # What a schedule *would* be for a combination that doesn't exist yet —
       # the add/edit user form reads this while the admin is still typing.
       get 'schedule-forecast', to: 'schedule_forecasts#show'
 
-      resources :seasons, only: %i[index]
     end
 
     namespace :inventory do
       resources :categories, only: %i[index create update destroy] do
-        resources :items, only: %i[create update show destroy]
+        resources :items, only: %i[create update destroy]
       end
     end
 
@@ -60,7 +59,6 @@ Rails.application.routes.draw do
       # name is captured afterwards.
       resources :payment_intents, only: %i[create update]
       get 'performers', to: 'performers#index'
-      get 'performers/:token/dates', to: 'performers#dates'
     end
 
     # One triage endpoint for both admins and coordinators (Flow 5).
@@ -78,9 +76,6 @@ Rails.application.routes.draw do
 
     resources :conflicts, except: %i[show destroy]
 
-    get 'payments/upcoming', to: 'payments#upcoming_payments'
-    get 'payments/behind-members', to: 'payments#behind_members'
-    get 'payments/recent', to: 'payments#recent_payments'
     put 'payments/restore/:id', to: 'payments#restore'
     resources :payments, except: %i[show]
 
@@ -89,7 +84,7 @@ Rails.application.routes.draw do
     # reset_password_sent_at before this.
     post 'users/:id/send-reset', to: 'users#send_reset', as: 'send_reset_admin_user'
 
-    resources :users
+    resources :users, except: %i[destroy]
 
     resources :payment_schedules, only: %i[edit]
 
@@ -109,7 +104,6 @@ Rails.application.routes.draw do
     get '/', to: 'dashboard#index', as: 'home'
 
     resources :calendars, only: %i[index]
-    get 'calendars/download', to: 'calendars#download'
 
     # Members may also edit their own conflict, but only while it's Pending —
     # Members::ConflictsController enforces both halves of that server-side.

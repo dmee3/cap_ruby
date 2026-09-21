@@ -65,14 +65,7 @@ module Admin
       redirect_to("/admin/users/#{user.id}/edit")
     end
 
-    def destroy
-      @user = User.find params[:id]
-      if @user.destroy
-        head(200)
-      else
-        head(422)
-      end
-    end
+    private
 
     # A season toggled off posts `_destroy`, which would delete the row and
     # strand its payment schedule. Those rows go to SeasonRemovalService instead.

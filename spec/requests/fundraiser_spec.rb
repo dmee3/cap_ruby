@@ -444,34 +444,6 @@ RSpec.describe 'Public fundraiser', type: :request do
     end
   end
 
-  describe 'GET /api/fundraiser/performers/:token/dates' do
-    it 'returns the claimed dates' do
-      sponsor(performer, 3)
-      sponsor(performer, 17, intent: 'pi_other')
-
-      get "/api/fundraiser/performers/#{performer.public_token}/dates"
-
-      expect(response).to have_http_status(:success)
-      expect(response.parsed_body['claimed_dates']).to eq([3, 17])
-    end
-
-    it 'creates no fundraiser row, because a GET must not write' do
-      # The endpoint this replaced called find_or_create_incomplete_for_user,
-      # so opening the picker left an empty fundraiser behind every time.
-      performer
-
-      expect do
-        get "/api/fundraiser/performers/#{performer.public_token}/dates"
-      end.not_to change(Calendar::Fundraiser, :count)
-    end
-
-    it '404s an unknown token' do
-      get '/api/fundraiser/performers/nosuchtoken/dates'
-
-      expect(response).to have_http_status(:not_found)
-    end
-  end
-
   describe 'POST /api/fundraiser/payment_intents' do
     before do
       allow(Stripe::PaymentIntent).to receive(:create).and_return(

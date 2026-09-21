@@ -102,42 +102,6 @@ module Admin
       end
     end
 
-    def upcoming_payments
-      begin
-        start_date = Date.parse(params[:start_date])
-        end_date = Date.parse(params[:end_date])
-      rescue TypeError, ArgumentError
-        start_date = Date.today
-        end_date = Date.today + 2.weeks
-      end
-
-      render(
-        json: {
-          payments: DashboardUtilities.upcoming_payments(start_date, end_date, current_season['id'])
-        }
-      )
-    end
-
-    def recent_payments
-      begin
-        start_date = Date.parse(params[:start_date])
-        end_date = Date.parse(params[:end_date])
-      rescue TypeError, ArgumentError
-        start_date = Date.today - 1.week
-        end_date = Date.today
-      end
-
-      render(
-        json: {
-          payments: DashboardUtilities.recent_payments(start_date, end_date, current_season['id'])
-        }
-      )
-    end
-
-    def behind_members
-      render(json: { members: DashboardUtilities.behind_members(current_season['id']) })
-    end
-
     private
 
     def payments_query_params
