@@ -89,7 +89,7 @@ Rails.application.routes.draw do
     # reset_password_sent_at before this.
     post 'users/:id/send-reset', to: 'users#send_reset', as: 'send_reset_admin_user'
 
-    resources :users
+    resources :users, except: %i[destroy]
 
     resources :payment_schedules, only: %i[edit]
 

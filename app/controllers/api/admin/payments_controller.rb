@@ -34,6 +34,9 @@ module Api
         render json: @payments
       end
 
+      # Asked for by the admins who reconcile Venmo by hand: the last Venmo
+      # payment recorded, so they can see where they left off. No UI reaches it
+      # yet (cap_ruby-dgw), so don't read the lack of callers as dead code.
       def latest_venmo
         @payment = Payment
                    .for_season(current_season['id'])
