@@ -82,7 +82,7 @@ Rails.application.routes.draw do
     get 'payments/behind-members', to: 'payments#behind_members'
     get 'payments/recent', to: 'payments#recent_payments'
     put 'payments/restore/:id', to: 'payments#restore'
-    resources :payments
+    resources :payments, except: %i[show]
 
     # Admin-triggered password reset. Devise's own flow is user-initiated, and
     # the welcome email only links to it, so nothing ever set
