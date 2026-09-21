@@ -2,6 +2,8 @@
 
 module Admin
   class PaymentsController < AdminController
+    QUERY_KEYS = %i[sort dir q type_id start_date end_date scope limit offset].freeze
+
     def index
       respond_to do |format|
         format.html do
@@ -104,8 +106,11 @@ module Admin
 
     private
 
+    # Sliced before permitting: `permit` on the whole params hash treats the
+    # always-present `:format`, `:controller` and `:action` as unpermitted and
+    # logs them on every JSON request.
     def payments_query_params
-      params.permit(:sort, :dir, :q, :type_id, :start_date, :end_date, :scope, :limit, :offset)
+      params.slice(*QUERY_KEYS).permit(*QUERY_KEYS)
     end
 
     # The amount field is dollars; the column is integer cents. `.to_f` first,

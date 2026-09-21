@@ -39,6 +39,19 @@ RSpec.describe 'Admin::Payments', type: :request do
       get '/admin/payments', headers: { 'Accept' => 'application/json' }
       expect(response).to have_http_status(:found).or have_http_status(:unauthorized)
     end
+
+    it 'treats no request param as unpermitted' do
+      unpermitted = []
+      sub = ActiveSupport::Notifications.subscribe('unpermitted_parameters.action_controller') do |*, payload|
+        unpermitted.concat(payload[:keys])
+      end
+
+      get '/admin/payments.json', params: { sort: 'date_paid', dir: 'desc', limit: 20, offset: 0 }
+
+      ActiveSupport::Notifications.unsubscribe(sub)
+      expect(response).to have_http_status(:success)
+      expect(unpermitted).to be_empty
+    end
   end
 
   describe 'GET /admin/payments (HTML)' do
