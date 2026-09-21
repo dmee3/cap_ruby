@@ -23,7 +23,6 @@ Rails.application.routes.draw do
       resources :payments, only: %i[index create]
       get 'payments/collected', to: 'payments#collected'
       get 'payments/upcoming', to: 'payments#upcoming'
-      get 'payments/latest_venmo', to: 'payments#latest_venmo'
 
       resources :payment_schedules, only: %i[show update]
       get 'payment_schedules/:payment_schedule_id/default-preview', to: 'payment_schedules#default_preview'
