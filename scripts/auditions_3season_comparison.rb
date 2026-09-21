@@ -14,8 +14,11 @@
 # Sale context:
 #   2025/2026: list price Music $115 / Visual $90; a 15%-off promo code ran most
 #              of the window (15OFF / CC25MUSAUD / 15FOR15), tapering ~5 days out.
-#   2027:      Music $100 / Visual $80 IS the current sale price; sale ENDS the day
-#              after the data snapshot (prices rise the next day).
+#   2027:      Music $100 / Visual $80 was an automatic sale price, no code needed.
+#              It ENDED after 2026-09-08; from 09-09 on, every order pays the full
+#              $115 / $90. That step is why 2027's late-window pace is read against
+#              2023 (the last season with the same structure) rather than 2025/2026,
+#              whose optional promo code never forced a hard cutoff.
 #
 # Run: bundle exec rails runner scripts/auditions_3season_comparison.rb
 
@@ -112,6 +115,9 @@ SEASONS.each do |year, cfg|
 end
 
 SNAP_DAYS_OUT = (SEASONS[2027][:audition_date] - (season_data[2027].map { |r| r[:date] }.max || Date.today)).to_i
+
+# Last day the automatic 2027 sale price was honored; the next order paid list.
+SALE_END_2027 = Date.new(2026, 9, 8)
 
 puts '=' * 78
 puts "PAID REGISTRATIONS ONLY (excluded $0 comp orders: #{excluded.map { |k, v| "#{k}=#{v}" }.join(', ')})"
@@ -219,7 +225,7 @@ puts "SNAPSHOT: 2027 vs prior seasons at #{SNAP_DAYS_OUT} days before first audi
 puts '=' * 78
 snap_date_2027 = season_data[2027].map { |r| r[:date] }.max
 puts "2027 data snapshot date: #{snap_date_2027}  (#{SNAP_DAYS_OUT}d before 2026-09-27)"
-puts '15%-off sale is CURRENTLY RUNNING for 2027 and ends the following day.'
+puts "2027 sale price ended #{SALE_END_2027}; orders from #{SALE_END_2027 + 1} on pay full price."
 puts
 SEASONS.each_key do |year|
   at = season_data[year].count { |r| r[:days_before] >= SNAP_DAYS_OUT }
@@ -228,3 +234,28 @@ SEASONS.each_key do |year|
   cur = year == 2027 ? '   <-- current (final TBD)' : "   final #{final}  (#{(100.0 * at / final).round}% of final in by now)"
   printf("  %d: %3d paid (%d M / %d V) at %dd out%s\n", year, at, m, at - m, SNAP_DAYS_OUT, cur)
 end
+
+# ---------------------------------------------------------------------------
+# What the price step actually did to 2027's pace. The prior-season promo codes
+# were optional and tapered, so only 2027 has a hard before/after boundary here.
+puts
+puts '=' * 78
+puts 'PRICE-STEP EFFECT (2027 only)'
+puts '=' * 78
+pre = season_data[2027].select { |r| r[:date] <= SALE_END_2027 }
+post = season_data[2027].reject { |r| r[:date] <= SALE_END_2027 }
+pre_days = (pre.map { |r| r[:date] }.max - pre.map { |r| r[:date] }.min).to_i + 1
+post_days = post.empty? ? 0 : (post.map { |r| r[:date] }.max - SALE_END_2027).to_i
+printf("  sale price  (thru %s): %3d regs over %2d days = %.1f/day\n",
+       SALE_END_2027, pre.size, pre_days, pre.size.to_f / pre_days)
+if post_days.positive?
+  printf("  full price  (%s on): %3d regs over %2d days = %.1f/day\n",
+         SALE_END_2027 + 1, post.size, post_days, post.size.to_f / post_days)
+  printf("  => post-step pace is %.0f%% of the pre-step rate\n",
+         100.0 * (post.size.to_f / post_days) / (pre.size.to_f / pre_days))
+end
+puts
+puts '  unit prices paid, before vs after the step:'
+season_data[2027].group_by { |r| [r[:date] <= SALE_END_2027 ? 'sale' : 'full', r[:unit]] }
+                 .sort_by { |k, _| [k[0], k[1].to_f] }
+                 .each { |k, v| printf("    %-6s $%-7.2f %3d\n", k[0], k[1], v.size) }

@@ -656,7 +656,7 @@
     <h1>Audition Registration Pace</h1>
     <div class="meta">
       CAP CITY PERCUSSION<br>
-      Prepared 2026&#8209;09&#8209;07 &nbsp;/&nbsp; Source: Squarespace Orders API<br>
+      Prepared 2026&#8209;09&#8209;17 &nbsp;/&nbsp; Source: Squarespace Orders API<br>
       Seasons 2025 &#183; 2026 &#183; 2027
     </div>
   </div>
@@ -666,25 +666,25 @@
     <span class="slide__num">01 / 08</span>
     <div class="cover__kicker">Pre-season briefing</div>
     <div class="cover__rule"></div>
-    <h2>2027 is<br>running ahead</h2>
-    <p class="cover__sub">Twenty days out from the first audition, paid registrations
-      are well past where the last two seasons stood &mdash; with a sale deadline
-      about to pull even more forward.</p>
+    <h2>2027 leads,<br>but the step bit</h2>
+    <p class="cover__sub">Ten days out, paid registrations are still well clear of the
+      last two seasons &mdash; but the sale ended on 8 Sep and pace has fallen to a
+      quarter of its pre-step rate.</p>
     <div class="stats">
       <div class="stat">
         <div class="stat__season"><span class="swatch swatch--2025"></span>2025 season</div>
-        <div class="stat__num">59</div>
-        <div class="stat__note">at 20 days out &#183; final 154</div>
+        <div class="stat__num">81</div>
+        <div class="stat__note">at 10 days out &#183; final 154</div>
       </div>
       <div class="stat">
         <div class="stat__season"><span class="swatch swatch--2026"></span>2026 season</div>
-        <div class="stat__num">51</div>
-        <div class="stat__note">at 20 days out &#183; final 128</div>
+        <div class="stat__num">80</div>
+        <div class="stat__note">at 10 days out &#183; final 128</div>
       </div>
       <div class="stat stat--live">
         <div class="stat__season"><span class="swatch swatch--2027"></span>2027 season</div>
-        <div class="stat__num">82</div>
-        <div class="stat__note">today &#183; sale ends tomorrow</div>
+        <div class="stat__num">102</div>
+        <div class="stat__note">today &#183; 10 days out &#183; full price</div>
       </div>
     </div>
     <div class="slide__foot"><span>Audition Registration Pace</span><span>Cap City Percussion</span></div>
@@ -702,7 +702,7 @@
           <span><i style="background:var(--pewter)"></i>2026</span>
           <span><i style="background:var(--brass)"></i>2027</span>
         </div>
-        <svg class="chart" viewBox="0 0 620 340" role="img" aria-label="Cumulative paid registrations by days before the first audition. 2027 leads 2025 and 2026 at every point from 40 days out to the 20-day snapshot.">
+        <svg class="chart" viewBox="0 0 620 340" role="img" aria-label="Cumulative paid registrations by days before the first audition. 2027 leads 2025 and 2026 at every point from 40 days out through the 10-day snapshot, reaching 102 versus 81 and 80.">
           <!-- axes -->
           <g font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--text-dim)">
             <!-- y gridlines at 0,40,80,120,160 -->
@@ -716,36 +716,41 @@
             <text x="40" y="174" text-anchor="end">80</text>
             <text x="40" y="114" text-anchor="end">120</text>
             <text x="40" y="54"  text-anchor="end">160</text>
-            <!-- x ticks: 42d .. 20d, x from 46 (42d) to 600 (20d) -->
+            <!-- x ticks: 42d .. 10d, x from 46 (42d) to 600 (10d) -->
             <text x="46"  y="308" text-anchor="middle">42d</text>
-            <text x="172" y="308" text-anchor="middle">35d</text>
-            <text x="298" y="308" text-anchor="middle">28d</text>
-            <text x="425" y="308" text-anchor="middle">25d</text>
-            <text x="600" y="308" text-anchor="middle">20d</text>
+            <text x="167" y="308" text-anchor="middle">35d</text>
+            <text x="288" y="308" text-anchor="middle">28d</text>
+            <text x="392" y="308" text-anchor="middle">22d</text>
+            <text x="513" y="308" text-anchor="middle">15d</text>
+            <text x="600" y="308" text-anchor="middle">10d</text>
             <text x="323" y="330" text-anchor="middle" fill="var(--text-dim)" letter-spacing="0.1em">DAYS BEFORE FIRST AUDITION</text>
           </g>
-          <!-- data: x mapping 42d->46, 20d->600 ; step per day = (600-46)/22 = 25.18
+          <!-- data: x mapping 42d->46, 10d->600 ; step per day = (600-46)/32 = 17.31
                y mapping value v -> 290 - v*1.5  (160 -> 50) -->
-          <!-- 2025: 42:17 40:19 35:22 30:30 28:35 25:46 21:57 20:59 -->
+          <!-- The dashed vertical marks 2026-09-08, the last day of the 2027 sale
+               price; the 2027 line's slope change to its right is the step effect. -->
+          <line x1="444.2" y1="40" x2="444.2" y2="290" stroke="var(--signal)" stroke-width="1" stroke-dasharray="4 3" opacity="0.65"/>
+          <text x="449.2" y="52" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="var(--signal)">sale ends</text>
+          <!-- 2025 -->
           <polyline fill="none" stroke="var(--shadow-blue)" stroke-width="2" stroke-linejoin="round"
-            points="46,264.5 96.4,261.5 222.3,257 348.2,245 398.6,237.5 474.1,221 549.6,204.5 600,201.5"/>
-          <!-- 2026: 42:0 40:0 35:25 30:38 28:39 25:44 21:49 20:51 -->
+            points="46.0,264.5 80.6,261.5 167.2,257.0 253.8,245.0 288.4,237.5 340.3,221.0 409.6,204.5 426.9,201.5 513.4,185.0 530.8,179.0 600.0,168.5"/>
+          <!-- 2026 -->
           <polyline fill="none" stroke="var(--pewter)" stroke-width="2" stroke-linejoin="round"
-            points="46,290 96.4,290 222.3,252.5 348.2,233 398.6,231.5 474.1,224 549.6,216.5 600,213.5"/>
-          <!-- 2027: 42:0 40:15 35:28 30:41 28:45 25:51 21:76 20:82 -->
+            points="46.0,290.0 80.6,290.0 167.2,252.5 253.8,233.0 288.4,231.5 340.3,224.0 409.6,216.5 426.9,213.5 513.4,204.5 530.8,198.5 600.0,170.0"/>
+          <!-- 2027 -->
           <polyline fill="none" stroke="var(--brass)" stroke-width="2.75" stroke-linejoin="round"
-            points="46,290 96.4,267.5 222.3,248 348.2,228.5 398.6,222.5 474.1,213.5 549.6,176 600,167"/>
+            points="46.0,290.0 80.6,267.5 167.2,248.0 253.8,228.5 288.4,222.5 340.3,213.5 409.6,176.0 426.9,165.5 513.4,144.5 530.8,143.0 600.0,137.0"/>
           <!-- endpoint dots -->
-          <circle cx="600" cy="201.5" r="3" fill="var(--shadow-blue)"/>
-          <circle cx="600" cy="213.5" r="3" fill="var(--pewter)"/>
-          <circle cx="600" cy="167" r="4" fill="var(--brass)"/>
-          <text x="588" y="158" text-anchor="end" font-family="Oswald, sans-serif" font-weight="600" font-size="15" fill="var(--brass)">82</text>
+          <circle cx="600" cy="168.5" r="3" fill="var(--shadow-blue)"/>
+          <circle cx="600" cy="170.0" r="3" fill="var(--pewter)"/>
+          <circle cx="600" cy="137.0" r="4" fill="var(--brass)"/>
+          <text x="594" y="128.0" text-anchor="end" font-family="Oswald, sans-serif" font-weight="600" font-size="15" fill="var(--brass)">102</text>
         </svg>
       </div>
       <div class="aside">
-        <p class="big">+61<em>%</em></p>
-        <p>ahead of the 2026 season at the same point in the calendar; <strong>+39%</strong> ahead of 2025.</p>
-        <p style="font-family:var(--f-mono);font-size:0.76rem;color:var(--text-dim);">2027 has already booked what 2026 didn&rsquo;t hit until ~10 days out.</p>
+        <p class="big">+28<em>%</em></p>
+        <p>ahead of the 2026 season at the same point in the calendar; <strong>+26%</strong> ahead of 2025.</p>
+        <p style="font-family:var(--f-mono);font-size:0.76rem;color:var(--text-dim);">The lead narrowed from +63% at 20 days out &mdash; prior seasons kept selling through this stretch, 2027 largely stopped.</p>
       </div>
     </div>
     <div class="slide__foot"><span>Cumulative paid registrations</span><span>02</span></div>
@@ -767,13 +772,17 @@
           <tr><td>30 days</td><td>30</td><td>38</td><td class="c2027">41</td><td>+8%</td></tr>
           <tr><td>25 days</td><td>46</td><td>44</td><td class="c2027">51</td><td>+16%</td></tr>
           <tr><td>21 days</td><td>57</td><td>49</td><td class="c2027">76</td><td>+55%</td></tr>
-          <tr class="mark"><td>20 days &#183; today</td><td>59</td><td>51</td><td class="c2027">82</td><td>+61%</td></tr>
-          <tr><td>10 days</td><td>81</td><td>80</td><td class="c2027">&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>20 days</td><td>59</td><td>51</td><td class="c2027">83</td><td>+63%</td></tr>
+          <tr><td>15 days</td><td>70</td><td>57</td><td class="c2027">97</td><td>+70%</td></tr>
+          <tr class="mark"><td>10 days &#183; today</td><td>81</td><td>80</td><td class="c2027">102</td><td>+28%</td></tr>
+          <tr><td>7 days</td><td>91</td><td>100</td><td class="c2027">&mdash;</td><td>&mdash;</td></tr>
           <tr><td>Audition day</td><td>147</td><td>121</td><td class="c2027">&mdash;</td><td>&mdash;</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="table-note">* 2026 registration sales opened 22 Aug vs 17 Aug in 2025 and 2027.</p>
+    <p class="table-note">* 2026 registration sales opened 22 Aug vs 17 Aug in 2025 and 2027.
+      The 2027 lead peaks at +70% at 15 days out and then halves: the sale ended 8 Sep (19 days out),
+      and only 9 registrations have landed since.</p>
     <div class="slide__foot"><span>Milestone comparison</span><span>03</span></div>
   </section>
 
@@ -789,7 +798,7 @@
           <span><i style="background:var(--pewter)"></i>2026</span>
           <span><i style="background:var(--brass)"></i>2027</span>
         </div>
-        <svg class="chart" viewBox="0 0 620 340" role="img" aria-label="New paid registrations per week before the first audition. 2025 back-loaded with 57 in the final week; 2026 peaked in weeks two and three; 2027 leads the early weeks and its later weeks are not yet in.">
+        <svg class="chart" viewBox="0 0 620 340" role="img" aria-label="New paid registrations per week before the first audition. 2025 back-loaded with 57 in the final week; 2026 peaked in weeks two and three; 2027 spiked to 34 in week three ahead of its sale deadline then fell to 5 in week two.">
           <g font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--text-dim)">
             <line x1="46" y1="280" x2="606" y2="280" stroke="var(--line)"/>
             <line x1="46" y1="215" x2="606" y2="215" stroke="var(--line)" stroke-dasharray="2 3"/>
@@ -819,15 +828,17 @@
             <rect x="270" y="257.25" width="16" height="22.75" fill="var(--pewter)"/>
             <rect x="288" y="211.75" width="16" height="68.25" fill="var(--brass)"/>
             <text x="278" y="296">wk 4</text>
-            <!-- wk3 (15-21d): 16,11,19 (partial) -->
+            <!-- wk3 (15-21d): 16,11,34 -->
             <rect x="342" y="228"   width="16" height="52"   fill="var(--shadow-blue)"/>
             <rect x="360" y="244.25" width="16" height="35.75" fill="var(--pewter)"/>
-            <rect x="378" y="218.25" width="16" height="61.75" fill="var(--brass)" opacity="0.55"/>
-            <rect x="378" y="218.25" width="16" height="61.75" fill="none" stroke="var(--brass)" stroke-width="1.5" stroke-dasharray="3 2"/>
+            <rect x="378" y="169.5"  width="16" height="110.5" fill="var(--brass)"/>
+            <text x="396" y="162" font-family="Oswald, sans-serif" font-weight="600" font-size="13" fill="var(--brass)">34</text>
             <text x="368" y="296">wk 3</text>
-            <!-- wk2 (8-14d): 16,39,— -->
+            <!-- wk2 (8-14d): 16,39,5 -->
             <rect x="432" y="228"   width="16" height="52"   fill="var(--shadow-blue)"/>
             <rect x="450" y="153.25" width="16" height="126.75" fill="var(--pewter)"/>
+            <rect x="468" y="263.75" width="16" height="16.25" fill="var(--brass)"/>
+            <text x="476" y="257" font-family="Oswald, sans-serif" font-weight="600" font-size="13" fill="var(--signal)">5</text>
             <text x="468" y="296">wk 2</text>
             <!-- wk1 (1-7d): 57,22,— -->
             <rect x="522" y="94.75" width="16" height="185.25" fill="var(--shadow-blue)"/>
@@ -842,7 +853,8 @@
       <div class="aside">
         <p><strong>2025</strong> emptied the tank late &mdash; 57 signups in the final week alone.</p>
         <p><strong>2026</strong> bulged in weeks 2&ndash;3, when the 15%-off code saw the most use, then tailed off.</p>
-        <p><strong>2027</strong> leads the early weeks; its back half hasn&rsquo;t happened yet.</p>
+        <p><strong>2027</strong> spiked to 34 in week 3 &mdash; the sale deadline pulling demand forward &mdash;
+          then collapsed to 5 in week 2. Week 1 is still to come.</p>
       </div>
     </div>
     <div class="slide__foot"><span>Weekly registration volume</span><span>04</span></div>
@@ -859,44 +871,44 @@
           <span><i style="background:var(--shadow-blue)"></i>2025</span>
           <span><i style="background:var(--pewter)"></i>2026</span>
           <span><i style="background:var(--brass)"></i>2027</span>
-          <span style="margin-left:auto">at 20 days out</span>
+          <span style="margin-left:auto">at 10 days out</span>
         </div>
-        <svg class="chart" viewBox="0 0 620 340" role="img" aria-label="Registrations by section at 20 days before the first audition. Battery: 34, 29, 45 across 2025, 2026, 2027. Front Ensemble: 18, 17, 27. Visual: 7, 5, 10. 2027 leads every section.">
+        <svg class="chart" viewBox="0 0 620 340" role="img" aria-label="Registrations by section at 10 days before the first audition. Battery: 48, 51, 58 across 2025, 2026, 2027. Front Ensemble: 25, 22, 32. Visual: 8, 7, 12. 2027 leads every section.">
           <g font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--text-dim)">
             <line x1="52" y1="280" x2="606" y2="280" stroke="var(--line)"/>
             <line x1="52" y1="208" x2="606" y2="208" stroke="var(--line)" stroke-dasharray="2 3"/>
             <line x1="52" y1="136" x2="606" y2="136" stroke="var(--line)" stroke-dasharray="2 3"/>
             <line x1="52" y1="64"  x2="606" y2="64"  stroke="var(--line)" stroke-dasharray="2 3"/>
             <text x="46" y="284" text-anchor="end">0</text>
-            <text x="46" y="212" text-anchor="end">15</text>
-            <text x="46" y="140" text-anchor="end">30</text>
-            <text x="46" y="68"  text-anchor="end">45</text>
+            <text x="46" y="212" text-anchor="end">20</text>
+            <text x="46" y="140" text-anchor="end">40</text>
+            <text x="46" y="68"  text-anchor="end">60</text>
           </g>
           <!-- y: v -> 280 - v*4.8 ; 3 groups centred at 160, 330, 500 ; bar w 34, gap 4 -->
           <g text-anchor="middle" font-family="IBM Plex Mono, monospace">
-            <!-- Battery 34 / 29 / 45 -->
-            <rect x="103" y="116.8" width="34" height="163.2" fill="var(--shadow-blue)"/>
-            <rect x="141" y="140.8" width="34" height="139.2" fill="var(--pewter)"/>
-            <rect x="179" y="64"    width="34" height="216"   fill="var(--brass)"/>
-            <text x="120" y="108" font-size="12" font-weight="600" fill="var(--shadow-blue)">34</text>
-            <text x="158" y="132" font-size="12" font-weight="600" fill="var(--pewter)">29</text>
-            <text x="196" y="55"  font-size="13" font-weight="600" fill="var(--brass)">45</text>
+            <!-- Battery 48 / 51 / 58 -->
+            <rect x="103" y="107.2" width="34" height="172.8" fill="var(--shadow-blue)"/>
+            <rect x="141" y="96.4" width="34" height="183.6" fill="var(--pewter)"/>
+            <rect x="179" y="71.2" width="34" height="208.8" fill="var(--brass)"/>
+            <text x="120" y="99.2" font-size="12" font-weight="600" fill="var(--shadow-blue)">48</text>
+            <text x="158" y="88.4" font-size="12" font-weight="600" fill="var(--pewter)">51</text>
+            <text x="196" y="62.2" font-size="13" font-weight="600" fill="var(--brass)">58</text>
             <text x="158" y="300" font-size="11" fill="var(--text-dim)" letter-spacing="0.06em">BATTERY</text>
-            <!-- Front Ensemble 18 / 17 / 27 -->
-            <rect x="273" y="193.6" width="34" height="86.4"  fill="var(--shadow-blue)"/>
-            <rect x="311" y="198.4" width="34" height="81.6"  fill="var(--pewter)"/>
-            <rect x="349" y="150.4" width="34" height="129.6" fill="var(--brass)"/>
-            <text x="290" y="185" font-size="12" font-weight="600" fill="var(--shadow-blue)">18</text>
-            <text x="328" y="190" font-size="12" font-weight="600" fill="var(--pewter)">17</text>
-            <text x="366" y="142" font-size="13" font-weight="600" fill="var(--brass)">27</text>
+            <!-- Front Ensemble 25 / 22 / 32 -->
+            <rect x="273" y="190.0" width="34" height="90.0" fill="var(--shadow-blue)"/>
+            <rect x="311" y="200.8" width="34" height="79.2" fill="var(--pewter)"/>
+            <rect x="349" y="164.8" width="34" height="115.2" fill="var(--brass)"/>
+            <text x="290" y="182.0" font-size="12" font-weight="600" fill="var(--shadow-blue)">25</text>
+            <text x="328" y="192.8" font-size="12" font-weight="600" fill="var(--pewter)">22</text>
+            <text x="366" y="155.8" font-size="13" font-weight="600" fill="var(--brass)">32</text>
             <text x="328" y="300" font-size="11" fill="var(--text-dim)" letter-spacing="0.06em">FRONT ENSEMBLE</text>
-            <!-- Visual 7 / 5 / 10 -->
-            <rect x="443" y="246.4" width="34" height="33.6" fill="var(--shadow-blue)"/>
-            <rect x="481" y="256"   width="34" height="24"   fill="var(--pewter)"/>
-            <rect x="519" y="232"   width="34" height="48"   fill="var(--brass)"/>
-            <text x="460" y="238" font-size="12" font-weight="600" fill="var(--shadow-blue)">7</text>
-            <text x="498" y="248" font-size="12" font-weight="600" fill="var(--pewter)">5</text>
-            <text x="536" y="224" font-size="13" font-weight="600" fill="var(--brass)">10</text>
+            <!-- Visual 8 / 7 / 12 -->
+            <rect x="443" y="251.2" width="34" height="28.8" fill="var(--shadow-blue)"/>
+            <rect x="481" y="254.8" width="34" height="25.2" fill="var(--pewter)"/>
+            <rect x="519" y="236.8" width="34" height="43.2" fill="var(--brass)"/>
+            <text x="460" y="243.2" font-size="12" font-weight="600" fill="var(--shadow-blue)">8</text>
+            <text x="498" y="246.8" font-size="12" font-weight="600" fill="var(--pewter)">7</text>
+            <text x="536" y="227.8" font-size="13" font-weight="600" fill="var(--brass)">12</text>
             <text x="498" y="300" font-size="11" fill="var(--text-dim)" letter-spacing="0.06em">VISUAL</text>
           </g>
         </svg>
@@ -909,21 +921,21 @@
           </thead>
           <tbody>
             <tr class="sec-head"><td colspan="4">Battery</td></tr>
-            <tr><td>Snare</td><td>50</td><td>35</td><td class="c2027">21</td></tr>
-            <tr><td>Tenors</td><td>16</td><td>13</td><td class="c2027">9</td></tr>
-            <tr><td>Bass</td><td>21</td><td>9</td><td class="c2027">10</td></tr>
-            <tr><td>Cymbals</td><td>15</td><td>19</td><td class="c2027">5</td></tr>
+            <tr><td>Snare</td><td>50</td><td>35</td><td class="c2027">29</td></tr>
+            <tr><td>Tenors</td><td>16</td><td>13</td><td class="c2027">11</td></tr>
+            <tr><td>Bass</td><td>21</td><td>9</td><td class="c2027">11</td></tr>
+            <tr><td>Cymbals</td><td>15</td><td>19</td><td class="c2027">7</td></tr>
             <tr class="sec-head"><td colspan="4">Front Ensemble</td></tr>
-            <tr><td>Marimba</td><td>18</td><td>23</td><td class="c2027">11</td></tr>
+            <tr><td>Marimba</td><td>18</td><td>23</td><td class="c2027">15</td></tr>
             <tr><td>Vibraphone</td><td>6</td><td>8</td><td class="c2027">9</td></tr>
-            <tr><td>Other mallet / aux</td><td>14</td><td>9</td><td class="c2027">7</td></tr>
+            <tr><td>Other mallet / aux</td><td>14</td><td>9</td><td class="c2027">8</td></tr>
             <tr class="sec-head"><td colspan="4">Visual</td></tr>
-            <tr><td>Visual Ensemble</td><td>14</td><td>12</td><td class="c2027">10</td></tr>
+            <tr><td>Visual Ensemble</td><td>14</td><td>12</td><td class="c2027">12</td></tr>
           </tbody>
         </table>
       </div>
     </div>
-    <div class="slide__foot"><span>Registrations by section &#183; 20 days out</span><span>05</span></div>
+    <div class="slide__foot"><span>Registrations by section &#183; 10 days out</span><span>05</span></div>
   </section>
 
   <!-- 6 — The section mix over time -->
@@ -951,13 +963,13 @@
         <div class="mixrow__n">128</div>
       </div>
       <div class="mixrow">
-        <div class="mixrow__label" style="color:var(--brass)">2027<small>thru today &#183; n 82</small></div>
-        <div class="mixbar" role="img" aria-label="2027 so far: Battery 55%, Front Ensemble 33%, Visual 12%.">
-          <div class="mixbar__seg battery" style="width:54.9%">55%</div>
-          <div class="mixbar__seg front" style="width:32.9%">33%</div>
-          <div class="mixbar__seg visual" style="width:12.2%">12%</div>
+        <div class="mixrow__label" style="color:var(--brass)">2027<small>thru today &#183; n 102</small></div>
+        <div class="mixbar" role="img" aria-label="2027 so far: Battery 57%, Front Ensemble 31%, Visual 12%.">
+          <div class="mixbar__seg battery" style="width:56.9%">57%</div>
+          <div class="mixbar__seg front" style="width:31.4%">31%</div>
+          <div class="mixbar__seg visual" style="width:11.8%">12%</div>
         </div>
-        <div class="mixrow__n">82</div>
+        <div class="mixrow__n">102</div>
       </div>
       <div class="mixlegend">
         <span><i style="background:var(--sec-battery)"></i>Battery &mdash; snare, tenor, bass, cymbal</span>
@@ -967,14 +979,14 @@
     </div>
     <div class="cols" style="flex:none;margin-top:8px">
       <div class="col">
-        <h3>Cymbals is the soft spot</h3>
-        <p><span class="num">5</span> cymbal registrations so far vs. <span class="num">15</span> and <span class="num">19</span> the last two full seasons.
-          Battery overall is ahead at 20 days out, so this one is genuinely lagging &mdash; a targeted push would help fill the line.</p>
+        <h3>Cymbals is still the soft spot</h3>
+        <p><span class="num">7</span> cymbal registrations so far vs. <span class="num">15</span> and <span class="num">19</span> the last two full seasons.
+          It has added only two since the 20-day mark. Battery overall is ahead, so this line is genuinely lagging &mdash; it is the one targeted push worth making.</p>
       </div>
       <div class="col">
-        <h3>Battery registers late</h3>
-        <p>In 2025, battery went from <span class="num">34</span> at 20 days out to <span class="num">100</span> by audition day &mdash;
-          most of that season&rsquo;s final-week surge. Expect 2027&rsquo;s battery count to climb the most once the sale ends.</p>
+        <h3>Battery registers late &mdash; normally</h3>
+        <p>In 2025, battery went from <span class="num">48</span> at 10 days out to <span class="num">100</span> by audition day.
+          2027 sits at <span class="num">58</span>, but its late surge has to happen at full price rather than into a live discount.</p>
       </div>
     </div>
     <div class="slide__foot"><span>Section mix over time</span><span>06</span></div>
@@ -994,13 +1006,15 @@
         <p>In 2026 it accounted for <span class="num">55%</span> of paid registrations; in 2025, section-specific codes filled a similar role. Usage stopped ~5 days out.</p>
       </div>
       <div class="col">
-        <h3>2027 &mdash; automatic sale price</h3>
-        <p>The current price <em>is</em> the sale: <span class="num">$100</span> Music / <span class="num">$80</span> Visual,
-          applied to everyone with no code. <span style="color:var(--signal);font-weight:600">It ends tomorrow</span> and prices rise the next day.</p>
-        <p>All <span class="num">82</span> paid registrations so far are at this price. This is the same structure as <span class="num">2023</span>, when a $75 sale price stepped up to $100 late in the cycle &mdash; so 2023 is the closest guide to what happens next.</p>
+        <h3>2027 &mdash; automatic sale price, now expired</h3>
+        <p>The sale price <em>was</em> the list price: <span class="num">$100</span> Music / <span class="num">$80</span> Visual,
+          applied to everyone with no code. <span style="color:var(--signal);font-weight:600">It ended 8 Sep</span>; every order since pays $115 / $90.</p>
+        <p><span class="num">93</span> registrations came in at the sale price, <span class="num">9</span> at full price since.
+          Daily pace fell from <span class="num">4.0</span>/day to <span class="num">1.0</span>/day &mdash; <strong>a quarter of the pre-step rate</strong>,
+          steeper than the ~2/day that 2023 suggested.</p>
       </div>
     </div>
-    <div class="slide__foot"><span>Discount mechanics</span><span>07</span></div>
+    <div class="slide__foot"><span>Discount mechanics &#183; measured</span><span>07</span></div>
   </section>
 
   <!-- 8 — Takeaways -->
@@ -1009,13 +1023,14 @@
     <p class="eyebrow">What to take from this</p>
     <h2 class="slide__title">Bottom line</h2>
     <ol>
-      <li><span><strong>The lead is real and consistent.</strong> 2027 has led at every checkpoint from 40 days out &mdash; it&rsquo;s a faster season, not one late burst.</span></li>
-      <li><span><strong>The sale deadline is pulling demand forward.</strong> A no-code discount ending tomorrow gives fence-sitters a hard reason to register now &mdash; expect a spike, then a sharp slowdown.</span></li>
-      <li><span><strong>The lead is broad, but cymbals lags.</strong> Every section is ahead of both prior seasons; only cymbals (5 vs. 15 &amp; 19) needs a targeted push.</span></li>
-      <li><span><strong>A real price step flattens pace hard.</strong> In 2023 &mdash; the last season with this same sale structure &mdash; registrations dropped to ~2/day for two weeks after the step, before the usual final-3-days rush.</span></li>
-      <li><span><strong>Projection:</strong> <span class="proj">~145&ndash;170</span> final, based on 2023&rsquo;s post-step pace. Above 2024 (127), 2026 (128), near 2025 (154). Earlier optimism assumed a soft discount, not this cliff.</span></li>
+      <li><span><strong>The lead held, but it is narrowing.</strong> 2027 leads at every checkpoint &mdash; 102 vs. 81 and 80 &mdash; but the margin has fallen from +63% at 20 days out to +28% today.</span></li>
+      <li><span><strong>The deadline pulled demand forward, exactly as predicted.</strong> Week 3 spiked to 34 registrations, the highest single week of any season, then week 2 collapsed to 5.</span></li>
+      <li><span><strong>The price step bit harder than 2023 implied.</strong> Pace fell from 4.0/day to 1.0/day &mdash; a quarter of the prior rate, not the ~2/day the 2023 analogue forecast.</span></li>
+      <li><span><strong>The lead is broad, but cymbals still lags.</strong> Every section is ahead of both prior seasons; cymbals (7 vs. 15 &amp; 19) has added only two in ten days and is the one line worth a push.</span></li>
+      <li><span><strong>Revised projection:</strong> <span class="proj">~125&ndash;150</span> final, down from the ~145&ndash;170 called at 20 days out.
+        Prior seasons booked 37&ndash;47% of their final in the last ten days, but both still had a discount live; at the observed 1.0/day plus a normal final-3-day rush, 2027 lands near 2026 (128) and below 2025 (154).</span></li>
     </ol>
-    <div class="slide__foot"><span>Audition Registration Pace</span><span>Cap City Percussion &#183; 2026&#8209;09&#8209;07</span></div>
+    <div class="slide__foot"><span>Audition Registration Pace</span><span>Cap City Percussion &#183; 2026&#8209;09&#8209;17</span></div>
   </section>
 </div>
 

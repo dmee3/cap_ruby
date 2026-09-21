@@ -16,6 +16,8 @@
 # Aligned on days-before-first-audition:
 #   2025: 2024-09-29   2026: 2025-09-28   2027: 2026-09-27
 #
+# Headline snapshot is taken at SNAP days out (see below).
+#
 # Run: bundle exec rails runner scripts/auditions_instrument_comparison.rb
 
 require 'faraday'
@@ -131,6 +133,11 @@ end
 # ---------------------------------------------------------------------------
 # Pace by section: cumulative count at each days-before milestone.
 MILESTONES = [40, 35, 30, 25, 20, 15, 10, 7, 3, 0].freeze
+
+# Days-before-audition for the headline snapshot. 2027's data runs through
+# today, so this must match today's distance from the 2027 audition date or the
+# snapshot silently compares a partial season against two complete ones.
+SNAP = 10
 puts
 puts '=' * 74
 puts 'PACE BY SECTION — cumulative registrations at each days-before-audition mark'
@@ -140,7 +147,7 @@ SECTIONS.each do |sec|
   printf("  %-12s %10s %10s %10s\n", 'days out', '2025', '2026', '2027')
   MILESTONES.each do |d|
     cells = SEASONS.keys.map { |y| data[y].count { |r| r[:section] == sec && r[:days_before] >= d } }
-    marker = d == 20 ? ' <-' : ''
+    marker = d == SNAP ? ' <-' : ''
     printf("  %-12s %10d %10d %10d%s\n", "#{d}d", *cells, marker)
   end
 end
@@ -167,14 +174,14 @@ SEASONS.each_key do |year|
 end
 
 # ---------------------------------------------------------------------------
-# Snapshot: where each section stands at 20 days out (today for 2027).
+# Snapshot: where each section stands at SNAP days out (today for 2027).
 puts
 puts '=' * 74
-puts 'SNAPSHOT — sections at 20 days before first audition'
+puts "SNAPSHOT — sections at #{SNAP} days before first audition"
 puts '=' * 74
 printf("%-16s %10s %10s %10s   %s\n", 'section', '2025', '2026', '2027', '2027 vs 2yr avg')
 SECTIONS.each do |sec|
-  at = SEASONS.keys.map { |y| data[y].count { |r| r[:section] == sec && r[:days_before] >= 20 } }
+  at = SEASONS.keys.map { |y| data[y].count { |r| r[:section] == sec && r[:days_before] >= SNAP } }
   prior_avg = (at[0] + at[1]) / 2.0
   delta = prior_avg.zero? ? '-' : format('%+d%%', ((at[2] - prior_avg) / prior_avg * 100).round)
   printf("%-16s %10d %10d %10d   %s\n", sec, *at, delta)
