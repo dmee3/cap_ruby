@@ -15,11 +15,6 @@ module Admin
       end
     end
 
-    def show
-      @payment = Payment.find(params[:id])
-      render('admin/payments/show')
-    end
-
     def new
       @payment = Payment.new
       @payment.user_id = params[:user_id] if params[:user_id]

@@ -113,6 +113,16 @@ RSpec.describe 'Admin::Payments', type: :request do
     end
   end
 
+  describe 'GET /admin/payments/:id' do
+    it 'is not routable' do
+      payment = create(:payment, user: member, season: season, payment_type: cash)
+
+      get "/admin/payments/#{payment.id}"
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
   describe 'GET /admin/payments/:id/edit' do
     it 'mounts the shared payment form seeded from the existing payment' do
       payment = create(:payment, user: member, season: season, payment_type: cash,
