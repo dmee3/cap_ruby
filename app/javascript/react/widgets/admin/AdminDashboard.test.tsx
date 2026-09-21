@@ -10,8 +10,14 @@ const base = {
     collected_cents: 5_132_000,
     behind_count: 3,
     member_count: 24,
-    average_days_late: 9,
   },
+  lastVenmo: {
+    name: 'Jordan Pike',
+    amount_cents: 40_000,
+    date_paid: '2026-03-07',
+    entered_days_ago: 3,
+  },
+  newVenmoPaymentPath: '/admin/payments/new?payment_type=Venmo',
   burndown: {
     scheduled: [
       ['2026-01-04', 0],
@@ -78,7 +84,7 @@ describe('AdminDashboard', () => {
     expect(screen.getByText('$6,280 short of the plan')).toBeInTheDocument()
     expect(screen.getByText('Members behind')).toBeInTheDocument()
     expect(screen.getByText('of 24')).toBeInTheDocument()
-    expect(screen.getByText('Average days late')).toBeInTheDocument()
+    expect(screen.getByText('Last Venmo entered')).toBeInTheDocument()
     // behind_count 3 → warning band
     expect(screen.getByText('3')).toHaveClass('text-warning-fg')
   })
@@ -230,7 +236,7 @@ describe('AdminDashboard', () => {
     render(
       <AdminDashboard
         {...base}
-        stats={{ ...base.stats, behind_count: 0, average_days_late: null }}
+        stats={{ ...base.stats, behind_count: 0 }}
         behindMembers={[]}
       />,
     )
@@ -238,6 +244,36 @@ describe('AdminDashboard', () => {
     expect(
       screen.getByText('All 24 members have paid everything due so far this season.'),
     ).toBeInTheDocument()
-    expect(screen.getByText('Everyone current')).toBeInTheDocument()
+  })
+
+  it('bookmarks the last Venmo payment with the date, member and amount', () => {
+    render(<AdminDashboard {...base} />)
+    expect(screen.getByText('Sat, 3/7/26')).toBeInTheDocument()
+    expect(screen.getByText('Jordan Pike')).toBeInTheDocument()
+    expect(screen.getByText('$400')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Enter another Venmo payment' })).toHaveAttribute(
+      'href',
+      '/admin/payments/new?payment_type=Venmo',
+    )
+  })
+
+  it('stays quiet about recency while entry is keeping up', () => {
+    render(<AdminDashboard {...base} />)
+    expect(screen.queryByText(/There may be a backlog in Venmo/)).not.toBeInTheDocument()
+  })
+
+  it('warns about a possible backlog once entry is over two weeks stale', () => {
+    render(
+      <AdminDashboard {...base} lastVenmo={{ ...base.lastVenmo, entered_days_ago: 26 }} />,
+    )
+    expect(
+      screen.getByText('You keyed it in 26 days ago. There may be a backlog in Venmo.'),
+    ).toBeInTheDocument()
+  })
+
+  it('offers a first entry when no Venmo payment has been recorded', () => {
+    render(<AdminDashboard {...base} lastVenmo={null} />)
+    expect(screen.getByText('No Venmo payments yet')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Enter a Venmo payment' })).toBeInTheDocument()
   })
 })

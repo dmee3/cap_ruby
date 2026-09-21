@@ -300,30 +300,4 @@ RSpec.describe DashboardUtilities do
       end
     end
   end
-
-  describe '.average_days_late' do
-    let(:user) { create(:user) }
-    let(:schedule) { create(:payment_schedule, season: season, user: user) }
-
-    before { create(:seasons_user, user: user, season: season, role: 'member') }
-
-    it 'averages the lag between a past-due entry and the payment that covered it' do
-      create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.current - 20.days, amount: 10_000)
-      create(:payment, user: user, season: season, amount: 10_000, date_paid: Date.current - 10.days)
-
-      expect(described_class.average_days_late(season.id)).to eq(10)
-    end
-
-    it 'counts an uncovered past-due entry as late through today' do
-      create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.current - 8.days, amount: 10_000)
-
-      expect(described_class.average_days_late(season.id)).to eq(8)
-    end
-
-    it 'returns nil when nothing is past due' do
-      create(:payment_schedule_entry, payment_schedule: schedule, pay_date: Date.current + 10.days, amount: 10_000)
-
-      expect(described_class.average_days_late(season.id)).to be_nil
-    end
-  end
 end

@@ -71,6 +71,30 @@ RSpec.describe 'Admin::Payments', type: :request do
       expect(response.body).to include('season_total_cents')
       expect(response.body).to include('installments')
     end
+
+    it 'preselects a payment type named in the query, so the dashboard can link straight to Venmo entry' do
+      venmo = create(:payment_type, name: 'Venmo')
+
+      get '/admin/payments/new', params: { payment_type: 'Venmo' }
+
+      expect(response.body).to include("&quot;paymentTypeId&quot;:#{venmo.id}")
+    end
+
+    it 'leaves the type unset when the query names one the form cannot offer' do
+      create(:payment_type, name: 'Stripe')
+
+      get '/admin/payments/new', params: { payment_type: 'Stripe' }
+
+      expect(response.body).to include('&quot;paymentTypeId&quot;:null')
+    end
+
+    it 'leaves the type unset when no type is named' do
+      cash
+
+      get '/admin/payments/new'
+
+      expect(response.body).to include('&quot;paymentTypeId&quot;:null')
+    end
   end
 
   describe 'POST /admin/payments' do

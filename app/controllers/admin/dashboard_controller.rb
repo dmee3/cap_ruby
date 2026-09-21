@@ -8,9 +8,12 @@ module Admin
       @stats = {
         expected_cents: PaymentService.total_dues_owed_to_date(season_id),
         collected_cents: PaymentService.total_dues_paid_to_date(season_id),
-        average_days_late: DashboardUtilities.average_days_late(season_id),
         member_count: User.members_for_season(season_id).count
       }
+      @last_venmo = last_venmo_payment(season_id)
+      # Sent separately from @last_venmo: the empty tile offers the same action
+      # and has no payment to hang it off.
+      @new_venmo_payment_path = new_admin_payment_path(payment_type: 'Venmo')
       @behind_members = DashboardUtilities.behind_members(season_id)
       @stats[:behind_count] = @behind_members.length
 
@@ -22,6 +25,30 @@ module Admin
     end
 
     private
+
+    # The bookmark for hand-keyed Venmo entry: where the admin left off against
+    # the Venmo feed. Ordered by entry time, not payment date, so it answers
+    # "which one did I type in last" rather than "which money moved last".
+    # nil when the Venmo payment type row is absent, same as having none.
+    def last_venmo_payment(season_id)
+      venmo = PaymentType.venmo
+      return nil if venmo.nil?
+
+      payment = Payment
+                .for_season(season_id)
+                .includes(:user)
+                .where(payment_type_id: venmo.id)
+                .order(created_at: :desc)
+                .first
+      return nil if payment.nil?
+
+      {
+        name: payment.user.full_name,
+        amount_cents: payment.amount,
+        date_paid: payment.date_paid.iso8601,
+        entered_days_ago: (Date.current - payment.created_at.to_date).to_i
+      }
+    end
 
     # Non-deleted payments in the last 30 days, newest first, cents shape.
     def recent_payment_rows(season_id)
