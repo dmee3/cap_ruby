@@ -2,6 +2,8 @@
 
 module Auditions
   class DataFetcher
+    CANCELED_FULFILLMENT_STATUS = 'CANCELED'
+
     def initialize(api_client: External::SquarespaceApi, validator: DataValidator)
       @api_client = api_client
       @validator = validator
@@ -22,15 +24,38 @@ module Auditions
       orders_result = fetch_orders_with_error_handling
       return orders_result if orders_result.failure?
 
+      orders = reject_canceled_orders(orders_result.data)
+
       # Validate the orders data
-      validation_result = validator.validate_orders(orders_result.data)
+      validation_result = validator.validate_orders(orders)
       return validation_result if validation_result.failure?
 
       Logger.info('Orders fetched and validated successfully', {
-                    order_count: orders_result.data.size
+                    order_count: orders.size
                   })
 
-      Result.success(orders_result.data)
+      Result.success(orders)
+    end
+
+    # Dropped before validation, not after: a canceled order that is also malformed
+    # would otherwise fail the whole run over line items nobody is going to read.
+    def reject_canceled_orders(orders)
+      return orders unless orders.is_a?(Array)
+
+      canceled, kept = orders.partition { |order| canceled?(order) }
+
+      if canceled.any?
+        Logger.info('Excluded canceled orders', {
+                      canceled_count: canceled.size,
+                      order_numbers: canceled.map { |order| order['orderNumber'] }.compact
+                    })
+      end
+
+      kept
+    end
+
+    def canceled?(order)
+      order.is_a?(Hash) && order['fulfillmentStatus'].to_s.upcase == CANCELED_FULFILLMENT_STATUS
     end
 
     def fetch_orders_with_error_handling
