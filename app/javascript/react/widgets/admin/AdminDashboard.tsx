@@ -453,7 +453,6 @@ const AdminDashboard = ({
             keyFor={(c) => c.id}
             captionOnly
             emptyTitle="No conflicts waiting"
-            emptyBody="Pending rehearsal conflicts needing a decision land here."
             caption={(shown, total) => `Soonest first · ${shown} of ${total}`}
             renderItem={(c) => (
               <a

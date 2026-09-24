@@ -22,7 +22,7 @@
                    errors: profile_errors %>
         <%= render 'settings/field',
                    name: :email, label: 'Email', value: current_user.email, type: 'email',
-                   hint: 'Dues reminders go here', errors: profile_errors %>
+                   errors: profile_errors %>
         <%= render 'settings/field',
                    name: :phone, label: 'Phone', value: current_user.phone, type: 'tel',
                    optional: true, errors: profile_errors %>
