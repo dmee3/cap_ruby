@@ -262,5 +262,8 @@ describe('Member360', () => {
     expect(screen.getByText(/Fri 3\/20/)).toBeInTheDocument()
     expect(screen.getByText('Closing shift · submitted 2 days ago')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /approve|deny/i })).not.toBeInTheDocument()
+    // Regression: this row's className used to drop py-3, leaving rows
+    // crammed against their dividers with no vertical breathing room.
+    expect(screen.getByText(/Fri 3\/20/).closest('.border-b')).toHaveClass('py-3')
   })
 })
