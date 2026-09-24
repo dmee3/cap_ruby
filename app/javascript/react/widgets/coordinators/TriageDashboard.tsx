@@ -21,11 +21,7 @@ type TriageDashboardProps = {
 
 // §4.4 as a hero: the backlog stated plainly, the oldest named, and enough of
 // the queue inline to clear the easy ones without leaving the page, next to
-// the upcoming-conflicts calendar from Flow 5's dashboard screen.
-//
-// The calendar used to mount a second full FullCalendar that fetched the
-// whole season to draw a month grid — this one asks the API for upcoming
-// conflicts only, the same scope the standalone queue view uses.
+// a calendar of every conflict in the season from Flow 5's dashboard screen.
 const TriageDashboard = ({
   rows,
   pendingCount,
@@ -44,7 +40,7 @@ const TriageDashboard = ({
   const loadCalendar = useCallback(() => {
     setCalendarLoading(true)
     setCalendarError(null)
-    fetch('/api/conflicts?when=upcoming')
+    fetch('/api/conflicts')
       .then(resp => {
         if (!resp.ok) throw resp
         return resp.json()
@@ -104,7 +100,7 @@ const TriageDashboard = ({
         onRetry={loadCalendar}
         onApprove={id => decide(id, 'Approved')}
         onDeny={id => decide(id, 'Denied')}
-        showDecided={false}
+        showDecided
       />
 
       <div className="flex flex-col gap-4">
