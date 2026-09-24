@@ -115,7 +115,7 @@ describe('PaymentsList', () => {
   })
 
   it('shows a non-interactive source label instead of Edit/Delete on Stripe rows', async () => {
-    ;(fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(() =>
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(() =>
       okResponse({ payments: [row({ payment_type: { id: 9, name: 'Stripe' } })], ...meta }),
     )
     setup()
@@ -139,7 +139,7 @@ describe('PaymentsList', () => {
   })
 
   it('renders a deleted row with a Restore action and keeps its notes readable', async () => {
-    ;(fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(() =>
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(() =>
       okResponse({ payments: [row({ deleted: true })], ...meta, deleted_count: 1 }),
     )
     setup()
@@ -153,7 +153,7 @@ describe('PaymentsList', () => {
   })
 
   it('shows a retryable error state', async () => {
-    ;(fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(() =>
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(() =>
       Promise.resolve({ ok: false } as Response),
     )
     setup()
@@ -162,7 +162,7 @@ describe('PaymentsList', () => {
   })
 
   it('distinguishes a filtered-empty result from an empty season', async () => {
-    ;(fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(() =>
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(() =>
       okResponse({ payments: [], total_count: 0, total_cents: 0, deleted_count: 0, returned: 0, has_more: false }),
     )
     setup()

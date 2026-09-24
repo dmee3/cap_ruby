@@ -57,6 +57,9 @@ jobs:
     - name: Run frontend tests
       run: yarn test:run
 
+    - name: Run ESLint
+      run: yarn lint
+
   lint:
     name: Linter
     runs-on: ubuntu-latest

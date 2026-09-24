@@ -66,7 +66,7 @@ const TarpGridTool: React.FC = () => {
     };
   };
 
-  const getFormFieldNumber = (formData: FormData, fieldName: string, fallback: number, minValue: number = 1): number => {
+  const getFormFieldNumber = (formData: FormData, fieldName: string, fallback: number, minValue = 1): number => {
     const value = formData.get(fieldName);
     if (!value) return fallback;
 
@@ -165,7 +165,7 @@ const TarpGridTool: React.FC = () => {
     }
   };
 
-  const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number, isExport: boolean = false) => {
+  const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number, isExport = false) => {
     const { showLabels } = settings;
     const { gridSpacingPixels, horizontalOffsetPixels, lineWidthPixels, intersectionSegmentPixels } = calculateDimensions();
 

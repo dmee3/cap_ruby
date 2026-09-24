@@ -88,7 +88,7 @@ const InputNumberV2 = forwardRef<HTMLInputElement, InputNumberV2Props>(
     }
 
     return (
-      // @ts-ignore - react-text-mask types are incompatible with React 18
+      // @ts-expect-error - react-text-mask types are incompatible with React 18
       <MaskedInput
         ref={inputRef}
         mask={numberMask}

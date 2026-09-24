@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import FileUpload from './FileUpload'
 
-type CalendarChooserProps = {}
-
-const CalendarChooser = ({
-}: CalendarChooserProps) => {
+const CalendarChooser = () => {
   const logoSrc = '/images/calendars/logo.png'
   const [chosenImg, setChosenImg] = useState(null)
   const [donations, setDonations] = useState([])
@@ -51,23 +48,21 @@ const CalendarChooser = ({
     'calendar_7', 'calendar_8', 'calendar_9', 'calendar_10'
   ]
 
-  const fetchDonations = () => {
-    useEffect(() => {
-      fetch("/api/members/calendars")
-        .then(resp => {
-          if (resp.ok) {
-            return resp.json()
-          }
-          throw resp
-        })
-        .then(data => {
-          setDonations(data.dates)
-        })
-        .catch(error => {
-          console.error(error)
-        })
-    }, [])
-  }
+  useEffect(() => {
+    fetch("/api/members/calendars")
+      .then(resp => {
+        if (resp.ok) {
+          return resp.json()
+        }
+        throw resp
+      })
+      .then(data => {
+        setDonations(data.dates)
+      })
+      .catch(error => {
+        console.error(error)
+      })
+  }, [])
 
   const loadImage = (path): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
@@ -120,8 +115,6 @@ const CalendarChooser = ({
       )
     })
   }
-
-  fetchDonations()
 
   return (
     <div className="flex flex-col">

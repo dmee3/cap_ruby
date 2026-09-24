@@ -1,11 +1,11 @@
 import SeasonUser from './seasons_user'
 
 interface User {
-  id: Number,
+  id: number,
   first_name: string,
   last_name: string,
   username: string,
-  email: String,
+  email: string,
   phone: string,
   seasons_users: Array<SeasonUser>
 }

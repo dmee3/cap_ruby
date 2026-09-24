@@ -33,7 +33,7 @@ describe('avatarTone', () => {
   })
 
   it('only ever returns a tone from the palette', () => {
-    ;['Marcus Webb', 'Dana Reyes', '', 'Z'].forEach((name) => {
+    ['Marcus Webb', 'Dana Reyes', '', 'Z'].forEach((name) => {
       expect(AVATAR_TONES).toContain(avatarTone(name) as (typeof AVATAR_TONES)[number])
     })
   })

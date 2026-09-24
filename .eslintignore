@@ -1,0 +1,2 @@
+# Google Apps Script, pasted into a Sheet by hand: SpreadsheetApp and the onEdit/onOpen triggers are runtime globals eslint cannot see.
+app/javascript/scripts/
