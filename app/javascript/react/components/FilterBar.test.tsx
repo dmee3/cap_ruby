@@ -29,7 +29,7 @@ describe('FilterBar', () => {
     setup()
     expect(screen.getByText('18 payments · $9,420')).toBeInTheDocument()
     expect(
-      screen.getByText('Deleted payments are excluded from every total on this page.'),
+      screen.getByText('Deleted payments are excluded.'),
     ).toBeInTheDocument()
   })
 
