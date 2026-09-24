@@ -97,7 +97,7 @@ const TriageDashboard = ({
             </a>
           ) : (
             <>
-              <a href={queuePath} className="btn-secondary btn-lg">
+              <a href={queuePath} className="btn-gray btn-lg">
                 See all season
               </a>
               <a href={newPath} className="link text-body-sm self-center">

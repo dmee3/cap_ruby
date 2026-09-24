@@ -59,6 +59,9 @@ describe('TriageDashboard', () => {
     expect(screen.getByText('Nothing')).toBeInTheDocument()
     expect(screen.getByText(/You're caught up/)).toBeInTheDocument()
     expect(screen.getByText('No decisions to make')).toBeInTheDocument()
+    // btn-gray is the app's secondary button; btn-secondary doesn't exist as
+    // a class, and rendered as plain text rather than a button.
+    expect(screen.getByRole('link', { name: 'See all season' })).toHaveClass('btn-gray')
   })
 
   it('decides a conflict without leaving the dashboard', async () => {
