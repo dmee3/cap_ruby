@@ -303,11 +303,7 @@ const AdminDashboard = ({
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
-          <StatBlock
-            kicker="Expected by today"
-            metric={money(stats.expected_cents)}
-            context="Summed from every member's own schedule"
-          />
+          <StatBlock kicker="Expected by today" metric={money(stats.expected_cents)} />
         </Card>
         <Card>
           <StatBlock
