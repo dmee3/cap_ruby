@@ -346,7 +346,7 @@ const DeleteCategory = ({
       <button type="button" onClick={remove} disabled={busy} className="btn-red btn-sm disabled:opacity-40">
         {busy ? 'Deleting…' : 'Delete'}
       </button>
-      <button type="button" onClick={() => setConfirming(false)} className="btn-secondary btn-sm">
+      <button type="button" onClick={() => setConfirming(false)} className="btn-gray btn-sm">
         Keep it
       </button>
     </span>

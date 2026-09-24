@@ -176,7 +176,7 @@ const DeleteItem = ({
             >
               {busy ? 'Deleting…' : 'Delete item'}
             </button>
-            <button type="button" onClick={() => setConfirming(false)} className="btn-secondary btn-lg">
+            <button type="button" onClick={() => setConfirming(false)} className="btn-gray btn-lg">
               Keep it
             </button>
           </div>
