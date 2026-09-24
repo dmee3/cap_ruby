@@ -69,7 +69,7 @@ const ItemHistory = ({ payload }: { payload: ItemHistoryPayload }) => {
           </p>
         ) : (
           <p className="m-0 text-body text-secondary">
-            No alert set, so nothing warns you when this runs low.{' '}
+            No alert set.{' '}
             {canManageAlerts && (
               <a
                 href="/inventory/email_rules/new"
@@ -88,7 +88,7 @@ const ItemHistory = ({ payload }: { payload: ItemHistoryPayload }) => {
         count={
           entries.length === 0
             ? undefined
-            : `${entries.length} ${entries.length === 1 ? 'change' : 'changes'} · newest first`
+            : `${entries.length} ${entries.length === 1 ? 'change' : 'changes'}`
         }
       >
         {entries.length === 0 ? (
@@ -176,7 +176,7 @@ const DeleteItem = ({
             >
               {busy ? 'Deleting…' : 'Delete item'}
             </button>
-            <button type="button" onClick={() => setConfirming(false)} className="btn-secondary btn-lg">
+            <button type="button" onClick={() => setConfirming(false)} className="btn-gray btn-lg">
               Keep it
             </button>
           </div>

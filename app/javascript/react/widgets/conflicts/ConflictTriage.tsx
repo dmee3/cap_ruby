@@ -35,7 +35,6 @@ const readStoredView = (): ViewOption => {
 const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
   const [groups, setGroups] = useState<TriageGroup[]>([])
   const [conflicts, setConflicts] = useState<CalendarConflict[]>([])
-  const [counts, setCounts] = useState<Record<string, number>>({})
   const [statuses, setStatuses] = useState<StatusOption[]>([])
   const [filters, setFilters] = useState<ConflictFilters>(DEFAULT_CONFLICT_FILTERS)
   const [view, setView] = useState<ViewOption>(readStoredView)
@@ -77,7 +76,6 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
       .then(data => {
         setGroups(data.groups ?? [])
         setConflicts(data.conflicts ?? [])
-        setCounts(data.counts ?? {})
         setVisibleCount(PAGE_SIZE)
       })
       .catch(() => setError('load'))
@@ -236,12 +234,19 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
     )
   }, [])
 
-  const pendingTotal = counts.Pending ?? 0
+  // The queue view already asks the API for upcoming-only groups; the
+  // calendar view doesn't, so it can hold pending conflicts whose date has
+  // passed. Scoping to upcoming groups here keeps the headline consistent
+  // between views and stops it counting something the queue would never show.
+  const today = new Date().toISOString().slice(0, 10)
+  const upcomingGroups = useMemo(() => groups.filter(group => group.date >= today), [groups, today])
+
+  const pendingTotal = upcomingGroups.reduce((total, group) => total + group.pending_count, 0)
   const headline = pendingTotal === 1 ? '1 waiting on you' : `${pendingTotal} waiting on you`
 
   // Grouped by date, so the useful pointer is what's coming up soonest rather
   // than who has waited longest.
-  const soonest = groups.find(group => group.pending_count > 0)
+  const soonest = upcomingGroups.find(group => group.pending_count > 0)
   const subline = soonest ? `Next up: ${soonest.date_label}.` : 'Nothing needs a decision.'
 
   const addButton = (

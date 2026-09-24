@@ -83,6 +83,13 @@ type AdminDashboardProps = {
 const money = (cents: number) =>
   `$${Math.round(cents / 100).toLocaleString('en-US')}`
 
+const CRUNCHWRAP_SUPREME_CENTS = 649
+
+const crunchwrapSupremes = (cents: number) => {
+  const count = Math.floor(cents / CRUNCHWRAP_SUPREME_CENTS)
+  return `That's ${count.toLocaleString('en-US')} Crunchwrap Supreme${count === 1 ? '' : 's'}`
+}
+
 const fmtDate = (iso: string) =>
   new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', {
     month: 'numeric',
@@ -259,10 +266,10 @@ const AdminDashboard = ({
         <div className="mb-4 flex flex-wrap items-end gap-4">
           <div className="flex flex-col gap-[3px]">
             <h2 className="m-0 text-h2 font-bold tracking-tight text-primary">
-              Dues collected against plan
+              Dues collected
             </h2>
             <span className="text-body-sm text-secondary">
-              {seasonLabel} · every member&rsquo;s own schedule, summed weekly · through{' '}
+              {seasonLabel} · aggregated by week · through{' '}
               {fmtLong(asOf)}
             </span>
           </div>
@@ -306,7 +313,7 @@ const AdminDashboard = ({
           <StatBlock
             kicker="Expected by today"
             metric={money(stats.expected_cents)}
-            context="Summed from every member's own schedule"
+            context={crunchwrapSupremes(stats.expected_cents)}
           />
         </Card>
         <Card>
@@ -446,7 +453,6 @@ const AdminDashboard = ({
             keyFor={(c) => c.id}
             captionOnly
             emptyTitle="No conflicts waiting"
-            emptyBody="Pending rehearsal conflicts needing a decision land here."
             caption={(shown, total) => `Soonest first · ${shown} of ${total}`}
             renderItem={(c) => (
               <a

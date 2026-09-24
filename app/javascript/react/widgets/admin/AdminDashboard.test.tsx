@@ -71,9 +71,9 @@ const base = {
 describe('AdminDashboard', () => {
   it('titles the burndown card and names the sampling in a subtitle', () => {
     render(<AdminDashboard {...base} />)
-    expect(screen.getByText('Dues collected against plan')).toBeInTheDocument()
+    expect(screen.getByText('Dues collected')).toBeInTheDocument()
     expect(
-      screen.getByText(/2026 season · every member’s own schedule, summed weekly · through/),
+      screen.getByText(/2026 season · aggregated by week · through/),
     ).toBeInTheDocument()
   })
 

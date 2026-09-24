@@ -18,10 +18,10 @@ describe('WhistleblowerForm', () => {
     expect(screen.getByText(/Anonymous is fine/)).toBeInTheDocument()
   })
 
-  it('explains the three-person rule rather than just enforcing it', () => {
+  it('states the three-person rule', () => {
     renderForm()
 
-    expect(screen.getByText(/No one person can decide what happens/)).toBeInTheDocument()
+    expect(screen.getByText('Pick at least three people.')).toBeInTheDocument()
   })
 
   it('holds its errors back until a submit is attempted', () => {

@@ -108,7 +108,7 @@ const FilterBar = ({
         value={filters.scope}
         onChange={(e) => set('scope', e.target.value as PaymentScope)}
         aria-label="Which payments to show"
-        title="Deleted payments are excluded from every total on this page."
+        title="Deleted payments are excluded."
         className={
           scopeSet
             ? `${field} border-accent-primary font-semibold text-accent-primary`
@@ -140,7 +140,7 @@ const FilterBar = ({
       )}
 
       <span className="basis-full text-caption text-secondary">
-        Deleted payments are excluded from every total on this page.
+        Deleted payments are excluded.
       </span>
     </div>
   )

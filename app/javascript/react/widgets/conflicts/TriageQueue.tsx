@@ -115,7 +115,7 @@ const TriageQueue = ({
       <div className="rounded-md border border-border-default bg-surface">
         <EmptyState
           title="Nothing waiting on a decision"
-          body="The queue's clear. Check back in a few days to see if anything new comes in."
+          body="Check back in a few days to see if anything new comes in."
           action={emptyAction}
         />
       </div>

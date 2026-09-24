@@ -129,7 +129,7 @@ const WhistleblowerForm = ({ data, csrfToken }: WhistleblowerFormProps) => {
           <h2 className="mt-0 mb-1 text-body font-bold">Who should receive it</h2>
           <p className="m-0 mb-3 text-body-sm text-secondary" id="recipients-rule">
             {minimum >= 3
-              ? 'Pick at least three people. No one person can decide what happens to your report.'
+              ? 'Pick at least three people.'
               : `This goes to ${minimum === 1 ? 'the one person' : `all ${minimum} people`} set up to receive reports.`}
           </p>
           <RecipientPicker
@@ -146,13 +146,6 @@ const WhistleblowerForm = ({ data, csrfToken }: WhistleblowerFormProps) => {
           <button type="submit" className="btn-primary btn-lg">
             Send report
           </button>
-          <span className="text-body-sm text-secondary">
-            {showErrors && tooFewPicked
-              ? `Pick ${minimum === 1 ? 'someone' : `${minimum} people`} first.`
-              : `Goes to ${selected.length || minimum} ${
-                  (selected.length || minimum) === 1 ? 'person' : 'people'
-                } at once.`}
-          </span>
         </div>
       </div>
     </form>
