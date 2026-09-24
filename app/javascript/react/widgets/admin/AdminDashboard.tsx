@@ -259,10 +259,10 @@ const AdminDashboard = ({
         <div className="mb-4 flex flex-wrap items-end gap-4">
           <div className="flex flex-col gap-[3px]">
             <h2 className="m-0 text-h2 font-bold tracking-tight text-primary">
-              Dues collected against plan
+              Dues collected
             </h2>
             <span className="text-body-sm text-secondary">
-              {seasonLabel} · every member&rsquo;s own schedule, summed weekly · through{' '}
+              {seasonLabel} · aggregated by week · through{' '}
               {fmtLong(asOf)}
             </span>
           </div>
