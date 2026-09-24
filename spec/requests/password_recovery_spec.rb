@@ -35,6 +35,17 @@ RSpec.describe 'Password recovery', type: :request do
       expect(response.body).to include(user.email)
       expect(request.fullpath).not_to include(user.email)
     end
+
+    it 'answers an unknown address exactly as it answers a known one' do
+      expect do
+        post '/password', params: { user: { email: 'nobody@example.com' } }
+      end.not_to(change { ActionMailer::Base.deliveries.count })
+
+      expect(response).to redirect_to(sent_password_path)
+      follow_redirect!
+      expect(response.body).to include('Check your email')
+      expect(response.body).not_to include('not found')
+    end
   end
 
   describe 'GET /password/sent' do
