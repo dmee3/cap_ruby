@@ -1,16 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import Utilities from '../../../utilities/utilities'
-import Button from '../../components/Button'
-import EmptyState from '../../components/EmptyState'
-import TriageRow, { TriageRowData } from '../../components/TriageRow'
 import ConflictCalendarView, { CalendarConflict } from '../conflicts/ConflictCalendarView'
-
-type ReviewRow = TriageRowData & { member: string; section?: string }
 
 type StatusOption = { id: number; name: string }
 
 type TriageDashboardProps = {
-  rows: ReviewRow[]
   pendingCount: number
   oldestWaitingDays?: number | null
   oldestMember?: string
@@ -19,11 +13,10 @@ type TriageDashboardProps = {
   newPath: string
 }
 
-// §4.4 as a hero: the backlog stated plainly, the oldest named, and enough of
-// the queue inline to clear the easy ones without leaving the page, next to
-// a calendar of every conflict in the season from Flow 5's dashboard screen.
+// §4.4 as a hero: a calendar of every conflict in the season from Flow 5's
+// dashboard screen, with the backlog stated plainly and the oldest named
+// underneath.
 const TriageDashboard = ({
-  rows,
   pendingCount,
   oldestWaitingDays,
   oldestMember,
@@ -31,8 +24,6 @@ const TriageDashboard = ({
   queuePath,
   newPath,
 }: TriageDashboardProps) => {
-  const [decided, setDecided] = useState<Record<number, boolean>>({})
-  const [busy, setBusy] = useState<Record<number, boolean>>({})
   const [conflicts, setConflicts] = useState<CalendarConflict[]>([])
   const [calendarLoading, setCalendarLoading] = useState(true)
   const [calendarError, setCalendarError] = useState<string | null>(null)
@@ -64,7 +55,6 @@ const TriageDashboard = ({
       const target = statusId(name)
       if (!target) return
 
-      setBusy(current => ({ ...current, [id]: true }))
       fetch(`/api/conflicts/${id}`, {
         method: 'PUT',
         headers: {
@@ -75,23 +65,15 @@ const TriageDashboard = ({
       })
         .then(resp => {
           if (!resp.ok) throw resp
-          setDecided(current => ({ ...current, [id]: true }))
           loadCalendar()
         })
-        .catch(() => {
-          // Leave the row in place: a failed decision must not look like a
-          // successful one.
-        })
-        .finally(() => setBusy(current => ({ ...current, [id]: false })))
+        .catch(() => setCalendarError('load'))
     },
     [statusId, loadCalendar]
   )
 
-  const remaining = rows.filter(row => !decided[row.id])
-  const caughtUp = pendingCount === 0 || remaining.length === 0
-
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr] items-start">
+    <div className="flex flex-col gap-4">
       <ConflictCalendarView
         conflicts={conflicts}
         basePath={queuePath}
@@ -103,72 +85,38 @@ const TriageDashboard = ({
         showDecided
       />
 
-      <div className="flex flex-col gap-4">
-        <div
-          className={`card flex flex-col gap-2 border-l-[4px] ${
-            pendingCount > 0 ? 'border-l-warning-fg' : 'border-l-moss'
-          }`}
-        >
-          <span className="text-label uppercase text-secondary">Conflicts waiting on you</span>
-          <span className="text-h2 font-bold text-primary">
-            {pendingCount > 0
-              ? `${pendingCount} ${pendingCount === 1 ? 'conflict' : 'conflicts'}`
-              : 'Nothing'}
-          </span>
-          <span className="text-body-sm text-secondary">
-            {pendingCount > 0 && oldestMember
-              ? `Oldest: ${oldestMember}${
-                  oldestWaitingDays ? `, waiting ${oldestWaitingDays} days` : ''
-                }.`
-              : "You're caught up. Check back in a few days to see if anything new comes in."}
-          </span>
-          <div className="mt-1 flex flex-wrap gap-2">
-            {pendingCount > 0 ? (
-              <a href={queuePath} className="btn-primary btn-lg">
-                Open the queue
-              </a>
-            ) : (
-              <>
-                <a href={queuePath} className="btn-gray btn-lg">
-                  See all season
-                </a>
-                <a href={newPath} className="link text-body-sm self-center">
-                  Add a conflict
-                </a>
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="card flex flex-col gap-1">
-          <div className="flex items-baseline justify-between gap-2">
-            <span className="card-title">Clear a few from here</span>
-            {pendingCount > remaining.length && (
-              <a href={queuePath} className="link text-body-sm">
-                See all {pendingCount}
-              </a>
-            )}
-          </div>
-
-          {caughtUp ? (
-            <EmptyState
-              title="No decisions to make"
-              body="If any conflicts are submitted, they'll show up here for review."
-            />
+      <div
+        className={`card flex flex-col gap-2 border-l-[4px] ${
+          pendingCount > 0 ? 'border-l-warning-fg' : 'border-l-moss'
+        }`}
+      >
+        <span className="text-label uppercase text-secondary">Conflicts waiting on you</span>
+        <span className="text-h2 font-bold text-primary">
+          {pendingCount > 0
+            ? `${pendingCount} ${pendingCount === 1 ? 'conflict' : 'conflicts'}`
+            : 'Nothing'}
+        </span>
+        <span className="text-body-sm text-secondary">
+          {pendingCount > 0 && oldestMember
+            ? `Oldest: ${oldestMember}${
+                oldestWaitingDays ? `, waiting ${oldestWaitingDays} days` : ''
+              }.`
+            : "You're caught up. Check back in a few days to see if anything new comes in."}
+        </span>
+        <div className="mt-1 flex flex-wrap gap-2">
+          {pendingCount > 0 ? (
+            <a href={queuePath} className="btn-primary btn-lg">
+              Open the queue
+            </a>
           ) : (
-            <div className="divide-y divide-border-subtle">
-              {remaining.map(row => (
-                <TriageRow
-                  key={row.id}
-                  row={row}
-                  member={row.member}
-                  section={row.section}
-                  busy={busy[row.id]}
-                  onApprove={id => decide(id, 'Approved')}
-                  onDeny={id => decide(id, 'Denied')}
-                />
-              ))}
-            </div>
+            <>
+              <a href={queuePath} className="btn-gray btn-lg">
+                See all season
+              </a>
+              <a href={newPath} className="link text-body-sm self-center">
+                Add a conflict
+              </a>
+            </>
           )}
         </div>
       </div>

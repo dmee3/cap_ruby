@@ -16,7 +16,6 @@
   <div class="lg:col-span-2">
     <div
       id="triage-dashboard"
-      data-rows="<%= @review_rows.to_json %>"
       data-statuses="<%= ConflictStatus.all.order(:name).map { |s| { id: s.id, name: s.name } }.to_json %>"
       data-pending-count="<%= @pending_count %>"
       data-oldest-member="<%= @oldest && @oldest[:member] %>"
