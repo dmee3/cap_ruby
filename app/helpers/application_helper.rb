@@ -131,7 +131,7 @@ module ApplicationHelper
                   badge: pending_conflict_badge),
       NavItem.new(label: 'Files',     path: files_path,                 icon: :folder),
       NavItem.new(label: 'Inventory', path: inventory_categories_path,  icon: :cube),
-      NavItem.new(label: 'Emails',    path: inventory_email_rules_path, icon: :mail),
+      NavItem.new(label: 'Inventory Alerts', path: inventory_email_rules_path, icon: :mail),
       NavItem.new(label: 'Calendars', path: admin_calendars_path,       icon: :calendar_days),
       NavItem.new(label: 'Season',    path: edit_admin_season_path,     icon: :cog,
                   match: %r{\A/admin/season})
@@ -145,7 +145,7 @@ module ApplicationHelper
                   badge: pending_conflict_badge),
       NavItem.new(label: 'Files',     path: files_path,                  icon: :folder),
       NavItem.new(label: 'Inventory', path: inventory_categories_path,   icon: :cube),
-      NavItem.new(label: 'Emails',    path: inventory_email_rules_path,  icon: :mail)
+      NavItem.new(label: 'Inventory Alerts', path: inventory_email_rules_path, icon: :mail)
     ]
   end
 
