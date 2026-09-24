@@ -127,6 +127,30 @@ describe('ConflictTriage', () => {
     })
   })
 
+  // The calendar view's groups aren't scoped to "upcoming" the way the queue's
+  // are, so a pending conflict whose date has passed used to still count
+  // towards "N waiting on you" and could be picked as "Next up" — a date that
+  // had already gone by.
+  it("doesn't count a pending conflict whose date has already passed", async () => {
+    const past = { ...group, date: '2000-01-01', date_label: 'Saturday, 1/1' }
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string) => {
+        if (url.startsWith('/api/conflict_statuses')) {
+          return Promise.resolve({ ok: true, json: () => Promise.resolve(statuses) })
+        }
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ groups: [past], conflicts: [conflict], counts: { Pending: 1, All: 1 } }),
+        })
+      }),
+    )
+    render(<ConflictTriage basePath="/admin/conflicts" />)
+
+    expect(await screen.findByText('0 waiting on you')).toBeInTheDocument()
+    expect(screen.getByText('Nothing needs a decision.')).toBeInTheDocument()
+  })
+
   // Regression: decide() used to look the conflict up in the queue groups and
   // bail when it wasn't found. In calendar view the queue is empty, so
   // approving from the popover silently did nothing.
