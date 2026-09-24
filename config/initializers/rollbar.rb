@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Initializers run before autoloading.
+require_relative '../../lib/deploy_env'
+
 Rollbar.configure do |config|
   # Without configuration, Rollbar is enabled in all environments.
   # To disable in specific environments, set config.enabled=false.
@@ -12,8 +15,8 @@ Rollbar.configure do |config|
   # the app is the only one that would.
   config.scrub_fields |= %i[report]
 
-  # Here we'll disable in everything but prod:
-  config.enabled = false unless Rails.env.production?
+  # Staging would otherwise report into the production project's alerts.
+  config.enabled = false unless DeployEnv.real_production?
 
   # By default, Rollbar will try to call the `current_user` controller method
   # to fetch the logged-in user object, and then call that object's `id`,
