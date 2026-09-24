@@ -1,5 +1,5 @@
 interface SeasonsUser {
-  id: Number,
+  id: number,
   role: string,
   ensemble: string,
   section: string,

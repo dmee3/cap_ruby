@@ -3,6 +3,8 @@ import { render } from 'react-dom'
 import ConflictForm from '../../../react/widgets/members/ConflictForm'
 import MemberConflictList, { ConflictListItem } from '../../../react/widgets/members/MemberConflictList'
 
+// Only `var` adds a property to the global object in a `declare global` block.
+/* eslint-disable no-var */
 declare global {
   var conflictForm:
     | {
@@ -21,6 +23,7 @@ declare global {
   /** Card header for the list, when the screen renders it as a list card. */
   var conflictListCard: { title: string; count?: string } | undefined
 }
+/* eslint-enable no-var */
 
 const formEl = document.getElementById('conflict-form')
 if (formEl && window.conflictForm) {
