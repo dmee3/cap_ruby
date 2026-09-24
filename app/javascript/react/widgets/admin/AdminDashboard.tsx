@@ -83,6 +83,13 @@ type AdminDashboardProps = {
 const money = (cents: number) =>
   `$${Math.round(cents / 100).toLocaleString('en-US')}`
 
+const CRUNCHWRAP_SUPREME_CENTS = 649
+
+const crunchwrapSupremes = (cents: number) => {
+  const count = Math.floor(cents / CRUNCHWRAP_SUPREME_CENTS)
+  return `That's ${count.toLocaleString('en-US')} Crunchwrap Supreme${count === 1 ? '' : 's'}`
+}
+
 const fmtDate = (iso: string) =>
   new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', {
     month: 'numeric',
@@ -303,7 +310,11 @@ const AdminDashboard = ({
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
-          <StatBlock kicker="Expected by today" metric={money(stats.expected_cents)} />
+          <StatBlock
+            kicker="Expected by today"
+            metric={money(stats.expected_cents)}
+            context={crunchwrapSupremes(stats.expected_cents)}
+          />
         </Card>
         <Card>
           <StatBlock
