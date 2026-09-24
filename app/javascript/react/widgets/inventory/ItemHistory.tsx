@@ -88,7 +88,7 @@ const ItemHistory = ({ payload }: { payload: ItemHistoryPayload }) => {
         count={
           entries.length === 0
             ? undefined
-            : `${entries.length} ${entries.length === 1 ? 'change' : 'changes'} · newest first`
+            : `${entries.length} ${entries.length === 1 ? 'change' : 'changes'}`
         }
       >
         {entries.length === 0 ? (
