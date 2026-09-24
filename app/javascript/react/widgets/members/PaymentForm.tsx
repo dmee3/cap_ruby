@@ -126,8 +126,8 @@ const PaymentForm = ({
           </p>
 
           <p className="text-body-sm text-secondary bg-sunken rounded-sm p-3">
-            Paying by card? The processor charges 3% + 30¢, and we add it on top so your full
-            payment lands on your dues. Venmo, cash, or a check at rehearsal has no fee.
+            Paying by card? There's a small processing fee added on top by the card processor.
+            Venmo, cash, or a check have no fee.
           </p>
 
           <FeeBreakdown amountCents={amountCents} className="border-t border-border-default pt-4" />
