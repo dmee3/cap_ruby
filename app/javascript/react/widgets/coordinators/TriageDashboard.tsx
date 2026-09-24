@@ -157,7 +157,7 @@ const TriageDashboard = ({
           {caughtUp ? (
             <EmptyState
               title="No decisions to make"
-              body="When something comes in it shows up here with Approve and Deny on the row, so you can handle it without opening the queue."
+              body="If any conflicts are submitted, they'll show up here for review."
             />
           ) : (
             <div className="divide-y divide-border-subtle">
