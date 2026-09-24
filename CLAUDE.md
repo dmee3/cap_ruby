@@ -42,7 +42,11 @@ Manage all aspects of ensemble operations including member registration, rehears
 - Yearly membership periods running fall → spring
 - Each user has a role per season (via `seasons_users` join table)
 - Users can have different roles in different seasons
-- Current season determined by `Season.current` method
+- There is no global current season: each user has their own, from
+  `ApplicationController#current_season` (a helper method). It picks from the user's active
+  seasons, honouring the `cap_season_id` cookie set by the season switcher and
+  falling back to their latest season. Anything without a logged-in user (jobs,
+  public pages, services) has to be handed a season explicitly
 
 ### Conflict Management
 - Members submit rehearsal conflicts (date ranges when they cannot attend)
@@ -120,7 +124,8 @@ The `PRODUCT_NAMES` constants in the model classes are fallbacks only.
 
 ### Authorization Pattern
 - Roles stored per season in `seasons_users` table
-- Check current role via `current_user.role_for(Season.current)`
+- Check current role via `current_user_role` (controller/view helper), which is
+  `current_user.role_for(current_season.id)`; `role_for` takes a season **id**
 - Base controllers enforce role: `AdminController`, `CoordinatorsController`, `StaffController`, `MembersController`
 - Controllers in `app/controllers/admin/`, `app/controllers/coordinators/`, etc.
 
@@ -286,8 +291,8 @@ The `PRODUCT_NAMES` constants in the model classes are fallbacks only.
 ### Multi-Tenant Architecture
 - Multi-season system where users have different roles per season
 - Current season context drives most queries
-- Role checking: `current_user.role_for(Season.current)`
-- Season scoping: Most queries filtered by `Season.current`
+- Role checking: `current_user_role` (see Authorization Pattern)
+- Season scoping: Most queries filtered by `current_season` (see Seasons)
 
 ### Frontend Architecture
 - **React Widgets:** `app/javascript/react/widgets/` organized by user role
@@ -338,7 +343,7 @@ app/controllers/
 ```
 app/models/
 ├── user.rb                            # Central user model, has role_for(season)
-├── season.rb                          # Yearly periods, has Season.current
+├── season.rb                          # Yearly periods
 ├── seasons_user.rb                    # Join table, stores role per season
 ├── payment.rb                         # Individual payments
 ├── payment_schedule.rb                # Payment plan for a user
@@ -382,7 +387,6 @@ app/models/
 
 **Season:**
 - Represents yearly membership period
-- `Season.current` returns active season
 - `has_many :users, through: :seasons_users`
 
 **SeasonsUser (Join Table):**
