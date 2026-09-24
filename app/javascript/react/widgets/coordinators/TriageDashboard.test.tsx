@@ -105,4 +105,35 @@ describe('TriageDashboard', () => {
 
     expect(screen.getByRole('link', { name: 'See all 5' })).toBeInTheDocument()
   })
+
+  // The calendar used to mount its own FullCalendar and fetch the whole
+  // season to draw it; this one shares the queue's upcoming-only scope so
+  // the dashboard never repeats that cost.
+  it('asks for upcoming conflicts only, not the whole season', async () => {
+    render(<TriageDashboard {...baseProps} rows={[]} pendingCount={0} />)
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/conflicts?when=upcoming')
+    })
+  })
+
+  it('refreshes the calendar after a decision from the review list', async () => {
+    render(<TriageDashboard {...baseProps} rows={[row(7)]} pendingCount={1} />)
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/conflicts?when=upcoming')
+    })
+    const callsBefore = (fetch as ReturnType<typeof vi.fn>).mock.calls.filter(
+      ([url]) => url === '/api/conflicts?when=upcoming',
+    ).length
+
+    await userEvent.click(screen.getByRole('button', { name: 'Approve' }))
+
+    await waitFor(() => {
+      const callsAfter = (fetch as ReturnType<typeof vi.fn>).mock.calls.filter(
+        ([url]) => url === '/api/conflicts?when=upcoming',
+      ).length
+      expect(callsAfter).toBeGreaterThan(callsBefore)
+    })
+  })
 })
