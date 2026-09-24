@@ -129,13 +129,21 @@ const StockList = () => {
       </p>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatBlock kicker="Items tracked" metric={String(stats.tracked)} />
-        <StatBlock kicker="Under alert" metric={String(stats.under_alert)} threshold={stats.under_alert} />
-        <StatBlock kicker="Out of stock" metric={String(stats.out_of_stock)} threshold={stats.out_of_stock} />
-        <StatBlock kicker="No alert set" metric={String(stats.no_alert)} />
+        <Card>
+          <StatBlock kicker="Items tracked" metric={String(stats.tracked)} />
+        </Card>
+        <Card>
+          <StatBlock kicker="Under alert" metric={String(stats.under_alert)} threshold={stats.under_alert} />
+        </Card>
+        <Card>
+          <StatBlock kicker="Out of stock" metric={String(stats.out_of_stock)} threshold={stats.out_of_stock} />
+        </Card>
+        <Card>
+          <StatBlock kicker="No alert set" metric={String(stats.no_alert)} />
+        </Card>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3 rounded-md border border-border-default bg-surface p-3">
         <label className="sr-only" htmlFor="stock-search">
           Search items
         </label>
