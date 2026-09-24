@@ -150,7 +150,7 @@ export const FeeBreakdown = ({ amountCents, className = '' }: FeeBreakdownProps)
     <div className={`flex flex-col gap-1.5 ${className}`.trim()}>
       <Line label="Toward dues" value={has ? money(amountCents as number) : dash} />
       <Line
-        label="Card fee (3% + 30¢)"
+        label="Card fee"
         value={has ? money(feeCents(amountCents as number)) : dash}
         muted
       />

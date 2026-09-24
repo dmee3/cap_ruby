@@ -90,6 +90,9 @@ describe('TriageDashboard', () => {
     // btn-gray is the app's secondary button; btn-secondary doesn't exist as
     // a class, and rendered as plain text rather than a button.
     expect(screen.getByRole('link', { name: 'See all season' })).toHaveClass('btn-gray')
+    // Flow 5's design shows this as a button matching "See all season"'s
+    // height, not a plain inline link.
+    expect(screen.getByRole('link', { name: 'Add a conflict' })).toHaveClass('btn-link', 'btn-lg')
   })
 
   it('asks for every conflict in the season, unscoped', async () => {

@@ -67,7 +67,7 @@ describe('FeeBreakdown', () => {
   it('renders amount, fee and total once an amount exists', () => {
     render(<FeeBreakdown amountCents={12_000} />)
     expect(screen.getByText('Toward dues').nextSibling).toHaveTextContent('$120.00')
-    expect(screen.getByText('Card fee (3% + 30¢)').nextSibling).toHaveTextContent('$4.01')
+    expect(screen.getByText('Card fee').nextSibling).toHaveTextContent('$4.01')
     expect(screen.getByText('Total charged').nextSibling).toHaveTextContent('$124.01')
   })
 })

@@ -33,9 +33,20 @@ RSpec.describe 'App shell', type: :request do
 
     it 'shows the admin nav items' do
       get '/admin'
-      %w[Home Users Payments Conflicts Files Inventory Emails Calendars].each do |label|
+      ['Home', 'Users', 'Payments', 'Conflicts', 'Files', 'Inventory', 'Inventory Alerts', 'Calendars'].each do |label|
         expect(response.body).to include(">#{label}<")
       end
+    end
+
+    # Regression: the topbar's season chip used to share the hamburger's
+    # click handler and open the nav drawer, landing on the drawer's own
+    # season switcher a tap later instead of a menu of its own.
+    it 'gives the topbar season chip its own dropdown, not the drawer' do
+      get '/admin'
+
+      expect(response.body).to include('aria-controls="season-menu-topbar"')
+      expect(response.body).to include('id="season-menu-topbar"')
+      expect(response.body).not_to include('id="app-menu-btn-season"')
     end
   end
 
@@ -95,7 +106,7 @@ RSpec.describe 'App shell', type: :request do
     it 'activates the email rules item on its own page' do
       get '/inventory/email_rules'
 
-      expect(active_labels).to eq(%w[Emails Emails])
+      expect(active_labels).to eq(['Inventory Alerts', 'Inventory Alerts'])
     end
 
     it 'activates home only on the dashboard itself' do

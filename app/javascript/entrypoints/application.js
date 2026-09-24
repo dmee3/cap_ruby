@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     scrim?.classList.remove('is-open')
   }
   document.querySelector('#app-menu-btn')?.addEventListener('click', openDrawer)
-  document.querySelector('#app-menu-btn-season')?.addEventListener('click', openDrawer)
   document.querySelector('#app-drawer-close')?.addEventListener('click', closeDrawer)
   scrim?.addEventListener('click', closeDrawer)
 

@@ -434,7 +434,7 @@ const Member360 = ({ data, csrfToken }: { data: Member360Data; csrfToken: string
                 {data.conflict_rows.map((c) => (
                   <ConflictContextRow
                     key={c.id}
-                    className="border-b border-border-default px-4 last:border-0"
+                    className="border-b border-border-default px-4 py-3 last:border-0"
                     dateRangeLabel={c.date_range_label}
                     timeRangeLabel={c.time_range_label}
                     status={c.status}

@@ -416,7 +416,7 @@ const AdminDashboard = ({
             loadIncrement={10}
             emptyTitle="Nothing in the last 30 days"
             emptyBody="Manual and card payments show up here as they're recorded."
-            caption={(shown, total) => `${shown} of ${total} this season`}
+            caption={(shown, total) => `${shown} of ${total} recorded in the last 30 days`}
             renderItem={(p) => (
               <a href={`/admin/users/${p.user_id}`} className={rowLink}>
                 <span className="flex min-w-0 flex-1 flex-col">

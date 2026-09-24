@@ -1,6 +1,7 @@
 <%#
   Top bar. Desktop: page title + profile menu. Mobile: hamburger + logo + season chip
-  (the chip opens the drawer, which holds the real season switcher).
+  (the chip opens its own season menu directly — it used to open the nav drawer,
+  landing you on the drawer's own season switcher a tap later).
   Guarded like _sidebar — renders nothing without an authenticated user.
 %>
 <% return unless current_user %>
@@ -16,13 +17,19 @@
   </div>
 
   <div class="flex items-center gap-3">
-    <button type="button" id="app-menu-btn-season"
-            class="md:hidden inline-flex items-center gap-1.5 bg-sunken border border-border-default rounded-full px-3 py-1 text-body-sm font-semibold text-primary cursor-pointer">
-      <%= current_season ? current_season['year'] : '—' %>
-      <svg class="h-3.5 w-3.5 text-secondary" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-      </svg>
-    </button>
+    <div class="relative md:hidden">
+      <button type="button"
+              data-dropdown-trigger
+              aria-controls="season-menu-topbar"
+              aria-haspopup="true"
+              class="inline-flex items-center gap-1.5 bg-sunken border border-border-default rounded-full px-3 py-1 text-body-sm font-semibold text-primary cursor-pointer">
+        <%= current_season ? current_season['year'] : '—' %>
+        <svg class="h-3.5 w-3.5 text-secondary" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+        </svg>
+      </button>
+      <%= render 'shell/season_switcher_menu', menu_id: 'season-menu-topbar', align: :right %>
+    </div>
     <%= render 'shell/profile_menu' %>
   </div>
 </header>
