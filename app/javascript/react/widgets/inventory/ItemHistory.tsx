@@ -69,7 +69,7 @@ const ItemHistory = ({ payload }: { payload: ItemHistoryPayload }) => {
           </p>
         ) : (
           <p className="m-0 text-body text-secondary">
-            No alert set, so nothing warns you when this runs low.{' '}
+            No alert set.{' '}
             {canManageAlerts && (
               <a
                 href="/inventory/email_rules/new"
