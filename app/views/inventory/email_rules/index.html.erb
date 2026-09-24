@@ -9,9 +9,6 @@
       <%= pluralize(@rules.length, 'alert') %>
       <%= @rules.length == 1 ? 'is watching' : 'are watching' %>
       <%= pluralize(@watched_item_count, 'item') %>.
-      <% if @unwatched_count.positive? %>
-        Everything else runs unwatched.
-      <% end %>
     <% end %>
   </p>
 
