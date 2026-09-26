@@ -32,6 +32,14 @@ module External
       def write_sheet(sheet_id, tab_name, data, formulae: false)
         instance.write_sheet(sheet_id, tab_name, data, formulae: formulae)
       end
+
+      def read_sheet_with_dates(sheet_id, tab_name)
+        instance.read_sheet_with_dates(sheet_id, tab_name)&.values
+      end
+
+      def replace_rows_below_header(sheet_id, rows_by_tab)
+        instance.replace_rows_below_header(sheet_id, rows_by_tab)
+      end
     end
 
     def initialize
@@ -99,6 +107,32 @@ module External
     def read_sheet(sheet_id, tab_name)
       service.get_spreadsheet_values(sheet_id, "'#{tab_name}'!A1:Z1000",
                                      value_render_option: 'FORMULA')
+    end
+
+    # FORMULA rendering keeps HYPERLINK cells intact, but on its own it turns
+    # dates into serial numbers; FORMATTED_STRING gives them back as displayed.
+    def read_sheet_with_dates(sheet_id, tab_name)
+      service.get_spreadsheet_values(sheet_id, "'#{tab_name}'!A1:Z",
+                                     value_render_option: 'FORMULA',
+                                     date_time_render_option: 'FORMATTED_STRING')
+    end
+
+    # Clears every tab below row 1, then writes each tab's rows from row 2 —
+    # one request each, so a failure can't leave some tabs rewritten and
+    # others stale. A tab with no rows is still cleared.
+    def replace_rows_below_header(sheet_id, rows_by_tab)
+      service.batch_clear_values(
+        sheet_id,
+        Google::Apis::SheetsV4::BatchClearValuesRequest.new(ranges: rows_by_tab.keys.map { |tab| "'#{tab}'!A2:Z" })
+      )
+
+      data = rows_by_tab.reject { |_tab, rows| rows.empty? }.map { |tab, rows| { range: "'#{tab}'!A2", values: rows } }
+      return if data.empty?
+
+      service.batch_update_values(
+        sheet_id,
+        Google::Apis::SheetsV4::BatchUpdateValuesRequest.new(data: data, value_input_option: 'USER_ENTERED')
+      )
     end
 
     def write_sheet(sheet_id, tab_name, values, formulae: false)

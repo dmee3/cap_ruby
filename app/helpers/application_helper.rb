@@ -2,7 +2,7 @@
 
 module ApplicationHelper
   # Flash keys that signal other UI rather than carrying a message to display.
-  NON_MESSAGE_FLASH_KEYS = %i[conflict_submitted undo_payment_id].freeze
+  NON_MESSAGE_FLASH_KEYS = %i[conflict_submitted undo_payment_id check_in_report check_in_error].freeze
 
   def flash_message?(type, message)
     !NON_MESSAGE_FLASH_KEYS.include?(type.to_sym) && message.present?

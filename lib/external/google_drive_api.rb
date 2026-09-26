@@ -12,6 +12,18 @@ module External
       def get_files(year, folder = '')
         instance.get_files(year, folder)
       end
+
+      def docs_in_folder(folder_id)
+        instance.docs_in_folder(folder_id)
+      end
+
+      def image_thumbnail(file_id, size:)
+        instance.image_thumbnail(file_id, size: size)
+      end
+
+      def replace_doc_with_html(doc_id, html)
+        instance.replace_doc_with_html(doc_id, html)
+      end
     end
 
     def initialize
@@ -51,6 +63,35 @@ module External
 
       result = service.list_files(q: "'#{folder_id}' in parents", page_size: 100)
       format(result.files)
+    end
+
+    # { name => id } for the Google Docs directly inside a folder
+    def docs_in_folder(folder_id)
+      result = service.list_files(
+        q: "'#{folder_id}' in parents and mimeType = 'application/vnd.google-apps.document' and trashed = false",
+        fields: 'files(id,name)', page_size: 100
+      )
+      result.files.to_h { |file| [file.name, file.id] }
+    end
+
+    # A downscaled copy of an image file as [bytes, content type], or nil when
+    # the file isn't an image or can't be read. Drive renders thumbnails at any
+    # size up to the original, so this avoids pulling a full phone photo.
+    def image_thumbnail(file_id, size:)
+      file = service.get_file(file_id, fields: 'mimeType,thumbnailLink')
+      return nil unless file.mime_type.to_s.start_with?('image/') && file.thumbnail_link
+
+      url = file.thumbnail_link.sub(/=s\d+\z/, "=s#{size}")
+      response = Faraday.get(url, nil, service.authorization.apply({}))
+      type = response.headers['content-type'].to_s
+      [response.body, type] if response.status == 200 && type.start_with?('image/')
+    rescue Google::Apis::Error, Faraday::Error
+      nil
+    end
+
+    # Replaces a Google Doc's whole body; Drive converts the HTML on upload.
+    def replace_doc_with_html(doc_id, html)
+      service.update_file(doc_id, upload_source: StringIO.new(html), content_type: 'text/html')
     end
 
     private

@@ -18,6 +18,7 @@ RSpec.describe 'Public pages', type: :request do
   end
 
   include_examples 'a shell-free public page', '/auditions-spreadsheet'
+  include_examples 'a shell-free public page', '/auditions-check-in'
   include_examples 'a shell-free public page', '/rhythm-converter'
   include_examples 'a shell-free public page', '/tarp-grid-tool'
   # The fundraiser joined this list in Flow 7, which folded away the one-off

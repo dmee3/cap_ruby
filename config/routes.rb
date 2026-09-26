@@ -15,6 +15,8 @@ Rails.application.routes.draw do
 
   get '/auditions-spreadsheet', to: 'auditions#index'
   get '/auditions-spreadsheet-generate', to: 'auditions#update'
+  get '/auditions-check-in', to: 'audition_check_in#show', as: :audition_check_in
+  post '/auditions-check-in', to: 'audition_check_in#create'
 
   post 'change-season', to: 'home#change_season'
 
