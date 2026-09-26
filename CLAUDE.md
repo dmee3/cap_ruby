@@ -110,6 +110,15 @@ sync also runs via `rake auditions:update_spreadsheet` (used for scheduled runs)
 3. `PacketsAndRegistrationsWriter` — rewrites the "Packets" and "Registrations" tabs of the main spreadsheet, grouped by type → instrument, sorted chronologically; clears and unmerges cells first to avoid stale-merge corruption
 4. `RecruitmentUpdater` — only if `RECRUITMENT_SPREADSHEET_ID` is set; updates per-section tabs (`MALLETS/SD/TN/BD/CYM/AUX/ELECTRO/VE`) via `TAB_INSTRUMENT_MAPPING` and drops anyone not already on a tab onto `UNSORTED`
 
+**Audition-day check-in** (`/auditions-check-in`, `AuditionCheckInController` →
+`AuditionCheckIn::Sync` in `app/services/audition_check_in/`): a separate tool that deliberately
+shares nothing with the pipeline above except `External::GoogleSheetsApi`. It reads a Google Form's
+responses (`AUDITION_CHECK_IN_SPREADSHEET_ID`), looks each person up on the Registrations tab by
+name or email for pronouns and birthday, and **overwrites** every instrument tab of the feedback
+sheet (`AUDITION_FEEDBACK_SPREADSHEET_ID`) from row 2 — so it's only for before staff start writing
+feedback, and the page makes you confirm. The form-answer → tab mapping is `Sync::INSTRUMENT_TABS`.
+Sheet IDs live in env vars, not config, because the repo is public and the sheets hold auditionee PII.
+
 **Per-year config:** `config/auditions/{year}.yml`, selected by the `AUDITIONS_YEAR` env var
 (defaults to the current calendar year). Holds the date range, Squarespace product names →
 display types, and form-field label mappings. To set up a new season, copy the previous

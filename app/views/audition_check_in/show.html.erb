@@ -1,0 +1,130 @@
+<% content_for :page_title, 'Audition check-in' %>
+
+<div class="flex justify-center py-8 sm:py-16">
+  <section class="card w-full max-w-[560px] rounded-lg p-7 sm:p-8" aria-labelledby="check-in-heading">
+    <p class="card-title">Auditions</p>
+    <h1 id="check-in-heading" class="m-0 mt-1 text-h1 text-primary">Build the feedback sheet</h1>
+    <p class="text-body text-secondary mt-2">
+      Puts everyone who's filled in the check-in form on their instrument's tab,
+      with pronouns and birthday from their registration.
+    </p>
+
+    <% if @report %>
+      <div class="mt-6 rounded-md bg-success-bg p-5" role="status">
+        <p class="m-0 text-h3 text-success-fg">
+          Done. <%= pluralize(@report.people_written, 'person') %> on the feedback sheet.
+        </p>
+        <ul class="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-body-sm list-none p-0">
+          <% @report.written.each do |tab, count| %>
+            <li class="flex justify-between gap-2">
+              <span class="text-secondary"><%= tab %></span>
+              <span class="font-mono tabular-nums"><%= count %></span>
+            </li>
+          <% end %>
+        </ul>
+        <p class="text-body-sm mt-3 mb-0">
+          <%= @report.matched %> of <%= @report.matched + @report.unmatched %> matched to a registration.
+          <% if @report.unmatched.positive? %>
+            The other <%= @report.unmatched %> have blank pronouns and birthday — neither their name nor
+            their email is on the Registrations tab.
+          <% end %>
+        </p>
+        <% if @report.duplicates.positive? %>
+          <p class="text-body-sm mt-2 mb-0">
+            <%= pluralize(@report.duplicates, 'repeat check-in') %> replaced by that person's latest one.
+          </p>
+        <% end %>
+      </div>
+
+      <% if @report.unknown_instruments.any? %>
+        <div class="card card--warning mt-4" role="alert">
+          <p class="m-0 text-body text-primary">
+            <%= pluralize(@report.unknown_instruments.values.sum, 'check-in') %> left off —
+            their instrument has no tab:
+            <%= @report.unknown_instruments.map { |instrument, count| "#{instrument.presence || '(blank)'} (#{count})" }.to_sentence %>.
+          </p>
+        </div>
+      <% end %>
+    <% elsif @error %>
+      <div class="card card--danger mt-6" role="alert">
+        <p class="m-0 text-h3 text-danger-fg">That didn't work.</p>
+        <p class="text-body mt-2 mb-0"><%= @error %></p>
+      </div>
+    <% end %>
+
+    <% if AuditionCheckIn::Sync.feedback_sheet_url %>
+      <p class="text-body-sm mt-6 mb-0">
+        <%= link_to 'Open the feedback sheet', AuditionCheckIn::Sync.feedback_sheet_url,
+                    class: 'link', target: '_blank', rel: 'noopener' %>
+      </p>
+    <% end %>
+
+    <div id="sync-start" class="mt-6">
+      <button type="button" id="sync-start-button" class="btn-primary btn-lg w-full sm:w-full"
+              aria-controls="sync-confirm" aria-expanded="false">
+        <%= @report ? 'Sync again' : 'Sync check-ins' %>
+      </button>
+    </div>
+
+    <div id="sync-confirm" hidden
+         class="mt-6 rounded-md border border-border-default border-t-4 border-t-danger-fg bg-danger-bg p-5 sm:p-6">
+      <h2 id="sync-confirm-heading" tabindex="-1" class="m-0 text-h2 text-danger-fg focus:outline-none">Are you sure?</h2>
+      <p class="text-body text-primary mt-2">
+        This <strong>overwrites the feedback sheet</strong>. Every instrument tab is cleared below its
+        header and rebuilt from the check-in form — anything typed in the Feedback column is gone.
+      </p>
+      <p class="text-body-sm text-secondary mt-2">Only run it before staff start writing feedback.</p>
+
+      <%= form_with url: audition_check_in_path, method: :post, id: 'sync-form', class: 'mt-5' do %>
+        <button type="submit" id="sync-submit" class="btn-red btn-lg w-full sm:w-full">
+          Yes, overwrite the feedback sheet
+        </button>
+      <% end %>
+      <button type="button" id="sync-cancel" class="btn-gray btn-md w-full sm:w-full mt-3">Cancel</button>
+    </div>
+  </section>
+</div>
+
+<% content_for :scripts do %>
+  <script type="text/javascript">
+    (function () {
+      var start = document.getElementById('sync-start')
+      var startButton = document.getElementById('sync-start-button')
+      var confirm = document.getElementById('sync-confirm')
+      var heading = document.getElementById('sync-confirm-heading')
+      var form = document.getElementById('sync-form')
+      var submit = document.getElementById('sync-submit')
+
+      function open() {
+        start.hidden = true
+        startButton.setAttribute('aria-expanded', 'true')
+        confirm.hidden = false
+        heading.focus()
+      }
+
+      function close() {
+        if (submit.disabled) return
+        confirm.hidden = true
+        start.hidden = false
+        startButton.setAttribute('aria-expanded', 'false')
+        startButton.focus()
+      }
+
+      startButton.addEventListener('click', open)
+      document.getElementById('sync-cancel').addEventListener('click', close)
+      confirm.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') close()
+      })
+
+      form.addEventListener('submit', function (event) {
+        if (submit.disabled) {
+          event.preventDefault()
+          return
+        }
+        submit.disabled = true
+        submit.setAttribute('aria-busy', 'true')
+        submit.textContent = 'Overwriting… this takes a few seconds'
+      })
+    })()
+  </script>
+<% end %>
