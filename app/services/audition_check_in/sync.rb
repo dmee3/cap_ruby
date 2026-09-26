@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 module AuditionCheckIn
-  # Rebuilds the audition feedback sheet from the check-in form: every
-  # instrument tab is cleared below its header and rewritten from the current
+  # Rebuilds the audition feedback sheet and section docs from the check-in
+  # form: every instrument tab and doc is overwritten from the current
   # check-ins, with pronouns and birthday pulled from the person's registration.
-  # It overwrites, so it's for before staff start writing feedback.
+  # It's for before staff start writing feedback.
   class Sync
-    Report = Struct.new(:written, :matched, :unmatched, :duplicates, :unknown_instruments, keyword_init: true) do
+    Report = Struct.new(:written, :matched, :unmatched, :duplicates, :unknown_instruments, :photos, :missing_photos,
+                        keyword_init: true) do
       def people_written
         written.values.sum
       end
@@ -50,14 +51,23 @@ module AuditionCheckIn
       "https://docs.google.com/spreadsheets/d/#{id}/edit" if id.present?
     end
 
-    def initialize(sheets_api: External::GoogleSheetsApi,
+    def self.feedback_docs_url
+      id = ENV.fetch('AUDITION_FEEDBACK_DOCS_FOLDER_ID', nil)
+      "https://drive.google.com/drive/folders/#{id}" if id.present?
+    end
+
+    def initialize(sheets_api: External::GoogleSheetsApi, drive_api: External::GoogleDriveApi,
                    check_in_spreadsheet_id: ENV.fetch('AUDITION_CHECK_IN_SPREADSHEET_ID', nil),
                    feedback_spreadsheet_id: ENV.fetch('AUDITION_FEEDBACK_SPREADSHEET_ID', nil),
-                   registrations_spreadsheet_id: ENV.fetch('AUDITIONS_SPREADSHEET_ID', nil))
+                   registrations_spreadsheet_id: ENV.fetch('AUDITIONS_SPREADSHEET_ID', nil),
+                   docs_folder_id: ENV.fetch('AUDITION_FEEDBACK_DOCS_FOLDER_ID', nil),
+                   today: Date.current)
       @sheets_api = sheets_api
       @check_in_spreadsheet_id = check_in_spreadsheet_id
       @feedback_spreadsheet_id = feedback_spreadsheet_id
       @registrations_spreadsheet_id = registrations_spreadsheet_id
+      @docs_folder_id = docs_folder_id
+      @docs = FeedbackDocs.new(drive_api: drive_api, folder_id: docs_folder_id, today: today)
     end
 
     def call
@@ -66,23 +76,28 @@ module AuditionCheckIn
 
       check_ins = latest_check_ins
       verify_feedback_headers
-      rows_by_tab, report = build_rows(check_ins[:people], lookup)
+      doc_ids = docs.find(INSTRUMENT_TABS.values)
+      people_by_tab, report = group_by_tab(check_ins[:people], lookup)
       report.duplicates = check_ins[:duplicates]
 
-      sheets_api.replace_rows_below_header(feedback_spreadsheet_id, rows_by_tab)
-      Rails.logger.info("[AUDITION CHECK-IN] Feedback sheet rebuilt: #{report.to_h}")
+      sheets_api.replace_rows_below_header(feedback_spreadsheet_id,
+                                           people_by_tab.transform_values { |people| people.map { feedback_row(_1) } })
+      report.photos, report.missing_photos = docs.write(doc_ids, people_by_tab)
+      Rails.logger.info("[AUDITION CHECK-IN] Feedback sheet and docs rebuilt: #{report.to_h}")
       report
     end
 
     private
 
-    attr_reader :sheets_api, :check_in_spreadsheet_id, :feedback_spreadsheet_id, :registrations_spreadsheet_id
+    attr_reader :sheets_api, :docs, :check_in_spreadsheet_id, :feedback_spreadsheet_id,
+                :registrations_spreadsheet_id, :docs_folder_id
 
     def missing_settings
       {
         'AUDITION_CHECK_IN_SPREADSHEET_ID' => check_in_spreadsheet_id,
         'AUDITION_FEEDBACK_SPREADSHEET_ID' => feedback_spreadsheet_id,
-        'AUDITIONS_SPREADSHEET_ID' => registrations_spreadsheet_id
+        'AUDITIONS_SPREADSHEET_ID' => registrations_spreadsheet_id,
+        'AUDITION_FEEDBACK_DOCS_FOLDER_ID' => docs_folder_id
       }.select { |_name, value| value.blank? }.keys
     end
 
@@ -123,38 +138,33 @@ module AuditionCheckIn
       end
     end
 
-    def build_rows(check_ins, lookup)
-      rows_by_tab = INSTRUMENT_TABS.values.index_with { [] }
+    def group_by_tab(check_ins, lookup)
+      people_by_tab = INSTRUMENT_TABS.values.index_with { [] }
       report = Report.new(written: {}, matched: 0, unmatched: 0, unknown_instruments: Hash.new(0))
 
-      check_ins.sort_by { |check_in| check_in.values_at(:first_name, :last_name).map(&:downcase) }.each do |check_in|
+      check_ins.each do |check_in|
         tab = tab_for(check_in[:instrument])
         next report.unknown_instruments[check_in[:instrument]] += 1 unless tab
 
         registration = lookup.find(**check_in.slice(:first_name, :last_name, :email))
         registration ? report.matched += 1 : report.unmatched += 1
-        rows_by_tab[tab] << feedback_row(check_in, registration)
+        people_by_tab[tab] << Person.new(**check_in.slice(:first_name, :last_name, :email, :selfie),
+                                         pronouns: registration&.pronouns, birthday: registration&.birthday)
       end
 
-      report.written = rows_by_tab.transform_values(&:size)
+      people_by_tab.each_value { |people| people.sort_by!(&:sort_key) }
+      report.written = people_by_tab.transform_values(&:size)
       report.unknown_instruments = report.unknown_instruments.to_h
-      [rows_by_tab, report]
+      [people_by_tab, report]
     end
 
     def tab_for(instrument)
       INSTRUMENT_TABS.find { |answer, _tab| answer.casecmp?(instrument) }&.last
     end
 
-    def feedback_row(check_in, registration)
-      [
-        check_in[:first_name],
-        check_in[:last_name],
-        registration&.pronouns,
-        check_in[:email],
-        registration&.birthday,
-        '',
-        check_in[:selfie]
-      ].map { |value| plain_text(value) }
+    def feedback_row(person)
+      [person.first_name, person.last_name, person.pronouns, person.email, person.birthday, '', person.selfie]
+        .map { |value| plain_text(value) }
     end
 
     def plain_text(value)

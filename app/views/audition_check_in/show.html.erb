@@ -3,16 +3,16 @@
 <div class="flex justify-center py-8 sm:py-16">
   <section class="card w-full max-w-[560px] rounded-lg p-7 sm:p-8" aria-labelledby="check-in-heading">
     <p class="card-title">Auditions</p>
-    <h1 id="check-in-heading" class="m-0 mt-1 text-h1 text-primary">Build the feedback sheet</h1>
+    <h1 id="check-in-heading" class="m-0 mt-1 text-h1 text-primary">Build the feedback sheet and docs</h1>
     <p class="text-body text-secondary mt-2">
-      Puts everyone who's filled in the check-in form on their instrument's tab,
-      with pronouns and birthday from their registration.
+      Puts everyone who's filled in the check-in form on their section's tab and doc,
+      with pronouns and birthday from their registration and their selfie in the doc.
     </p>
 
     <% if @report %>
       <div class="mt-6 rounded-md bg-success-bg p-5" role="status">
         <p class="m-0 text-h3 text-success-fg">
-          Done. <%= pluralize(@report.people_written, 'person') %> on the feedback sheet.
+          Done. <%= pluralize(@report.people_written, 'person') %> on the feedback sheet and docs.
         </p>
         <ul class="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-body-sm list-none p-0">
           <% @report.written.each do |tab, count| %>
@@ -27,6 +27,12 @@
           <% if @report.unmatched.positive? %>
             The other <%= @report.unmatched %> have blank pronouns and birthday — neither their name nor
             their email is on the Registrations tab.
+          <% end %>
+        </p>
+        <p class="text-body-sm mt-2 mb-0">
+          <%= pluralize(@report.photos, 'selfie') %> in the docs.
+          <% if @report.missing_photos.positive? %>
+            <%= @report.missing_photos %> didn't have one Drive could open, so their doc says "No selfie".
           <% end %>
         </p>
         <% if @report.duplicates.positive? %>
@@ -52,10 +58,13 @@
       </div>
     <% end %>
 
-    <% if AuditionCheckIn::Sync.feedback_sheet_url %>
-      <p class="text-body-sm mt-6 mb-0">
-        <%= link_to 'Open the feedback sheet', AuditionCheckIn::Sync.feedback_sheet_url,
-                    class: 'link', target: '_blank', rel: 'noopener' %>
+    <% links = { 'Open the feedback sheet' => AuditionCheckIn::Sync.feedback_sheet_url,
+                 'Open the section docs' => AuditionCheckIn::Sync.feedback_docs_url }.compact %>
+    <% if links.any? %>
+      <p class="flex flex-wrap gap-x-6 gap-y-1 text-body-sm mt-6 mb-0">
+        <% links.each do |label, url| %>
+          <%= link_to label, url, class: 'link', target: '_blank', rel: 'noopener' %>
+        <% end %>
       </p>
     <% end %>
 
@@ -70,14 +79,15 @@
          class="mt-6 rounded-md border border-border-default border-t-4 border-t-danger-fg bg-danger-bg p-5 sm:p-6">
       <h2 id="sync-confirm-heading" tabindex="-1" class="m-0 text-h2 text-danger-fg focus:outline-none">Are you sure?</h2>
       <p class="text-body text-primary mt-2">
-        This <strong>overwrites the feedback sheet</strong>. Every instrument tab is cleared below its
-        header and rebuilt from the check-in form — anything typed in the Feedback column is gone.
+        This <strong>overwrites the feedback sheet and every section doc</strong>. Each tab is cleared
+        below its header and each doc is replaced, all rebuilt from the check-in form — any feedback
+        already written in either is gone.
       </p>
       <p class="text-body-sm text-secondary mt-2">Only run it before staff start writing feedback.</p>
 
       <%= form_with url: audition_check_in_path, method: :post, id: 'sync-form', class: 'mt-5' do %>
         <button type="submit" id="sync-submit" class="btn-red btn-lg w-full sm:w-full">
-          Yes, overwrite the feedback sheet
+          Yes, overwrite the sheet and docs
         </button>
       <% end %>
       <button type="button" id="sync-cancel" class="btn-gray btn-md w-full sm:w-full mt-3">Cancel</button>

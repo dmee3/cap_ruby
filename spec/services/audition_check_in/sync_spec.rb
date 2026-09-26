@@ -4,11 +4,18 @@ require 'rails_helper'
 
 RSpec.describe AuditionCheckIn::Sync do
   subject(:sync) do
-    described_class.new(sheets_api: sheets_api, check_in_spreadsheet_id: 'check-in-id',
-                        feedback_spreadsheet_id: 'feedback-id', registrations_spreadsheet_id: 'registrations-id')
+    described_class.new(sheets_api: sheets_api, drive_api: drive_api, check_in_spreadsheet_id: 'check-in-id',
+                        feedback_spreadsheet_id: 'feedback-id', registrations_spreadsheet_id: 'registrations-id',
+                        docs_folder_id: 'docs-folder-id', today: Date.new(2026, 10, 3))
   end
 
   let(:sheets_api) { class_double(External::GoogleSheetsApi) }
+  let(:drive_api) { class_double(External::GoogleDriveApi) }
+  let(:section_docs) do
+    %w[SNARE TENORS BASS CYMBALS MALLETS AUX ELECTROS].to_h { |name| [name, "#{name}-doc"] }
+                                                      .merge('VISUAL ENSEMBLE' => 'VE-doc')
+  end
+  let(:docs_written) { {} }
   let(:check_in_header) { ['Timestamp', 'First Name', 'Last Name', 'Instrument', 'Email', 'Selfie'] }
   let(:check_ins) { [] }
   let(:feedback_header) { described_class::FEEDBACK_HEADER.dup }
@@ -43,6 +50,9 @@ RSpec.describe AuditionCheckIn::Sync do
       allow(sheets_api).to receive(:read_sheet).with('feedback-id', tab).and_return([feedback_header])
     end
     allow(sheets_api).to receive(:replace_rows_below_header) { |_id, rows_by_tab| written.merge!(rows_by_tab) }
+    allow(drive_api).to receive(:docs_in_folder).with('docs-folder-id').and_return(section_docs)
+    allow(drive_api).to receive(:image_thumbnail).and_return(['jpeg-bytes', 'image/jpeg'])
+    allow(drive_api).to receive(:replace_doc_with_html) { |doc_id, html| docs_written[doc_id] = html }
   end
 
   def registration(first, last, email, pronouns, birthday)
@@ -85,6 +95,27 @@ RSpec.describe AuditionCheckIn::Sync do
       expect(report.people_written).to eq(3)
       expect(report.written).to include('SNARE' => 1, 'VE' => 1, 'BASS' => 1, 'TENORS' => 0)
       expect([report.matched, report.unmatched]).to eq([2, 1])
+    end
+
+    it 'rewrites every section doc with the same people as the sheet, Visual Ensemble going to its doc' do
+      report = sync.call
+
+      expect(docs_written.keys).to match_array(section_docs.values)
+      expect(docs_written['SNARE-doc']).to include('Sam Reed')
+      expect(docs_written['VE-doc']).to include('<h1>VISUAL ENSEMBLE</h1>', 'Jo Park')
+      expect(docs_written['MALLETS-doc']).to include('Nobody has checked in')
+      expect([report.photos, report.missing_photos]).to eq([3, 0])
+    end
+  end
+
+  context 'when a section doc is missing from the folder' do
+    let(:section_docs) { { 'SNARE' => 'SNARE-doc' } }
+    let(:check_ins) { [check_in('Sam', 'Reed', 'Snare', 'sam.reed@example.com')] }
+
+    it 'refuses before writing the sheet or any doc' do
+      expect { sync.call }.to raise_error(AuditionCheckIn::Error, /no doc named TENORS, .* and VISUAL ENSEMBLE/)
+      expect(sheets_api).not_to have_received(:replace_rows_below_header)
+      expect(drive_api).not_to have_received(:replace_doc_with_html)
     end
   end
 
@@ -204,12 +235,13 @@ RSpec.describe AuditionCheckIn::Sync do
   end
 
   it 'names the missing settings when a sheet ID is not configured' do
-    unconfigured = described_class.new(sheets_api: sheets_api, check_in_spreadsheet_id: nil,
+    unconfigured = described_class.new(sheets_api: sheets_api, drive_api: drive_api, check_in_spreadsheet_id: nil,
                                        feedback_spreadsheet_id: 'feedback-id',
-                                       registrations_spreadsheet_id: '')
+                                       registrations_spreadsheet_id: '', docs_folder_id: nil)
 
     expect { unconfigured.call }.to raise_error(
-      AuditionCheckIn::Error, 'Not configured: set AUDITION_CHECK_IN_SPREADSHEET_ID, AUDITIONS_SPREADSHEET_ID'
+      AuditionCheckIn::Error, 'Not configured: set AUDITION_CHECK_IN_SPREADSHEET_ID, AUDITIONS_SPREADSHEET_ID, ' \
+                              'AUDITION_FEEDBACK_DOCS_FOLDER_ID'
     )
   end
 end
