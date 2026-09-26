@@ -131,12 +131,31 @@ RSpec.describe AuditionCheckIn::Sync do
       ]
     end
 
-    it 'keeps only their latest check-in, in its place in the order' do
+    it 'keeps only their latest check-in' do
       report = sync.call
 
       expect(written['TENORS']).to eq([])
       expect(written['SNARE'].map(&:first)).to eq(%w[Kai Sam])
       expect(report.duplicates).to eq(1)
+    end
+  end
+
+  context 'with several people on one tab' do
+    let(:check_ins) do
+      [
+        check_in('sam', 'Reed', 'Snare', 'sam@example.com'),
+        check_in('Alex', 'Young', 'Snare', 'alex.y@example.com'),
+        check_in('Blair', 'Cho', 'Snare', 'blair@example.com'),
+        check_in('Alex', 'Adams', 'Snare', 'alex.a@example.com')
+      ]
+    end
+
+    it 'sorts them by first name, then last name, ignoring case' do
+      sync.call
+
+      expect(written['SNARE'].map { |row| row.first(2).join(' ') }).to eq(
+        ['Alex Adams', 'Alex Young', 'Blair Cho', 'sam Reed']
+      )
     end
   end
 

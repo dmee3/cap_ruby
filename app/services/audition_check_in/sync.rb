@@ -87,8 +87,7 @@ module AuditionCheckIn
     end
 
     # One row per person, keyed on email; a later response replaces an earlier
-    # one (someone re-submitting to fix their instrument) and takes its place
-    # in check-in order.
+    # one (someone re-submitting to fix their instrument).
     def latest_check_ins
       header, *rows = sheets_api.read_sheet_with_dates(check_in_spreadsheet_id, CHECK_IN_TAB) || []
       raise Error, "The check-in sheet's '#{CHECK_IN_TAB}' tab is empty" unless header
@@ -104,7 +103,6 @@ module AuditionCheckIn
 
         key = check_in[:email].downcase.presence || RegistrationLookup.name_key(check_in[:first_name],
                                                                                 check_in[:last_name])
-        people.delete(key)
         people[key] = check_in
       end
 
@@ -129,7 +127,7 @@ module AuditionCheckIn
       rows_by_tab = INSTRUMENT_TABS.values.index_with { [] }
       report = Report.new(written: {}, matched: 0, unmatched: 0, unknown_instruments: Hash.new(0))
 
-      check_ins.each do |check_in|
+      check_ins.sort_by { |check_in| check_in.values_at(:first_name, :last_name).map(&:downcase) }.each do |check_in|
         tab = tab_for(check_in[:instrument])
         next report.unknown_instruments[check_in[:instrument]] += 1 unless tab
 
