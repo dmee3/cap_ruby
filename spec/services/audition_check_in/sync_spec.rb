@@ -190,6 +190,39 @@ RSpec.describe AuditionCheckIn::Sync do
     end
   end
 
+  context 'when the check-in sheet has blank or half-blank rows' do
+    # The Sheets API returns [] for an empty row between filled ones, and a
+    # deleted response can leave its timestamp behind.
+    let(:check_ins) do
+      [
+        check_in('Sam', 'Reed', 'Snare', 'sam.reed@example.com'),
+        [],
+        ['', '  ', '', '', '', ''],
+        ['9/26/2026 9:05:00'],
+        ['9/26/2026 9:06:00', '', '', 'Snare', '', ''],
+        check_in('Kai', 'Moss', 'Snare', 'kai@example.com')
+      ]
+    end
+
+    it 'skips them without writing an empty person or counting them as repeat check-ins' do
+      report = sync.call
+
+      expect(written['SNARE'].map { |row| row.first(2) }).to eq([%w[Kai Moss], %w[Sam Reed]])
+      expect(report.people_written).to eq(2)
+      expect(report.duplicates).to eq(0)
+    end
+  end
+
+  context 'when the check-in sheet has a header and no responses yet' do
+    it 'clears every tab and doc rather than failing' do
+      report = sync.call
+
+      expect(written.values).to all(eq([]))
+      expect(docs_written.values).to all(include('Nobody has checked in'))
+      expect(report.people_written).to eq(0)
+    end
+  end
+
   context 'when an instrument has no tab' do
     let(:check_ins) { [check_in('Pat', 'Kim', 'Triangle', 'pat@example.com')] }
 

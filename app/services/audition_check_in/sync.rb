@@ -102,7 +102,9 @@ module AuditionCheckIn
     end
 
     # One row per person, keyed on email; a later response replaces an earlier
-    # one (someone re-submitting to fix their instrument).
+    # one (someone re-submitting to fix their instrument). A row with neither a
+    # name nor an email — blank, or a deleted response's leftover timestamp —
+    # isn't anyone, so it's skipped rather than written as a nameless person.
     def latest_check_ins
       header, *rows = sheets_api.read_sheet_with_dates(check_in_spreadsheet_id, CHECK_IN_TAB) || []
       raise Error, "The check-in sheet's '#{CHECK_IN_TAB}' tab is empty" unless header
@@ -112,16 +114,18 @@ module AuditionCheckIn
       end
 
       people = {}
+      check_in_count = 0
       rows.each do |row|
         check_in = columns.transform_values { |index| row[index].to_s.strip }
-        next if check_in.values.all?(&:empty?)
+        key = check_in[:email].downcase.presence ||
+              RegistrationLookup.name_key(check_in[:first_name], check_in[:last_name]).presence
+        next unless key
 
-        key = check_in[:email].downcase.presence || RegistrationLookup.name_key(check_in[:first_name],
-                                                                                check_in[:last_name])
+        check_in_count += 1
         people[key] = check_in
       end
 
-      { people: people.values, duplicates: rows.count { |row| row.any?(&:present?) } - people.size }
+      { people: people.values, duplicates: check_in_count - people.size }
     end
 
     def lookup
