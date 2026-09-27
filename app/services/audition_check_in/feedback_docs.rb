@@ -9,10 +9,10 @@ module AuditionCheckIn
     # Feedback sheet tab => doc name, where the two differ
     DOC_NAMES = { 'VE' => 'VISUAL ENSEMBLE' }.freeze
 
-    PHOTO_WIDTH = 160
+    PHOTO_WIDTH = 213
     # Fetched at three times the displayed width so it stays sharp on retina
     # screens and when someone drags it bigger.
-    THUMBNAIL_SIZE = 480
+    THUMBNAIL_SIZE = PHOTO_WIDTH * 3
 
     def initialize(drive_api:, folder_id:, today: Date.current)
       @drive_api = drive_api
