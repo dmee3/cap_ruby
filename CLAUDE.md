@@ -118,7 +118,9 @@ by name or email for pronouns and birthday, and **overwrites** both every instru
 feedback sheet (`AUDITION_FEEDBACK_SPREADSHEET_ID`) from row 2 and one Google Doc per section in
 `AUDITION_FEEDBACK_DOCS_FOLDER_ID` (`FeedbackDocs`, which embeds each selfie via a Drive thumbnail
 and converts HTML into the doc) — so it's only for before staff start writing feedback, and the page
-makes you confirm. It's **off** (button disabled, POST refused) unless `AUDITION_CHECK_IN_ENABLED=true`;
+makes you confirm. The button queues `AuditionCheckInJob` (Sidekiq — needs the worker dyno) and the
+page follows its `AuditionCheckInRun` until it finishes; the job records every failure instead of
+raising, so Sidekiq never retries an overwrite. It's **off** (button disabled, POST refused) unless `AUDITION_CHECK_IN_ENABLED=true`;
 switch it on for audition day and off again once feedback starts. Never run it locally: `.env` points
 at the live sheet and docs. The form-answer → tab mapping is `Sync::INSTRUMENT_TABS`. IDs live in env vars,
 not config, because the repo is public and the sheets and docs hold auditionee PII.

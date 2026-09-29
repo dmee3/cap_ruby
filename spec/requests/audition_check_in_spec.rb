@@ -3,13 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe 'Audition check-in sync', type: :request do
+  include ActiveJob::TestHelper
+
   let(:report) do
     AuditionCheckIn::Sync::Report.new(written: { 'SNARE' => 2, 'MALLETS' => 1 }, matched: 2, unmatched: 1,
                                       duplicates: 0, unknown_instruments: { 'Triangle' => 1 },
                                       photos: 2, missing_photos: 1)
   end
 
-  before { allow(AuditionCheckIn::Sync).to receive(:call).and_return(report) }
+  before { allow(AuditionCheckIn::Sync).to receive(:call) }
 
   context 'when switched off, as it is outside the audition season' do
     around do |example|
@@ -27,10 +29,8 @@ RSpec.describe 'Audition check-in sync', type: :request do
     end
 
     it 'refuses a sync posted directly, so the page is not the only guard' do
-      post '/auditions-check-in'
-
-      expect(AuditionCheckIn::Sync).not_to have_received(:call)
-      expect(response).to redirect_to('/auditions-check-in')
+      expect { post '/auditions-check-in' }.not_to change(AuditionCheckInRun, :count)
+      expect(enqueued_jobs).to be_empty
     end
   end
 
@@ -40,25 +40,42 @@ RSpec.describe 'Audition check-in sync', type: :request do
     it 'only asks for confirmation on page load, never syncs' do
       get '/auditions-check-in'
 
-      expect(AuditionCheckIn::Sync).not_to have_received(:call)
+      expect(enqueued_jobs).to be_empty
       expect(response.body).to include('Are you sure?', 'Yes, overwrite the sheet and docs')
     end
 
-    it 'syncs on confirm and shows the results after redirecting, so a refresh cannot re-run it' do
+    it 'starts the sync in the background and comes straight back, so the request cannot time out' do
       post '/auditions-check-in'
+
       expect(response).to redirect_to('/auditions-check-in')
+      expect(AuditionCheckInJob).to have_been_enqueued.with(AuditionCheckInRun.latest.id)
+      expect(AuditionCheckIn::Sync).not_to have_received(:call)
 
       follow_redirect!
-      expect(AuditionCheckIn::Sync).to have_received(:call).once
-      expect(response.body).to include('3 people on the feedback sheet and docs', '2 selfies in the docs',
-                                       'Triangle (1)')
+      expect(response.body).to include('Running…', 'window.location.reload()')
+      expect(response.body).not_to include('Yes, overwrite the sheet and docs')
     end
 
-    it 'shows the reason when the sheets are not in the expected shape' do
-      allow(AuditionCheckIn::Sync).to receive(:call).and_raise(AuditionCheckIn::Error, "The AUX tab doesn't match")
+    it 'will not start a second run while one is going' do
+      AuditionCheckInRun.create!(status: 'running')
 
-      post '/auditions-check-in'
-      follow_redirect!
+      expect { post '/auditions-check-in' }.not_to change(AuditionCheckInRun, :count)
+      expect(enqueued_jobs).to be_empty
+    end
+
+    it 'shows the last run’s results once the job has finished' do
+      AuditionCheckInRun.create!(status: 'succeeded', report: report.to_h, finished_at: 2.minutes.ago)
+
+      get '/auditions-check-in'
+
+      expect(response.body).to include('3 people on the feedback sheet and docs', '2 selfies in the docs',
+                                       'Triangle (1)', 'Finished 2 minutes ago')
+    end
+
+    it 'shows why the last run failed' do
+      AuditionCheckInRun.create!(status: 'failed', error: "The AUX tab doesn't match", finished_at: Time.current)
+
+      get '/auditions-check-in'
 
       expect(response.body).to include("That didn't work", 'The AUX tab doesn&#39;t match')
     end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_16_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_28_120000) do
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
     t.string "description"
@@ -20,6 +20,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_16_120000) do
     t.integer "created_by_id"
     t.string "activity_type"
     t.index ["user_id"], name: "index_activities_on_user_id"
+  end
+
+  create_table "audition_check_in_runs", force: :cascade do |t|
+    t.string "status", default: "queued", null: false
+    t.json "report"
+    t.text "error"
+    t.datetime "started_at"
+    t.datetime "finished_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "bot_points", force: :cascade do |t|
