@@ -118,7 +118,9 @@ by name or email for pronouns and birthday, and **overwrites** both every instru
 feedback sheet (`AUDITION_FEEDBACK_SPREADSHEET_ID`) from row 2 and one Google Doc per section in
 `AUDITION_FEEDBACK_DOCS_FOLDER_ID` (`FeedbackDocs`, which embeds each selfie via a Drive thumbnail
 and converts HTML into the doc) — so it's only for before staff start writing feedback, and the page
-makes you confirm. The form-answer → tab mapping is `Sync::INSTRUMENT_TABS`. IDs live in env vars,
+makes you confirm. It's **off** (button disabled, POST refused) unless `AUDITION_CHECK_IN_ENABLED=true`;
+switch it on for audition day and off again once feedback starts. Never run it locally: `.env` points
+at the live sheet and docs. The form-answer → tab mapping is `Sync::INSTRUMENT_TABS`. IDs live in env vars,
 not config, because the repo is public and the sheets and docs hold auditionee PII.
 
 **Per-year config:** `config/auditions/{year}.yml`, selected by the `AUDITIONS_YEAR` env var

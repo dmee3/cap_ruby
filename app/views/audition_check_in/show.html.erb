@@ -68,6 +68,17 @@
       </p>
     <% end %>
 
+    <% unless AuditionCheckIn::Sync.enabled? %>
+      <div class="mt-6">
+        <button type="button" class="btn-primary btn-lg w-full sm:w-full" disabled aria-describedby="sync-off">
+          Sync check-ins
+        </button>
+        <p id="sync-off" class="text-body-sm text-secondary mt-3 mb-0">
+          Turned off until next season's auditions — this season's feedback sheet and docs are done,
+          and running it again would erase the feedback written in them.
+        </p>
+      </div>
+    <% else %>
     <div id="sync-start" class="mt-6">
       <button type="button" id="sync-start-button" class="btn-primary btn-lg w-full sm:w-full"
               aria-controls="sync-confirm" aria-expanded="false">
@@ -92,9 +103,11 @@
       <% end %>
       <button type="button" id="sync-cancel" class="btn-gray btn-md w-full sm:w-full mt-3">Cancel</button>
     </div>
+    <% end %>
   </section>
 </div>
 
+<% if AuditionCheckIn::Sync.enabled? %>
 <% content_for :scripts do %>
   <script type="text/javascript">
     (function () {
@@ -137,4 +150,5 @@
       })
     })()
   </script>
+<% end %>
 <% end %>

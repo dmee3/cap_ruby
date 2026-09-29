@@ -10,6 +10,8 @@ class AuditionCheckInController < PublicController
   end
 
   def create
+    return redirect_to(audition_check_in_path) unless AuditionCheckIn::Sync.enabled?
+
     begin
       flash[:check_in_report] = AuditionCheckIn::Sync.call.to_h
     rescue AuditionCheckIn::Error => e
