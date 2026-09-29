@@ -45,6 +45,36 @@ RSpec.describe AuditionCheckIn::FeedbackDocs do
     expect(result).to eq([0, 2])
   end
 
+  it 'starts everyone after the first on a new page, with room to write under Feedback' do
+    docs.write({ 'SNARE' => 'doc' }, { 'SNARE' => [person(first_name: 'Ana'), person(first_name: 'Ben'),
+                                                   person(first_name: 'Cy')] })
+
+    headings = html['doc'].scan(%r{<h2[^>]*>[^<]*</h2>})
+    expect(headings).to eq(['<h2>Ana Reed</h2>',
+                            '<h2 style="page-break-before: always">Ben Reed</h2>',
+                            '<h2 style="page-break-before: always">Cy Reed</h2>'])
+    expect(html['doc']).to include("<p><b>Feedback:</b></p>\n#{'<p><br></p>' * described_class::FEEDBACK_BLANK_LINES}")
+  end
+
+  it "puts each person's own photo next to them when fetching several at once" do
+    allow(drive_api).to receive(:image_thumbnail) do |file_id, size:|
+      sleep(rand / 50) # finish out of order
+      ["bytes-for-#{file_id}-#{size}", 'image/jpeg']
+    end
+    people = (1..12).map do |n|
+      person(first_name: format('P%02d', n), selfie: "https://drive.google.com/open?id=f#{n}")
+    end
+    expected = people.to_h do |p|
+      [p.first_name, "bytes-for-#{p.selfie_file_id}-#{described_class::THUMBNAIL_SIZE}"]
+    end
+
+    result = docs.write({ 'SNARE' => 'doc' }, { 'SNARE' => people })
+
+    embedded = html['doc'].scan(/<h2[^>]*>(P\d+) Reed.*?base64,([^"]+)/m).to_h
+    expect(embedded.transform_values { |data| Base64.decode64(data) }).to eq(expected)
+    expect(result).to eq([12, 0])
+  end
+
   it 'escapes what people typed into the public form' do
     docs.write({ 'SNARE' => 'doc' }, { 'SNARE' => [person(first_name: '<script>x</script>')] })
 

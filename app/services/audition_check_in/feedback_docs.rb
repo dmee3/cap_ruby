@@ -13,6 +13,8 @@ module AuditionCheckIn
     # Fetched at three times the displayed width so it stays sharp on retina
     # screens and when someone drags it bigger.
     THUMBNAIL_SIZE = PHOTO_WIDTH * 3
+    PHOTO_FETCHES_AT_ONCE = 8
+    FEEDBACK_BLANK_LINES = 3
 
     def initialize(drive_api:, folder_id:, today: Date.current)
       @drive_api = drive_api
@@ -32,16 +34,18 @@ module AuditionCheckIn
 
     # Returns [photos embedded, people without one]
     def write(doc_ids, people_by_tab)
-      photos = missing = 0
+      people = doc_ids.keys.flat_map { |tab| people_by_tab.fetch(tab, []) }
+      photos = photos_for(people)
+
       doc_ids.each do |tab, doc_id|
-        blocks = people_by_tab.fetch(tab, []).map do |person|
-          photo = photo_for(person)
-          photo ? photos += 1 : missing += 1
-          person_html(person, photo)
+        blocks = people_by_tab.fetch(tab, []).each_with_index.map do |person, index|
+          person_html(person, photos[person], new_page: index.positive?)
         end
         drive_api.replace_doc_with_html(doc_id, doc_html(doc_name(tab), blocks))
       end
-      [photos, missing]
+
+      embedded = photos.values.count(&:present?)
+      [embedded, people.size - embedded]
     end
 
     private
@@ -50,6 +54,19 @@ module AuditionCheckIn
 
     def doc_name(tab)
       DOC_NAMES.fetch(tab, tab)
+    end
+
+    # Each photo is two Drive round trips, so one at a time a few dozen
+    # check-ins run past Heroku's 30-second request limit.
+    def photos_for(people)
+      pool = Concurrent::FixedThreadPool.new(PHOTO_FETCHES_AT_ONCE)
+      futures = people.map { |person| Concurrent::Promises.future_on(pool) { photo_for(person) } }
+      # Waiting inside a request holds Rails' code-loading lock; releasing it
+      # means a fetch thread that needs to autoload can't deadlock against us.
+      photos = ActiveSupport::Dependencies.interlock.permit_concurrent_loads { futures.map(&:value!) }
+      people.zip(photos).to_h
+    ensure
+      pool&.shutdown
     end
 
     def photo_for(person)
@@ -64,7 +81,7 @@ module AuditionCheckIn
       "<html><body><h1>#{h(title)}</h1>#{body.join}</body></html>"
     end
 
-    def person_html(person, photo)
+    def person_html(person, photo, new_page:)
       details = {
         'Pronouns' => person.pronouns,
         'Age' => person.age(on: today),
@@ -73,11 +90,11 @@ module AuditionCheckIn
       }.map { |label, value| "<b>#{label}:</b> #{h(value.presence || '—')}" }
 
       <<~HTML
-        <h2>#{h(person.full_name)}</h2>
+        <h2#{' style="page-break-before: always"' if new_page}>#{h(person.full_name)}</h2>
         <p>#{details.join('<br>')}</p>
         #{photo ? %(<p><img src="#{photo}" width="#{PHOTO_WIDTH}"></p>) : '<p><i>No selfie</i></p>'}
         <p><b>Feedback:</b></p>
-        <p></p>
+        #{'<p><br></p>' * FEEDBACK_BLANK_LINES}
       HTML
     end
 

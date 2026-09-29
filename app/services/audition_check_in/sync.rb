@@ -46,6 +46,12 @@ module AuditionCheckIn
       new.call
     end
 
+    # Off unless switched on for the audition season: once staff have written
+    # feedback, one stray click would erase it.
+    def self.enabled?
+      ENV.fetch('AUDITION_CHECK_IN_ENABLED', nil) == 'true'
+    end
+
     def self.feedback_sheet_url
       id = ENV.fetch('AUDITION_FEEDBACK_SPREADSHEET_ID', nil)
       "https://docs.google.com/spreadsheets/d/#{id}/edit" if id.present?
