@@ -128,6 +128,32 @@ RSpec.describe EmailService do
     end
   end
 
+  describe '.send_conflict_decision_email' do
+    let(:user) { create(:user, first_name: 'Wes', email: 'wes@example.com') }
+    let(:conflict) do
+      create(:conflict, user: user, conflict_status: create(:conflict_status, name: 'Denied'), reason: 'Exam')
+    end
+
+    it 'tells only the member the decision and the dates it covers' do
+      EmailService.send_conflict_decision_email(conflict)
+
+      date_label = ConflictPresenter.date_range_label(conflict)
+      expect(PostOffice).to have_received(:send_email).with(
+        'wes@example.com',
+        "Your conflict for #{date_label} was denied",
+        a_string_including('Hi Wes', 'Exam')
+      )
+    end
+
+    it 'sends nothing to a member who has since been removed' do
+      user.destroy
+
+      EmailService.send_conflict_decision_email(conflict.reload)
+
+      expect(PostOffice).not_to have_received(:send_email)
+    end
+  end
+
   describe '.send_whistleblower_email' do
     let(:report) { 'This is a test whistleblower report about inappropriate behavior.' }
     let(:dana) { create(:user, email: 'dana@example.com', whistleblower_recipient: true) }

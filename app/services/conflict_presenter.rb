@@ -32,6 +32,16 @@ class ConflictPresenter
       end
     end
 
+    sig { params(conflict: Conflict).returns(String) }
+    def date_range_label(conflict)
+      return multi_day_label(conflict) unless single_day?(conflict)
+
+      # Same rule Flow 2 uses for due dates: weekday inside 14 days, bare
+      # M/D/YY beyond it.
+      format = within_two_weeks?(conflict.start_date) ? '%a %-m/%-d' : '%-m/%-d/%y'
+      conflict.start_date.strftime(format)
+    end
+
     private
 
     sig { params(conflict: Conflict).returns(T.nilable(String)) }
@@ -52,16 +62,6 @@ class ConflictPresenter
       return nil unless conflict.status.name == 'Denied' || conflict.id == next_upcoming_id
 
       conflict.reason.to_s.truncate(80)
-    end
-
-    sig { params(conflict: Conflict).returns(String) }
-    def date_range_label(conflict)
-      return multi_day_label(conflict) unless single_day?(conflict)
-
-      # Same rule Flow 2 uses for due dates: weekday inside 14 days, bare
-      # M/D/YY beyond it.
-      format = within_two_weeks?(conflict.start_date) ? '%a %-m/%-d' : '%-m/%-d/%y'
-      conflict.start_date.strftime(format)
     end
 
     sig { params(conflict: Conflict).returns(String) }

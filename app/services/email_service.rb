@@ -65,6 +65,29 @@ class EmailService
       Rollbar.error(e, user: user)
     end
 
+    # Not rescued: the job records the member as told only once this returns,
+    # so a failed send has to raise for the job to retry it.
+    sig { params(conflict: Conflict).void }
+    def send_conflict_decision_email(conflict)
+      user = conflict.user
+      return if user.deleted? || user.email.blank?
+
+      decision = conflict.status.name.downcase
+      date_label = ConflictPresenter.date_range_label(conflict)
+      subject = "Your conflict for #{date_label} was #{decision}"
+      text = <<~TEXT
+        Hi #{user.first_name},
+
+        Your conflict for #{date_label} was #{decision}.
+
+        Reason you gave: #{conflict.reason}
+
+        Questions about this decision? Talk to a coordinator — replies to this email aren't read.
+      TEXT
+
+      PostOffice.send_email(user.email, subject, text)
+    end
+
     sig { params(email: String, report: String, recipient_ids: T::Array[T.untyped]).void }
     def send_whistleblower_email(email, report, recipient_ids)
       recipients = User.whistleblower_recipients.where(id: recipient_ids)

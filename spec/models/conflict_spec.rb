@@ -4,16 +4,17 @@
 #
 # Table name: conflicts
 #
-#  id         :integer          not null, primary key
-#  deleted_at :datetime
-#  end_date   :datetime
-#  reason     :text
-#  start_date :datetime
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  season_id  :integer
-#  status_id  :integer
-#  user_id    :integer
+#  id                 :integer          not null, primary key
+#  deleted_at         :datetime
+#  end_date           :datetime
+#  reason             :text
+#  start_date         :datetime
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  notified_status_id :integer
+#  season_id          :integer
+#  status_id          :integer
+#  user_id            :integer
 #
 # Indexes
 #
