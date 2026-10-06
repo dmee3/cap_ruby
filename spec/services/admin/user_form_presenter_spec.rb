@@ -6,6 +6,8 @@ RSpec.describe Admin::UserFormPresenter do
   let(:season) { create(:season, year: '2026') }
   let(:current_season) { season.attributes }
 
+  before { seed_default_schedules(season) }
+
   describe 'season rows' do
     # The form promises "a payment schedule is created for X" and must not
     # promise it for a season that already has one.
@@ -113,7 +115,7 @@ RSpec.describe Admin::UserFormPresenter do
 
       expect(row[:vet]).to be(false)
       expect(removed_member_default).not_to eq(vet_default)
-      expect(removed_member_default.values.sum).to be > vet_default.values.sum
+      expect(removed_member_default.sum { |e| e[:amount_cents] }).to be > vet_default.sum { |e| e[:amount_cents] }
     end
 
     it 'still counts an earlier season they finished' do

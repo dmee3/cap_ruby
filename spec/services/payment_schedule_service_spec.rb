@@ -3,9 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe PaymentScheduleService do
+  def cents_on(schedule, date)
+    schedule.find { |entry| entry[:pay_date] == date }&.fetch(:amount_cents)
+  end
+
   describe '.default_schedule_for' do
     let(:season_2026) { create(:season, year: '2026') }
     let(:user) { create(:user) }
+
+    before { seed_default_schedules(season_2026) }
 
     context 'rookie member (no previous seasons)' do
       it 'returns rookie schedule for World Music' do
@@ -14,8 +20,8 @@ RSpec.describe PaymentScheduleService do
         schedule = PaymentScheduleService.default_schedule_for(user, season_2026)
 
         expect(schedule).to be_present
-        expect(schedule['10/17/25']).to eq(500) # First payment
-        expect(schedule['11/14/25']).to eq(400) # Rookie amount for World Music
+        expect(cents_on(schedule, Date.new(2025, 10, 17))).to eq(50_000) # First payment
+        expect(cents_on(schedule, Date.new(2025, 11, 14))).to eq(40_000) # Rookie amount for World Music
       end
 
       it 'returns rookie schedule for World Visual' do
@@ -24,8 +30,8 @@ RSpec.describe PaymentScheduleService do
         schedule = PaymentScheduleService.default_schedule_for(user, season_2026)
 
         expect(schedule).to be_present
-        expect(schedule['10/17/25']).to eq(500)
-        expect(schedule['11/14/25']).to eq(340) # Rookie amount for World Visual
+        expect(cents_on(schedule, Date.new(2025, 10, 17))).to eq(50_000)
+        expect(cents_on(schedule, Date.new(2025, 11, 14))).to eq(34_000) # Rookie amount for World Visual
       end
 
       it 'returns rookie schedule for CC2 Music' do
@@ -34,8 +40,8 @@ RSpec.describe PaymentScheduleService do
         schedule = PaymentScheduleService.default_schedule_for(user, season_2026)
 
         expect(schedule).to be_present
-        expect(schedule['10/17/25']).to eq(500)
-        expect(schedule['11/14/25']).to eq(340) # Rookie amount for CC2 Music
+        expect(cents_on(schedule, Date.new(2025, 10, 17))).to eq(50_000)
+        expect(cents_on(schedule, Date.new(2025, 11, 14))).to eq(34_000) # Rookie amount for CC2 Music
       end
 
       it 'returns rookie schedule for CC2 Visual' do
@@ -44,8 +50,8 @@ RSpec.describe PaymentScheduleService do
         schedule = PaymentScheduleService.default_schedule_for(user, season_2026)
 
         expect(schedule).to be_present
-        expect(schedule['10/17/25']).to eq(500)
-        expect(schedule['11/14/25']).to eq(280) # Rookie amount for CC2 Visual
+        expect(cents_on(schedule, Date.new(2025, 10, 17))).to eq(50_000)
+        expect(cents_on(schedule, Date.new(2025, 11, 14))).to eq(28_000) # Rookie amount for CC2 Visual
       end
     end
 
@@ -63,8 +69,8 @@ RSpec.describe PaymentScheduleService do
         schedule = PaymentScheduleService.default_schedule_for(user, season_2026)
 
         expect(schedule).to be_present
-        expect(schedule['10/17/25']).to eq(500)
-        expect(schedule['11/14/25']).to eq(360) # Vet amount for World Music (less than rookie)
+        expect(cents_on(schedule, Date.new(2025, 10, 17))).to eq(50_000)
+        expect(cents_on(schedule, Date.new(2025, 11, 14))).to eq(36_000) # Vet amount for World Music (less than rookie)
       end
 
       it 'returns vet schedule for World Visual' do
@@ -73,8 +79,8 @@ RSpec.describe PaymentScheduleService do
         schedule = PaymentScheduleService.default_schedule_for(user, season_2026)
 
         expect(schedule).to be_present
-        expect(schedule['10/17/25']).to eq(500)
-        expect(schedule['11/14/25']).to eq(300) # Vet amount for World Visual
+        expect(cents_on(schedule, Date.new(2025, 10, 17))).to eq(50_000)
+        expect(cents_on(schedule, Date.new(2025, 11, 14))).to eq(30_000) # Vet amount for World Visual
       end
 
       it 'returns vet schedule for CC2 Music' do
@@ -83,8 +89,8 @@ RSpec.describe PaymentScheduleService do
         schedule = PaymentScheduleService.default_schedule_for(user, season_2026)
 
         expect(schedule).to be_present
-        expect(schedule['10/17/25']).to eq(500)
-        expect(schedule['11/14/25']).to eq(300) # Vet amount for CC2 Music
+        expect(cents_on(schedule, Date.new(2025, 10, 17))).to eq(50_000)
+        expect(cents_on(schedule, Date.new(2025, 11, 14))).to eq(30_000) # Vet amount for CC2 Music
       end
 
       it 'returns vet schedule for CC2 Visual' do
@@ -93,8 +99,8 @@ RSpec.describe PaymentScheduleService do
         schedule = PaymentScheduleService.default_schedule_for(user, season_2026)
 
         expect(schedule).to be_present
-        expect(schedule['10/17/25']).to eq(500)
-        expect(schedule['11/14/25']).to eq(240) # Vet amount for CC2 Visual
+        expect(cents_on(schedule, Date.new(2025, 10, 17))).to eq(50_000)
+        expect(cents_on(schedule, Date.new(2025, 11, 14))).to eq(24_000) # Vet amount for CC2 Visual
       end
     end
 
@@ -120,6 +126,8 @@ RSpec.describe PaymentScheduleService do
     let(:season) { create(:season, year: '2026') }
     let(:user) { create(:user) }
 
+    before { seed_default_schedules(season) }
+
     it 'creates payment schedule for member without one' do
       create(:seasons_user, user: user, season: season, role: 'member')
 
@@ -144,7 +152,6 @@ RSpec.describe PaymentScheduleService do
       expect(schedule.entries.count).to eq(6)
       first = schedule.entries.min_by(&:pay_date)
       expect(first.pay_date).to eq(Date.new(2025, 10, 17))
-      # Defaults are in dollars, entries are in cents.
       expect(first.amount).to eq(50_000)
       expect(schedule.entries.sum(:amount)).to eq(250_000) # $500 + 5 x $400
     end
@@ -160,12 +167,10 @@ RSpec.describe PaymentScheduleService do
       expect(november.amount).to eq(36_000) # vet; the rookie amount is 40_000
     end
 
-    # The per-year default table always runs out eventually; a season past its
-    # last year is the live path for the next season, not an edge case. Derive
-    # the year rather than naming one, since which years are filled in changes.
+    # A new season has no defaults until an admin sets them up, and its members
+    # are added before then.
     it 'still creates an empty schedule when no default exists for the season' do
-      unscheduled = described_class.singleton_class::DEFAULT_PAYMENT_SCHEDULES.keys.map(&:to_i).max + 1
-      future = create(:season, year: unscheduled.to_s)
+      future = create(:season, year: '2027')
       create(:seasons_user, user: user, season: future, role: 'member', ensemble: 'World', section: 'Snare')
 
       expect do

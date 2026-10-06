@@ -27,6 +27,8 @@ class SeasonsUser < ApplicationRecord
   # people-facing screens can say "removed" rather than going quiet.
   REMOVED_ROLE = 'removed'
 
+  ENSEMBLES = %w[World CC2].freeze
+
   # Excluding the one role that means "not on this roster" rather than
   # whitelisting ROLES: a row carrying anything else is a real membership, and a
   # whitelist would silently drop a season from anyone whose role this app

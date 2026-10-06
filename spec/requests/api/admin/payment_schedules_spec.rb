@@ -5,6 +5,8 @@ require 'rails_helper'
 RSpec.describe 'Api::Admin::PaymentSchedules', type: :request do
   let(:season) { create(:season, year: '2026') }
   let!(:admin) { sign_in_as_admin(season: season) }
+
+  before { seed_default_schedules(season) }
   let(:member) do
     create(:user, first_name: 'Sam', last_name: 'Reed').tap do |u|
       create(:seasons_user, user: u, season: season, role: 'member', ensemble: 'World', section: 'Snare')

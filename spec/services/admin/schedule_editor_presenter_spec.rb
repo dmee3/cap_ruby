@@ -8,6 +8,7 @@ RSpec.describe Admin::ScheduleEditorPresenter do
   let(:schedule) { create(:payment_schedule, season: season, user: user) }
 
   before do
+    seed_default_schedules(season)
     create(:seasons_user, user: user, season: season, role: 'member', ensemble: 'World', section: 'Snare')
   end
 
@@ -43,9 +44,9 @@ RSpec.describe Admin::ScheduleEditorPresenter do
   it 'reports whether the schedule is still the untouched per-year default' do
     expect(present[:matches_default]).to be(false)
 
-    PaymentScheduleService.default_schedule_for(user, season).each do |day, dollars|
+    PaymentScheduleService.default_schedule_for(user, season).each do |entry|
       create(:payment_schedule_entry, payment_schedule: schedule,
-                                      pay_date: Date.strptime(day, '%m/%d/%y'), amount: dollars * 100)
+                                      pay_date: entry[:pay_date], amount: entry[:amount_cents])
     end
 
     expect(present[:matches_default]).to be(true)

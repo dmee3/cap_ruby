@@ -9,7 +9,6 @@ module Admin
   # the API after mount, so a validation failure always came back blank.
   class UserFormPresenter
     SECTIONS = %w[Snare Tenors Bass Cymbals Woods Metals Electronics Auxiliary Visual].freeze
-    ENSEMBLES = %w[World CC2].freeze
 
     def self.call(user, current_season)
       new(user, current_season).call
@@ -27,7 +26,7 @@ module Admin
         errors: @user.errors.map { |e| { field: e.attribute.to_s, message: e.full_message } },
         current_season_id: @current_season && @current_season['id'],
         sections: SECTIONS,
-        ensembles: ENSEMBLES,
+        ensembles: SeasonsUser::ENSEMBLES,
         roles: SeasonsUser::ROLES
       }
     end
