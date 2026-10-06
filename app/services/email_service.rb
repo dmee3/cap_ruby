@@ -65,6 +65,29 @@ class EmailService
       Rollbar.error(e, user: user)
     end
 
+    sig { params(conflict: Conflict).void }
+    def send_conflict_status_email(conflict)
+      user = conflict.user
+      return if user.deleted? || user.email.blank?
+
+      change = conflict_status_change(conflict)
+      date_label = ConflictPresenter.date_range_label(conflict)
+      subject = "Your conflict for #{date_label} #{change}"
+      text = <<~TEXT
+        Hi #{user.first_name},
+
+        Your conflict for #{date_label} #{change}.
+
+        Reason you gave: #{conflict.reason}
+
+        Reach out to a coordinator if you have any questions.
+      TEXT
+
+      PostOffice.send_email(user.email, subject, text)
+    rescue StandardError => e
+      Rollbar.error(e, user: conflict.user)
+    end
+
     sig { params(email: String, report: String, recipient_ids: T::Array[T.untyped]).void }
     def send_whistleblower_email(email, report, recipient_ids)
       recipients = User.whistleblower_recipients.where(id: recipient_ids)
@@ -84,6 +107,17 @@ class EmailService
       TEXT
 
       PostOffice.send_email(addresses, subject, text)
+    end
+
+    private
+
+    # "was pending" would read as though it no longer is.
+    sig { params(conflict: Conflict).returns(String) }
+    def conflict_status_change(conflict)
+      status = conflict.status.name
+      return 'is pending again' if status == 'Pending'
+
+      "was #{status.downcase}"
     end
   end
 end

@@ -40,6 +40,10 @@ class Conflict < ApplicationRecord
   validate :future_dates_only, on: :create
   validate :end_date_after_start_date
 
+  # Updates only: a conflict a coordinator files already decided was never the
+  # member's request, so there is no change to tell them about.
+  after_update_commit :send_status_email, if: :saved_change_to_status_id?
+
   attr_accessor :skip_future_date_validation
 
   scope :for_season, ->(season_id) { where(season_id: season_id) }
@@ -49,6 +53,10 @@ class Conflict < ApplicationRecord
   scope :without_status, ->(status_id) { where.not(conflict_status: status_id) }
 
   private
+
+  def send_status_email
+    EmailService.send_conflict_status_email(self)
+  end
 
   def future_dates_only
     return if skip_future_date_validation
