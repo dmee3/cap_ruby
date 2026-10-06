@@ -65,8 +65,6 @@ class EmailService
       Rollbar.error(e, user: user)
     end
 
-    # Not rescued: the job records the member as told only once this returns,
-    # so a failed send has to raise for the job to retry it.
     sig { params(conflict: Conflict).void }
     def send_conflict_decision_email(conflict)
       user = conflict.user
@@ -86,6 +84,8 @@ class EmailService
       TEXT
 
       PostOffice.send_email(user.email, subject, text)
+    rescue StandardError => e
+      Rollbar.error(e, user: conflict.user)
     end
 
     sig { params(email: String, report: String, recipient_ids: T::Array[T.untyped]).void }

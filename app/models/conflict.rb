@@ -4,17 +4,16 @@
 #
 # Table name: conflicts
 #
-#  id                 :integer          not null, primary key
-#  deleted_at         :datetime
-#  end_date           :datetime
-#  reason             :text
-#  start_date         :datetime
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  notified_status_id :integer
-#  season_id          :integer
-#  status_id          :integer
-#  user_id            :integer
+#  id         :integer          not null, primary key
+#  deleted_at :datetime
+#  end_date   :datetime
+#  reason     :text
+#  start_date :datetime
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  season_id  :integer
+#  status_id  :integer
+#  user_id    :integer
 #
 # Indexes
 #
@@ -43,16 +42,11 @@ class Conflict < ApplicationRecord
 
   # Updates only: a conflict a coordinator files already decided was never the
   # member's request, so there is no decision to tell them about.
-  after_update_commit :schedule_decision_email
+  after_update_commit :send_decision_email, if: :decided_just_now?
 
   DECIDED_STATUSES = %w[Approved Denied].freeze
 
   attr_accessor :skip_future_date_validation
-
-  # Whether the member still has to hear about where this conflict stands.
-  def decision_unannounced?
-    DECIDED_STATUSES.include?(status.name) && status_id != notified_status_id
-  end
 
   scope :for_season, ->(season_id) { where(season_id: season_id) }
   scope :future_conflicts, -> { where('end_date >= ?', Date.current.beginning_of_day) }
@@ -62,8 +56,12 @@ class Conflict < ApplicationRecord
 
   private
 
-  def schedule_decision_email
-    ConflictDecisionEmailJob.schedule(self) if decision_unannounced?
+  def decided_just_now?
+    saved_change_to_status_id? && DECIDED_STATUSES.include?(status.name)
+  end
+
+  def send_decision_email
+    EmailService.send_conflict_decision_email(self)
   end
 
   def future_dates_only

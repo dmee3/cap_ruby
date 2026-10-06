@@ -4,17 +4,16 @@
 #
 # Table name: conflicts
 #
-#  id                 :integer          not null, primary key
-#  deleted_at         :datetime
-#  end_date           :datetime
-#  reason             :text
-#  start_date         :datetime
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  notified_status_id :integer
-#  season_id          :integer
-#  status_id          :integer
-#  user_id            :integer
+#  id         :integer          not null, primary key
+#  deleted_at :datetime
+#  end_date   :datetime
+#  reason     :text
+#  start_date :datetime
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  season_id  :integer
+#  status_id  :integer
+#  user_id    :integer
 #
 # Indexes
 #
@@ -253,6 +252,49 @@ RSpec.describe Conflict, type: :model do
       it 'returns conflicts without the given status' do
         expect(described_class.without_status(denied_status.id)).to eq([current_conflict])
       end
+    end
+  end
+
+  context 'decision email' do
+    let(:pending) { create(:conflict_status, name: 'Pending') }
+    let(:approved) { create(:conflict_status, name: 'Approved') }
+    let(:denied) { create(:conflict_status, name: 'Denied') }
+    let(:resolved) { create(:conflict_status, name: 'Resolved') }
+    let(:conflict) { create(:conflict, conflict_status: pending) }
+
+    before { allow(EmailService).to receive(:send_conflict_decision_email) }
+
+    it 'emails the member when their conflict is approved' do
+      conflict.update!(status_id: approved.id)
+
+      expect(EmailService).to have_received(:send_conflict_decision_email).with(conflict).once
+    end
+
+    it 'emails the member again when the decision changes' do
+      conflict.update!(status_id: approved.id)
+      conflict.update!(status_id: denied.id)
+
+      expect(EmailService).to have_received(:send_conflict_decision_email).twice
+    end
+
+    it 'does not email when the status moves back to pending or to resolved' do
+      conflict.update!(status_id: resolved.id)
+      conflict.update!(status_id: pending.id)
+
+      expect(EmailService).not_to have_received(:send_conflict_decision_email)
+    end
+
+    it 'does not email when a decided conflict is edited without changing its status' do
+      conflict.update!(status_id: approved.id)
+      conflict.update!(reason: 'Rescheduled exam')
+
+      expect(EmailService).to have_received(:send_conflict_decision_email).once
+    end
+
+    it 'does not email for a conflict filed already decided' do
+      create(:conflict, conflict_status: approved)
+
+      expect(EmailService).not_to have_received(:send_conflict_decision_email)
     end
   end
 end

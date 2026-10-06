@@ -145,6 +145,13 @@ RSpec.describe EmailService do
       )
     end
 
+    it 'reports a failed send instead of failing the decision' do
+      allow(PostOffice).to receive(:send_email).and_raise(StandardError, 'Mailgun down')
+
+      expect { EmailService.send_conflict_decision_email(conflict) }.not_to raise_error
+      expect(Rollbar).to have_received(:error)
+    end
+
     it 'sends nothing to a member who has since been removed' do
       user.destroy
 
