@@ -128,14 +128,14 @@ RSpec.describe EmailService do
     end
   end
 
-  describe '.send_conflict_decision_email' do
+  describe '.send_conflict_status_email' do
     let(:user) { create(:user, first_name: 'Wes', email: 'wes@example.com') }
     let(:conflict) do
       create(:conflict, user: user, conflict_status: create(:conflict_status, name: 'Denied'), reason: 'Exam')
     end
 
-    it 'tells only the member the decision and the dates it covers' do
-      EmailService.send_conflict_decision_email(conflict)
+    it 'tells only the member the new status and the dates it covers' do
+      EmailService.send_conflict_status_email(conflict)
 
       date_label = ConflictPresenter.date_range_label(conflict)
       expect(PostOffice).to have_received(:send_email).with(
@@ -145,17 +145,26 @@ RSpec.describe EmailService do
       )
     end
 
-    it 'reports a failed send instead of failing the decision' do
+    it 'says a conflict moved back to pending is pending again' do
+      conflict.update_columns(status_id: create(:conflict_status, name: 'Pending').id)
+
+      EmailService.send_conflict_status_email(conflict.reload)
+
+      expect(PostOffice).to have_received(:send_email)
+        .with(anything, a_string_ending_with('is pending again'), anything)
+    end
+
+    it 'reports a failed send instead of failing the status change' do
       allow(PostOffice).to receive(:send_email).and_raise(StandardError, 'Mailgun down')
 
-      expect { EmailService.send_conflict_decision_email(conflict) }.not_to raise_error
+      expect { EmailService.send_conflict_status_email(conflict) }.not_to raise_error
       expect(Rollbar).to have_received(:error)
     end
 
     it 'sends nothing to a member who has since been removed' do
       user.destroy
 
-      EmailService.send_conflict_decision_email(conflict.reload)
+      EmailService.send_conflict_status_email(conflict.reload)
 
       expect(PostOffice).not_to have_received(:send_email)
     end

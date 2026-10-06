@@ -255,46 +255,34 @@ RSpec.describe Conflict, type: :model do
     end
   end
 
-  context 'decision email' do
+  context 'status email' do
     let(:pending) { create(:conflict_status, name: 'Pending') }
     let(:approved) { create(:conflict_status, name: 'Approved') }
     let(:denied) { create(:conflict_status, name: 'Denied') }
     let(:resolved) { create(:conflict_status, name: 'Resolved') }
     let(:conflict) { create(:conflict, conflict_status: pending) }
 
-    before { allow(EmailService).to receive(:send_conflict_decision_email) }
+    before { allow(EmailService).to receive(:send_conflict_status_email) }
 
-    it 'emails the member when their conflict is approved' do
-      conflict.update!(status_id: approved.id)
-
-      expect(EmailService).to have_received(:send_conflict_decision_email).with(conflict).once
-    end
-
-    it 'emails the member again when the decision changes' do
+    it 'emails the member on every status change, including back to pending' do
       conflict.update!(status_id: approved.id)
       conflict.update!(status_id: denied.id)
-
-      expect(EmailService).to have_received(:send_conflict_decision_email).twice
-    end
-
-    it 'does not email when the status moves back to pending or to resolved' do
-      conflict.update!(status_id: resolved.id)
       conflict.update!(status_id: pending.id)
+      conflict.update!(status_id: resolved.id)
 
-      expect(EmailService).not_to have_received(:send_conflict_decision_email)
+      expect(EmailService).to have_received(:send_conflict_status_email).with(conflict).exactly(4).times
     end
 
-    it 'does not email when a decided conflict is edited without changing its status' do
-      conflict.update!(status_id: approved.id)
+    it 'does not email when a conflict is edited without changing its status' do
       conflict.update!(reason: 'Rescheduled exam')
 
-      expect(EmailService).to have_received(:send_conflict_decision_email).once
+      expect(EmailService).not_to have_received(:send_conflict_status_email)
     end
 
-    it 'does not email for a conflict filed already decided' do
+    it 'does not email for a newly filed conflict, whatever its status' do
       create(:conflict, conflict_status: approved)
 
-      expect(EmailService).not_to have_received(:send_conflict_decision_email)
+      expect(EmailService).not_to have_received(:send_conflict_status_email)
     end
   end
 end

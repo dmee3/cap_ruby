@@ -41,10 +41,8 @@ class Conflict < ApplicationRecord
   validate :end_date_after_start_date
 
   # Updates only: a conflict a coordinator files already decided was never the
-  # member's request, so there is no decision to tell them about.
-  after_update_commit :send_decision_email, if: :decided_just_now?
-
-  DECIDED_STATUSES = %w[Approved Denied].freeze
+  # member's request, so there is no change to tell them about.
+  after_update_commit :send_status_email, if: :saved_change_to_status_id?
 
   attr_accessor :skip_future_date_validation
 
@@ -56,12 +54,8 @@ class Conflict < ApplicationRecord
 
   private
 
-  def decided_just_now?
-    saved_change_to_status_id? && DECIDED_STATUSES.include?(status.name)
-  end
-
-  def send_decision_email
-    EmailService.send_conflict_decision_email(self)
+  def send_status_email
+    EmailService.send_conflict_status_email(self)
   end
 
   def future_dates_only

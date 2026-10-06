@@ -66,21 +66,21 @@ class EmailService
     end
 
     sig { params(conflict: Conflict).void }
-    def send_conflict_decision_email(conflict)
+    def send_conflict_status_email(conflict)
       user = conflict.user
       return if user.deleted? || user.email.blank?
 
-      decision = conflict.status.name.downcase
+      change = conflict_status_change(conflict)
       date_label = ConflictPresenter.date_range_label(conflict)
-      subject = "Your conflict for #{date_label} was #{decision}"
+      subject = "Your conflict for #{date_label} #{change}"
       text = <<~TEXT
         Hi #{user.first_name},
 
-        Your conflict for #{date_label} was #{decision}.
+        Your conflict for #{date_label} #{change}.
 
         Reason you gave: #{conflict.reason}
 
-        Questions about this decision? Talk to a coordinator — replies to this email aren't read.
+        Reach out to a coordinator if you have any questions.
       TEXT
 
       PostOffice.send_email(user.email, subject, text)
@@ -107,6 +107,17 @@ class EmailService
       TEXT
 
       PostOffice.send_email(addresses, subject, text)
+    end
+
+    private
+
+    # "was pending" would read as though it no longer is.
+    sig { params(conflict: Conflict).returns(String) }
+    def conflict_status_change(conflict)
+      status = conflict.status.name
+      return 'is pending again' if status == 'Pending'
+
+      "was #{status.downcase}"
     end
   end
 end
