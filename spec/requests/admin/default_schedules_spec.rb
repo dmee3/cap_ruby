@@ -20,6 +20,21 @@ RSpec.describe 'Admin default payment schedules', type: :request do
     end
   end
 
+  context 'copying' do
+    before { sign_in_as_admin(season: season) }
+
+    it 'offers every other season with defaults as a source, newest first' do
+      seed_default_schedules(create(:season, year: '2025'))
+      seed_default_schedules(create(:season, year: '2026'))
+
+      get '/admin/season/default-schedules/copy'
+
+      data = JSON.parse(Nokogiri::HTML(response.body).at_css('#default-schedules-copy')['data-copy'])
+      expect(data['sources'].map { |s| s['year'] }).to eq(%w[2026 2025])
+      expect(data['sources'].first['combinations'].size).to eq(8)
+    end
+  end
+
   it 'turns away a coordinator' do
     sign_in_as_coordinator(season: season)
 
