@@ -43,6 +43,7 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
     return seeded
   })
   const [forecast, setForecast] = useState<Forecast | null>(null)
+  const [recheck, setRecheck] = useState(0)
 
   // Which seasons were on when the form loaded — a season that was on and is
   // now off is staged for removal, not simply absent. A season they were
@@ -135,7 +136,16 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
     return () => {
       cancelled = true
     }
-  }, [previewSeason?.id, ensemble, section, waiting])
+  }, [previewSeason?.id, ensemble, section, waiting, recheck])
+
+  // The no-default panel links out to set the defaults up in another tab, so
+  // look again whenever the admin comes back here.
+  useEffect(() => {
+    if (!forecast?.no_default) return
+    const onFocus = () => setRecheck(n => n + 1)
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
+  }, [forecast?.no_default])
 
 
   // Posted as its own form so it can't be confused with saving the record.
@@ -348,6 +358,9 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
               forecast={forecast}
               waiting={waiting}
               seasonYear={previewSeason.year}
+              setUpDefaultsHref={
+                previewSeason.id === data.current_season_id ? '/admin/season/default-schedules' : undefined
+              }
             />
           )}
 

@@ -10,12 +10,29 @@ describe('SchedulePreviewPanel', () => {
     expect(screen.getByText(/Waiting on a section for 2026/)).toBeTruthy()
   })
 
-  // Live state for any season past 2026, not an edge case.
+  // Live for any season whose defaults aren't set up yet, not an edge case.
   it('says plainly when no default exists', () => {
     render(<SchedulePreviewPanel forecast={{ no_default: true }} waiting={false} seasonYear="2026" />)
 
     expect(screen.getByText(/No default schedule exists for 2026/)).toBeTruthy()
     expect(screen.getByText(/missing-schedule alert/i)).toBeTruthy()
+  })
+
+  it('links to setting up the defaults only when told where that is', () => {
+    const { rerender } = render(
+      <SchedulePreviewPanel forecast={{ no_default: true }} waiting={false} seasonYear="2027" />
+    )
+    expect(screen.queryByRole('link')).toBeNull()
+
+    rerender(
+      <SchedulePreviewPanel
+        forecast={{ no_default: true }}
+        waiting={false}
+        seasonYear="2027"
+        setUpDefaultsHref="/admin/season/default-schedules"
+      />
+    )
+    expect(screen.getByRole('link', { name: 'Set up 2027 defaults →' })).toBeTruthy()
   })
 
   // The panel describes the schedule and nothing else. What the save does to

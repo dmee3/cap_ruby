@@ -269,6 +269,45 @@ describe('UserForm', () => {
       await waitFor(() => expect(screen.getByText('2026 schedule preview')).toBeTruthy())
     })
 
+    it('links to setting up the defaults and looks again when the admin comes back', async () => {
+      const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ no_default: true }) })
+      vi.stubGlobal('fetch', fetchMock)
+      render(
+        <UserForm
+          data={editing([
+            { id: 10, season_id: 3, role: 'member', ensemble: 'World', section: 'Snare', has_schedule: false },
+          ])}
+          csrfToken="tok"
+        />
+      )
+
+      const link = await screen.findByRole('link', { name: 'Set up 2027 defaults →' })
+      expect(link.getAttribute('href')).toBe('/admin/season/default-schedules')
+      expect(link.getAttribute('target')).toBe('_blank')
+      const calls = fetchMock.mock.calls.length
+
+      window.dispatchEvent(new Event('focus'))
+
+      await waitFor(() => expect(fetchMock.mock.calls.length).toBe(calls + 1))
+    })
+
+    // The defaults page edits the current season, so a link from a 2026
+    // forecast while on 2027 would set up the wrong year.
+    it('offers no setup link for a season other than the current one', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ no_default: true }) }))
+      render(
+        <UserForm
+          data={editing([
+            { id: 10, season_id: 2, role: 'member', ensemble: 'World', section: 'Snare', has_schedule: false },
+          ])}
+          csrfToken="tok"
+        />
+      )
+
+      await screen.findByText(/No default schedule exists for 2026/)
+      expect(screen.queryByRole('link', { name: /Set up .* defaults/ })).toBeNull()
+    })
+
     it('has no em-dash in the no-schedule copy', () => {
       render(
         <UserForm
