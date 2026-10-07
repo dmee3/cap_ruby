@@ -39,6 +39,12 @@ Rails.application.routes.draw do
       # the add/edit user form reads this while the admin is still typing.
       get 'schedule-forecast', to: 'schedule_forecasts#show'
 
+      # Always the current season's defaults.
+      post 'default-schedules/copy', to: 'default_schedules#copy'
+      put 'default-schedules/dates', to: 'default_schedules#move_dates'
+      post 'default-schedules/apply-to-empty', to: 'default_schedules#apply_to_empty'
+      put 'default-schedules/:combination', to: 'default_schedules#update'
+
     end
 
     namespace :inventory do
@@ -90,6 +96,13 @@ Rails.application.routes.draw do
     resources :payment_schedules, only: %i[edit]
 
     resource :season, only: %i[edit update], controller: 'seasons'
+
+    scope 'season/default-schedules', controller: 'default_schedules', as: 'season_default_schedules' do
+      get '/', action: :index
+      get 'copy', action: :copy, as: 'copy'
+      get 'dates', action: :dates, as: 'dates'
+      get ':combination', action: :edit, as: 'edit'
+    end
   end
 
   namespace :coordinators do

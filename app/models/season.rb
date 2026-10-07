@@ -12,6 +12,7 @@
 #
 class Season < ApplicationRecord
   has_many :conflicts
+  has_many :default_schedule_entries
   has_many :payment_schedules
   has_many :payments
 

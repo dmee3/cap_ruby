@@ -4,8 +4,7 @@ module Api
   module Admin
     class ScheduleForecastsController < Api::AdminController
       # Creates nothing. `no_default` is a real, reachable answer rather than an
-      # error: DEFAULT_PAYMENT_SCHEDULES stops at 2026 and the 2027 season
-      # already has members.
+      # error: a season's defaults are set up by an admin, and may not be yet.
       def show
         season = Season.find_by(id: params[:season_id])
         forecast = ::Admin::ScheduleForecast.call(

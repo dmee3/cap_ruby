@@ -66,9 +66,7 @@ module Admin
     end
 
     def default_entries
-      @default_entries ||= @default.map do |day, dollars|
-        { pay_date: Date.strptime(day, '%m/%d/%y'), amount_cents: dollars * 100 }
-      end
+      @default
     end
 
     # The latest entry pay_date whose cumulative scheduled amount is fully

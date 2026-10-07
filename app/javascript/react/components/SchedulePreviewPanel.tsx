@@ -19,11 +19,15 @@ type SchedulePreviewPanelProps = {
    *  screen this is often NOT the current season and the person can be on
    *  several at once. */
   seasonYear: string
+  /** Where to set this season's defaults up. Only given when the season being
+   *  forecast is the admin's current one, since that page edits the current
+   *  season and would otherwise set up the wrong year. */
+  setUpDefaultsHref?: string
 }
 
 // §4.33. Read-only, and honest that it is a forecast: these rows don't exist
-// yet. Three states — waiting, populated, and "no default exists", which is the
-// live state for any season past 2026.
+// yet. Three states — waiting, populated, and "no default exists", which is
+// live for any season whose defaults an admin hasn't set up yet.
 //
 // The populated and no-default cards carry `overflow-hidden`: their children
 // (the amber fill, the header strip, the total row) run edge to edge with no
@@ -32,7 +36,7 @@ type SchedulePreviewPanelProps = {
 //
 // Neither state describes what else the save does — the "What happens when you
 // save" panel directly above owns that, and says the right thing per screen.
-const SchedulePreviewPanel = ({ forecast, waiting, seasonYear }: SchedulePreviewPanelProps) => {
+const SchedulePreviewPanel = ({ forecast, waiting, seasonYear, setUpDefaultsHref }: SchedulePreviewPanelProps) => {
   if (waiting) {
     return (
       <div className="rounded-md border border-dashed border-border-strong p-4" data-testid="preview-waiting">
@@ -58,6 +62,18 @@ const SchedulePreviewPanel = ({ forecast, waiting, seasonYear }: SchedulePreview
             Nothing will be created, so they start with no due dates and no total, and they&rsquo;ll show up
             in the dashboard&rsquo;s missing-schedule alert until someone builds one.
           </p>
+          {/* A new tab, so the half-filled form isn't lost; the form re-checks
+              the forecast when the admin comes back to it. */}
+          {setUpDefaultsHref && (
+            <a
+              href={setUpDefaultsHref}
+              target="_blank"
+              rel="noopener"
+              className="mt-1 text-body-sm font-semibold text-accent-primary"
+            >
+              Set up {seasonYear} defaults →
+            </a>
+          )}
         </div>
       </div>
     )
