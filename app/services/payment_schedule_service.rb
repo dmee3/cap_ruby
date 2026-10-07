@@ -28,6 +28,15 @@ class PaymentScheduleService
       end
     end
 
+    # Members whose payment schedule has no entries, or who have none at all —
+    # missing from the burndown, and owing nothing on paper.
+    sig { params(season_id: Integer).returns(T::Array[User]) }
+    def blank_schedule_members(season_id)
+      User.members_for_season(season_id).with_payments.reject do |member|
+        member.payment_schedule_for(season_id)&.entries&.any?
+      end
+    end
+
     # Write the default's entries onto a schedule that has none. Returns the
     # number of entries created (0 when there is no default for this
     # year/ensemble/section/vet-status, or when the schedule is already
