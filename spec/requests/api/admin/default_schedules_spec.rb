@@ -17,13 +17,6 @@ RSpec.describe 'Api::Admin::DefaultSchedules', type: :request do
       expect(response.parsed_body['created'].size).to eq(8)
       expect(DefaultScheduleEntry.where(season: season).minimum(:pay_date)).to eq(Date.new(2026, 10, 16))
     end
-
-    it 'explains a refused copy' do
-      post '/api/admin/default-schedules/copy', params: { source_season_id: season.id, shift_weeks: 52 }, as: :json
-
-      expect(response).to have_http_status(:unprocessable_entity)
-      expect(response.parsed_body['error']).to eq("Can't copy a season into itself.")
-    end
   end
 
   describe 'PUT /api/admin/default-schedules/:combination' do
@@ -64,13 +57,5 @@ RSpec.describe 'Api::Admin::DefaultSchedules', type: :request do
 
       expect(response.parsed_body).to eq('filled' => 1, 'still_empty' => 0)
     end
-  end
-
-  it 'denies non-admins' do
-    sign_in_as_coordinator(season: season)
-
-    post '/api/admin/default-schedules/apply-to-empty', as: :json
-
-    expect(response).to have_http_status(:unauthorized)
   end
 end

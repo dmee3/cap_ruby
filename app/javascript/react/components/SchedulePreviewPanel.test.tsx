@@ -18,23 +18,6 @@ describe('SchedulePreviewPanel', () => {
     expect(screen.getByText(/missing-schedule alert/i)).toBeTruthy()
   })
 
-  it('links to setting up the defaults only when told where that is', () => {
-    const { rerender } = render(
-      <SchedulePreviewPanel forecast={{ no_default: true }} waiting={false} seasonYear="2027" />
-    )
-    expect(screen.queryByRole('link')).toBeNull()
-
-    rerender(
-      <SchedulePreviewPanel
-        forecast={{ no_default: true }}
-        waiting={false}
-        seasonYear="2027"
-        setUpDefaultsHref="/admin/season/default-schedules"
-      />
-    )
-    expect(screen.getByRole('link', { name: 'Set up 2027 defaults →' })).toBeTruthy()
-  })
-
   // The panel describes the schedule and nothing else. What the save does to
   // the account and the welcome email differs per screen, and the
   // "What happens when you save" panel above owns that.

@@ -62,17 +62,6 @@ describe('EditDefault', () => {
     await waitFor(() => expect(assign).toHaveBeenCalledWith('/admin/season/default-schedules'))
   })
 
-  it('goes back to the overview once the default saves', async () => {
-    vi.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify({}), { status: 200 }))
-    const assign = vi.fn()
-    vi.stubGlobal('location', { ...window.location, assign })
-    render(<EditDefault data={{ overview: overview(), slug: 'world-music-vet' }} />)
-
-    await userEvent.click(screen.getByRole('button', { name: 'Save default' }))
-
-    await waitFor(() => expect(assign).toHaveBeenCalledWith('/admin/season/default-schedules'))
-  })
-
   it('skips the "members keep their schedules" note for a default nobody is on', () => {
     const data = overview()
     data.combinations[0].member_count = 0
