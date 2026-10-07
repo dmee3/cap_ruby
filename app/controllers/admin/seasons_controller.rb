@@ -4,6 +4,7 @@ module Admin
   class SeasonsController < AdminController
     def edit
       @season = current_season
+      load_defaults_card
     end
 
     def update
@@ -13,11 +14,17 @@ module Admin
       else
         flash.now[:error] = current_season.errors.full_messages.to_sentence
         @season = current_season
+        load_defaults_card
         render(:edit)
       end
     end
 
     private
+
+    def load_defaults_card
+      @overview = DefaultSchedules::Overview.call(current_season)
+      @defaults_card = DefaultSchedules::SeasonCard.call(@overview)
+    end
 
     def season_params
       params.require(:season).permit(:conflict_submission_open)
