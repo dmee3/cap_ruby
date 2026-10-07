@@ -23,6 +23,7 @@
 #
 #  season_id  (season_id => seasons.id)
 #
+
 # One dated amount in a season's default payment schedule for one combination
 # of ensemble, section group and vet status. A member's schedule is copied from
 # the rows matching them when they join a season.
