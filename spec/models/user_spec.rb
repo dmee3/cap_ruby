@@ -81,8 +81,8 @@ RSpec.describe User, type: :model do
   context 'scopes' do
     let(:season) { create(:season, year: '2019') }
     let(:last_season) { create(:season, year: '2018') }
-    let!(:current_user) { create(:user, seasons: [season]) }
-    let!(:old_user) { create(:user, seasons: [last_season]) }
+    let!(:current_user) { create(:user, seasons_users: [build(:seasons_user, season: season)]) }
+    let!(:old_user) { create(:user, seasons_users: [build(:seasons_user, season: last_season)]) }
 
     context 'for_season' do
       it 'returns users for the given season' do
@@ -93,7 +93,7 @@ RSpec.describe User, type: :model do
 
   context 'instance methods' do
     let(:season) { create(:season) }
-    let(:user) { build(:user, seasons: [season]) }
+    let(:user) { build(:user, seasons_users: [build(:seasons_user, season: season)]) }
 
     context 'full_name' do
       subject { user.full_name }
@@ -171,7 +171,7 @@ RSpec.describe User, type: :model do
 
     context 'amount_paid_for' do
       let!(:season) { create(:season) }
-      let!(:user) { create(:user, seasons: [season]) }
+      let!(:user) { create(:user, seasons_users: [build(:seasons_user, season: season)]) }
       let!(:payment1) { create(:payment, season: season, user: user) }
       let!(:payment2) { create(:payment, season: season, user: user) }
 
@@ -182,7 +182,7 @@ RSpec.describe User, type: :model do
 
     context 'payment_schedule_for' do
       let!(:season) { create(:season) }
-      let!(:user) { create(:user, seasons: [season]) }
+      let!(:user) { create(:user, seasons_users: [build(:seasons_user, season: season)]) }
 
       subject { user.payment_schedule_for(season.id) }
 
@@ -191,7 +191,7 @@ RSpec.describe User, type: :model do
 
     context 'total_dues_for' do
       let!(:season) { create(:season) }
-      let!(:user) { create(:user, seasons: [season]) }
+      let!(:user) { create(:user, seasons_users: [build(:seasons_user, season: season)]) }
 
       before do
         user.payment_schedules << PaymentSchedule.create(user_id: user.id, season_id: season.id)

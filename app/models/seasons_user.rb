@@ -6,7 +6,7 @@
 #
 #  id        :integer          not null, primary key
 #  ensemble  :string
-#  role      :string
+#  role      :string           not null
 #  section   :string
 #  season_id :integer
 #  user_id   :integer
@@ -44,11 +44,9 @@ class SeasonsUser < ApplicationRecord
   # wins comes down to row order.
   validates :user_id, uniqueness: { scope: :season_id }
 
-  # NB: deliberately NOT validating role presence/inclusion. `user.seasons =
-  # [season]` builds a row with no role at all, so a validation here would turn
-  # that assignment into a failed save rather than the membership it reads as.
-  # The form guards it instead: the season role block preselects Member when a
-  # season is toggled on.
+  # `user.seasons << season` builds a row with no role, which nobody can switch
+  # to or be routed from; this makes it a failed save instead.
+  validates :role, presence: true
 
   def removed?
     role == REMOVED_ROLE

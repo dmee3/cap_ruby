@@ -179,16 +179,17 @@ TOTAL_MEMBERS.times do |i|
   chosen_usernames << user.username
   puts "\e[034m#{first_name} #{last_name} created (#{i + 1} / #{TOTAL_MEMBERS})\e[0m"
 
-  # Add seasons
-  user.seasons << seasons['2018'][:season] if [true, false, false].sample
-  user.seasons << seasons['2019'][:season] if [true, false, false].sample
-  user.seasons << seasons['2020'][:season] if [true, false].sample
-  user.seasons << seasons['2021'][:season] if [true, false].sample
-  user.seasons << seasons['2022'][:season] if user.seasons.empty? || [true, false].sample
+  # Pick seasons; their rows are created with a role below
+  years = []
+  years << '2018' if [true, false, false].sample
+  years << '2019' if [true, false, false].sample
+  years << '2020' if [true, false].sample
+  years << '2021' if [true, false].sample
+  years << '2022' if years.empty? || [true, false].sample
 
   # Add sections and payment schedules for each season
   seasons.each do |year, details|
-    next unless user.seasons.map(&:year).include?(year)
+    next unless years.include?(year)
 
     # Add payment schedule
     PaymentSchedule.new(season_id: details[:season].id).tap do |sched|
@@ -199,10 +200,7 @@ TOTAL_MEMBERS.times do |i|
       user.payment_schedules << sched
 
       # Add section
-      su = user.seasons_users.find_by(season_id: details[:season].id)
-      if su.nil?
-        su = SeasonsUser.create(user: user, season: details[:season])
-      end
+      su = user.seasons_users.find_or_initialize_by(season_id: details[:season].id)
       su.section = SECTIONS.sample
       su.ensemble = ENSEMBLES.sample
       su.role = 'member'

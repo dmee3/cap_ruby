@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_07_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_07_140000) do
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
     t.string "description"
@@ -201,7 +201,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_120000) do
     t.integer "user_id"
     t.string "section"
     t.string "ensemble"
-    t.string "role"
+    t.string "role", null: false
     t.index ["season_id"], name: "index_seasons_users_on_season_id"
     t.index ["user_id"], name: "index_seasons_users_on_user_id"
   end

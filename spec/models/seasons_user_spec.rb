@@ -6,7 +6,7 @@
 #
 #  id        :integer          not null, primary key
 #  ensemble  :string
-#  role      :string
+#  role      :string           not null
 #  section   :string
 #  season_id :integer
 #  user_id   :integer
