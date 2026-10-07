@@ -52,6 +52,16 @@ RSpec.describe 'Admin default payment schedules', type: :request do
     end
   end
 
+  it 'mounts the move-dates screen with the season overview' do
+    sign_in_as_admin(season: season)
+    seed_default_schedules(season)
+
+    get '/admin/season/default-schedules/dates'
+
+    data = JSON.parse(Nokogiri::HTML(response.body).at_css('#default-schedule-dates')['data-overview'])
+    expect(data['dates'].size).to eq(6)
+  end
+
   it 'turns away a coordinator' do
     sign_in_as_coordinator(season: season)
 
