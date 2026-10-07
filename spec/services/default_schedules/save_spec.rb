@@ -27,14 +27,15 @@ RSpec.describe DefaultSchedules::Save do
                     { pay_date: '2026-10-16', amount_cents: 28_000 }
                   ])
 
-    expect(result.errors).to eq([{ index: 2, message: 'Payment 1 is already on this date.' }])
+    expect(result.errors)
+      .to eq([{ index: 2, message: '10/16/26 is already payment 1. Pick another date or remove one.' }])
     expect(combination.entries_in(season.id)).to be_empty
   end
 
   it 'refuses a payment with no amount' do
     result = save([{ pay_date: '2026-10-16', amount_cents: 0 }])
 
-    expect(result.errors).to eq([{ index: 0, message: 'Needs an amount.' }])
+    expect(result.errors).to eq([{ index: 0, message: 'Enter an amount over $0, or remove this payment.' }])
   end
 
   it 'refuses to save a default with no payments' do

@@ -35,6 +35,23 @@ RSpec.describe 'Admin default payment schedules', type: :request do
     end
   end
 
+  context 'editing one default' do
+    before { sign_in_as_admin(season: season) }
+
+    it 'mounts the editor for the combination in the URL' do
+      get '/admin/season/default-schedules/cc2-visual-rookie'
+
+      data = JSON.parse(Nokogiri::HTML(response.body).at_css('#default-schedule-editor')['data-editor'])
+      expect(data['slug']).to eq('cc2-visual-rookie')
+    end
+
+    it 'is not found for a combination that does not exist' do
+      get '/admin/season/default-schedules/world-battery-vet'
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
   it 'turns away a coordinator' do
     sign_in_as_coordinator(season: season)
 

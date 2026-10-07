@@ -41,7 +41,8 @@ RSpec.describe 'Api::Admin::DefaultSchedules', type: :request do
           params: { entries: [{ pay_date: '2026-10-16', amount_cents: 0 }] }, as: :json
 
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(response.parsed_body['errors']).to eq([{ 'index' => 0, 'message' => 'Needs an amount.' }])
+      expect(response.parsed_body['errors'])
+        .to eq([{ 'index' => 0, 'message' => 'Enter an amount over $0, or remove this payment.' }])
     end
   end
 

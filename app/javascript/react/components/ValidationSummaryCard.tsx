@@ -18,7 +18,7 @@ const countWord = (count: number) => (count === 1 ? 'One' : count === 2 ? 'Two' 
 const heading = (count: number, lead?: string) => {
   const thing = count === 1 ? 'thing' : 'things'
   return lead
-    ? `${lead} ${countWord(count)} ${thing} need fixing`
+    ? `${lead} ${countWord(count)} ${thing} ${count === 1 ? 'needs' : 'need'} fixing`
     : `${countWord(count)} ${thing} to fix`
 }
 

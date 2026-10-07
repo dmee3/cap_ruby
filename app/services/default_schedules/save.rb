@@ -46,11 +46,14 @@ module DefaultSchedules
     end
 
     def row_error(entry, dates, index)
-      return 'Needs a due date.' if entry[:pay_date].nil?
-      return 'Needs an amount.' if entry[:amount_cents].nil? || entry[:amount_cents] <= 0
+      return 'Enter a due date, or remove this payment.' if entry[:pay_date].nil?
+      return 'Enter an amount over $0, or remove this payment.' unless entry[:amount_cents]&.positive?
 
       first = dates.index(entry[:pay_date])
-      return "Payment #{first + 1} is already on this date." if first < index
+      if first < index
+        return "#{entry[:pay_date].strftime('%-m/%-d/%y')} is already payment #{first + 1}. " \
+               'Pick another date or remove one.'
+      end
 
       nil
     end
