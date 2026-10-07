@@ -7,321 +7,6 @@ class PaymentScheduleService
   class << self
     extend T::Sig
 
-    DEFAULT_PAYMENT_SCHEDULES = {
-      '2023' => {
-        'World' => {
-          'Music' => {
-            'Vet' => {
-              '10/23/22' => 400,
-              '11/27/22' => 325,
-              '12/30/22' => 325,
-              '1/22/23' => 325,
-              '2/19/23' => 325,
-              '3/19/23' => 150
-            },
-            'Rookie' => {
-              '10/23/22' => 400,
-              '11/27/22' => 325,
-              '12/30/22' => 325,
-              '1/22/23' => 325,
-              '2/19/23' => 325,
-              '3/19/23' => 300
-            }
-          },
-          'Visual' => {
-            'Vet' => {
-              '10/23/22' => 300,
-              '11/19/22' => 300,
-              '12/17/22' => 300,
-              '1/14/23' => 300,
-              '2/18/23' => 300,
-              '3/18/23' => 100
-            },
-            'Rookie' => {
-              '10/23/22' => 300,
-              '11/19/22' => 300,
-              '12/17/22' => 300,
-              '1/14/23' => 300,
-              '2/18/23' => 300,
-              '3/18/23' => 200
-            }
-          }
-        },
-        'CC2' => {
-          'Music' => {
-            'Vet' => {
-              '10/23/22' => 300,
-              '11/27/22' => 300,
-              '12/30/22' => 300,
-              '1/22/23' => 300,
-              '2/19/23' => 300,
-              '3/19/23' => 50
-            },
-            'Rookie' => {
-              '10/23/22' => 300,
-              '11/27/22' => 300,
-              '12/30/22' => 300,
-              '1/22/23' => 300,
-              '2/19/23' => 300,
-              '3/19/23' => 150
-            }
-          },
-          'Visual' => {
-            'Vet' => {
-              '10/23/22' => 300,
-              '11/19/22' => 300,
-              '12/17/22' => 200,
-              '1/14/23' => 200,
-              '2/18/23' => 200,
-              '3/18/23' => 100
-            },
-            'Rookie' => {
-              '10/23/22' => 300,
-              '11/19/22' => 300,
-              '12/17/22' => 200,
-              '1/14/23' => 200,
-              '2/18/23' => 200,
-              '3/18/23' => 200
-            }
-          }
-        }
-      },
-      '2024' => {
-        'World' => {
-          'Music' => {
-            'Vet' => {
-              '10/22/23' => 500,
-              '11/24/23' => 310,
-              '12/26/23' => 310,
-              '1/19/24' => 310,
-              '2/16/24' => 310,
-              '3/15/24' => 310
-            },
-            'Rookie' => {
-              '10/22/23' => 500,
-              '11/24/23' => 350,
-              '12/26/23' => 350,
-              '1/19/24' => 350,
-              '2/16/24' => 350,
-              '3/15/24' => 350
-            }
-          },
-          'Visual' => {
-            'Vet' => {
-              '10/22/23' => 400,
-              '11/24/23' => 270,
-              '12/26/23' => 270,
-              '1/19/24' => 270,
-              '2/16/24' => 270,
-              '3/15/24' => 270
-            },
-            'Rookie' => {
-              '10/22/23' => 400,
-              '11/24/23' => 290,
-              '12/26/23' => 290,
-              '1/19/24' => 290,
-              '2/16/24' => 290,
-              '3/15/24' => 290
-            }
-          }
-        },
-        'CC2' => {
-          'Music' => {
-            'Vet' => {
-              '10/22/23' => 400,
-              '11/24/23' => 250,
-              '12/26/23' => 250,
-              '1/19/24' => 250,
-              '2/16/24' => 250,
-              '3/15/24' => 250
-            },
-            'Rookie' => {
-              '10/22/23' => 400,
-              '11/24/23' => 290,
-              '12/26/23' => 290,
-              '1/19/24' => 290,
-              '2/16/24' => 290,
-              '3/15/24' => 290
-            }
-          },
-          'Visual' => {
-            'Vet' => {
-              '10/22/23' => 300,
-              '11/24/23' => 220,
-              '12/26/23' => 220,
-              '1/19/24' => 220,
-              '2/16/24' => 220,
-              '3/15/24' => 220
-            },
-            'Rookie' => {
-              '10/22/23' => 300,
-              '11/24/23' => 240,
-              '12/26/23' => 240,
-              '1/19/24' => 240,
-              '2/16/24' => 240,
-              '3/15/24' => 240
-            }
-          }
-        }
-      },
-      '2025' => {
-        'World' => {
-          'Music' => {
-            'Vet' => {
-              '10/20/24' => 500,
-              '11/22/24' => 340,
-              '12/20/24' => 340,
-              '1/17/25' => 340,
-              '2/21/25' => 340,
-              '3/21/25' => 340
-            },
-            'Rookie' => {
-              '10/20/24' => 500,
-              '11/22/24' => 380,
-              '12/20/24' => 380,
-              '1/17/25' => 380,
-              '2/21/25' => 380,
-              '3/21/25' => 380
-            }
-          },
-          'Visual' => {
-            'Vet' => {
-              '10/20/24' => 500,
-              '11/22/24' => 280,
-              '12/20/24' => 280,
-              '1/17/25' => 280,
-              '2/21/25' => 280,
-              '3/21/25' => 280
-            },
-            'Rookie' => {
-              '10/20/24' => 500,
-              '11/22/24' => 320,
-              '12/20/24' => 320,
-              '1/17/25' => 320,
-              '2/21/25' => 320,
-              '3/21/25' => 320
-            }
-          }
-        },
-        'CC2' => {
-          'Music' => {
-            'Vet' => {
-              '10/20/24' => 500,
-              '11/22/24' => 290,
-              '12/20/24' => 290,
-              '1/17/25' => 290,
-              '2/21/25' => 290,
-              '3/21/25' => 290
-            },
-            'Rookie' => {
-              '10/20/24' => 500,
-              '11/22/24' => 330,
-              '12/20/24' => 330,
-              '1/17/25' => 330,
-              '2/21/25' => 330,
-              '3/21/25' => 330
-            }
-          },
-          'Visual' => {
-            'Vet' => {
-              '10/20/24' => 500,
-              '11/22/24' => 230,
-              '12/20/24' => 230,
-              '1/17/25' => 230,
-              '2/21/25' => 230,
-              '3/21/25' => 230
-            },
-            'Rookie' => {
-              '10/20/24' => 500,
-              '11/22/24' => 270,
-              '12/20/24' => 270,
-              '1/17/25' => 270,
-              '2/21/25' => 270,
-              '3/21/25' => 270
-            }
-          }
-        }
-      },
-      '2026' => {
-        'World' => {
-          'Music' => {
-            'Vet' => {
-              '10/17/25' => 500,
-              '11/14/25' => 360,
-              '12/12/25' => 360,
-              '1/09/26' => 360,
-              '2/06/26' => 360,
-              '3/06/26' => 360
-            },
-            'Rookie' => {
-              '10/17/25' => 500,
-              '11/14/25' => 400,
-              '12/12/25' => 400,
-              '1/09/26' => 400,
-              '2/06/26' => 400,
-              '3/06/26' => 400
-            }
-          },
-          'Visual' => {
-            'Vet' => {
-              '10/17/25' => 500,
-              '11/14/25' => 300,
-              '12/12/25' => 300,
-              '1/09/26' => 300,
-              '2/06/26' => 300,
-              '3/06/26' => 300
-            },
-            'Rookie' => {
-              '10/17/25' => 500,
-              '11/14/25' => 340,
-              '12/12/25' => 340,
-              '1/09/26' => 340,
-              '2/06/26' => 340,
-              '3/06/26' => 340
-            }
-          }
-        },
-        'CC2' => {
-          'Music' => {
-            'Vet' => {
-              '10/17/25' => 500,
-              '11/14/25' => 300,
-              '12/12/25' => 300,
-              '1/09/26' => 300,
-              '2/06/26' => 300,
-              '3/06/26' => 300
-            },
-            'Rookie' => {
-              '10/17/25' => 500,
-              '11/14/25' => 340,
-              '12/12/25' => 340,
-              '1/09/26' => 340,
-              '2/06/26' => 340,
-              '3/06/26' => 340
-            }
-          },
-          'Visual' => {
-            'Vet' => {
-              '10/17/25' => 500,
-              '11/14/25' => 240,
-              '12/12/25' => 240,
-              '1/09/26' => 240,
-              '2/06/26' => 240,
-              '3/06/26' => 240
-            },
-            'Rookie' => {
-              '10/17/25' => 500,
-              '11/14/25' => 280,
-              '12/12/25' => 280,
-              '1/09/26' => 280,
-              '2/06/26' => 280,
-              '3/06/26' => 280
-            }
-          }
-        }
-      }
-    }.freeze
-
     # Every member season the user is on gets a schedule, populated from the
     # per-year default where one exists.
     #
@@ -330,9 +15,8 @@ class PaymentScheduleService
     # entirely, and a schedule that already has entries is never added to. A
     # double submit therefore cannot double anyone's dues.
     #
-    # A season with no default row (DEFAULT_PAYMENT_SCHEDULES currently stops at
-    # 2026) still gets its empty schedule, exactly as before — the UI says so
-    # rather than pretending a schedule was built.
+    # A season with no default for this member still gets its empty schedule —
+    # the UI says so rather than pretending a schedule was built.
     sig { params(user: User).void }
     def ensure_payment_schedules_for_user(user)
       user.seasons_users.each do |su|
@@ -341,6 +25,15 @@ class PaymentScheduleService
 
         schedule = PaymentSchedule.create(user_id: user.id, season_id: su.season_id)
         populate_from_default(schedule, su.season)
+      end
+    end
+
+    # Members whose payment schedule has no entries, or who have none at all —
+    # missing from the burndown, and owing nothing on paper.
+    sig { params(season_id: Integer).returns(T::Array[User]) }
+    def blank_schedule_members(season_id)
+      User.members_for_season(season_id).with_payments.reject do |member|
+        member.payment_schedule_for(season_id)&.entries&.any?
       end
     end
 
@@ -356,27 +49,18 @@ class PaymentScheduleService
       return 0 if default.nil?
 
       PaymentSchedule.transaction do
-        default_entries(default).each do |entry|
+        default.each do |entry|
           schedule.entries.create!(pay_date: entry[:pay_date], amount: entry[:amount_cents])
         end
       end
       default.size
     end
 
-    # The default hash is keyed by 'm/d/yy' strings and holds DOLLARS; entries
-    # are stored in CENTS. Same conversion Admin::ScheduleDefault makes.
-    sig { params(default: T::Hash[String, Integer]).returns(T::Array[T::Hash[Symbol, T.untyped]]) }
-    def default_entries(default)
-      default.map do |day, dollars|
-        { pay_date: Date.strptime(day, '%m/%d/%y'), amount_cents: dollars * 100 }
-      end
-    end
-
     sig do
       params(
         user: User,
         season: T.any(Season, T::Hash[String, T.untyped])
-      ).returns(T.nilable(T::Hash[String, Integer]))
+      ).returns(T.nilable(T::Array[T::Hash[Symbol, T.untyped]]))
     end
     def default_schedule_for(user, season)
       # Seasons someone was removed from do not make them a vet, so a rookie who
@@ -385,16 +69,31 @@ class PaymentScheduleService
       role = all_roles.select { |su| su.season_id == season['id'] }.first
       return nil unless role.present?
 
-      vet_status = if all_roles.any? do |su|
-        su.season.year.to_i < role.season.year.to_i
-      end
-                     'Vet'
-                   else
-                     'Rookie'
-                   end
-      section = role.section == 'Visual' ? 'Visual' : 'Music'
+      vet = all_roles.any? { |su| su.season.year.to_i < role.season.year.to_i }
 
-      DEFAULT_PAYMENT_SCHEDULES.dig(role.season.year, role.ensemble, section, vet_status)
+      default_entries_for(season_id: role.season_id, ensemble: role.ensemble, section: role.section, vet: vet)
+    end
+
+    # The default for one combination as `{ pay_date:, amount_cents: }` hashes
+    # in date order, or nil when the season has none for it.
+    sig do
+      params(
+        season_id: Integer,
+        ensemble: T.nilable(String),
+        section: T.nilable(String),
+        vet: T::Boolean
+      ).returns(T.nilable(T::Array[T::Hash[Symbol, T.untyped]]))
+    end
+    def default_entries_for(season_id:, ensemble:, section:, vet:)
+      rows = DefaultScheduleEntry.where(
+        season_id: season_id,
+        ensemble: ensemble,
+        section_group: DefaultScheduleEntry.section_group_for(section),
+        vet_status: DefaultScheduleEntry.vet_status_for(vet)
+      ).order(:pay_date)
+      return nil if rows.empty?
+
+      rows.map { |row| { pay_date: row.pay_date, amount_cents: row.amount_cents } }
     end
   end
 end

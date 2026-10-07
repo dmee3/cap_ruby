@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_16_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_07_120000) do
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
     t.string "description"
@@ -79,6 +79,19 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_16_120000) do
     t.index ["season_id"], name: "index_conflicts_on_season_id"
     t.index ["status_id"], name: "index_conflicts_on_status_id"
     t.index ["user_id"], name: "index_conflicts_on_user_id"
+  end
+
+  create_table "default_schedule_entries", force: :cascade do |t|
+    t.integer "season_id", null: false
+    t.string "ensemble", null: false
+    t.string "section_group", null: false
+    t.string "vet_status", null: false
+    t.date "pay_date", null: false
+    t.integer "amount_cents", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["season_id", "ensemble", "section_group", "vet_status", "pay_date"], name: "index_default_schedule_entries_on_combination_and_date", unique: true
+    t.index ["season_id"], name: "index_default_schedule_entries_on_season_id"
   end
 
   create_table "events", force: :cascade do |t|
@@ -220,5 +233,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_16_120000) do
   add_foreign_key "calendar_donations", "seasons"
   add_foreign_key "calendar_fundraisers", "seasons"
   add_foreign_key "calendar_fundraisers", "users"
+  add_foreign_key "default_schedule_entries", "seasons"
   add_foreign_key "inventory_items", "inventory_categories"
 end

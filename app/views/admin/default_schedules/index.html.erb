@@ -1,0 +1,9 @@
+<% content_for :page_title, "#{@overview[:season][:year]} default payment schedules" %>
+<%= vite_typescript_tag 'entrypoints/admin/default_schedules/index.tsx' %>
+
+<div id="default-schedules-overview" data-overview="<%= @overview.to_json %>">
+  <div class="flex flex-col gap-4">
+    <div class="h-10 w-80 rounded-md bg-sunken animate-pulse"></div>
+    <div class="h-72 rounded-md bg-sunken animate-pulse"></div>
+  </div>
+</div>

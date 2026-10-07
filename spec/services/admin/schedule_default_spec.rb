@@ -10,6 +10,7 @@ RSpec.describe Admin::ScheduleDefault do
   let(:schedule) { create(:payment_schedule, season: season, user: user) }
 
   before do
+    seed_default_schedules(season)
     create(:seasons_user, user: user, season: season, role: 'member', ensemble: 'World', section: 'Snare')
   end
 

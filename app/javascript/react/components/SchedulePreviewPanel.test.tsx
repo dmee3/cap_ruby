@@ -10,7 +10,7 @@ describe('SchedulePreviewPanel', () => {
     expect(screen.getByText(/Waiting on a section for 2026/)).toBeTruthy()
   })
 
-  // Live state for any season past 2026, not an edge case.
+  // Live for any season whose defaults aren't set up yet, not an edge case.
   it('says plainly when no default exists', () => {
     render(<SchedulePreviewPanel forecast={{ no_default: true }} waiting={false} seasonYear="2026" />)
 

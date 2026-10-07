@@ -18,6 +18,15 @@ FactoryBot.define do
     conflict_submission_open { true }
   end
 
+  factory :default_schedule_entry do
+    season
+    ensemble { 'World' }
+    section_group { 'Music' }
+    vet_status { 'Vet' }
+    sequence(:pay_date) { |n| Date.new(2025, 10, 1) + n.weeks }
+    amount_cents { 30_000 }
+  end
+
   factory :event do
     name { Faker::Music.band }
     start_date { Date.today + rand(1..30).days }

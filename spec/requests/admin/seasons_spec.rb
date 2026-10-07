@@ -15,6 +15,13 @@ RSpec.describe 'Admin season settings', type: :request do
       expect(response.body).to include('Conflict submission')
     end
 
+    it "links an unset season's defaults card straight to setup" do
+      get '/admin/season/edit'
+
+      expect(response.body).to include("No #{season.year} defaults yet")
+      expect(response.body).to include('href="/admin/season/default-schedules"')
+    end
+
     it 'can open conflict submission for the season' do
       patch '/admin/season', params: { season: { conflict_submission_open: true } }
 

@@ -69,12 +69,9 @@ module Admin
         end
     end
 
-    # Members whose payment schedule has no entries — missing from the burndown.
     def blank_schedule_members(season_id)
-      User.members_for_season(season_id).with_payments.filter_map do |member|
+      PaymentScheduleService.blank_schedule_members(season_id).map do |member|
         schedule = member.payment_schedule_for(season_id)
-        next if schedule&.entries&.any?
-
         {
           name: member.full_name,
           # "New member · Battery / Snare" — type leads, per the canvas.

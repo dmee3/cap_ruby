@@ -824,6 +824,10 @@ each claimable once, so a finished calendar is **$496** (1+2+…+31).
 - Below 900px the Calendar segment renders a date-grouped **agenda**, not a month
   grid (seven columns is unreadable on a phone). The label stays `Calendar`.
 - Mobile: full width, both segments `flex:1` at 36px.
+- *(extended — Flow 12)* Takes `options` and an accessible `label`, so the
+  default schedules overview reuses it for its mobile **ensemble tabs**
+  (`World · 23` / `Cap City 2 · 19`). Still two options, never three; the
+  conflict views remain the default.
 
 ### 4.29 Conflict detail popover *(built — Flow 5, as `ConflictPopover.tsx`)*
 - **Replaces the hand-built tooltip** — today's is a `<div>` imperatively
@@ -941,8 +945,14 @@ controls, because there is nothing to edit until the record exists.
   schedule exists for this combination`, a plain statement that nothing will be
   created and the person will appear in the dashboard's missing-schedule alert,
   and a `Build their schedule after saving` action. **This is a live state, not
-  an edge case** — `DEFAULT_PAYMENT_SCHEDULES` stops at 2026 while the 2027
-  season already has 42 members.
+  an edge case**: a season has no defaults until an admin sets them up, and its
+  members are often added first.
+- *(extended — Flow 12)* The no-default state links **Set up {year} defaults →**
+  to `/admin/season/default-schedules`, in a new tab so the half-filled form
+  survives, and the form re-fetches the forecast on window focus. The link only
+  appears when the season being forecast is the admin's current one: that page
+  edits the current season, so a link from a 2026 forecast while on 2027 would
+  set up the wrong year.
 - **Unfilled:** a dashed placeholder — "Waiting on a section".
 - The lookup key is **`Visual` / `Music`**, never "Battery". The canvas labels
   it "Battery" in three places; the code keys on `section == 'Visual' ?
@@ -1220,6 +1230,71 @@ One correction the canvas didn't have: `file_type` from the Drive API is a
 on the client — `XLS`/`DOC` as drawn aren't labels the backend returns. And
 there is **no modified time** in the response, which is why the date column is
 absent by design rather than pending.
+
+### 4.45 Default schedule matrix *(added — Flow 12, inside `DefaultSchedulesOverview.tsx`)*
+
+A season's eight default schedules as one **real `<table>`**: due dates down,
+combinations across, grouped by ensemble (`colgroup` header, full name: "Cap
+City 2") then section group (`Music` / `Visual`, never "Battery"), with each
+combination's vet status, member count and `Edit` link in a third header row,
+and a `Total` footer in the §4.33 highlight.
+
+- **Rows are the union of every combination's dates**, so a season where Visual
+  paid on other days still fits; a combination that doesn't pay on a row shows
+  `–`.
+- **A missing combination keeps its column**, in `warning-bg` / `warning-fg`,
+  reading "N with nothing due" and linking `Set up`, so the gap is where the eye
+  expects it rather than the grid changing shape.
+- Column rules: `border-strong` between ensembles, `border-default` elsewhere.
+- **Below 640px** it shows one ensemble at a time behind the §4.28 switcher:
+  four columns, a compact "11 · mbrs" count, and a 44px `Edit` row under the
+  total.
+
+### 4.46 Setup-state card *(added — Flow 12, `admin/seasons/edit.html.erb` + `DefaultSchedules::SeasonCard`)*
+
+The `/admin/season` card for the defaults, toned by setup: **danger** with none
+("N members have no payment schedule", or "No {year} defaults yet" before anyone
+is added, + a primary `Set up {year} defaults`),
+**warning** while combinations are missing (names the one ensemble and section
+group, or lists them with member counts), **neutral** once all eight exist
+("$1,700 to $2,500 per member · 6 payments, 10/16/26 – 3/5/27"). The 3px rail
+and the uppercase title carry the tone, as in §4.20; the headline stays primary.
+
+*Diverges from the canvas:* once all eight exist but members still have empty
+schedules, the card stays **warning** ("N members still have an empty
+schedule") rather than going neutral, because the bulk fill below now exists.
+
+### 4.47 Default schedule editor rows *(added — Flow 12, inside `EditDefault.tsx`)*
+
+Numbered rows of a native date input (weekday shown inside it on desktop), a
+compact §4.16 MoneyField and a 44px remove `✕`; a dashed full-width `+ Add
+payment` (the new row lands four weeks after the last, at the same amount); a
+`Total · N payments` bar. Above the rows, an ocean-rail banner says saving
+changes the default only. Errors come **only from the server**, by row: a §4.18
+summary above the rows and the message again under the row it belongs to.
+
+### Flow 12 decisions against the canvas
+
+Recorded here because the canvas is frozen (§6.9). Full reasoning in
+`flow12-design-review.md`.
+
+- **Added: "Fill empty schedules"** on the overview, the canvas's own open call.
+  Two clicks (the second names the count), fills only schedules with no
+  entries, so nobody's customised plan is touched. Shown whenever defaults exist
+  and empty schedules remain.
+- **Cut: copy's "Replace all 8"** and its typed-year confirm (§4.34, still
+  unbuilt). Copy only creates missing combinations; an existing default is
+  changed by editing it. `cap_ruby-b3a.43`.
+- **"Last changed {date}"** only, from the rows' `updated_at`; nothing records
+  who, so no "by Dana Reyes" and no edit history in any confirm.
+- **The rail's member count is plain text**: the roster has no combination
+  filter to link to.
+- **"Copy from {year} season" hides once nothing is missing**, since copy would
+  create nothing. The canvas shows it on the fully set-up overview too.
+- **Start blank creates nothing**: it opens the editor for the first combination,
+  empty. The canvas's "Started blank" chip has nothing to read from.
+- The copy screen's week stepper is local, not §4.40: that component commits
+  deltas to a stock count and floors at zero, neither of which fits a date shift.
 
 ---
 

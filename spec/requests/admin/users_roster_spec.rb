@@ -6,6 +6,8 @@ RSpec.describe 'Admin::Users roster and onboarding', type: :request do
   let(:season) { create(:season, year: '2026') }
   let!(:admin) { sign_in_as_admin(season: season) }
 
+  before { seed_default_schedules(season) }
+
   describe 'POST /admin/users' do
     # The form is the most complex in the app, so a failed save that throws it
     # away is expensive. It must come back with the values still in it.
@@ -264,12 +266,8 @@ RSpec.describe 'Admin::Users roster and onboarding', type: :request do
       expect(response.parsed_body['lookup_key']).to eq('CC2 · Visual · Vet')
     end
 
-    # DEFAULT_PAYMENT_SCHEDULES is a per-year table that runs out. Pick a year
-    # beyond every key it has, rather than naming one: which years are filled
-    # in changes as seasons are added.
     it 'reports no_default for a season with no defaults' do
-      unscheduled = PaymentScheduleService.singleton_class::DEFAULT_PAYMENT_SCHEDULES.keys.map(&:to_i).max + 1
-      future = create(:season, year: unscheduled.to_s)
+      future = create(:season, year: '2027')
 
       get '/api/admin/schedule-forecast',
           params: { season_id: future.id, ensemble: 'World', section: 'Snare', vet: 'false' }

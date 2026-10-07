@@ -48,7 +48,7 @@ module Admin
         return false if default.nil?
 
         mine = entries.map { |e| [e.pay_date, e.amount] }.sort
-        theirs = default.map { |day, dollars| [Date.strptime(day, '%m/%d/%y'), dollars * 100] }.sort
+        theirs = default.map { |e| [e[:pay_date], e[:amount_cents]] }.sort
         mine == theirs
       end
 
