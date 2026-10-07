@@ -1253,7 +1253,8 @@ and a `Total` footer in the §4.33 highlight.
 ### 4.46 Setup-state card *(added — Flow 12, `admin/seasons/edit.html.erb` + `DefaultSchedules::SeasonCard`)*
 
 The `/admin/season` card for the defaults, toned by setup: **danger** with none
-("42 members have no payment schedule" + a primary `Set up {year} defaults`),
+("N members have no payment schedule", or "No {year} defaults yet" before anyone
+is added, + a primary `Set up {year} defaults`),
 **warning** while combinations are missing (names the one ensemble and section
 group, or lists them with member counts), **neutral** once all eight exist
 ("$1,700 to $2,500 per member · 6 payments, 10/16/26 – 3/5/27"). The 3px rail

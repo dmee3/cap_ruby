@@ -34,7 +34,7 @@ preview panel.
 
 | # | Canvas | Reality | Decision |
 |---|---|---|---|
-| 1 | Notes: "Apply to members with an empty schedule" — flagged as an open call, not designed | The 42 empty 2027 schedules are the actual problem; new defaults only help people added afterwards. `PaymentScheduleService.populate_from_default` already refuses a schedule with any entries, so the safe version is nearly free. | **Built.** One action on the overview, shown when defaults exist and empty schedules remain. Fills only schedules with zero entries. |
+| 1 | Notes: "Apply to members with an empty schedule" — flagged as an open call, not designed | Defaults only help people added after them, so anyone added to a season before its defaults exist is left with an empty schedule. `PaymentScheduleService.populate_from_default` already refuses a schedule with any entries, so the safe version is nearly free. | **Built.** One action on the overview, shown when defaults exist and empty schedules remain. Fills only schedules with zero entries. |
 | 2 | 4b/4c: when the target season already has defaults, a skip-or-**replace** radio; replace goes through a typed-year confirm (labelled §4.28 — actually §4.34, destructive confirm) | §4.34 has never been built (`cap_ruby-b3a.21`). | **Cut.** Copy only creates missing combinations; an existing one is changed by editing it. Filed as `cap_ruby-b3a.43`. |
 | 3 | 5a: "last changed 9/28/26 by Dana Reyes"; 4c lists individual past edits | Nothing records who edited a default, and there is no edit history. | **Date only**: "Last changed 9/28/26" from the newest `updated_at` among the combination's rows. |
 | 4 | 5a rail: "11 members in 2027 →" | `/admin/users` has no ensemble / section-group / vet filter. | **Plain count, no link.** |
@@ -46,4 +46,8 @@ preview panel.
 - A combination with no rows is "not set up". "Start blank" therefore creates nothing:
   it opens the editor for the first combination, empty.
 - Members with no ensemble yet don't belong to any combination; the overview's "cover N of
-  42" counts only those who do.
+  M members" counts only those who do.
+- The canvas, its prompt and the bead all assumed a 2027 season with 42 members already in
+  production. It doesn't exist yet: this branch's `Create2027Season` migration creates it, so
+  2027's defaults can be copied in before anyone is added and the empty-schedule states
+  shouldn't arise for it.

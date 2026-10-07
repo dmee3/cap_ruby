@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-# Production already has a 2027 season with members, and seasons.year isn't
-# unique, so this only creates one where it's missing (a fresh dev or staging
-# database) rather than adding a second 2027.
+# seasons.year isn't unique, so this only creates 2027 where it's missing
+# rather than adding a second one to a database that already has it.
 class Create2027Season < ActiveRecord::Migration[7.2]
   YEAR = '2027'
 
