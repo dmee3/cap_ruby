@@ -7,7 +7,10 @@ import { overview } from './fixtures'
 beforeEach(() => {
   document.head.innerHTML = '<meta name="csrf-token" content="tok">'
 })
-afterEach(() => vi.restoreAllMocks())
+afterEach(() => {
+  vi.restoreAllMocks()
+  vi.unstubAllGlobals()
+})
 
 describe('EditDefault', () => {
   it('lists the payments with a running total and says saving moves nobody', () => {
@@ -46,6 +49,36 @@ describe('EditDefault', () => {
     const [url, init] = fetchMock.mock.calls[0]
     expect(url).toBe('/api/admin/default-schedules/world-music-vet')
     expect(JSON.parse(init!.body as string).entries[1]).toEqual({ pay_date: '2026-11-13', amount_cents: 36_000 })
+  })
+
+  it('goes back to the overview once the default saves', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify({}), { status: 200 }))
+    const assign = vi.fn()
+    vi.stubGlobal('location', { ...window.location, assign })
+    render(<EditDefault data={{ overview: overview(), slug: 'world-music-vet' }} />)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save default' }))
+
+    await waitFor(() => expect(assign).toHaveBeenCalledWith('/admin/season/default-schedules'))
+  })
+
+  it('goes back to the overview once the default saves', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify({}), { status: 200 }))
+    const assign = vi.fn()
+    vi.stubGlobal('location', { ...window.location, assign })
+    render(<EditDefault data={{ overview: overview(), slug: 'world-music-vet' }} />)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save default' }))
+
+    await waitFor(() => expect(assign).toHaveBeenCalledWith('/admin/season/default-schedules'))
+  })
+
+  it('skips the "members keep their schedules" note for a default nobody is on', () => {
+    const data = overview()
+    data.combinations[0].member_count = 0
+    render(<EditDefault data={{ overview: data, slug: 'world-music-vet' }} />)
+
+    expect(screen.queryByText('Saving changes the default only')).not.toBeInTheDocument()
   })
 
   it('offers to add the first payment to a default that is not set up', () => {

@@ -39,9 +39,7 @@ const whoFor = (c: Combination) =>
 
 const EditDefault = ({ data }: { data: EditDefaultData }) => {
   const year = data.overview.season.year
-  const [combination, setCombination] = useState(
-    () => data.overview.combinations.find(c => c.slug === data.slug)!
-  )
+  const combination = data.overview.combinations.find(c => c.slug === data.slug)!
   const [rows, setRows] = useState<Row[]>(() => toRows(combination))
   const [errors, setErrors] = useState<RowError[]>([])
   const [saving, setSaving] = useState(false)
@@ -73,18 +71,21 @@ const EditDefault = ({ data }: { data: EditDefaultData }) => {
       .then(async r => {
         const body = await r.json().catch(() => ({}))
         if (r.ok) {
-          setCombination(body as Combination)
-          setRows(toRows(body as Combination))
-          setErrors([])
-          toast(`Saved ${combination.label}`, { variant: 'success' })
-        } else if (Array.isArray(body.errors)) {
+          // Stays "saving" until the overview loads, so it can't be sent twice.
+          window.location.assign(OVERVIEW_PATH)
+          return
+        }
+        if (Array.isArray(body.errors)) {
           setErrors(body.errors)
         } else {
           toast("Couldn't save this default. Nothing changed — try again.", { variant: 'error' })
         }
+        setSaving(false)
       })
-      .catch(() => toast("Couldn't save this default. Nothing changed — try again.", { variant: 'error' }))
-      .finally(() => setSaving(false))
+      .catch(() => {
+        toast("Couldn't save this default. Nothing changed — try again.", { variant: 'error' })
+        setSaving(false)
+      })
   }
 
   const subtitle = [
@@ -106,13 +107,15 @@ const EditDefault = ({ data }: { data: EditDefaultData }) => {
 
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="overflow-hidden rounded-md border border-border-default bg-surface">
-          <div className="flex flex-col gap-0.5 border-b border-border-default border-l-[3px] border-l-ocean bg-ocean-lightest/10 px-4 py-3.5">
-            <span className="text-body-sm font-semibold text-primary">Saving changes the default only</span>
-            <span className="text-body-sm text-secondary">
-              The {plural(combination.member_count, 'member')} on {combination.label} keep the schedules they have.
-              To move someone onto this version, open them in Member 360 and use Reset to default.
-            </span>
-          </div>
+          {combination.member_count > 0 && (
+            <div className="flex flex-col gap-0.5 border-b border-border-default border-l-[3px] border-l-ocean bg-ocean-lightest/10 px-4 py-3.5">
+              <span className="text-body-sm font-semibold text-primary">Saving changes the default only</span>
+              <span className="text-body-sm text-secondary">
+                The {plural(combination.member_count, 'member')} on {combination.label} keep the schedules they have.
+                To move someone onto this version, open them in Member 360 and use Reset to default.
+              </span>
+            </div>
+          )}
 
           <div className="flex flex-col gap-2 px-4 py-4 sm:px-5">
             <ValidationSummaryCard
