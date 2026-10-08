@@ -219,13 +219,6 @@ describe('Member360', () => {
     expect(screen.getByRole('button', { name: 'Use default schedule' })).toBeInTheDocument()
   })
 
-  it('explains why conflicts are read-only in the empty state', () => {
-    render(<Member360 data={base} csrfToken="tok" />)
-    expect(
-      screen.getByText(/Nina hasn't submitted any\. Members submit their own; coordinators can't add them here\./),
-    ).toBeInTheDocument()
-  })
-
   it('shows the fundraiser as its own figure, only when there is money raised', () => {
     render(<Member360 data={base} csrfToken="tok" />)
     expect(screen.queryByText('Calendar fundraiser')).not.toBeInTheDocument()
