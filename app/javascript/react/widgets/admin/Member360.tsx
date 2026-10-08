@@ -427,7 +427,7 @@ const Member360 = ({ data, csrfToken }: { data: Member360Data; csrfToken: string
             {data.conflict_rows.length === 0 ? (
               <EmptyState
                 title="No conflicts this season"
-                body={`${identity.first_name} hasn't submitted any. Members submit their own; coordinators can't add them here.`}
+                body={`${identity.first_name} hasn't submitted any conflicts yet.`}
               />
             ) : (
               <div className="flex flex-col">
