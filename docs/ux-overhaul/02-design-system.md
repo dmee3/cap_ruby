@@ -354,10 +354,13 @@ each one superseded.
     current `DashboardUtilities.biweekly_scheduled` / `biweekly_actual`, which
     sample every Sunday (already weekly despite the name) but hardcode
     `Season.last.id` — Flow 4 scopes them to the season in context.
-  - `scheduled` / `actual` (`[iso, dollars][]`), `today`, `currency`, `setupHref`
+  - `scheduled` / `actual` (`[iso, dollars][]`), `today`, `currency`
     props. States: **data** / **no-data** — the empty state is a dashed-border
-    panel, "No dues scheduled for this season yet / The burndown appears once
-    members have payment schedules." + a "Set up payment schedules" link. Loading
+    panel reading "Nothing has been paid yet". It shows whenever the selected
+    range has no points, which includes a season whose first due date hasn't
+    arrived; missing schedules are flagged by the dashboard's own banners, not
+    here. *(changed — after Flow 12; it used to say "No dues scheduled for this
+    season yet" with a setup link, which was wrong before the first due date.)* Loading
     on the dashboard is the ERB skeleton (the data is inline, no fetch).
   - Min height 280px. `role="img"` + `aria-label` (which names the behind-schedule
     amount) on the `<svg>`. Non-colour cue for the behind-schedule area: the hatch

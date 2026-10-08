@@ -15,13 +15,10 @@ const actual: [string, number][] = [
 ]
 
 describe('BurndownChart', () => {
-  it('renders the no-data state with a setup link when there is no schedule', () => {
-    render(<BurndownChart scheduled={[]} actual={[]} today="2026-01-18" setupHref="/admin/users" />)
-    expect(screen.getByText('No dues scheduled for this season yet')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Set up payment schedules' })).toHaveAttribute(
-      'href',
-      '/admin/users',
-    )
+  it('shows a message instead of an empty plot when there is nothing in range', () => {
+    render(<BurndownChart scheduled={[]} actual={[]} today="2026-01-18" />)
+    expect(screen.getByText('Nothing has been paid yet')).toBeInTheDocument()
+    expect(screen.queryByRole('img')).not.toBeInTheDocument()
   })
 
   it('plots two polylines and an end dot for the collected line', () => {
