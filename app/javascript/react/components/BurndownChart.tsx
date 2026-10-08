@@ -28,8 +28,6 @@ type BurndownChartProps = {
   /** Late money, summarised below the plot instead of stretching the x-axis. */
   afterCutoff?: AfterCutoff
   currency?: string
-  /** Optional href for the no-data state's "set up schedules" link. */
-  setupHref?: string
   /**
    * The "$X short of the plan" line below the chart. Off on the admin
    * dashboard, where the shortfall is already a stat block and the as-of date
@@ -66,7 +64,6 @@ const BurndownChart = ({
   asOf,
   afterCutoff,
   currency = 'USD',
-  setupHref = '/admin/users',
   showCaption = true,
   className = '',
 }: BurndownChartProps) => {
@@ -77,14 +74,7 @@ const BurndownChart = ({
       <div
         className={`flex min-h-[280px] flex-col items-center justify-center gap-2 rounded-md border border-dashed border-border-strong px-6 py-10 text-center ${className}`.trim()}
       >
-        <p className="text-h3 text-primary">No dues scheduled for this season yet</p>
-        <p className="max-w-sm text-body-sm text-secondary">
-          The burndown appears once members have payment schedules. Set one up and this fills in from
-          their first due date.
-        </p>
-        <a href={setupHref} className="mt-1 text-body-sm font-semibold text-accent-primary">
-          Set up payment schedules
-        </a>
+        <p className="text-h3 text-primary">Nothing has been paid yet</p>
       </div>
     )
   }
