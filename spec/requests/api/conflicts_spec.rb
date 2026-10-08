@@ -109,6 +109,19 @@ RSpec.describe 'Api::Conflicts', type: :request do
 
         expect(json_body['counts']).to include('Pending' => 1, 'Approved' => 1, 'All' => 2)
       end
+
+      # Postgres raises on ORDER BY an ungrouped column and the suite's SQLite
+      # doesn't, so this checks the query shape instead.
+      it 'counts without ordering by a column the count groups away' do
+        grouped = []
+        callback = lambda do |*, payload|
+          grouped << payload[:sql] if payload[:sql].include?('GROUP BY')
+        end
+        ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { get '/api/conflicts' }
+
+        expect(grouped).not_to be_empty
+        expect(grouped).to all(satisfy { |sql| !sql.include?('ORDER BY') })
+      end
     end
 
     describe 'the when filter' do

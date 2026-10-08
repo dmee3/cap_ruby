@@ -142,8 +142,10 @@ module Api
       scope.where(user_id: ids)
     end
 
+    # unscope(:order): Postgres refuses to ORDER BY a column that isn't grouped,
+    # and SQLite (dev and test) allows it, so only production would notice.
     def status_counts
-      counts = base_scope.joins(:conflict_status).group('conflict_statuses.name').count
+      counts = base_scope.unscope(:order).joins(:conflict_status).group('conflict_statuses.name').count
       STATUS_SCOPES.index_with { |name| counts.fetch(name, 0) }.merge('All' => counts.values.sum)
     end
 
