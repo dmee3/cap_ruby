@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import EmptyState from './EmptyState'
+import Button from './Button'
 
 type PaginatedListProps<T> = {
   items: T[]
@@ -64,14 +65,15 @@ function PaginatedList<T>({
           {caption ? caption(visible.length, items.length) : `Showing ${visible.length} of ${items.length}`}
         </span>
         {!captionOnly && (
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            fullWidthBelow={false}
+            className="ml-auto shrink-0"
             onClick={() => setShown((n) => n + step)}
             disabled={!hasMore}
-            className="ml-auto h-8 shrink-0 rounded-sm border border-border-strong bg-surface px-3 text-body-sm font-semibold text-primary transition hover:enabled:border-accent-primary disabled:cursor-not-allowed disabled:text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
           >
             {hasMore ? `Load ${increment} more` : 'Load more'}
-          </button>
+          </Button>
         )}
       </div>
     </div>

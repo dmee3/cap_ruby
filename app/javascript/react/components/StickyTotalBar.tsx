@@ -1,6 +1,7 @@
 import React from 'react'
 import { dollars } from '../../utilities/money'
 import { dateList } from '../../utilities/ordinals'
+import Button from './Button'
 
 type StickyTotalBarProps = {
   selected: number[]
@@ -44,14 +45,9 @@ const StickyTotalBar = ({
         </span>
       </div>
 
-      <button
-        type="button"
-        disabled={empty || busy}
-        onClick={onAction}
-        className="btn-primary btn-lg flex-none"
-      >
+      <Button size="lg" className="flex-none" disabled={empty || busy} onClick={onAction}>
         {actionLabel}
-      </button>
+      </Button>
     </div>
   )
 }

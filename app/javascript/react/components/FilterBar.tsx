@@ -1,4 +1,5 @@
 import React from 'react'
+import Button from './Button'
 
 export type PaymentScope = 'active' | 'with_deleted' | 'deleted_only'
 
@@ -130,13 +131,9 @@ const FilterBar = ({
       </span>
 
       {isDirty(filters) && (
-        <button
-          type="button"
-          onClick={() => onChange(EMPTY_FILTERS)}
-          className="text-body-sm font-medium text-accent-primary underline underline-offset-2"
-        >
+        <Button variant="link" onClick={() => onChange(EMPTY_FILTERS)}>
           Clear filters
-        </button>
+        </Button>
       )}
 
       <span className="basis-full text-caption text-secondary">

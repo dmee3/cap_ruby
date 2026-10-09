@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Elements } from '@stripe/react-stripe-js'
 import PaymentCheckout from './PaymentCheckout'
+import Button from '../../components/Button'
 import MoneyField, { FeeBreakdown } from '../../components/MoneyField'
 import { totalCents } from '../../../utilities/stripe_fees'
 import Utilities from '../../../utilities/utilities'
@@ -94,22 +95,25 @@ const PaymentForm = ({
 
           <div className="flex gap-2">
             {owedCents > 0 && (
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                tone="accent"
+                size="lg"
+                className="flex-1 !border-ocean"
                 onClick={() => setAmountCents(owedCents)}
-                className="flex-1 h-11 rounded-sm border border-ocean text-accent-primary font-semibold text-body-sm hover:bg-sunken"
               >
                 Pay {money(owedCents)} owed
-              </button>
+              </Button>
             )}
             {remainingCents > 0 && remainingCents !== owedCents && (
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="lg"
+                className="flex-1"
                 onClick={() => setAmountCents(remainingCents)}
-                className="flex-1 h-11 rounded-sm border border-border-strong font-semibold text-body-sm hover:bg-sunken"
               >
                 All {money(remainingCents)}
-              </button>
+              </Button>
             )}
           </div>
 
@@ -132,18 +136,13 @@ const PaymentForm = ({
 
           <FeeBreakdown amountCents={amountCents} className="border-t border-border-default pt-4" />
 
-          <button
-            type="button"
-            onClick={createPaymentIntent}
-            disabled={!valid || paying}
-            className="btn-primary btn-lg disabled:opacity-40 disabled:pointer-events-none"
-          >
+          <Button size="lg" onClick={createPaymentIntent} disabled={!valid || paying}>
             {paying
               ? 'Setting up…'
               : amountCents
                 ? `Pay ${money(totalCents(amountCents))}`
                 : 'Enter an amount'}
-          </button>
+          </Button>
         </div>
       )}
 
@@ -151,16 +150,16 @@ const PaymentForm = ({
         <div className="rounded-md bg-surface border border-border-default p-4 flex flex-col gap-3">
           <div className="flex items-baseline justify-between">
             <span className="card-title">Card details</span>
-            <button
-              type="button"
+            <Button
+              variant="link"
+              size="sm"
               onClick={() => {
                 setClientSecret('')
                 setPaying(false)
               }}
-              className="text-caption text-accent-primary hover:underline"
             >
               Change amount
-            </button>
+            </Button>
           </div>
           <FeeBreakdown amountCents={amountCents} className="pb-1" />
           <Elements options={{ clientSecret, appearance: stripeAppearance() }} stripe={stripePromise as never}>

@@ -1,6 +1,7 @@
 import React from 'react'
 import Pill from './Pill'
 import Toggle from './Toggle'
+import Button from './Button'
 
 export type SeasonRow = {
   id?: number | null
@@ -219,13 +220,9 @@ const SeasonRoleBlock = ({
               Saving takes them off the {season.year} roster. Their account, payment history and other
               seasons all stay.
             </span>
-            <button
-              type="button"
-              className="self-start text-body-sm font-semibold text-accent-primary underline"
-              onClick={() => handleToggle(true)}
-            >
+            <Button variant="link" className="self-start" onClick={() => handleToggle(true)}>
               Keep them on the roster
-            </button>
+            </Button>
           </div>
         )}
       </div>

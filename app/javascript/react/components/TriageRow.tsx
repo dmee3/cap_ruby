@@ -77,15 +77,15 @@ const TriageRow = ({
         {reason && !expanded && (
           <div className="flex items-baseline gap-2">
             <span className="min-w-0 truncate text-body-sm text-secondary">{reason}</span>
-            <button
-              type="button"
+            <Button
+              variant="link"
+              className="flex-none"
               onClick={() => setExpanded(true)}
               aria-expanded={false}
               aria-controls={panelId}
-              className="flex-none text-body-sm font-semibold text-accent-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             >
               Full reason
-            </button>
+            </Button>
           </div>
         )}
 
@@ -95,15 +95,9 @@ const TriageRow = ({
               <p className="text-label uppercase text-secondary">Reason</p>
               <p className="mt-1 whitespace-pre-line text-body-sm text-primary">{reason}</p>
             </div>
-            <button
-              type="button"
-              onClick={() => setExpanded(false)}
-              aria-expanded
-              aria-controls={panelId}
-              className="text-body-sm font-semibold text-accent-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-            >
+            <Button variant="link" onClick={() => setExpanded(false)} aria-expanded aria-controls={panelId}>
               Hide reason
-            </button>
+            </Button>
           </div>
         )}
       </div>

@@ -25,4 +25,26 @@ describe('Button', () => {
     render(<Button type="submit">Go</Button>)
     expect(screen.getByRole('button')).toHaveAttribute('type', 'submit')
   })
+
+  it("doesn't submit the form it sits in unless asked to", async () => {
+    const onSubmit = vi.fn((e: Event) => e.preventDefault())
+    render(
+      <form onSubmit={onSubmit}>
+        <Button>Clear filters</Button>
+      </form>
+    )
+    await userEvent.click(screen.getByRole('button'))
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it('keeps the loading label readable beside the spinner', () => {
+    render(<Button loading loadingLabel="Processing…">Pay now</Button>)
+    expect(screen.getByRole('button')).toHaveAccessibleName('Processing…')
+  })
+
+  it('navigates rather than acts when given an href', () => {
+    render(<Button href="/admin/payments/4/edit">Edit</Button>)
+    expect(screen.getByRole('link', { name: 'Edit' })).toHaveAttribute('href', '/admin/payments/4/edit')
+    expect(screen.queryByRole('button')).toBeNull()
+  })
 })

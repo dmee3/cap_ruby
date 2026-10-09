@@ -5,6 +5,7 @@ import DateChip from '../../components/DateChip'
 import { dollars } from '../../../utilities/money'
 import Utilities from '../../../utilities/utilities'
 import { Performer } from '../../components/PerformerCard'
+import Button from '../../components/Button'
 
 type DonationCheckoutProps = {
   performer: Performer
@@ -117,26 +118,19 @@ const PaymentForm = ({
         </div>
       )}
 
-      <button
+      <Button
         type="submit"
+        size="lg"
+        className="!h-[52px] w-full"
         // The old form had `!stripe && !submitting`, which is false as soon as
         // Stripe loads, so the button was never actually disabled and a donor
         // could submit twice.
-        disabled={!stripe || submitting}
-        className="btn-primary btn-lg h-[52px] w-full"
+        disabled={!stripe}
+        loading={submitting}
+        loadingLabel={`Sending your ${dollars(totalCents)}…`}
       >
-        {submitting ? (
-          <span className="flex items-center gap-2.5">
-            <span
-              className="h-[18px] w-[18px] animate-spin rounded-full border-2 border-ocean-lightest border-t-transparent motion-reduce:animate-none"
-              aria-hidden="true"
-            />
-            Sending your {dollars(totalCents)}…
-          </span>
-        ) : (
-          `Donate ${dollars(totalCents)}`
-        )}
-      </button>
+        Donate {dollars(totalCents)}
+      </Button>
 
       {submitting ? (
         <p className="m-0 text-center text-caption text-secondary">

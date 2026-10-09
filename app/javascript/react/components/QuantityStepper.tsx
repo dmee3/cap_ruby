@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import Button from './Button'
 
 export type StepperState = 'idle' | 'adjusting' | 'recount' | 'committing' | 'failed'
 
@@ -134,12 +135,12 @@ const QuantityStepper = ({
             touch ? 'h-[44px] w-[96px]' : 'h-[36px] w-[88px]',
           ].join(' ')}
         />
-        <button type="button" onClick={commitTyped} className="text-body-sm font-semibold text-accent-primary">
+        <Button variant="link" onClick={commitTyped}>
           Save
-        </button>
-        <button type="button" onClick={reset} className="text-body-sm text-secondary">
+        </Button>
+        <Button variant="link" tone="muted" onClick={reset}>
           Cancel
-        </button>
+        </Button>
       </div>
     )
   }
@@ -215,54 +216,37 @@ const QuantityStepper = ({
           <span className="text-body-sm text-secondary">
             {quantity} → <span className="font-mono font-bold text-primary">{projected}</span>
           </span>
-          <button
-            type="button"
-            onClick={() => onCommit(delta)}
-            className={[
-              'inline-flex items-center justify-center rounded-sm bg-ocean px-[14px] font-bold text-on-brand',
-              'text-body-sm transition hover:bg-ocean-light',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-              touch ? 'h-[44px]' : 'h-[34px]',
-            ].join(' ')}
-          >
+          <Button size={touch ? 'lg' : 'md'} fullWidthBelow={false} onClick={() => onCommit(delta)}>
             Save {formatDelta(delta)}
-          </button>
-          <button
-            type="button"
-            onClick={reset}
-            className={[
-              'inline-flex items-center justify-center rounded-sm border border-border-strong px-[14px]',
-              'text-body-sm text-primary transition hover:bg-sunken',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-              touch ? 'h-[44px]' : 'h-[34px]',
-            ].join(' ')}
-          >
+          </Button>
+          <Button variant="secondary" size={touch ? 'lg' : 'md'} fullWidthBelow={false} onClick={reset}>
             Cancel
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="link"
             onClick={() => {
               setTyped(String(projected))
               setTyping(true)
             }}
-            className="text-body-sm text-accent-primary underline underline-offset-2"
           >
             Type a total instead
-          </button>
+          </Button>
         </div>
       )}
 
       {delta === 0 && !busy && state !== 'failed' && (
-        <button
-          type="button"
+        <Button
+          variant="link"
+          tone="muted"
+          size="sm"
+          className="self-start"
           onClick={() => {
             setTyped(String(quantity))
             setTyping(true)
           }}
-          className="self-start text-caption text-secondary underline underline-offset-2"
         >
           Type a total
-        </button>
+        </Button>
       )}
     </div>
   )

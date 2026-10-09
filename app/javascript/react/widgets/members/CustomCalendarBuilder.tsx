@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import InputToggle from '../../components/inputs/InputToggle'
+import Button from '../../components/Button'
 
 type CustomCalendarBuilderProps = {
   imageSrc: string,
@@ -176,10 +177,12 @@ const CustomCalendarBuilder = ({ imageSrc, onClose, donations }: CustomCalendarB
         </div>
         <div className="flex flex-row justify-between items-center mt-4">
           <div className="flex-grow">
-            <button onClick={download} className="btn-primary btn-lg">Download</button>
+            <Button size="lg" onClick={download}>Download</Button>
           </div>
           <div className="ml-4 self-stretch flex">
-            <button onClick={onClose} className="btn-red btn-lg self-stretch"><XMarkIcon className="h-6 w-6" /></button>
+            <Button variant="danger" size="lg" className="!h-auto self-stretch" onClick={onClose} aria-label="Close">
+              <XMarkIcon className="h-6 w-6" />
+            </Button>
           </div>
         </div>
       </div>

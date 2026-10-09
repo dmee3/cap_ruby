@@ -223,9 +223,9 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
           {filtered.length} of {pool.length}
         </span>
         {filtersDirty && (
-          <button type="button" onClick={clearFilters} className="text-body-sm text-accent-primary underline">
+          <Button variant="link" onClick={clearFilters}>
             Clear filters
-          </button>
+          </Button>
         )}
       </div>
 
@@ -262,9 +262,9 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
           <EmptyState
             title="No one matches those filters"
             action={
-              <button type="button" onClick={clearFilters} className="text-body-sm text-accent-primary underline">
+              <Button variant="link" onClick={clearFilters}>
                 Clear filters
-              </button>
+              </Button>
             }
           />
         )}

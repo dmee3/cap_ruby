@@ -1,4 +1,5 @@
 import React from 'react'
+import Button from './Button'
 
 type LoadMoreButtonProps = {
   /** How many more rows one click would load — shown in the label. */
@@ -21,22 +22,15 @@ const LoadMoreButton = ({
   onClick,
   className = '',
 }: LoadMoreButtonProps) => (
-  <button
-    type="button"
+  <Button
+    variant="secondary"
+    className={`w-full ${className}`.trim()}
     onClick={onClick}
-    disabled={!hasMore || loading}
-    aria-busy={loading || undefined}
-    className={[
-      'w-full rounded-sm border border-border-strong bg-surface py-2 text-body-sm font-medium text-primary transition',
-      'hover:enabled:bg-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-      'disabled:opacity-60 disabled:pointer-events-none',
-      className,
-    ]
-      .filter(Boolean)
-      .join(' ')}
+    disabled={!hasMore}
+    loading={loading}
   >
     {hasMore ? `Load ${increment} more` : `Showing all ${totalCount}`}
-  </button>
+  </Button>
 )
 
 export default LoadMoreButton

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import ConflictDateTimeField from '../../components/ConflictDateTimeField'
 import ValidationSummaryCard, { ValidationError } from '../../components/ValidationSummaryCard'
+import Button from '../../components/Button'
 
 type FieldDefaults = {
   startDate?: string
@@ -224,13 +225,13 @@ const ConflictForm = ({
           sm:w-auto`, which would stack these on a phone, so the widths are set
           here instead: submit takes the larger share, cancel the smaller. */}
       <div className="flex items-center gap-3">
-        <button type="submit" className="btn-primary btn-lg !w-auto flex-[2]">
+        <Button type="submit" size="lg" fullWidthBelow={false} className="flex-[2]">
           {submitLabel}
-        </button>
+        </Button>
         {cancelHref && (
-          <a href={cancelHref} className="btn-gray btn-lg !w-auto flex-1 no-underline">
+          <Button variant="secondary" size="lg" fullWidthBelow={false} className="flex-1" href={cancelHref}>
             Cancel
-          </a>
+          </Button>
         )}
       </div>
     </form>
