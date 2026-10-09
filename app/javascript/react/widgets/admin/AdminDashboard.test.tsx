@@ -219,7 +219,7 @@ describe('AdminDashboard', () => {
 
     it('keeps the last-30-days range anchored to the season end, not today', async () => {
       const { container } = render(<AdminDashboard {...past} />)
-      await userEvent.click(screen.getByRole('button', { name: 'Last 30 days' }))
+      await userEvent.click(screen.getByRole('radio', { name: 'Last 30 days' }))
       // Anchored to today the window would be empty and plot nothing.
       expect(container.querySelectorAll('polyline').length).toBeGreaterThan(0)
     })
@@ -227,9 +227,9 @@ describe('AdminDashboard', () => {
 
   it('switches the burndown range without refetching', async () => {
     render(<AdminDashboard {...base} />)
-    const fullSeason = screen.getByRole('button', { name: 'Full season' })
+    const fullSeason = screen.getByRole('radio', { name: 'Full season' })
     await userEvent.click(fullSeason)
-    expect(fullSeason).toHaveAttribute('aria-pressed', 'true')
+    expect(fullSeason).toHaveAttribute('aria-checked', 'true')
   })
 
   it('shows the caught-up empty state citing the member count', () => {

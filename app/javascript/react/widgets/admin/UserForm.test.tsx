@@ -368,8 +368,8 @@ describe('UserForm', () => {
     it('hands the decision back as soon as the role is lowered, before any save', async () => {
       const { container } = render(<UserForm data={withCurrentRole('coordinator')} csrfToken="tok" />)
 
-      const roleGroup = screen.getByRole('group', { name: 'Role for 2026' })
-      fireEvent.click(within(roleGroup).getByRole('button', { name: /^staff$/i }))
+      const roleGroup = screen.getByRole('radiogroup', { name: 'Role for 2026' })
+      fireEvent.click(within(roleGroup).getByRole('radio', { name: /^staff$/i }))
 
       await waitFor(() =>
         expect(container.querySelector('input[type="checkbox"][name="user[inventory_access]"]')).toBeTruthy()
@@ -469,8 +469,8 @@ describe('UserForm', () => {
       )
       expect(cb(container)).toBeNull()
 
-      const roleGroup = screen.getByRole('group', { name: 'Role for 2026' })
-      fireEvent.click(within(roleGroup).getByRole('button', { name: /^coordinator$/i }))
+      const roleGroup = screen.getByRole('radiogroup', { name: 'Role for 2026' })
+      fireEvent.click(within(roleGroup).getByRole('radio', { name: /^coordinator$/i }))
 
       await waitFor(() => expect(cb(container)).toBeTruthy())
     })

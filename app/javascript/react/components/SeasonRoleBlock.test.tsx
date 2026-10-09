@@ -81,7 +81,7 @@ describe('SeasonRoleBlock', () => {
     const onChange = vi.fn()
     render(<SeasonRoleBlock {...props} row={memberRow} onChange={onChange} />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'staff' }))
+    fireEvent.click(screen.getByRole('radio', { name: 'staff' }))
 
     expect(onChange).toHaveBeenCalledWith(
       expect.objectContaining({ role: 'staff', ensemble: '', section: '' })

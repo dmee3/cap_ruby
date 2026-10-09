@@ -2,6 +2,7 @@ import React from 'react'
 import Pill from './Pill'
 import Toggle from './Toggle'
 import Button from './Button'
+import SegmentedControl from './SegmentedControl'
 import Field, { Select } from './Field'
 
 export type SeasonRow = {
@@ -152,27 +153,13 @@ const SeasonRoleBlock = ({
           <>
             <div className="flex flex-col gap-1.5">
               <span className="text-label text-secondary">Role this season</span>
-              <div
-                className="flex flex-wrap gap-1 rounded-sm bg-sunken p-1"
-                role="group"
-                aria-label={`Role for ${season.year}`}
-              >
-                {roles.map(role => (
-                  <button
-                    key={role}
-                    type="button"
-                    onClick={() => update({ role })}
-                    aria-pressed={row.role === role}
-                    className={`h-8 flex-1 rounded-sm px-3 text-body-sm font-semibold capitalize ${
-                      row.role === role
-                        ? 'bg-surface text-primary shadow-e1'
-                        : 'bg-transparent text-secondary'
-                    }`}
-                  >
-                    {role}
-                  </button>
-                ))}
-              </div>
+              <SegmentedControl
+                label={`Role for ${season.year}`}
+                fill="always"
+                options={roles.map(role => ({ value: role, label: <span className="capitalize">{role}</span> }))}
+                value={row.role}
+                onChange={role => update({ role })}
+              />
             </div>
 
             {row.role === 'member' ? (

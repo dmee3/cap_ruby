@@ -6,6 +6,7 @@ import Pill, { PillTone } from '../../components/Pill'
 import Skeleton from '../../components/Skeleton'
 import SortableTh, { SortDir } from '../../components/SortableTh'
 import Button from '../../components/Button'
+import SegmentedControl from '../../components/SegmentedControl'
 import { Select, TextInput } from '../../components/Field'
 import { dollars } from '../../../utilities/money'
 
@@ -174,21 +175,15 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
       )}
 
       <div className="flex flex-wrap items-center gap-2 rounded-md border border-border-default bg-surface p-3">
-        <div className="flex gap-1 rounded-sm bg-sunken p-1" role="group" aria-label="Population">
-          {(['members', 'staff'] as Population[]).map(p => (
-            <button
-              key={p}
-              type="button"
-              onClick={() => setPopulation(p)}
-              aria-pressed={population === p}
-              className={`h-8 rounded-sm px-3 text-body-sm font-semibold capitalize ${
-                population === p ? 'bg-surface text-primary shadow-e1' : 'bg-transparent text-secondary'
-              }`}
-            >
-              {p} · {p === 'members' ? members.length : staff.length}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl<Population>
+          label="Population"
+          options={[
+            { value: 'members', label: `Members · ${members.length}` },
+            { value: 'staff', label: `Staff · ${staff.length}` },
+          ]}
+          value={population}
+          onChange={setPopulation}
+        />
         <TextInput
           controlSize="sm"
           type="search"

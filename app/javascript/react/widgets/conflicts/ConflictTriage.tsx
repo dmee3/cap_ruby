@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Utilities from '../../../utilities/utilities'
 import Button from '../../components/Button'
-import ViewSwitcher, { ViewOption } from '../../components/ViewSwitcher'
+import SegmentedControl, { SegmentOption } from '../../components/SegmentedControl'
 import ConflictFilterBar, {
   ConflictFilters,
   DEFAULT_CONFLICT_FILTERS,
@@ -17,6 +17,14 @@ type ConflictTriageProps = {
   basePath: string
   ensembles?: string[]
 }
+
+type ViewOption = 'queue' | 'calendar'
+
+// §4.28 — two options, never three.
+const VIEWS: SegmentOption<ViewOption>[] = [
+  { value: 'queue', label: 'Queue' },
+  { value: 'calendar', label: 'Calendar' },
+]
 
 const VIEW_STORAGE_KEY = 'capcity.conflicts.view'
 const PAGE_SIZE = 10
@@ -266,7 +274,14 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
       </div>
 
       <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <ViewSwitcher value={view} onChange={setView} />
+        <SegmentedControl
+          tone="brand"
+          fill="below-sm"
+          label="Conflict view"
+          options={VIEWS}
+          value={view}
+          onChange={setView}
+        />
         {addButton}
       </div>
 
