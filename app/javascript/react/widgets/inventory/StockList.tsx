@@ -166,16 +166,15 @@ const StockList = () => {
           Needs attention only
         </label>
         {(underAlertOnly || search) && (
-          <button
-            type="button"
+          <Button
+            variant="link"
             onClick={() => {
               setUnderAlertOnly(false)
               setSearch('')
             }}
-            className="text-body-sm text-accent-primary underline underline-offset-2"
           >
             Clear filter
-          </button>
+          </Button>
         )}
       </div>
 
@@ -246,14 +245,16 @@ const CategoryCard = ({
               {lows} low
             </span>
           )}
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            tone="accent"
+            fullWidthBelow={false}
+            className="min-h-[44px]"
             aria-expanded={!collapsed}
             onClick={onToggle}
-            className="min-h-[44px] rounded-sm px-2 text-body-sm text-accent-primary focus-visible:outline-none focus-visible:ring-2"
           >
             {collapsed ? 'Show' : 'Hide'}
-          </button>
+          </Button>
         </div>
       }
     >
@@ -328,13 +329,9 @@ const DeleteCategory = ({
 
   if (!confirming) {
     return (
-      <button
-        type="button"
-        onClick={() => setConfirming(true)}
-        className="min-h-[44px] px-2 text-body-sm text-danger-fg underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2"
-      >
+      <Button variant="link" tone="danger" className="min-h-[44px]" onClick={() => setConfirming(true)}>
         Delete category
-      </button>
+      </Button>
     )
   }
 
@@ -343,12 +340,12 @@ const DeleteCategory = ({
       <span className="text-body-sm text-primary">
         Delete {category.name}? It's empty, so nothing else goes with it.
       </span>
-      <button type="button" onClick={remove} disabled={busy} className="btn-red btn-sm disabled:opacity-40">
+      <Button variant="danger" size="sm" onClick={remove} disabled={busy}>
         {busy ? 'Deleting…' : 'Delete'}
-      </button>
-      <button type="button" onClick={() => setConfirming(false)} className="btn-gray btn-sm">
+      </Button>
+      <Button variant="secondary" size="sm" onClick={() => setConfirming(false)}>
         Keep it
-      </button>
+      </Button>
     </span>
   )
 }

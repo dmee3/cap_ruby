@@ -8,7 +8,7 @@ import Pill, { PillTone } from '../../components/Pill'
 import AlertBanner from '../../components/AlertBanner'
 import EmptyState from '../../components/EmptyState'
 import Button from '../../components/Button'
-import { DeletedPill } from '../../components/deletedRow'
+import { DeletedPill, RestoreAction } from '../../components/deletedRow'
 import Utilities from '../../../utilities/utilities'
 import { dollars } from '../../../utilities/money'
 import { typeTone, isMachineRecorded } from '../../../utilities/payment_type'
@@ -165,14 +165,7 @@ const Member360 = ({ data, csrfToken }: { data: Member360Data; csrfToken: string
   const rowActions = (p: PaymentRowModel, stillDeleted: boolean) => {
     if (stillDeleted) {
       return (
-        <button
-          type="button"
-          onClick={() => restore(p)}
-          disabled={restoring === p.id}
-          className="font-medium text-accent-primary underline disabled:opacity-50"
-        >
-          Restore
-        </button>
+        <RestoreAction onRestore={() => restore(p)} pending={restoring === p.id} />
       )
     }
 
@@ -184,37 +177,29 @@ const Member360 = ({ data, csrfToken }: { data: Member360Data; csrfToken: string
       return (
         <>
           <span className="text-secondary">Delete?</span>
-          <button
-            type="button"
+          <Button
+            variant="link"
+            tone="danger"
             onClick={() => destroy(p)}
             disabled={restoring === p.id}
-            className="font-semibold text-danger-fg underline disabled:opacity-50"
           >
             Yes
-          </button>
-          <button
-            type="button"
-            onClick={() => setConfirmDelete(null)}
-            className="font-medium text-secondary underline"
-          >
+          </Button>
+          <Button variant="link" tone="muted" onClick={() => setConfirmDelete(null)}>
             No
-          </button>
+          </Button>
         </>
       )
     }
 
     return (
       <>
-        <a href={p.edit_href} className="font-medium text-accent-primary underline">
+        <Button variant="link" href={p.edit_href}>
           Edit
-        </a>
-        <button
-          type="button"
-          onClick={() => setConfirmDelete(p.id)}
-          className="font-medium text-danger-fg underline"
-        >
+        </Button>
+        <Button variant="link" tone="danger" onClick={() => setConfirmDelete(p.id)}>
           Delete
-        </button>
+        </Button>
       </>
     )
   }

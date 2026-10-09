@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import Button from '../../components/Button'
 
 type ShareCalendarProps = {
   shareUrl: string
@@ -41,9 +42,9 @@ const ShareCalendar = ({ shareUrl, firstName }: ShareCalendarProps) => {
 
   return (
     <div className="flex flex-wrap items-center gap-2.5">
-      <button type="button" onClick={share} className="btn-primary btn-lg">
+      <Button size="lg" onClick={share}>
         Share {firstName}'s calendar
-      </button>
+      </Button>
       {/* aria-live so the confirmation is announced, not just shown. */}
       <span className="text-body-sm text-success-fg" aria-live="polite">
         {copied ? 'Link copied' : ''}

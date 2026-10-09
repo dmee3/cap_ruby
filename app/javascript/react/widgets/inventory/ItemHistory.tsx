@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import Button from '../../components/Button'
 import Card from '../../components/Card'
 import EmptyState from '../../components/EmptyState'
 import AuditRow, { AuditEntry } from '../../components/AuditRow'
@@ -152,13 +153,9 @@ const DeleteItem = ({
   return (
     <div className="border-t border-border-default pt-4">
       {!confirming ? (
-        <button
-          type="button"
-          onClick={() => setConfirming(true)}
-          className="min-h-[44px] text-body-sm font-semibold text-danger-fg underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2"
-        >
+        <Button variant="link" tone="danger" className="min-h-[44px]" onClick={() => setConfirming(true)}>
           Delete {item.name}
-        </button>
+        </Button>
       ) : (
         <div className="flex flex-col gap-3">
           <p className="m-0 text-body text-primary">
@@ -168,17 +165,12 @@ const DeleteItem = ({
           </p>
           {error && <p className="m-0 text-body-sm text-danger-fg">{error}</p>}
           <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={remove}
-              disabled={busy}
-              className="btn-red btn-lg disabled:opacity-40"
-            >
+            <Button variant="danger" size="lg" onClick={remove} disabled={busy}>
               {busy ? 'Deleting…' : 'Delete item'}
-            </button>
-            <button type="button" onClick={() => setConfirming(false)} className="btn-gray btn-lg">
+            </Button>
+            <Button variant="secondary" size="lg" onClick={() => setConfirming(false)}>
               Keep it
-            </button>
+            </Button>
           </div>
         </div>
       )}

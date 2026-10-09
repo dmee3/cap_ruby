@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import FilesListItem from './FilesListItem'
 import { isFolder } from './fileType'
+import Button from '../../components/Button'
 
 export type DriveFile = {
   id: string
@@ -87,9 +88,9 @@ const FilesList = ({ folderId, expanded, seasonLabel, limit }: FilesListProps) =
         <p className="m-0 mb-3 text-body-sm text-secondary">
           We couldn't load your files. Try again in a moment. If it keeps failing, tell an admin.
         </p>
-        <button type="button" onClick={load} className="btn-gray btn-md">
+        <Button variant="secondary" onClick={load}>
           Try again
-        </button>
+        </Button>
       </div>
     )
   }

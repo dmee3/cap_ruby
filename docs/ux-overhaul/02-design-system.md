@@ -276,10 +276,17 @@ each one superseded.
   fill), `secondary` (surface + `border.strong`), `ghost` (text only), `link`.
 - Sizes: `sm` (28px), `md` (36px), `lg` (44px — default for primary form actions
   and anything touched on mobile).
+- Tone (`secondary`, `ghost`, `link` only): `default`, `accent`, `danger`,
+  `muted` — the text colour. An inline "Delete" beside "Edit" is
+  `link` + `danger`, not a hand-rolled underlined button. `link` defaults to
+  `accent` and takes type size only (`sm` caption, `md` body-sm, `lg` body).
 - States: hover (lighten one step), active (darken one step), disabled (40%
-  opacity, no pointer), loading (spinner replaces label, width held).
+  opacity, no pointer), loading (spinner replaces label, width held — or, with
+  `loadingLabel`, spinner beside a new label: "Processing…").
 - Full-width below `sm`, auto width above — keep this behavior from the current
-  `.btn-base`.
+  `.btn-base`. `link` stays inline.
+- `href` renders an `<a>` with the same look, for navigation sitting beside
+  actions ("Edit" next to "Delete").
 - Replaces: `.btn-primary/.btn-green/.btn-red/.btn-gray/.btn-link` + `.btn-lg/md/sm`.
 
 ### 4.3 Card

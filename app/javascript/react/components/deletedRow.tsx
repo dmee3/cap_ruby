@@ -1,4 +1,5 @@
 import React from 'react'
+import Button from './Button'
 import Pill from './Pill'
 
 // The §4.23 soft-deleted-Payment treatment, shared by the payments table row,
@@ -23,12 +24,15 @@ type RestoreActionProps = {
 }
 
 export const RestoreAction = ({ onRestore, pending = false, className = '' }: RestoreActionProps) => (
-  <button
-    type="button"
+  <Button
+    variant="ghost"
+    tone="accent"
+    size="sm"
+    fullWidthBelow={false}
     onClick={onRestore}
     disabled={pending}
     aria-busy={pending || undefined}
-    className={`inline-flex items-center gap-1 rounded-sm px-2 py-1 text-body-sm font-medium text-accent-primary no-underline hover:bg-sunken disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${className}`.trim()}
+    className={className}
   >
     <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" aria-hidden="true">
       <path
@@ -37,5 +41,5 @@ export const RestoreAction = ({ onRestore, pending = false, className = '' }: Re
       />
     </svg>
     Restore
-  </button>
+  </Button>
 )

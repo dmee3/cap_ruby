@@ -5,6 +5,7 @@ import StickyTotalBar from '../../components/StickyTotalBar'
 import ProgressMeter from '../../components/ProgressMeter'
 import { dollars } from '../../../utilities/money'
 import { Performer } from '../../components/PerformerCard'
+import Button from '../../components/Button'
 
 type DatePickerProps = {
   performer: Performer
@@ -98,14 +99,14 @@ const DatePicker = ({ performer, claimedDates, checkoutPath }: DatePickerProps) 
             </span>
           </div>
 
-          <button
-            type="button"
+          <Button
+            size="lg"
+            className="!h-[50px] w-full"
             disabled={selected.length === 0}
             onClick={goToCheckout}
-            className="btn-primary btn-lg h-[50px] w-full"
           >
             Continue to payment
-          </button>
+          </Button>
 
           <p className="m-0 text-caption text-secondary">
             You'll pay exactly {dollars(totalDollars * 100)}. No fees added.

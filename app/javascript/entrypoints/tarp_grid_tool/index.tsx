@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import InputText from '../../react/components/inputs/InputText';
 import InputToggle from '../../react/components/inputs/InputToggle';
 import InputSlider from '../../react/components/inputs/InputSlider';
+import Button from '../../react/components/Button';
 
 // Constants
 const INCHES_PER_FOOT = 12;
@@ -350,13 +351,9 @@ const TarpGridTool: React.FC = () => {
         <div className="flex flex-col">
           <div className="h-6 mb-3"></div>
           <div className="flex items-center flex-1">
-            <button
-              type="button"
-              onClick={handleExport}
-              className="btn-primary btn-md w-full"
-            >
+            <Button className="w-full" onClick={handleExport}>
               Export Grid
-            </button>
+            </Button>
           </div>
         </div>
       </form>

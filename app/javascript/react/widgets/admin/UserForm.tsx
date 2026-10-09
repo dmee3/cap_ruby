@@ -251,13 +251,9 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
                   </span>
                 </div>
                 {/* A real form post, not a link — it sends mail. */}
-                <button
-                  type="button"
-                  onClick={sendReset}
-                  className="ml-auto text-body-sm font-semibold text-accent-primary underline"
-                >
+                <Button variant="link" className="ml-auto" onClick={sendReset}>
                   Send reset link
-                </button>
+                </Button>
               </div>
             )}
           </section>

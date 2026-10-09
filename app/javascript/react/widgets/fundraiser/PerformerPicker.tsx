@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import PerformerCard, { Performer } from '../../components/PerformerCard'
+import Button from '../../components/Button'
 
 type PerformerPickerProps = {
   performers: Performer[]
@@ -66,13 +67,9 @@ const PerformerPicker = ({ performers }: PerformerPickerProps) => {
           <p className="m-0 text-body text-secondary">
             Try a first name, or clear the search to see everyone.
           </p>
-          <button
-            type="button"
-            onClick={() => setQuery('')}
-            className="btn-gray btn-md self-start"
-          >
+          <Button variant="secondary" className="self-start" onClick={() => setQuery('')}>
             Show everyone
-          </button>
+          </Button>
         </div>
       )}
     </div>

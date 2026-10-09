@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
+import Button from '../../components/Button'
 
 type PaymentCheckoutProps = {
   returnUrl: string
@@ -45,20 +46,15 @@ const PaymentCheckout = ({ returnUrl }: PaymentCheckoutProps) => {
         </div>
       )}
 
-      <button
+      <Button
         type="submit"
-        disabled={isLoading || !stripe || !elements}
-        className="btn-primary btn-lg disabled:opacity-40 disabled:pointer-events-none"
+        size="lg"
+        disabled={!stripe || !elements}
+        loading={isLoading}
+        loadingLabel="Processing…"
       >
-        {isLoading ? (
-          <span className="inline-flex items-center gap-2">
-            <span className="h-4 w-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
-            Processing…
-          </span>
-        ) : (
-          'Pay now'
-        )}
-      </button>
+        Pay now
+      </Button>
     </form>
   )
 }

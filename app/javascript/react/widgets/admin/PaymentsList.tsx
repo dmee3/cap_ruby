@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import FilterBar, { PaymentFilters, EMPTY_FILTERS, isDirty } from '../../components/FilterBar'
 import SortableTh, { SortDir } from '../../components/SortableTh'
+import Button from '../../components/Button'
 import Card from '../../components/Card'
 import EmptyState from '../../components/EmptyState'
 import Pill from '../../components/Pill'
@@ -174,37 +175,29 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
       return (
         <span className="flex items-baseline justify-end gap-2 text-body-sm">
           <span className="text-secondary">Delete?</span>
-          <button
-            type="button"
+          <Button
+            variant="link"
+            tone="danger"
             onClick={() => destroy(p.id)}
             disabled={pendingRestore === p.id}
-            className="font-semibold text-danger-fg underline disabled:opacity-50"
           >
             Yes
-          </button>
-          <button
-            type="button"
-            onClick={() => setConfirmDelete(null)}
-            className="font-medium text-secondary underline"
-          >
+          </Button>
+          <Button variant="link" tone="muted" onClick={() => setConfirmDelete(null)}>
             No
-          </button>
+          </Button>
         </span>
       )
     }
 
     return (
-      <span className="flex justify-end gap-2.5 text-body-sm font-medium">
-        <a href={`/admin/payments/${p.id}/edit`} className="text-accent-primary underline">
+      <span className="flex justify-end gap-2.5">
+        <Button variant="link" href={`/admin/payments/${p.id}/edit`}>
           Edit
-        </a>
-        <button
-          type="button"
-          onClick={() => setConfirmDelete(p.id)}
-          className="text-danger-fg underline"
-        >
+        </Button>
+        <Button variant="link" tone="danger" onClick={() => setConfirmDelete(p.id)}>
           Delete
-        </button>
+        </Button>
       </span>
     )
   }
@@ -279,14 +272,9 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
           <span className="w-[3px] shrink-0 bg-success-fg" aria-hidden="true" />
           <div className="flex flex-1 items-start gap-3 px-4 py-3.5">
             <span className="flex-1 text-body-sm font-semibold text-primary">Payment recorded.</span>
-            <button
-              type="button"
-              onClick={undo}
-              disabled={pendingRestore === justCreatedId}
-              className="text-body-sm font-semibold text-accent-primary underline underline-offset-2 disabled:opacity-50"
-            >
+            <Button variant="link" onClick={undo} disabled={pendingRestore === justCreatedId}>
               Undo
-            </button>
+            </Button>
             <button
               type="button"
               onClick={() => setUndoDismissed(true)}
@@ -315,13 +303,9 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
             title="Couldn't load payments"
             body="Your filters are still set. Retrying keeps them."
             action={
-              <button
-                type="button"
-                onClick={() => load(false)}
-                className="h-[34px] rounded-sm border border-border-strong bg-surface px-3.5 text-body-sm font-semibold text-primary hover:border-accent-primary"
-              >
+              <Button variant="secondary" onClick={() => load(false)}>
                 Try again
-              </button>
+              </Button>
             }
           />
         )}
@@ -331,13 +315,9 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
             title="No payments match these filters"
             body={emptyFilteredBody(filters, paymentTypes)}
             action={
-              <button
-                type="button"
-                onClick={() => setFilters(EMPTY_FILTERS)}
-                className="h-[34px] rounded-sm border border-border-strong bg-surface px-3.5 text-body-sm font-semibold text-primary hover:border-accent-primary"
-              >
+              <Button variant="secondary" onClick={() => setFilters(EMPTY_FILTERS)}>
                 Clear filters
-              </button>
+              </Button>
             }
           />
         )}
@@ -425,51 +405,61 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
                   {p.notes && <p className="text-body-sm text-secondary">{p.notes}</p>}
                   <div className="flex gap-2 border-t border-border-default pt-2.5">
                     {p.deleted ? (
-                      <button
-                        type="button"
+                      <Button
+                        variant="secondary"
+                        tone="accent"
+                        size="lg"
+                        className="flex-1"
                         onClick={() => restore(p.id)}
                         disabled={pendingRestore === p.id}
-                        className="h-11 flex-1 rounded-sm border border-border-strong text-body-sm font-semibold text-accent-primary disabled:opacity-50"
                       >
                         Restore
-                      </button>
+                      </Button>
                     ) : isStripe(p.payment_type.name) ? (
                       <span className="text-body-sm text-secondary">
                         Recorded by {p.payment_type.name}
                       </span>
                     ) : confirmDelete === p.id ? (
                       <>
-                        <button
-                          type="button"
+                        <Button
+                          variant="danger"
+                          size="lg"
+                          className="flex-1"
                           onClick={() => destroy(p.id)}
                           disabled={pendingRestore === p.id}
-                          className="h-11 flex-1 rounded-sm border border-danger-fg text-body-sm font-semibold text-danger-fg disabled:opacity-50"
                         >
                           Delete for real
-                        </button>
-                        <button
-                          type="button"
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          tone="muted"
+                          size="lg"
+                          className="flex-1"
                           onClick={() => setConfirmDelete(null)}
-                          className="h-11 flex-1 rounded-sm border border-border-strong text-body-sm font-semibold text-secondary"
                         >
                           Keep it
-                        </button>
+                        </Button>
                       </>
                     ) : (
                       <>
-                        <a
+                        <Button
+                          variant="secondary"
+                          tone="accent"
+                          size="lg"
+                          className="flex-1"
                           href={`/admin/payments/${p.id}/edit`}
-                          className="flex h-11 flex-1 items-center justify-center rounded-sm border border-border-strong text-body-sm font-semibold text-accent-primary no-underline"
                         >
                           Edit
-                        </a>
-                        <button
-                          type="button"
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          tone="danger"
+                          size="lg"
+                          className="flex-1"
                           onClick={() => setConfirmDelete(p.id)}
-                          className="h-11 flex-1 rounded-sm border border-border-strong text-body-sm font-semibold text-danger-fg"
                         >
                           Delete
-                        </button>
+                        </Button>
                       </>
                     )}
                   </div>
@@ -479,14 +469,15 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
 
             <div className="flex items-center gap-3 px-4 py-3.5">
               <span className="text-body-sm text-secondary">{caption}</span>
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                fullWidthBelow={false}
+                className="ml-auto shrink-0"
                 onClick={() => load(true)}
                 disabled={showingAll}
-                className="ml-auto h-[34px] shrink-0 rounded-sm border border-border-strong bg-surface px-3 text-body-sm font-semibold text-primary transition hover:enabled:border-accent-primary disabled:cursor-not-allowed disabled:text-secondary"
               >
                 {showingAll ? 'Load more' : `Load ${Math.min(PAGE, meta.total_count - rows.length)} more`}
-              </button>
+              </Button>
             </div>
           </>
         )}

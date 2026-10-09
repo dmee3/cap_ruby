@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import FileUpload from './FileUpload'
+import Button from '../../components/Button'
 
 const CalendarChooser = () => {
   const logoSrc = '/images/calendars/logo.png'
@@ -150,13 +151,9 @@ const CalendarChooser = () => {
         </div>
       </div>
 
-      <button
-        className="btn-primary btn-lg mt-4"
-        disabled={chosenImg === null}
-        onClick={() => download()}
-      >
+      <Button size="lg" className="mt-4" disabled={chosenImg === null} onClick={() => download()}>
         DOWNLOAD
-      </button>
+      </Button>
     </div>
   )
 }

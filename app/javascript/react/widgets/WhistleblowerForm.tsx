@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import RecipientPicker, { Recipient } from '../components/RecipientPicker'
 import ValidationSummaryCard, { ValidationError } from '../components/ValidationSummaryCard'
+import Button from '../components/Button'
 
 export type WhistleblowerFormData = {
   recipients: Recipient[]
@@ -143,9 +144,9 @@ const WhistleblowerForm = ({ data, csrfToken }: WhistleblowerFormProps) => {
         </div>
 
         <div className="flex flex-col items-start gap-2">
-          <button type="submit" className="btn-primary btn-lg">
+          <Button type="submit" size="lg">
             Send report
-          </button>
+          </Button>
         </div>
       </div>
     </form>

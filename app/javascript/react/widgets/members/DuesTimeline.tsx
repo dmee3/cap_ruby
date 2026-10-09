@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import PaymentRow, { PaymentMethod } from '../../components/PaymentRow'
 import EmptyState from '../../components/EmptyState'
+import Button from '../../components/Button'
 
 export type TimelineRow = {
   kind: 'paid' | 'upcoming' | 'past-due'
@@ -81,13 +82,14 @@ const DuesTimeline = ({ paid, upcoming }: DuesTimelineProps) => {
             </div>
           ))}
           {paid.length > 3 && !showAllPaid && (
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              tone="accent"
+              className="!h-auto !rounded-none border-t border-border-default py-2.5"
               onClick={() => setShowAllPaid(true)}
-              className="border-t border-border-default py-2.5 text-body-sm font-semibold text-accent-primary hover:bg-sunken"
             >
               Show all {paid.length} payments
-            </button>
+            </Button>
           )}
         </>
       )}
