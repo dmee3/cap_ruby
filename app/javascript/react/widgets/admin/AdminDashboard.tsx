@@ -4,6 +4,7 @@ import StatBlock from '../../components/StatBlock'
 import BurndownChart, { AfterCutoff, BurndownPoint } from '../../components/BurndownChart'
 import AlertBanner from '../../components/AlertBanner'
 import PaginatedList from '../../components/PaginatedList'
+import SegmentedControl, { SegmentOption } from '../../components/SegmentedControl'
 import { StatusValue } from '../../components/StatusPill'
 
 export type DashboardBehindMember = {
@@ -125,10 +126,10 @@ const rowLink =
 // already present, no refetch.
 type Range = 'season-to-date' | 'full-season' | 'last-30'
 
-const RANGES: [Range, string][] = [
-  ['season-to-date', 'Season to date'],
-  ['full-season', 'Full season'],
-  ['last-30', 'Last 30 days'],
+const RANGES: SegmentOption<Range>[] = [
+  { value: 'season-to-date', label: 'Season to date' },
+  { value: 'full-season', label: 'Full season' },
+  { value: 'last-30', label: 'Last 30 days' },
 ]
 
 const STALE_AFTER_DAYS = 14
@@ -274,27 +275,13 @@ const AdminDashboard = ({
             </span>
           </div>
 
-          <div
-            className="ml-auto flex gap-[3px] rounded-[8px] border border-border-default bg-sunken p-[3px]"
-            role="group"
-            aria-label="Chart range"
-          >
-            {RANGES.map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setRange(value)}
-                aria-pressed={range === value}
-                className={
-                  range === value
-                    ? 'rounded-sm border border-border-default bg-surface px-3 py-1.5 text-body-sm font-semibold text-primary'
-                    : 'rounded-sm px-3 py-1.5 text-body-sm font-medium text-secondary hover:text-primary'
-                }
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl<Range>
+            label="Chart range"
+            className="ml-auto"
+            options={RANGES}
+            value={range}
+            onChange={setRange}
+          />
         </div>
 
         <BurndownChart

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Button from '../../../components/Button'
-import ViewSwitcher from '../../../components/ViewSwitcher'
+import SegmentedControl from '../../../components/SegmentedControl'
 import { toast } from '../../../components/Toast'
 import { dollars } from '../../../../utilities/money'
 import {
@@ -392,7 +392,9 @@ const DefaultSchedulesOverview = ({ data }: { data: Overview }) => {
           </div>
 
           <div className="flex flex-col gap-3 sm:hidden">
-            <ViewSwitcher
+            <SegmentedControl
+              tone="brand"
+              fill="below-sm"
               value={tab}
               onChange={setTab}
               label="Ensemble"

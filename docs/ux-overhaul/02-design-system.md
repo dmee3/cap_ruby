@@ -834,7 +834,7 @@ each claimable once, so a finished calendar is **$496** (1+2+…+31).
   should make in one click. The `PUT /api/conflicts/bulk` endpoint remains, so
   the affordance can come back if a per-member view ever does.
 
-### 4.28 View switcher *(built — Flow 5, as `ViewSwitcher.tsx`)*
+### 4.28 View switcher *(built — Flow 5; now `SegmentedControl.tsx`, `tone="brand"`)*
 - Two segments, never three: `Queue` / `Calendar`, as a segmented control. Queue
   is the default view — the only question on arrival is what needs a decision.
 - The choice **persists per user via `localStorage`**, not a DB column: it's a
@@ -844,8 +844,12 @@ each claimable once, so a finished calendar is **$496** (1+2+…+31).
 - Mobile: full width, both segments `flex:1` at 36px.
 - *(extended — Flow 12)* Takes `options` and an accessible `label`, so the
   default schedules overview reuses it for its mobile **ensemble tabs**
-  (`World · 23` / `Cap City 2 · 19`). Still two options, never three; the
-  conflict views remain the default.
+  (`World · 23` / `Cap City 2 · 19`). Still two options, never three.
+- *(generalised as `SegmentedControl.tsx`)* The view switcher is its `brand`
+  tone. The `quiet` tone — a raised segment on a sunken track — is for a
+  setting or filter inside a card: the season role (§4.32), the burndown range
+  (§4.5), the roster's Members / Staff. Both are a radiogroup with one tab stop
+  and arrow keys moving the choice.
 
 ### 4.29 Conflict detail popover *(built — Flow 5, as `ConflictPopover.tsx`)*
 - **Replaces the hand-built tooltip** — today's is a `<div>` imperatively

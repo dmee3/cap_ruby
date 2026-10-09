@@ -47,7 +47,7 @@ describe('UserTable', () => {
     // An admin is staff, not a member, so they're behind the switch.
     expect(screen.queryByText('Dana Reyes')).toBeNull()
 
-    fireEvent.click(screen.getByRole('button', { name: /staff · 1/i }))
+    fireEvent.click(screen.getByRole('radio', { name: /staff · 1/i }))
     expect(screen.getAllByText('Dana Reyes').length).toBeGreaterThan(0)
   })
 
@@ -126,7 +126,7 @@ describe('UserTable', () => {
     fireEvent.change(screen.getByLabelText(/filter by ensemble/i), { target: { value: 'World' } })
     expect(screen.getByText('1 of 2')).toBeTruthy()
 
-    fireEvent.click(screen.getByRole('button', { name: /staff · 1/i }))
+    fireEvent.click(screen.getByRole('radio', { name: /staff · 1/i }))
 
     expect(screen.getAllByText('Dana Reyes').length).toBeGreaterThan(0)
     // The staff view has no ensemble select, so a carried-over filter would be
@@ -135,7 +135,7 @@ describe('UserTable', () => {
     expect(screen.queryByRole('button', { name: /clear filters/i })).toBeNull()
 
     // Switching back restores the ensemble choice rather than silently losing it.
-    fireEvent.click(screen.getByRole('button', { name: /members · 2/i }))
+    fireEvent.click(screen.getByRole('radio', { name: /members · 2/i }))
     expect(screen.getByText('1 of 2')).toBeTruthy()
   })
 
