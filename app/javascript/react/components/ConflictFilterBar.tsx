@@ -1,4 +1,5 @@
 import React from 'react'
+import { Select } from './Field'
 import Toggle from './Toggle'
 
 export type ConflictFilters = {
@@ -21,9 +22,6 @@ type ConflictFilterBarProps = {
   className?: string
 }
 
-const field =
-  'h-[38px] rounded-sm border border-border-strong bg-surface px-2.5 text-body-sm text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1'
-
 // The calendar's filter line. There is no status filter: the calendar shows
 // everything, and the one thing worth hiding — decided conflicts — is the
 // toggle on this same row. The queue doesn't render this at all; it is only
@@ -45,8 +43,9 @@ const ConflictFilterBar = ({
       {ensembles.length > 0 && (
         <label className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
           <span className="text-label uppercase text-secondary">Ensemble</span>
-          <select
-            className={`${field} w-full sm:w-auto`}
+          <Select
+            controlSize="sm"
+            className="w-full sm:w-auto"
             value={filters.ensemble}
             onChange={event => onChange({ ...filters, ensemble: event.target.value })}
           >
@@ -56,7 +55,7 @@ const ConflictFilterBar = ({
                 {ensemble}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
       )}
 

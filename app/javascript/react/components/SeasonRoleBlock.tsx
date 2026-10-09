@@ -2,6 +2,7 @@ import React from 'react'
 import Pill from './Pill'
 import Toggle from './Toggle'
 import Button from './Button'
+import Field, { Select } from './Field'
 
 export type SeasonRow = {
   id?: number | null
@@ -178,32 +179,30 @@ const SeasonRoleBlock = ({
               <div className="flex flex-col gap-2 rounded-sm border border-border-default bg-sunken p-3">
                 <span className="text-label text-secondary">Because they&rsquo;re a member</span>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="flex flex-col gap-1">
-                    <span className="text-body-sm font-semibold text-primary">Ensemble</span>
-                    <select
+                  <Field label="Ensemble">
+                    <Select
+                      controlSize="sm"
                       value={row.ensemble || ''}
                       onChange={e => update({ ensemble: e.target.value })}
-                      className="h-10 rounded-sm border border-border-strong bg-surface px-2 text-body-sm"
                     >
                       <option value="">Pick an ensemble</option>
                       {ensembles.map(e => (
                         <option key={e} value={e}>{e}</option>
                       ))}
-                    </select>
-                  </label>
-                  <label className="flex flex-col gap-1">
-                    <span className="text-body-sm font-semibold text-primary">Section</span>
-                    <select
+                    </Select>
+                  </Field>
+                  <Field label="Section">
+                    <Select
+                      controlSize="sm"
                       value={row.section || ''}
                       onChange={e => update({ section: e.target.value })}
-                      className="h-10 rounded-sm border border-border-strong bg-surface px-2 text-body-sm"
                     >
                       <option value="">Pick a section</option>
                       {sections.map(s => (
                         <option key={s} value={s}>{s}</option>
                       ))}
-                    </select>
-                  </label>
+                    </Select>
+                  </Field>
                 </div>
               </div>
             ) : (

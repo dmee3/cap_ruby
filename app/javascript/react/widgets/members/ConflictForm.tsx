@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import ConflictDateTimeField from '../../components/ConflictDateTimeField'
 import ValidationSummaryCard, { ValidationError } from '../../components/ValidationSummaryCard'
 import Button from '../../components/Button'
+import Field, { Select, Textarea } from '../../components/Field'
 
 type FieldDefaults = {
   startDate?: string
@@ -106,17 +107,12 @@ const ConflictForm = ({
 
       <div className="card flex flex-col gap-4">
         {members && (
-          <div className="flex flex-col gap-2">
-            <label htmlFor="conflict-user" className="text-body-sm font-semibold text-primary">
-              Member
-            </label>
-            <select
-              id="conflict-user"
+          <Field label="Member" id="conflict-user">
+            <Select
               name="conflict[user_id]"
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
               required
-              className="h-11 rounded-sm border border-border-strong bg-surface px-3 text-body text-primary"
             >
               <option value="">Pick a member</option>
               {members.map((member) => (
@@ -124,8 +120,8 @@ const ConflictForm = ({
                   {member.name}
                 </option>
               ))}
-            </select>
-          </div>
+            </Select>
+          </Field>
         )}
 
         {statuses && (
@@ -176,30 +172,21 @@ const ConflictForm = ({
           error={endError}
         />
 
-        <div className="flex flex-col gap-2 border-t border-border-default pt-4">
-          <div className="flex items-baseline justify-between gap-2">
-            <label htmlFor="conflict-reason" className="text-body-sm font-semibold text-primary">
-              What&apos;s going on
-            </label>
-            <span className="font-mono text-caption text-secondary">{reason.length}</span>
-          </div>
-          <textarea
-            id="conflict-reason"
+        <Field
+          label="What's going on"
+          id="conflict-reason"
+          aside={<span className="font-mono">{reason.length}</span>}
+          error={reasonError}
+          hint={memberVoice ? 'Coordinators and directors read this to decide on your conflict.' : undefined}
+          className="border-t border-border-default pt-4"
+        >
+          <Textarea
             name="conflict[reason]"
             value={reason}
             onChange={(e) => setReason(e.target.value.slice(0, REASON_MAX))}
             placeholder="Work, travel, school, family. A sentence is plenty."
-            className={`min-h-[96px] rounded-sm border bg-surface p-3 text-body text-primary ${
-              reasonError ? 'border-danger-fg' : 'border-border-strong focus:border-[color:rgb(var(--focus-ring))]'
-            }`}
           />
-          {memberVoice && (
-            <span className="text-caption text-secondary">
-              Coordinators and directors read this to decide on your conflict.
-            </span>
-          )}
-          {reasonError && <span className="text-caption text-danger-fg">{reasonError}</span>}
-        </div>
+        </Field>
       </div>
 
       {memberVoice && (
@@ -221,9 +208,9 @@ const ConflictForm = ({
         </div>
       )}
 
-      {/* One row at every width, filling the form. `btn-base` is `w-full
-          sm:w-auto`, which would stack these on a phone, so the widths are set
-          here instead: submit takes the larger share, cancel the smaller. */}
+      {/* One row at every width, filling the form: Button's default
+          full-width-on-phones would stack these, so the widths are set here
+          instead. Submit takes the larger share, cancel the smaller. */}
       <div className="flex items-center gap-3">
         <Button type="submit" size="lg" fullWidthBelow={false} className="flex-[2]">
           {submitLabel}

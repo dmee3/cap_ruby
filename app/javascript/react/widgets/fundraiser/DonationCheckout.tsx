@@ -6,6 +6,7 @@ import { dollars } from '../../../utilities/money'
 import Utilities from '../../../utilities/utilities'
 import { Performer } from '../../components/PerformerCard'
 import Button from '../../components/Button'
+import Field, { TextInput } from '../../components/Field'
 
 type DonationCheckoutProps = {
   performer: Performer
@@ -84,20 +85,18 @@ const PaymentForm = ({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <label htmlFor="donor-name" className="text-body font-semibold text-primary">
-          Your name <span className="font-normal text-secondary">· optional</span>
-        </label>
-        <input
+        <Field
+          label="Your name"
           id="donor-name"
-          type="text"
-          value={donorName}
-          onChange={(e) => onDonorNameChange(e.target.value)}
-          className="input-text h-[46px]"
-          autoComplete="name"
-        />
-        <span className="text-caption text-secondary">
-          This is how {performerFirstName} will see your gift. Leave it blank to stay anonymous.
-        </span>
+          optional
+          hint={`This is how ${performerFirstName} will see your gift. Leave it blank to stay anonymous.`}
+        >
+          <TextInput
+            value={donorName}
+            onChange={(e) => onDonorNameChange(e.target.value)}
+            autoComplete="name"
+          />
+        </Field>
       </div>
 
       <div className="border-t border-border-default" />

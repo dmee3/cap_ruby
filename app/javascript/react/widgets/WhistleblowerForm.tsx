@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import RecipientPicker, { Recipient } from '../components/RecipientPicker'
 import ValidationSummaryCard, { ValidationError } from '../components/ValidationSummaryCard'
 import Button from '../components/Button'
+import Field, { TextInput, Textarea } from '../components/Field'
 
 export type WhistleblowerFormData = {
   recipients: Recipient[]
@@ -83,47 +84,37 @@ const WhistleblowerForm = ({ data, csrfToken }: WhistleblowerFormProps) => {
 
       <div className="flex flex-col gap-5">
         <div className="rounded-md border border-border-default bg-surface p-5">
-          <label htmlFor="whistleblower-email" className="text-body-sm font-semibold text-primary">
-            Your email <span className="font-normal text-secondary">(optional)</span>
-          </label>
-          <p className="mt-1 mb-2 text-body-sm text-secondary">
-            Anonymous is fine, with one trade-off. If you leave this blank we have no way
-            to ask you a follow-up question, and that can be the difference between a report
-            we can act on and one we can't. If you include your email, only the people you
-            pick below can see it.
-          </p>
-          <input
+          <Field
+            label="Your email"
             id="whistleblower-email"
-            type="email"
-            name="email"
-            autoComplete="email"
-            className="input-text"
-          />
+            optional
+            description={
+              <>
+                Anonymous is fine, with one trade-off. If you leave this blank we have no way
+                to ask you a follow-up question, and that can be the difference between a report
+                we can act on and one we can't. If you include your email, only the people you
+                pick below can see it.
+              </>
+            }
+          >
+            <TextInput type="email" name="email" autoComplete="email" />
+          </Field>
         </div>
 
         <div className="rounded-md border border-border-default bg-surface p-5">
-          <label htmlFor={REPORT_ID} className="text-body-sm font-semibold text-primary">
-            What happened
-          </label>
-          <p className="mt-1 mb-2 text-body-sm text-secondary">
-            Tell us as much as you can. Specific details make it easier for the admin staff
-            to investigate: dates, places, and anyone else who was there or knows about it.
-          </p>
-          <textarea
+          <Field
+            label="What happened"
             id={REPORT_ID}
-            name="report"
-            rows={8}
-            value={report}
-            onChange={event => setReport(event.target.value)}
-            aria-invalid={showErrors && reportMissing}
-            aria-describedby={showErrors && reportMissing ? `${REPORT_ID}-error` : undefined}
-            className="input-text"
-          />
-          {showErrors && reportMissing && (
-            <p id={`${REPORT_ID}-error`} className="mt-2 text-body-sm font-medium text-danger-fg">
-              This is the part we can't send without.
-            </p>
-          )}
+            description={
+              <>
+                Tell us as much as you can. Specific details make it easier for the admin staff
+                to investigate: dates, places, and anyone else who was there or knows about it.
+              </>
+            }
+            error={showErrors && reportMissing ? "This is the part we can't send without." : undefined}
+          >
+            <Textarea name="report" rows={8} value={report} onChange={event => setReport(event.target.value)} />
+          </Field>
         </div>
 
         <div className="rounded-md border border-border-default bg-surface p-5" id={RECIPIENTS_ID}>

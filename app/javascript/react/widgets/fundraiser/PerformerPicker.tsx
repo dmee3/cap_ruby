@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import PerformerCard, { Performer } from '../../components/PerformerCard'
 import Button from '../../components/Button'
+import Field, { TextInput } from '../../components/Field'
 
 type PerformerPickerProps = {
   performers: Performer[]
@@ -40,17 +41,15 @@ const PerformerPicker = ({ performers }: PerformerPickerProps) => {
       {/* A real labelled input: the canvas drew a styled div, which nothing can
           type into and no screen reader can name. */}
       <div className="max-w-[420px]">
-        <label htmlFor="performer-search" className="sr-only">
-          Search performers by name or section
-        </label>
-        <input
-          id="performer-search"
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by name or section"
-          className="input-text h-[46px] w-full"
-        />
+        <Field label="Search performers by name or section" id="performer-search" hideLabel>
+          <TextInput
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by name or section"
+            className="w-full"
+          />
+        </Field>
       </div>
 
       {matches.length > 0 ? (

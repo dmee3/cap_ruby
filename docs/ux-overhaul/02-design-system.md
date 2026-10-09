@@ -408,10 +408,18 @@ status pill in the middle"* — so it ships here rather than as its own §.
 - The identity cell is the roster row's shape and the right-aligned numeric pair
   is the dues row's, so an audit trail reads like the rest of the app.
 
-### 4.7 Form row
-- Horizontal on `sm+` (label column ~160px, field fills rest), stacked below.
-- Parts: `label`, optional `hint` (below label), `field`, optional `error`
-  (raspberry, replaces hint), optional `suffix`/`prefix` (e.g. `$`).
+### 4.7 Form row *(built as `Field.tsx`: `Field` + `TextInput` / `Select` / `Textarea`)*
+- Stacked by default — every form the flows produced came out stacked. `inline`
+  (150px label column on `sm+`) is the Copy defaults form's shape.
+- Parts: `label` (body-sm 600), optional "Optional" marker, optional `aside`
+  right of the label (a character count), optional `description` under the
+  label for explanation needed *before* filling it in, the control, then a
+  `hint` under it, which an `error` replaces. Description, hint and error are
+  wired to the control as its accessible description.
+- One control look, two sizes: `md` (44px, body) for forms, `sm` (40px,
+  body-sm) for toolbars and table rows. Error is a 2px raspberry edge (the
+  second pixel inset, so nothing shifts). Prefix/suffix controls (`MoneyField`'s
+  `$`) build on `controlClass` and read the surrounding Field via `useField`.
 - Field types to style: text, textarea, number (with mask), select, date/datetime
   (flatpickr wrapper), checkbox, radio group, toggle, file upload, multi-select
   (for whistleblower admin picker).

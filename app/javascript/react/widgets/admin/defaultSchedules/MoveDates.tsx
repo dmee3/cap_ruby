@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Button from '../../../components/Button'
+import { TextInput } from '../../../components/Field'
 import Pill from '../../../components/Pill'
 import { Combination, OVERVIEW_PATH, Overview, jsonHeaders, plural, shortDate, weekday } from './shared'
 
@@ -105,12 +106,13 @@ const MoveDates = ({ data }: { data: Overview }) => {
                       {shortDate(date)} {weekday(date)}
                     </td>
                     <td className="sm:py-2.5 sm:pr-4">
-                      <input
+                      <TextInput
                         type="date"
                         aria-label={`Move payment ${i + 1}, now ${shortDate(date)}, to`}
                         value={to}
                         onChange={e => setTargets(t => ({ ...t, [date]: e.target.value || date }))}
-                        className={`h-11 w-full rounded-sm bg-surface px-3 font-mono text-body focus-visible:outline-none focus-visible:ring-2 sm:max-w-[240px] ${changed ? 'border-2 border-ocean' : 'border border-border-strong'}`}
+                        mono
+                        className={`w-full sm:max-w-[240px] ${changed ? '!border-ocean shadow-[inset_0_0_0_1px_rgb(var(--focus-ring))]' : ''}`}
                       />
                     </td>
                     <td className="hidden pr-5 text-secondary sm:table-cell">

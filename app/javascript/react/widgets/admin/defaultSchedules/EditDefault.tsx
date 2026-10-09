@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Button from '../../../components/Button'
+import Field, { TextInput } from '../../../components/Field'
 import MoneyField from '../../../components/MoneyField'
 import ValidationSummaryCard from '../../../components/ValidationSummaryCard'
 import { toast } from '../../../components/Toast'
@@ -152,13 +153,15 @@ const EditDefault = ({ data }: { data: EditDefaultData }) => {
                         <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_44px] items-center gap-2 sm:grid-cols-[28px_minmax(0,1fr)_minmax(0,1fr)_44px] sm:gap-3">
                           <span className="hidden font-mono text-body-sm text-secondary sm:block">{i + 1}</span>
                           <div className="relative">
-                            <input
+                            <TextInput
                               type="date"
                               aria-label={`Due date for payment ${i + 1}`}
-                              aria-invalid={message ? true : undefined}
                               value={row.payDate}
                               onChange={e => setRow(row.key, { payDate: e.target.value })}
-                              className={`h-10 w-full rounded-sm border bg-surface px-2.5 font-mono text-body-sm text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${message ? 'border-raspberry' : 'border-border-strong'}`}
+                              controlSize="sm"
+                              mono
+                              invalid={Boolean(message)}
+                              className="w-full"
                             />
                             {row.payDate && (
                               <span className="pointer-events-none absolute right-9 top-1/2 hidden -translate-y-1/2 text-caption text-secondary sm:inline">
@@ -166,18 +169,14 @@ const EditDefault = ({ data }: { data: EditDefaultData }) => {
                               </span>
                             )}
                           </div>
-                          <div>
-                            <label htmlFor={`amount-${row.key}`} className="sr-only">
-                              Amount for payment {i + 1}
-                            </label>
+                          <Field label={`Amount for payment ${i + 1}`} id={`amount-${row.key}`} hideLabel>
                             <MoneyField
-                              id={`amount-${row.key}`}
                               label=""
                               compact
                               valueCents={row.amountCents}
                               onChangeCents={cents => setRow(row.key, { amountCents: cents })}
                             />
-                          </div>
+                          </Field>
                           <button
                             type="button"
                             aria-label={`Remove payment ${i + 1}`}
