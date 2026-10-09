@@ -4,6 +4,7 @@ import ScheduleTimeline, { TimelineNode } from '../../components/ScheduleTimelin
 import ScheduleDiffPanel, { ScheduleDiffRow } from '../../components/ScheduleDiffPanel'
 import MoneyField from '../../components/MoneyField'
 import Button from '../../components/Button'
+import Field, { TextInput } from '../../components/Field'
 import Pill, { PillTone } from '../../components/Pill'
 import { toast } from '../../components/Toast'
 import Utilities from '../../../utilities/utilities'
@@ -324,21 +325,22 @@ const ScheduleEditor = ({ data }: { data: ScheduleEditorData }) => {
                 <li key={row.id} className={`${GRID} border-b border-border-default px-4 py-2.5`}>
                   <span className="font-mono text-body-sm font-bold text-primary">{i + 1}</span>
 
-                  <input
+                  <TextInput
                     type="date"
                     aria-label={`Due date for payment ${i + 1}`}
                     value={row.payDate}
                     onChange={(e) => setRow(row.id, { payDate: e.target.value })}
-                    className="h-10 rounded-sm border border-border-strong bg-surface px-2.5 text-body-sm text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
+                    controlSize="sm"
                   />
 
-                  <MoneyField
-                    id={`entry-${row.id}`}
-                    label=""
-                    valueCents={row.amountCents}
-                    onChangeCents={(cents) => setRow(row.id, { amountCents: cents })}
-                    compact
-                  />
+                  <Field label={`Amount for payment ${i + 1}`} id={`entry-${row.id}`} hideLabel>
+                    <MoneyField
+                      label=""
+                      valueCents={row.amountCents}
+                      onChangeCents={(cents) => setRow(row.id, { amountCents: cents })}
+                      compact
+                    />
+                  </Field>
 
                   {statusPill(row)}
 

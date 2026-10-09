@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import SeasonRoleBlock, { SeasonOption, SeasonRow } from '../../components/SeasonRoleBlock'
 import SchedulePreviewPanel, { Forecast } from '../../components/SchedulePreviewPanel'
 import Button from '../../components/Button'
+import Field, { TextInput } from '../../components/Field'
 
 export type UserFormData = {
   user: {
@@ -224,18 +225,28 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
               They sign in with their username or email.
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="First name" name="user[first_name]" defaultValue={data.user.first_name} autoFocus />
-              <Field label="Last name" name="user[last_name]" defaultValue={data.user.last_name} />
-              <Field label="Username" name="user[username]" defaultValue={data.user.username} mono />
-              <Field label="Email" name="user[email]" defaultValue={data.user.email} type="email" />
-              <Field label="Phone" name="user[phone]" defaultValue={data.user.phone} optional />
+              <Field label="First name">
+                <TextInput name="user[first_name]" defaultValue={data.user.first_name ?? ''} autoFocus />
+              </Field>
+              <Field label="Last name">
+                <TextInput name="user[last_name]" defaultValue={data.user.last_name ?? ''} />
+              </Field>
+              <Field label="Username">
+                <TextInput name="user[username]" defaultValue={data.user.username ?? ''} mono />
+              </Field>
+              <Field label="Email">
+                <TextInput name="user[email]" defaultValue={data.user.email ?? ''} type="email" />
+              </Field>
+              <Field label="Phone" optional>
+                <TextInput name="user[phone]" defaultValue={data.user.phone ?? ''} />
+              </Field>
               {!isEdit && (
                 <Field
                   label="Temporary password"
-                  name="user[password]"
-                  type="password"
                   hint="At least 8 characters. Set only at creation; later changes go through a reset link."
-                />
+                >
+                  <TextInput name="user[password]" type="password" />
+                </Field>
               )}
             </div>
 
@@ -409,34 +420,6 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
     </form>
   )
 }
-
-type FieldProps = {
-  label: string
-  name: string
-  defaultValue?: string | null
-  type?: string
-  hint?: string
-  optional?: boolean
-  mono?: boolean
-  autoFocus?: boolean
-}
-
-const Field = ({ label, name, defaultValue, type = 'text', hint, optional, mono, autoFocus }: FieldProps) => (
-  <label className="flex flex-col gap-1">
-    <span className="text-body-sm font-semibold text-primary">
-      {label}
-      {optional && <span className="ml-1 font-normal text-secondary">(optional)</span>}
-    </span>
-    <input
-      type={type}
-      name={name}
-      defaultValue={defaultValue ?? ''}
-      autoFocus={autoFocus}
-      className={`h-10 rounded-sm border border-border-strong bg-surface px-2 text-body-sm ${mono ? 'font-mono' : ''}`}
-    />
-    {hint && <span className="text-body-sm text-secondary">{hint}</span>}
-  </label>
-)
 
 type GrantProps = {
   name: string

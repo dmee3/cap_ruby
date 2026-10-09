@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import Button from '../../../components/Button'
+import Field, { Select } from '../../../components/Field'
 import { dollars } from '../../../../utilities/money'
 import { DefaultEntry, OVERVIEW_PATH, Overview, jsonHeaders, plural, shortDate, weekday } from './shared'
 
@@ -33,16 +34,6 @@ const shape = (entries: DefaultEntry[]) => {
   }
   return plural(entries.length, 'payment')
 }
-
-const FormRow = ({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) => (
-  <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-    <div className="flex flex-col gap-0.5 sm:w-[150px] sm:flex-none sm:pt-2.5">
-      <span className="text-body-sm font-semibold text-primary">{label}</span>
-      {hint && <span className="text-caption text-secondary">{hint}</span>}
-    </div>
-    <div className="flex flex-1 flex-col gap-2">{children}</div>
-  </div>
-)
 
 const CopyDefaults = ({ data }: { data: CopyDefaultsData }) => {
   const { overview, sources } = data
@@ -106,22 +97,17 @@ const CopyDefaults = ({ data }: { data: CopyDefaultsData }) => {
 
       <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-5 rounded-md border border-border-default bg-surface p-4 sm:p-5">
-          <FormRow label="Copy from">
-            <select
-              aria-label="Copy from"
-              className="h-11 rounded-sm border border-border-strong bg-surface px-3 text-body"
-              value={sourceId}
-              onChange={e => setSourceId(Number(e.target.value))}
-            >
+          <Field label="Copy from" layout="inline">
+            <Select value={sourceId} onChange={e => setSourceId(Number(e.target.value))}>
               {sources.map(s => (
                 <option key={s.id} value={s.id}>
                   {s.year} season · {plural(s.combinations.length, 'default')}
                 </option>
               ))}
-            </select>
-          </FormRow>
+            </Select>
+          </Field>
 
-          <FormRow label="Move dates by" hint="Amounts copy unchanged">
+          <Field label="Move dates by" hint="Amounts copy unchanged" layout="inline" noControl>
             <div className="flex w-[220px] items-stretch overflow-hidden rounded-sm border border-border-strong">
               <button
                 type="button"
@@ -151,9 +137,14 @@ const CopyDefaults = ({ data }: { data: CopyDefaultsData }) => {
                 {weekday(shift(dates[0], weeks))} {shortDate(shift(dates[0], weeks))}.
               </span>
             )}
-          </FormRow>
+          </Field>
 
-          <FormRow label={`Into ${year}`} hint={kept.length > 0 ? `${kept.length} of 8 already set up` : undefined}>
+          <Field
+            label={`Into ${year}`}
+            hint={kept.length > 0 ? `${kept.length} of 8 already set up` : undefined}
+            layout="inline"
+            noControl
+          >
             <span className="text-body-sm text-secondary sm:pt-0.5">
               {kept.length === 0
                 ? `Nothing is set up yet, so all ${toCopy.length} are created. You can edit any of them afterwards.`
@@ -161,7 +152,7 @@ const CopyDefaults = ({ data }: { data: CopyDefaultsData }) => {
                   ? `${year} already has every default ${source.year} has. Edit them from the overview.`
                   : `Only the ${plural(toCopy.length, 'missing default')} ${toCopy.length === 1 ? 'is' : 'are'} created. Your ${kept.length} ${year} ${kept.length === 1 ? 'version stays' : 'versions stay'} as they are.`}
             </span>
-          </FormRow>
+          </Field>
 
           {error && (
             <p role="alert" className="m-0 text-body-sm text-danger-fg">

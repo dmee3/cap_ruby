@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import Card from '../../components/Card'
 import Button from '../../components/Button'
+import { TextInput } from '../../components/Field'
 import EmptyState from '../../components/EmptyState'
 import Skeleton from '../../components/Skeleton'
 import StatBlock from '../../components/StatBlock'
@@ -144,16 +145,14 @@ const StockList = () => {
       </div>
 
       <div className="flex flex-wrap items-center gap-3 rounded-md border border-border-default bg-surface p-3">
-        <label className="sr-only" htmlFor="stock-search">
-          Search items
-        </label>
-        <input
-          id="stock-search"
+        <TextInput
+          controlSize="sm"
           type="search"
+          aria-label="Search items"
           placeholder="Search items"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="h-9 min-w-[200px] flex-1 rounded-sm border border-border-strong bg-surface px-3 text-body-sm text-primary focus-visible:outline-none focus-visible:ring-2"
+          className="min-w-[200px] flex-1"
         />
         {/* A real checkbox, not the canvas's pill switch. */}
         <label className="flex min-h-[44px] items-center gap-2 text-body-sm text-primary">

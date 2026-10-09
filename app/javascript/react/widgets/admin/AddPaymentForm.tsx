@@ -5,6 +5,7 @@ import MemberSchedulePanel, { ScheduleInstallment } from '../../components/Membe
 import MemberCombobox from '../../components/MemberCombobox'
 import ValidationSummaryCard, { ValidationError } from '../../components/ValidationSummaryCard'
 import Button from '../../components/Button'
+import Field, { Select, TextInput, Textarea } from '../../components/Field'
 
 export type AddPaymentMember = {
   id: number
@@ -51,21 +52,8 @@ type AddPaymentFormProps = {
   editing?: EditingPayment
 }
 
-const fieldBase =
-  'h-11 w-full rounded-sm bg-surface px-3 text-body text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1'
-const fieldOk = `${fieldBase} border border-border-strong`
-const fieldErr = `${fieldBase} border-2 border-danger-fg px-[11px]`
-
 const fmtDate = (iso: string) =>
   new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
-
-const Hint = ({ children }: { children: React.ReactNode }) => (
-  <span className="text-caption text-secondary">{children}</span>
-)
-
-const FieldError = ({ children }: { children: React.ReactNode }) => (
-  <span className="text-caption font-semibold text-danger-fg">{children}</span>
-)
 
 const AddPaymentForm = ({
   members,
@@ -148,73 +136,61 @@ const AddPaymentForm = ({
           {/* Rails reads _method for verbs a browser form can't send. */}
           {isEdit && <input type="hidden" name="_method" value="patch" />}
 
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor={isEdit ? undefined : 'payment_user_id'}
-              className="text-body-sm font-semibold text-primary"
+          {isEdit ? (
+            // A payment can't move between members — reassigning one
+            // silently rewrites two dues histories. Shown, not editable, and
+            // no user_id is submitted at all; the controller refuses one too.
+            <Field
+              noControl
+              label="Member"
+              hint="Fixed once recorded. To move this payment to someone else, delete it and record it against them."
             >
-              Member
-            </label>
-            {isEdit ? (
-              // A payment can't move between members — reassigning one
-              // silently rewrites two dues histories. Shown, not editable, and
-              // no user_id is submitted at all; the controller refuses one too.
-              <>
-                <div className="flex min-h-11 items-center gap-2 rounded-sm border border-border-default bg-sunken px-3">
-                  <span className="text-body text-primary">{member?.name ?? '—'}</span>
-                  {member?.section && (
-                    <span className="text-caption text-secondary">{member.section}</span>
-                  )}
-                </div>
-                <Hint>
-                  Fixed once recorded. To move this payment to someone else, delete it and record
-                  it against them.
-                </Hint>
-              </>
-            ) : (
-              <>
-                <MemberCombobox
-                  id="payment_user_id"
-                  name="payment[user_id]"
-                  members={members.map((m) => ({ id: m.id, name: m.name, section: m.section }))}
-                  value={userId}
-                  onChange={setUserId}
-                  error={errorFor('payment_user_id')}
-                />
-                {errorFor('payment_user_id') ? (
-                  <FieldError>{errorFor('payment_user_id')}</FieldError>
-                ) : (
-                  <Hint>
-                    Current-season members only. Start typing to search {members.length} names.
-                  </Hint>
+              <div className="flex min-h-11 items-center gap-2 rounded-sm border border-border-default bg-sunken px-3">
+                <span className="text-body text-primary">{member?.name ?? '—'}</span>
+                {member?.section && (
+                  <span className="text-caption text-secondary">{member.section}</span>
                 )}
-              </>
-            )}
-          </div>
+              </div>
+            </Field>
+          ) : (
+            <Field
+              label="Member"
+              id="payment_user_id"
+              error={errorFor('payment_user_id')}
+              hint={`Current-season members only. Start typing to search ${members.length} names.`}
+            >
+              <MemberCombobox
+                id="payment_user_id"
+                name="payment[user_id]"
+                members={members.map((m) => ({ id: m.id, name: m.name, section: m.section }))}
+                value={userId}
+                onChange={setUserId}
+                error={errorFor('payment_user_id')}
+              />
+            </Field>
+          )}
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <MoneyField
-                id="payment_amount"
-                name="payment[amount]"
-                label="Amount"
-                valueCents={amountCents}
-                onChangeCents={setAmountCents}
-                error={errorFor('payment_amount')}
-              />
-              {!errorFor('payment_amount') && (
-                <Hint>Full amount received. No processing fee on manual payments.</Hint>
-              )}
-            </div>
+            <MoneyField
+              id="payment_amount"
+              name="payment[amount]"
+              label="Amount"
+              valueCents={amountCents}
+              onChangeCents={setAmountCents}
+              error={errorFor('payment_amount')}
+              hint="Full amount received. No processing fee on manual payments."
+            />
 
-            <label className="flex flex-col gap-1.5">
-              <span className="text-body-sm font-semibold text-primary">Payment type</span>
-              <select
-                id="payment_payment_type_id"
+            <Field
+              label="Payment type"
+              id="payment_payment_type_id"
+              error={errorFor('payment_payment_type_id')}
+              hint={paymentTypes.map((t) => t.name).join(' · ')}
+            >
+              <Select
                 name="payment[payment_type_id]"
                 value={paymentTypeId}
                 onChange={(e) => setPaymentTypeId(e.target.value)}
-                className={errorFor('payment_payment_type_id') ? fieldErr : fieldOk}
               >
                 <option value="">Select a type…</option>
                 {paymentTypes.map((t) => (
@@ -222,36 +198,31 @@ const AddPaymentForm = ({
                     {t.name}
                   </option>
                 ))}
-              </select>
-              {errorFor('payment_payment_type_id') ? (
-                <FieldError>{errorFor('payment_payment_type_id')}</FieldError>
-              ) : (
-                <Hint>{paymentTypes.map((t) => t.name).join(' · ')}</Hint>
-              )}
-            </label>
+              </Select>
+            </Field>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-1.5">
-              <span className="text-body-sm font-semibold text-primary">Date paid</span>
-              <input
+            <Field
+              label="Date paid"
+              id="payment_date_paid"
+              error={errorFor('payment_date_paid')}
+              hint="Defaults to today. Back-date it if the cash sat in the box."
+            >
+              <TextInput
                 type="date"
-                id="payment_date_paid"
                 name="payment[date_paid]"
                 value={datePaid}
                 max={today}
                 onChange={(e) => setDatePaid(e.target.value)}
-                className={errorFor('payment_date_paid') ? fieldErr : fieldOk}
               />
-              {errorFor('payment_date_paid') ? (
-                <FieldError>{errorFor('payment_date_paid')}</FieldError>
-              ) : (
-                <Hint>Defaults to today. Back-date it if the cash sat in the box.</Hint>
-              )}
-            </label>
+            </Field>
 
-            <div className="flex flex-col gap-1.5">
-              <span className="text-body-sm font-semibold text-primary">Applies to</span>
+            <Field
+              noControl
+              label="Applies to"
+              hint="Not editable: payments credit against the schedule in order."
+            >
               <div className="flex min-h-11 items-center rounded-sm border border-dashed border-border-strong bg-sunken px-3 text-body-sm text-secondary">
                 {member
                   ? member.applies_to.length > 0
@@ -259,27 +230,25 @@ const AddPaymentForm = ({
                     : 'Nothing outstanding, so this counts as paid ahead.'
                   : 'Pick a member to see their due dates'}
               </div>
-              <Hint>Not editable: payments credit against the schedule in order.</Hint>
-            </div>
+            </Field>
           </div>
 
-          <label className="flex flex-col gap-1.5 border-t border-border-default pt-5">
-            <span className="flex items-baseline gap-2">
-              <span className="text-body-sm font-semibold text-primary">Notes</span>
-              <span className="text-caption text-secondary">Optional</span>
-              <span className="ml-auto font-mono text-caption text-secondary">{notes.length}</span>
-            </span>
-            <textarea
-              id="payment_notes"
+          <Field
+            label="Notes"
+            id="payment_notes"
+            optional
+            aside={<span className="font-mono">{notes.length}</span>}
+            hint="Members can see this on their payment history."
+            className="border-t border-border-default pt-5"
+          >
+            <Textarea
               name="payment[notes]"
               value={notes}
               maxLength={255}
               placeholder="What should the member see about this payment?"
               onChange={(e) => setNotes(e.target.value)}
-              className="min-h-20 w-full rounded-sm border border-border-strong bg-surface p-3 text-body text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
             />
-            <Hint>Members can see this on their payment history.</Hint>
-          </label>
+          </Field>
 
           <div className="flex items-center gap-3 border-t border-border-default pt-5">
             <Button type="submit" variant="primary" size="lg" loading={submitting} fullWidthBelow={false}>

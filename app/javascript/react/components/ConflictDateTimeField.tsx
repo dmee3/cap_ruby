@@ -1,4 +1,5 @@
 import React from 'react'
+import Field, { TextInput } from './Field'
 
 type ConflictDateTimeFieldProps = {
   label: 'Starts' | 'Ends'
@@ -35,36 +36,28 @@ const ConflictDateTimeField = ({
   minDate,
   error,
   className = '',
-}: ConflictDateTimeFieldProps) => {
-  const borderClass = error
-    ? 'border-danger-fg'
-    : 'border-border-strong focus-within:border-[color:rgb(var(--focus-ring))]'
-  const inputClass = `h-12 rounded-sm border bg-surface px-3 font-mono text-body-sm text-primary ${borderClass}`
-
-  return (
-    <div className={`flex flex-col gap-2 ${className}`.trim()}>
-      <span className="text-body-sm font-semibold text-primary">{label}</span>
-      <div className="grid grid-cols-[1.35fr_1fr] gap-2">
-        <input
-          id={id}
-          name={dateName}
-          type="date"
-          min={minDate}
-          value={dateValue}
-          onChange={(e) => onDateChange(e.target.value)}
-          className={inputClass}
-        />
-        <input
-          name={timeName}
-          type="time"
-          value={timeValue}
-          onChange={(e) => onTimeChange(e.target.value)}
-          className={inputClass}
-        />
-      </div>
-      {error && <span className="text-caption text-danger-fg">{error}</span>}
+}: ConflictDateTimeFieldProps) => (
+  <Field label={label} id={id} error={error} className={className}>
+    <div className="grid grid-cols-[1.35fr_1fr] gap-2">
+      <TextInput
+        name={dateName}
+        type="date"
+        mono
+        min={minDate}
+        value={dateValue}
+        onChange={(e) => onDateChange(e.target.value)}
+      />
+      <TextInput
+        id={`${id}-time`}
+        name={timeName}
+        type="time"
+        mono
+        aria-label={`${label}, time`}
+        value={timeValue}
+        onChange={(e) => onTimeChange(e.target.value)}
+      />
     </div>
-  )
-}
+  </Field>
+)
 
 export default ConflictDateTimeField

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import Field, { controlClass, useField } from './Field'
 import { feeCents, totalCents } from '../../utilities/stripe_fees'
 
 const money = (cents: number) =>
@@ -12,14 +13,20 @@ type MoneyFieldProps = {
   onChangeCents: (cents: number | null) => void
   /** Upper bound (remaining this season) — exceeding it shows the error state. */
   maxCents?: number
+  /**
+   * The field's own label, with its hint and error beneath. `""` gives the
+   * bare `$` control, for a Field or table row that labels it instead.
+   */
   label?: string
+  /** Shown in success colour — "Covers your 3/14 installment in full." */
   helper?: string
+  hint?: React.ReactNode
   /** Overrides `helper` and the built-in over-max message. */
   error?: string
   id?: string
   autoFocus?: boolean
   name?: string
-  /** 40px instead of 48px, for table rows rather than standalone form fields. */
+  /** 40px instead of 44px, for table rows rather than standalone form fields. */
   compact?: boolean
 }
 
@@ -31,18 +38,22 @@ const parseToCents = (raw: string): number | null => {
   return Math.round(dollars * 100)
 }
 
-const MoneyField = ({
+type MoneyControlProps = Pick<
+  MoneyFieldProps,
+  'valueCents' | 'onChangeCents' | 'id' | 'autoFocus' | 'name' | 'compact'
+> & { invalid?: boolean }
+
+const MoneyControl = ({
   valueCents,
   onChangeCents,
-  maxCents,
-  label = 'Amount',
-  helper,
-  error,
-  id = 'money-field',
+  id,
   autoFocus = false,
   name,
   compact = false,
-}: MoneyFieldProps) => {
+  invalid,
+}: MoneyControlProps) => {
+  const field = useField()
+  const isInvalid = invalid ?? field?.invalid ?? false
   const [text, setText] = useState(
     valueCents == null ? '' : (valueCents / 100).toFixed(2)
   )
@@ -58,14 +69,6 @@ const MoneyField = ({
     }
   }, [valueCents])
 
-  const overMax =
-    maxCents != null && valueCents != null && valueCents > maxCents
-  const shownError =
-    error ??
-    (overMax && maxCents != null
-      ? `That's more than the ${money(maxCents)} left this season.`
-      : undefined)
-
   const handleChange = (raw: string) => {
     setText(raw)
     const cents = parseToCents(raw)
@@ -74,40 +77,52 @@ const MoneyField = ({
   }
 
   return (
-    <div className="flex flex-col gap-1.5">
-      {label && (
-        <label htmlFor={id} className="text-body-sm font-semibold text-primary">
-          {label}
-        </label>
-      )}
-      <div
-        className={`flex items-stretch overflow-hidden rounded-sm border bg-surface ${
-          shownError
-            ? 'border-raspberry'
-            : 'border-border-strong focus-within:border-[color:rgb(var(--focus-ring))] focus-within:ring-2 focus-within:ring-[color:rgb(var(--focus-ring))] focus-within:ring-offset-0'
-        }`}
-      >
-        <span className="flex items-center border-r border-border-default bg-sunken px-3 font-mono text-secondary">
-          $
-        </span>
-        <input
-          id={id}
-          name={name}
-          type="text"
-          inputMode="decimal"
-          autoFocus={autoFocus}
-          value={text}
-          placeholder="0.00"
-          onChange={(e) => handleChange(e.target.value)}
-          className={`${compact ? 'h-10 text-body-sm' : 'h-12'} flex-1 bg-transparent px-3 font-mono text-primary outline-none placeholder:text-border-strong`}
-        />
-      </div>
-      {shownError ? (
-        <span className="text-caption text-danger-fg">{shownError}</span>
-      ) : (
-        helper && <span className="text-caption text-success-fg">{helper}</span>
-      )}
+    <div
+      className={`${controlClass({
+        controlSize: compact ? 'sm' : 'md',
+        invalid: isInvalid,
+      })} flex items-stretch overflow-hidden !px-0 focus-within:ring-2 focus-within:ring-offset-1`}
+    >
+      <span className="flex items-center border-r border-border-default bg-sunken px-3 font-mono text-secondary">
+        $
+      </span>
+      <input
+        id={id ?? field?.id}
+        name={name}
+        type="text"
+        inputMode="decimal"
+        autoFocus={autoFocus}
+        value={text}
+        placeholder="0.00"
+        aria-describedby={field?.describedBy}
+        aria-invalid={isInvalid || undefined}
+        onChange={(e) => handleChange(e.target.value)}
+        className="min-w-0 flex-1 bg-transparent px-3 font-mono outline-none placeholder:text-border-strong"
+      />
     </div>
+  )
+}
+
+const MoneyField = ({ label = 'Amount', helper, hint, error, maxCents, ...control }: MoneyFieldProps) => {
+  const overMax =
+    maxCents != null && control.valueCents != null && control.valueCents > maxCents
+  const shownError =
+    error ??
+    (overMax && maxCents != null
+      ? `That's more than the ${money(maxCents)} left this season.`
+      : undefined)
+
+  if (!label) return <MoneyControl {...control} invalid={Boolean(shownError) || undefined} />
+
+  return (
+    <Field
+      label={label}
+      id={control.id ?? 'money-field'}
+      error={shownError}
+      hint={helper ? <span className="text-success-fg">{helper}</span> : hint}
+    >
+      <MoneyControl {...control} />
+    </Field>
   )
 }
 

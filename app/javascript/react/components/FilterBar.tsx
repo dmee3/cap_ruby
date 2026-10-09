@@ -1,4 +1,5 @@
 import React from 'react'
+import { Select, TextInput } from './Field'
 import Button from './Button'
 
 export type PaymentScope = 'active' | 'with_deleted' | 'deleted_only'
@@ -40,9 +41,6 @@ const SCOPE_LABEL: Record<PaymentScope, string> = {
   deleted_only: 'Deleted only',
 }
 
-const field =
-  'h-[38px] rounded-sm border border-border-strong bg-surface px-2.5 text-body-sm text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1'
-
 // One boxed row of unlabelled controls — the placeholders carry the copy, so
 // the bar reads as a toolbar rather than a form. Every control is a
 // server-side param; the controller allowlists them (no interpolation).
@@ -64,20 +62,21 @@ const FilterBar = ({
     <div
       className={`flex flex-wrap items-center gap-2.5 rounded-md border border-border-default bg-surface px-4 py-3.5 ${className}`.trim()}
     >
-      <input
+      <TextInput
+        controlSize="sm"
         type="search"
         value={filters.q}
         onChange={(e) => set('q', e.target.value)}
         placeholder="Search member name"
         aria-label="Search member name"
-        className={`${field} min-w-[220px] flex-1`}
+        className="min-w-[220px] flex-1"
       />
 
-      <select
+      <Select
+        controlSize="sm"
         value={filters.typeId}
         onChange={(e) => set('typeId', e.target.value)}
         aria-label="Payment type"
-        className={field}
       >
         <option value="">All types</option>
         {paymentTypes.map((t) => (
@@ -85,43 +84,42 @@ const FilterBar = ({
             {t.name}
           </option>
         ))}
-      </select>
+      </Select>
 
       <span className="flex items-center gap-1.5">
-        <input
+        <TextInput
+          controlSize="sm"
+          mono
           type="date"
           value={filters.startDate}
           onChange={(e) => set('startDate', e.target.value)}
           aria-label="Paid on or after"
-          className={`${field} font-mono`}
         />
         <span className="text-body-sm text-secondary">–</span>
-        <input
+        <TextInput
+          controlSize="sm"
+          mono
           type="date"
           value={filters.endDate}
           onChange={(e) => set('endDate', e.target.value)}
           aria-label="Paid on or before"
-          className={`${field} font-mono`}
         />
       </span>
 
-      <select
+      <Select
+        controlSize="sm"
         value={filters.scope}
         onChange={(e) => set('scope', e.target.value as PaymentScope)}
         aria-label="Which payments to show"
         title="Deleted payments are excluded."
-        className={
-          scopeSet
-            ? `${field} border-accent-primary font-semibold text-accent-primary`
-            : field
-        }
+        className={scopeSet ? '!border-accent-primary font-semibold !text-accent-primary' : ''}
       >
         {(Object.keys(SCOPE_LABEL) as PaymentScope[]).map((s) => (
           <option key={s} value={s}>
             {SCOPE_LABEL[s]}
           </option>
         ))}
-      </select>
+      </Select>
 
       <span className="text-body-sm text-secondary">
         <span className="font-medium text-primary">

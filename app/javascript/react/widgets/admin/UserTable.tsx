@@ -6,6 +6,7 @@ import Pill, { PillTone } from '../../components/Pill'
 import Skeleton from '../../components/Skeleton'
 import SortableTh, { SortDir } from '../../components/SortableTh'
 import Button from '../../components/Button'
+import { Select, TextInput } from '../../components/Field'
 import { dollars } from '../../../utilities/money'
 
 type RosterRow = {
@@ -188,25 +189,26 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
             </button>
           ))}
         </div>
-        <input
+        <TextInput
+          controlSize="sm"
           type="search"
           value={query}
           onChange={e => setQuery(e.target.value)}
           aria-label={population === 'members' ? 'Search name, section or ensemble' : 'Search name or role'}
           placeholder={population === 'members' ? 'Search name, section or ensemble' : 'Search name or role'}
-          className="h-9 min-w-[200px] flex-1 rounded-sm border border-border-strong bg-surface px-2.5 text-body-sm"
+          className="min-w-[200px] flex-1"
         />
         {population === 'members' && (
-          <select
+          <Select
+            controlSize="sm"
             value={ensemble}
             onChange={e => setEnsemble(e.target.value)}
             aria-label="Filter by ensemble"
-            className="h-9 rounded-sm border border-border-strong bg-surface px-2 text-body-sm"
           >
             <option value="">All ensembles</option>
             <option value="World">World</option>
             <option value="CC2">CC2</option>
-          </select>
+          </Select>
         )}
         {population === 'members' && removed.length > 0 && (
           <label className="flex items-center gap-1.5 text-body-sm text-secondary">

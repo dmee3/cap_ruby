@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import fuzzysort from 'fuzzysort'
+import { controlClass, useField } from './Field'
 
 export type ComboboxMember = {
   id: number
@@ -35,6 +36,7 @@ const MemberCombobox = ({
   error,
   placeholder = 'Search by name or section',
 }: MemberComboboxProps) => {
+  const field = useField()
   const selected = useMemo(
     () => members.find((m) => String(m.id) === value) ?? null,
     [members, value],
@@ -98,16 +100,13 @@ const MemberCombobox = ({
     }
   }
 
-  const field = error
-    ? 'border-2 border-danger-fg px-[11px]'
-    : 'border border-border-strong px-3'
 
   return (
     <div ref={rootRef} className="relative">
       {name && <input type="hidden" name={name} value={value} />}
 
       <div
-        className={`flex h-11 items-center gap-2 rounded-sm bg-surface ${field} focus-within:ring-2 focus-within:ring-offset-1`}
+        className={`${controlClass({ invalid: Boolean(error) })} flex items-center gap-2 focus-within:ring-2 focus-within:ring-offset-1`}
       >
         {selected && !open && (
           <span className="flex min-w-0 items-baseline gap-2">
@@ -125,6 +124,8 @@ const MemberCombobox = ({
           aria-expanded={open}
           aria-controls={listId}
           aria-autocomplete="list"
+          aria-describedby={field?.describedBy}
+          aria-invalid={error ? true : undefined}
           aria-activedescendant={open && results[active] ? `${id}-opt-${results[active].id}` : undefined}
           autoComplete="off"
           value={query}
