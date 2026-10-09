@@ -1,24 +1,20 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
-  </head>
-  <body>
-    <p>Hi <%= @user.first_name %>,</p>
+<p style="margin: 0 0 16px;">Hi <%= @user.first_name %>,</p>
 
-    <% if !@donor_name.blank? %>
-      <p>You've received a calendar donation from <%= @donor_name %>!</p>
-    <% else %>
-      <p>You've received a calendar donation!</p>
-    <% end %>
+<% if @donor_name.present? %>
+  <p style="margin: 0 0 16px;">You've received a calendar donation from <%= @donor_name %>!</p>
+<% else %>
+  <p style="margin: 0 0 16px;">You've received a calendar donation!</p>
+<% end %>
 
-    <P>This donation was for the following dates:</p>
-    <ul>
-      <% @donation_dates.each do |day| %>
-        <li><%= day %></li>
-      <% end %>
-    </ul>
+<p style="margin: 0 0 8px;">This donation was for the following dates:</p>
+<ul style="margin: 0 0 16px; padding-left: 20px;">
+  <% @donation_dates.each do |day| %>
+    <li><%= day %></li>
+  <% end %>
+</ul>
 
-    <p>To view all your donations so far and download an image with the latest calendar, visit <%= members_calendars_url %>. If you have any questions, please reach out to Dan!</p>
-  </body>
-</html>
+<p style="margin: 0;">You can see all your donations so far and download an image of your latest calendar on the member site.</p>
+
+<%= email_button 'View your calendar', members_calendars_url %>
+
+<p style="margin: 0;">If you have any questions, please reach out to Dan!</p>

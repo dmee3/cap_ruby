@@ -1,7 +1,25 @@
 Hi <%= @user.first_name %>,
 
-You have a new account on our member site! To set up your account, please reset your password here: <%= @url %> using your email address.
+<% if @membership -%>
+You've been added to Cap City's <%= @membership.season.year %> season<%= " with #{@membership.ensemble}" if @membership.ensemble.present? %>, and you now have an account on our member site.
+<% else -%>
+You now have an account on Cap City's member site.
+<% end -%>
+<% if @membership.nil? || @membership.role == 'member' -%>
 
-Thanks,
+It's where you'll:
+- tell us about rehearsals you can't make
+- see what you owe in dues, and pay online
+- follow your calendar fundraiser
+<% end -%>
 
+To get started, choose a password. Enter this email address (<%= @user.email %>) at the link below and we'll send you a link to set one:
+
+<%= @url %>
+
+After that, sign in with your email address and the password you chose.
+
+Weren't expecting this? Let a Cap City staff member know, or just ignore it.
+
+See you at rehearsal,
 Cap City

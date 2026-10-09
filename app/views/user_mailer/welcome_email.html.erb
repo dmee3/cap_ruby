@@ -1,12 +1,32 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
-  </head>
-  <body>
-    <p>Hi <%= @user.first_name %>,</p>
-    <p>You have a new account on our member site! To set up your account, please reset your password <a href="<%= @url %>">here</a> using your email address.</p>
-    <p>Thanks,</p>
-    <p>Cap City</p>
-  </body>
-</html>
+<p style="margin: 0 0 16px;">Hi <%= @user.first_name %>,</p>
+
+<p style="margin: 0 0 16px;">
+  <% if @membership %>
+    You've been added to Cap City's <strong><%= @membership.season.year %> season</strong><%= " with #{@membership.ensemble}" if @membership.ensemble.present? %>, and you now have an account on our member site.
+  <% else %>
+    You now have an account on Cap City's member site.
+  <% end %>
+</p>
+
+<% if @membership.nil? || @membership.role == 'member' %>
+  <p style="margin: 0 0 8px;">It's where you'll:</p>
+  <ul style="margin: 0 0 16px; padding-left: 20px;">
+    <li>tell us about rehearsals you can't make</li>
+    <li>see what you owe in dues, and pay online</li>
+    <li>follow your calendar fundraiser</li>
+  </ul>
+<% end %>
+
+<p style="margin: 0;">
+  To get started, choose a password. Enter this email address (<%= @user.email %>) on the next page and we'll send you a link to set one.
+</p>
+
+<%= email_button 'Choose your password', @url %>
+
+<p style="margin: 0 0 16px;">After that, sign in with your email address and the password you chose.</p>
+
+<p style="margin: 0 0 16px; color: #5f6368; font-size: 14px;">
+  Weren't expecting this? Let a Cap City staff member know, or just ignore it.
+</p>
+
+<p style="margin: 0;">See you at rehearsal,<br />Cap City</p>
