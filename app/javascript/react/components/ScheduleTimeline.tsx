@@ -1,5 +1,6 @@
 import React from 'react'
 import { dollars } from '../../utilities/money'
+import { monthDay } from '../../utilities/dates'
 
 export type TimelineNodeStatus = 'paid' | 'due-next' | 'not-due' | 'late'
 
@@ -43,9 +44,6 @@ const LEGEND: [TimelineNodeStatus, string][] = [
   ['due-next', 'Due next'],
   ['not-due', 'Not due yet'],
 ]
-
-const fmt = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
 
 /** Where a date sits along the track, 0–100. Exported for testing. */
 export const positionOf = (iso: string, first: string, last: string) => {
@@ -100,7 +98,7 @@ const ScheduleTimeline = ({
               className="absolute top-0 -translate-x-1/2 whitespace-nowrap font-mono text-caption font-semibold text-secondary"
               style={{ left: `${positionOf(node.payDate, first, last)}%` }}
             >
-              {fmt(node.payDate)}
+              {monthDay(node.payDate)}
             </span>
           ))}
 

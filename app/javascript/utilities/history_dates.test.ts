@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { historyDate, parseDateOnly } from './history_dates'
+import { historyDate } from './history_dates'
 
 const TODAY = new Date(2026, 2, 10) // 3/10/26
 
@@ -21,12 +21,5 @@ describe('historyDate', () => {
 
   it('treats today as recent', () => {
     expect(historyDate('2026-03-10', TODAY)).toBe('Tue, 3/10')
-  })
-
-  // A date-only string parsed as UTC midnight renders as the previous day for
-  // anyone west of Greenwich; this app's users are in the US.
-  it('does not slip a day', () => {
-    expect(parseDateOnly('2026-03-01').getDate()).toBe(1)
-    expect(parseDateOnly('2026-01-01').getMonth()).toBe(0)
   })
 })

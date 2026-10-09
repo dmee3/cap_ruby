@@ -1,9 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Field, { controlClass, useField } from './Field'
 import { feeCents, totalCents } from '../../utilities/stripe_fees'
-
-const money = (cents: number) =>
-  `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+import { exact } from '../../utilities/money'
 
 // ---- MoneyField ------------------------------------------------------------
 
@@ -109,7 +107,7 @@ const MoneyField = ({ label = 'Amount', helper, hint, error, maxCents, ...contro
   const shownError =
     error ??
     (overMax && maxCents != null
-      ? `That's more than the ${money(maxCents)} left this season.`
+      ? `That's more than the ${exact(maxCents)} left this season.`
       : undefined)
 
   if (!label) return <MoneyControl {...control} invalid={Boolean(shownError) || undefined} />
@@ -163,15 +161,15 @@ export const FeeBreakdown = ({ amountCents, className = '' }: FeeBreakdownProps)
   const dash = '–'
   return (
     <div className={`flex flex-col gap-1.5 ${className}`.trim()}>
-      <Line label="Toward dues" value={has ? money(amountCents as number) : dash} />
+      <Line label="Toward dues" value={has ? exact(amountCents as number) : dash} />
       <Line
         label="Card fee"
-        value={has ? money(feeCents(amountCents as number)) : dash}
+        value={has ? exact(feeCents(amountCents as number)) : dash}
         muted
       />
       <Line
         label="Total charged"
-        value={has ? money(totalCents(amountCents as number)) : dash}
+        value={has ? exact(totalCents(amountCents as number)) : dash}
         strong
       />
     </div>

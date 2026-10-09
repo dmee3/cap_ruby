@@ -6,6 +6,7 @@ import MemberCombobox from '../../components/MemberCombobox'
 import ValidationSummaryCard, { ValidationError } from '../../components/ValidationSummaryCard'
 import Button from '../../components/Button'
 import Field, { Select, TextInput, Textarea } from '../../components/Field'
+import { monthDay } from '../../../utilities/dates'
 
 export type AddPaymentMember = {
   id: number
@@ -51,9 +52,6 @@ type AddPaymentFormProps = {
   /** Present when correcting an existing payment rather than recording a new one. */
   editing?: EditingPayment
 }
-
-const fmtDate = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
 
 const AddPaymentForm = ({
   members,
@@ -226,7 +224,7 @@ const AddPaymentForm = ({
               <div className="flex min-h-11 items-center rounded-sm border border-dashed border-border-strong bg-sunken px-3 text-body-sm text-secondary">
                 {member
                   ? member.applies_to.length > 0
-                    ? `Oldest unpaid due date first: ${member.applies_to.map(fmtDate).join(', then ')}`
+                    ? `Oldest unpaid due date first: ${member.applies_to.map(monthDay).join(', then ')}`
                     : 'Nothing outstanding, so this counts as paid ahead.'
                   : 'Pick a member to see their due dates'}
               </div>

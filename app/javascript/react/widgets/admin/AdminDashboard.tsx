@@ -6,6 +6,8 @@ import AlertBanner from '../../components/AlertBanner'
 import PaginatedList from '../../components/PaginatedList'
 import SegmentedControl, { SegmentOption } from '../../components/SegmentedControl'
 import { StatusValue } from '../../components/StatusPill'
+import { monthDayYear, weekdayMonthDayYear } from '../../../utilities/dates'
+import { dollars } from '../../../utilities/money'
 
 export type DashboardBehindMember = {
   id: number
@@ -80,31 +82,12 @@ type AdminDashboardProps = {
   newVenmoPaymentPath: string
 }
 
-/** Whole dollars, no cents — headline figures never show cents. */
-const money = (cents: number) =>
-  `$${Math.round(cents / 100).toLocaleString('en-US')}`
-
 const CRUNCHWRAP_SUPREME_CENTS = 649
 
 const crunchwrapSupremes = (cents: number) => {
   const count = Math.floor(cents / CRUNCHWRAP_SUPREME_CENTS)
   return `That's ${count.toLocaleString('en-US')} Crunchwrap Supreme${count === 1 ? '' : 's'}`
 }
-
-const fmtDate = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', {
-    month: 'numeric',
-    day: 'numeric',
-    year: '2-digit',
-  })
-
-const fmtLong = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'numeric',
-    day: 'numeric',
-    year: '2-digit',
-  })
 
 // A report is meant to reach several people so no single one decides what
 // happens to it. Below the target the form silently asks for fewer picks
@@ -174,12 +157,12 @@ const LastVenmoTile = ({
           Last Venmo entered
         </span>
         <span className="text-metric font-extrabold tabular-nums tracking-tight text-primary">
-          {fmtLong(lastVenmo.date_paid)}
+          {weekdayMonthDayYear(lastVenmo.date_paid)}
         </span>
         <span className="flex flex-wrap items-baseline gap-1.5">
           <span className="text-body-sm font-semibold text-primary">{lastVenmo.name}</span>
           <span className="text-body-sm font-medium tabular-nums text-success-fg">
-            {money(lastVenmo.amount_cents)}
+            {dollars(lastVenmo.amount_cents)}
           </span>
         </span>
         {stale && (
@@ -271,7 +254,7 @@ const AdminDashboard = ({
             </h2>
             <span className="text-body-sm text-secondary">
               {seasonLabel} · aggregated by week · through{' '}
-              {fmtLong(asOf)}
+              {weekdayMonthDayYear(asOf)}
             </span>
           </div>
 
@@ -299,21 +282,21 @@ const AdminDashboard = ({
         <Card>
           <StatBlock
             kicker="Expected by today"
-            metric={money(stats.expected_cents)}
+            metric={dollars(stats.expected_cents)}
             context={crunchwrapSupremes(stats.expected_cents)}
           />
         </Card>
         <Card>
           <StatBlock
             kicker="Collected so far"
-            metric={money(stats.collected_cents)}
+            metric={dollars(stats.collected_cents)}
             // Always name the gap against the plan — an unqualified "ahead"
             // sitting under the collected figure reads as if that figure were
             // the surplus.
             context={
               shortfall > 0
-                ? `${money(shortfall)} short of the plan`
-                : `${money(-shortfall)} ahead of the plan`
+                ? `${dollars(shortfall)} short of the plan`
+                : `${dollars(-shortfall)} ahead of the plan`
             }
             tone={shortfall > 0 ? 'warning' : 'success'}
           />
@@ -372,13 +355,13 @@ const AdminDashboard = ({
                   {m.section && <span className="truncate text-caption text-secondary">{m.section}</span>}
                 </span>
                 <span className="text-right font-mono text-body-sm text-primary">
-                  {money(m.paid_cents)}
+                  {dollars(m.paid_cents)}
                 </span>
                 <span className="text-right font-mono text-body-sm text-primary">
-                  {money(m.season_total_cents)}
+                  {dollars(m.season_total_cents)}
                 </span>
                 <span className="text-right font-mono text-body-sm font-bold text-danger-fg">
-                  {money(m.past_due_cents)}
+                  {dollars(m.past_due_cents)}
                 </span>
               </a>
             )}
@@ -411,11 +394,11 @@ const AdminDashboard = ({
                     {p.name}
                   </span>
                   <span className="truncate text-caption text-secondary">
-                    {p.payment_type} · {fmtDate(p.date_paid)}
+                    {p.payment_type} · {monthDayYear(p.date_paid)}
                   </span>
                 </span>
                 <span className="shrink-0 font-mono text-body-sm font-semibold text-success-fg">
-                  +{money(p.amount_cents)}
+                  +{dollars(p.amount_cents)}
                 </span>
               </a>
             )}

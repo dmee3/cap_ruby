@@ -8,14 +8,7 @@ import StatBlock from '../../components/StatBlock'
 import { toast } from '../../components/Toast'
 import StockRow from './StockRow'
 import { StockCategory, StockItem, StockPayload } from './types'
-
-const csrf = () =>
-  (document.getElementsByName('csrf-token')[0] as HTMLMetaElement | undefined)?.content ?? ''
-
-const jsonHeaders = () => ({
-  'Content-Type': 'application/json',
-  'X-CSRF-TOKEN': csrf(),
-})
+import { jsonHeaders } from '../../../utilities/api'
 
 type Status = 'loading' | 'ready' | 'error'
 

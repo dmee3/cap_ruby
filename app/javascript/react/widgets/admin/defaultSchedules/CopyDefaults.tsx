@@ -2,7 +2,9 @@ import React, { useMemo, useState } from 'react'
 import Button from '../../../components/Button'
 import Field, { Select } from '../../../components/Field'
 import { dollars } from '../../../../utilities/money'
-import { DefaultEntry, OVERVIEW_PATH, Overview, jsonHeaders, plural, shortDate, weekday } from './shared'
+import { DefaultEntry, OVERVIEW_PATH, Overview, plural } from './shared'
+import { jsonHeaders } from '../../../../utilities/api'
+import { monthDayYear, weekday } from '../../../../utilities/dates'
 
 export type SourceSeason = {
   id: number
@@ -133,8 +135,8 @@ const CopyDefaults = ({ data }: { data: CopyDefaultsData }) => {
             </div>
             {dates[0] && (
               <span className="text-caption text-success-fg">
-                Every due date stays on the same weekday: {weekday(dates[0])} {shortDate(dates[0])} becomes{' '}
-                {weekday(shift(dates[0], weeks))} {shortDate(shift(dates[0], weeks))}.
+                Every due date stays on the same weekday: {weekday(dates[0])} {monthDayYear(dates[0])} becomes{' '}
+                {weekday(shift(dates[0], weeks))} {monthDayYear(shift(dates[0], weeks))}.
               </span>
             )}
           </Field>
@@ -194,11 +196,11 @@ const CopyDefaults = ({ data }: { data: CopyDefaultsData }) => {
                 {dates.map(d => (
                   <tr key={d} className="border-b border-page">
                     <td className="px-4 py-2 text-secondary">
-                      {shortDate(d)} {weekday(d)}
+                      {monthDayYear(d)} {weekday(d)}
                     </td>
                     <td className="font-sans text-border-strong" aria-hidden="true">→</td>
                     <td className="px-4 py-2 font-semibold">
-                      {shortDate(shift(d, weeks))} {weekday(shift(d, weeks))}
+                      {monthDayYear(shift(d, weeks))} {weekday(shift(d, weeks))}
                     </td>
                   </tr>
                 ))}

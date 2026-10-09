@@ -1,4 +1,5 @@
 import React from 'react'
+import { dollars, exact } from '../../utilities/money'
 
 export type DuesState =
   | 'on-track'
@@ -26,11 +27,6 @@ type DuesMeterProps = {
   className?: string
 }
 
-const money = (cents: number) =>
-  `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-
-const wholeMoney = (cents: number) => `$${Math.round(cents / 100).toLocaleString('en-US')}`
-
 const STATE_METRIC_TONE: Record<Exclude<DuesState, 'no-schedule'>, string> = {
   'on-track': 'text-primary',
   ahead: 'text-success-fg',
@@ -52,7 +48,7 @@ const DuesMeter = ({
   wholeDollars = false,
   className = '',
 }: DuesMeterProps) => {
-  const fmt = wholeDollars ? wholeMoney : money
+  const fmt = wholeDollars ? dollars : exact
   if (state === 'no-schedule') {
     return (
       <p className={`text-body-sm text-secondary ${className}`.trim()}>

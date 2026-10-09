@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import Utilities from '../../../utilities/utilities'
 import Button from '../../components/Button'
 import SegmentedControl, { SegmentOption } from '../../components/SegmentedControl'
 import ConflictFilterBar, {
@@ -8,6 +7,7 @@ import ConflictFilterBar, {
 } from '../../components/ConflictFilterBar'
 import TriageQueue, { PendingDecision, TriageGroup } from './TriageQueue'
 import ConflictCalendarView, { CalendarConflict } from './ConflictCalendarView'
+import { jsonHeaders } from '../../../utilities/api'
 
 type StatusOption = { id: number; name: string }
 
@@ -132,10 +132,7 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
     (id: number, target: number) =>
       fetch(`/api/conflicts/${id}`, {
         method: 'PUT',
-        headers: {
-          'X-CSRF-TOKEN': Utilities.getAuthToken(),
-          'Content-Type': 'application/json',
-        },
+        headers: jsonHeaders(),
         body: JSON.stringify({ conflict: { status_id: target } }),
       }).then(resp => {
         if (!resp.ok) throw resp
@@ -209,10 +206,7 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
 
       fetch(`/api/conflicts/${id}`, {
         method: 'PUT',
-        headers: {
-          'X-CSRF-TOKEN': Utilities.getAuthToken(),
-          'Content-Type': 'application/json',
-        },
+        headers: jsonHeaders(),
         body: JSON.stringify({ conflict: { status_id: target } }),
       })
         .then(resp => {

@@ -1,3 +1,5 @@
+import { csrfToken } from './api'
+
 export default class {
   static displayDateTimeShort(dt: string | number | Date) {
     const format = {
@@ -69,8 +71,7 @@ export default class {
   }
 
   static getAuthToken() {
-    const crsfElement = document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement
-    return crsfElement.content
+    return csrfToken()
   }
 
   static getJWT() {

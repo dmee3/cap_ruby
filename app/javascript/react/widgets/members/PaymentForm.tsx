@@ -4,7 +4,8 @@ import PaymentCheckout from './PaymentCheckout'
 import Button from '../../components/Button'
 import MoneyField, { FeeBreakdown } from '../../components/MoneyField'
 import { totalCents } from '../../../utilities/stripe_fees'
-import Utilities from '../../../utilities/utilities'
+import { exact } from '../../../utilities/money'
+import { jsonHeaders } from '../../../utilities/api'
 
 type PaymentFormProps = {
   stripePromise: Promise<unknown>
@@ -15,9 +16,6 @@ type PaymentFormProps = {
   remainingCents: number
   prefillCents: number | null
 }
-
-const money = (cents: number) =>
-  `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
 const stripeAppearance = () => {
   const dark = window.matchMedia?.('(prefers-color-scheme: dark)').matches
@@ -56,10 +54,7 @@ const PaymentForm = ({
     setPaying(true)
     fetch('/api/members/payment_intents', {
       method: 'POST',
-      headers: {
-        'X-CSRF-TOKEN': Utilities.getAuthToken(),
-        'Content-Type': 'application/json',
-      },
+      headers: jsonHeaders(),
       body: JSON.stringify({ amount: (amountCents! / 100).toFixed(2) }),
     })
       .then((res) => res.json())
@@ -75,17 +70,17 @@ const PaymentForm = ({
         {owedCents > 0 ? (
           <div className="flex justify-between text-body-sm">
             <span>{pastDueCents > 0 ? 'Past due' : `Due ${owedDueOn ?? 'soon'}`}</span>
-            <span className="font-mono font-semibold">{money(owedCents)}</span>
+            <span className="font-mono font-semibold">{exact(owedCents)}</span>
           </div>
         ) : (
           <div className="flex justify-between text-body-sm">
             <span>Nothing due right now</span>
-            <span className="font-mono">{money(0)}</span>
+            <span className="font-mono">{exact(0)}</span>
           </div>
         )}
         <div className="flex justify-between text-body-sm text-secondary border-t border-border-default pt-2">
           <span>Remaining this season</span>
-          <span className="font-mono">{money(remainingCents)}</span>
+          <span className="font-mono">{exact(remainingCents)}</span>
         </div>
       </div>
 
@@ -102,7 +97,7 @@ const PaymentForm = ({
                 className="flex-1 !border-ocean"
                 onClick={() => setAmountCents(owedCents)}
               >
-                Pay {money(owedCents)} owed
+                Pay {exact(owedCents)} owed
               </Button>
             )}
             {remainingCents > 0 && remainingCents !== owedCents && (
@@ -112,7 +107,7 @@ const PaymentForm = ({
                 className="flex-1"
                 onClick={() => setAmountCents(remainingCents)}
               >
-                All {money(remainingCents)}
+                All {exact(remainingCents)}
               </Button>
             )}
           </div>
@@ -126,7 +121,7 @@ const PaymentForm = ({
             helper={covers ? `Covers your ${owedDueOn} installment in full.` : undefined}
           />
           <p className="text-caption text-secondary">
-            Any amount up to {money(remainingCents)} · applied to the oldest installment first
+            Any amount up to {exact(remainingCents)} · applied to the oldest installment first
           </p>
 
           <p className="text-body-sm text-secondary bg-sunken rounded-sm p-3">
@@ -140,7 +135,7 @@ const PaymentForm = ({
             {paying
               ? 'Setting up…'
               : amountCents
-                ? `Pay ${money(totalCents(amountCents))}`
+                ? `Pay ${exact(totalCents(amountCents))}`
                 : 'Enter an amount'}
           </Button>
         </div>

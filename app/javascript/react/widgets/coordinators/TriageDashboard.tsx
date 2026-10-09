@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import Utilities from '../../../utilities/utilities'
 import ConflictCalendarView, { CalendarConflict } from '../conflicts/ConflictCalendarView'
+import { jsonHeaders } from '../../../utilities/api'
 
 type StatusOption = { id: number; name: string }
 
@@ -57,10 +57,7 @@ const TriageDashboard = ({
 
       fetch(`/api/conflicts/${id}`, {
         method: 'PUT',
-        headers: {
-          'X-CSRF-TOKEN': Utilities.getAuthToken(),
-          'Content-Type': 'application/json',
-        },
+        headers: jsonHeaders(),
         body: JSON.stringify({ conflict: { status_id: target } }),
       })
         .then(resp => {

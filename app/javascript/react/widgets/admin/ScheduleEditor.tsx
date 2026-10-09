@@ -7,8 +7,9 @@ import Button from '../../components/Button'
 import Field, { TextInput } from '../../components/Field'
 import Pill, { PillTone } from '../../components/Pill'
 import { toast } from '../../components/Toast'
-import Utilities from '../../../utilities/utilities'
 import { dollars } from '../../../utilities/money'
+import { monthDay } from '../../../utilities/dates'
+import { jsonHeaders } from '../../../utilities/api'
 
 type EntryStatus = 'paid' | 'due-next' | 'not-due' | 'late'
 
@@ -50,11 +51,6 @@ type Row = {
   coveredOn: string | null
 }
 
-const withToken = () => ({
-  'Content-Type': 'application/json',
-  'X-CSRF-Token': Utilities.getAuthToken(),
-})
-
 const toRow = (e: ServerEntry): Row => ({
   id: e.id,
   payDate: e.pay_date,
@@ -65,9 +61,6 @@ const toRow = (e: ServerEntry): Row => ({
   daysLate: e.days_late,
   coveredOn: e.covered_on,
 })
-
-const fmt = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
 
 const STATUS_TONE: Record<EntryStatus, PillTone> = {
   paid: 'success',
@@ -80,7 +73,7 @@ const statusPill = (row: Row) => {
   if (row.payDate !== row.originalDate) {
     return (
       <Pill tone="warning" casing="sentence">
-        Moved from {fmt(row.originalDate)}
+        Moved from {monthDay(row.originalDate)}
       </Pill>
     )
   }
@@ -170,7 +163,7 @@ const ScheduleEditor = ({ data }: { data: ScheduleEditorData }) => {
   const addRow = () => {
     fetch('/api/admin/payment_schedules/add-entry', {
       method: 'POST',
-      headers: withToken(),
+      headers: jsonHeaders(),
       body: JSON.stringify({ payment_schedule_id: scheduleId }),
     })
       .then((r) => (r.ok ? r.json() : Promise.reject(r)))
@@ -195,7 +188,7 @@ const ScheduleEditor = ({ data }: { data: ScheduleEditorData }) => {
   const removeRow = (id: number) => {
     fetch('/api/admin/payment_schedules/remove-entry', {
       method: 'DELETE',
-      headers: withToken(),
+      headers: jsonHeaders(),
       body: JSON.stringify({ id }),
     })
       .then((r) => {
@@ -213,7 +206,7 @@ const ScheduleEditor = ({ data }: { data: ScheduleEditorData }) => {
     setSaving(true)
     fetch(`/api/admin/payment_schedules/${scheduleId}`, {
       method: 'PUT',
-      headers: withToken(),
+      headers: jsonHeaders(),
       body: JSON.stringify({
         payment_schedule: {
           id: scheduleId,
@@ -245,7 +238,7 @@ const ScheduleEditor = ({ data }: { data: ScheduleEditorData }) => {
     setApplying(true)
     fetch('/api/admin/payment_schedules/apply-default', {
       method: 'POST',
-      headers: withToken(),
+      headers: jsonHeaders(),
       body: JSON.stringify({ payment_schedule_id: scheduleId }),
     })
       .then((r) => {
