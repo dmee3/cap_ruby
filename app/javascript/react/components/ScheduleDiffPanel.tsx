@@ -1,6 +1,7 @@
 import React from 'react'
 import Button from './Button'
 import { dollars } from '../../utilities/money'
+import { monthDayYear } from '../../utilities/dates'
 
 export type DiffKind = 'unchanged' | 'changed' | 'added' | 'removed' | 'moved'
 
@@ -29,15 +30,6 @@ type ScheduleDiffPanelProps = {
   className?: string
 }
 
-const fmt = (iso: string | null) =>
-  iso
-    ? new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', {
-        month: 'numeric',
-        day: 'numeric',
-        year: '2-digit',
-      })
-    : '—'
-
 const COUNT_WORD = ['no', 'one', 'two', 'three', 'four', 'five', 'six']
 const spellOut = (n: number) => COUNT_WORD[n] ?? String(n)
 
@@ -45,16 +37,16 @@ const DiffRow = ({ row }: { row: ScheduleDiffRow }) => {
   if (row.kind === 'moved') {
     return (
       <>
-        <span className="font-mono text-body-sm text-secondary line-through">{fmt(row.fromDate)}</span>
+        <span className="font-mono text-body-sm text-secondary line-through">{monthDayYear(row.fromDate)}</span>
         <span className="text-body-sm text-secondary">→</span>
-        <span className="font-mono text-body-sm font-semibold text-primary">{fmt(row.toDate)}</span>
+        <span className="font-mono text-body-sm font-semibold text-primary">{monthDayYear(row.toDate)}</span>
       </>
     )
   }
   if (row.kind === 'added') {
     return (
       <>
-        <span className="font-mono text-body-sm font-semibold text-primary">+ {fmt(row.payDate)}</span>
+        <span className="font-mono text-body-sm font-semibold text-primary">+ {monthDayYear(row.payDate)}</span>
         <span className="ml-auto text-caption text-secondary">added · {dollars(row.toCents ?? 0)}</span>
       </>
     )
@@ -62,7 +54,7 @@ const DiffRow = ({ row }: { row: ScheduleDiffRow }) => {
   if (row.kind === 'removed') {
     return (
       <>
-        <span className="font-mono text-body-sm text-secondary line-through">{fmt(row.payDate)}</span>
+        <span className="font-mono text-body-sm text-secondary line-through">{monthDayYear(row.payDate)}</span>
         <span className="ml-auto text-caption text-secondary">removed</span>
       </>
     )
@@ -70,7 +62,7 @@ const DiffRow = ({ row }: { row: ScheduleDiffRow }) => {
   if (row.kind === 'changed') {
     return (
       <>
-        <span className="font-mono text-body-sm text-secondary">{fmt(row.payDate)}</span>
+        <span className="font-mono text-body-sm text-secondary">{monthDayYear(row.payDate)}</span>
         <span className="ml-auto font-mono text-caption text-secondary line-through">
           {dollars(row.fromCents ?? 0)}
         </span>
@@ -83,7 +75,7 @@ const DiffRow = ({ row }: { row: ScheduleDiffRow }) => {
   }
   return (
     <>
-      <span className="font-mono text-body-sm text-secondary">{fmt(row.payDate)}</span>
+      <span className="font-mono text-body-sm text-secondary">{monthDayYear(row.payDate)}</span>
       <span className="ml-auto text-caption text-success-fg">
         {row.locked ? 'paid, kept as-is' : 'unchanged'}
       </span>

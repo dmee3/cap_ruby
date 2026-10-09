@@ -3,18 +3,9 @@ import Button from '../../../components/Button'
 import SegmentedControl from '../../../components/SegmentedControl'
 import { toast } from '../../../components/Toast'
 import { dollars } from '../../../../utilities/money'
-import {
-  Combination,
-  CopySource,
-  COPY_PATH,
-  DATES_PATH,
-  ENSEMBLE_NAMES,
-  Overview,
-  editPath,
-  jsonHeaders,
-  plural,
-  shortDate,
-} from './shared'
+import { Combination, CopySource, COPY_PATH, DATES_PATH, ENSEMBLE_NAMES, Overview, editPath, plural } from './shared'
+import { jsonHeaders } from '../../../../utilities/api'
+import { monthDayYear } from '../../../../utilities/dates'
 
 const linkButton =
   'inline-flex items-center justify-center rounded-md px-3 h-9 text-body-sm font-semibold no-underline transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
@@ -147,7 +138,7 @@ const Matrix = ({
                 scope="row"
                 className={`${compact ? 'px-2.5' : 'px-4'} py-2 text-left font-mono font-normal text-secondary`}
               >
-                {shortDate(date)}
+                {monthDayYear(date)}
               </th>
               {columns.map(c => {
                 const amount = amountOn(c, date)
@@ -216,7 +207,7 @@ const SourceFacts = ({ source }: { source: CopySource }) => (
         {plural(source.payment_count, 'payment')}
       </dt>
       <dd className="m-0 font-mono font-semibold">
-        {shortDate(source.first_date)} – {shortDate(source.last_date)}
+        {monthDayYear(source.first_date)} – {monthDayYear(source.last_date)}
       </dd>
     </div>
   </dl>

@@ -1,4 +1,5 @@
 import React, { useRef } from 'react'
+import { shortMonthDay, weekdayMonthDay } from '../../utilities/dates'
 
 // @types/react is still v17 here (no useId); a per-instance counter keeps the
 // SVG pattern id unique when more than one chart renders on a page.
@@ -50,12 +51,6 @@ const fmtAxis = (n: number) => {
   if (n >= 1000) return `$${Math.round(n / 1000)}k`
   return `$${Math.round(n)}`
 }
-
-const fmtTick = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-
-const fmtLong = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' })
 
 const BurndownChart = ({
   scheduled,
@@ -136,7 +131,7 @@ const BurndownChart = ({
         role="img"
         aria-label={`Dues collected against plan. ${
           behindCents > 0
-            ? `${fmtMoney(behindCents, currency)} behind schedule as of ${fmtLong(markerIso)}.`
+            ? `${fmtMoney(behindCents, currency)} behind schedule as of ${weekdayMonthDay(markerIso)}.`
             : 'Collections are keeping pace with the plan.'
         }`}
       >
@@ -220,7 +215,7 @@ const BurndownChart = ({
         </text>
 
         <text x={PLOT.left} y={PLOT.bottom + 18} className="fill-secondary font-mono" style={{ fontSize: 11 }}>
-          {fmtTick(allDates[0])}
+          {shortMonthDay(allDates[0])}
         </text>
         <text
           x={PLOT.right}
@@ -229,7 +224,7 @@ const BurndownChart = ({
           className="fill-secondary font-mono"
           style={{ fontSize: 11 }}
         >
-          {fmtTick(allDates[allDates.length - 1])}
+          {shortMonthDay(allDates[allDates.length - 1])}
         </text>
       </svg>
 
@@ -239,11 +234,11 @@ const BurndownChart = ({
             <span className="text-body font-semibold text-danger-fg">
               {fmtMoney(behindCents, currency)} short of the plan
             </span>
-            <span className="text-body-sm text-secondary">as of {fmtLong(markerIso)}.</span>
+            <span className="text-body-sm text-secondary">as of {weekdayMonthDay(markerIso)}.</span>
           </>
         ) : (
           <span className="text-body-sm text-secondary">
-            Collections are keeping pace with the plan as of {fmtLong(markerIso)}.
+            Collections are keeping pace with the plan as of {weekdayMonthDay(markerIso)}.
           </span>
         )}
       </p>
@@ -257,7 +252,7 @@ const BurndownChart = ({
             {fmtMoney(afterCutoff.cents / 100, currency)}
           </span>{' '}
           ({afterCutoff.count} {afterCutoff.count === 1 ? 'payment' : 'payments'}
-          {afterCutoff.after ? ` after ${fmtTick(afterCutoff.after)}` : ''}), not plotted.
+          {afterCutoff.after ? ` after ${shortMonthDay(afterCutoff.after)}` : ''}), not plotted.
         </p>
       )}
     </div>

@@ -2,6 +2,7 @@ import React from 'react'
 import Card from './Card'
 import Pill from './Pill'
 import { dollars } from '../../utilities/money'
+import { monthDayYear } from '../../utilities/dates'
 
 export type ScheduleInstallment = {
   pay_date: string
@@ -17,13 +18,6 @@ type MemberSchedulePanelProps = {
   pendingCents: number
   className?: string
 }
-
-const fmt = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', {
-    month: 'numeric',
-    day: 'numeric',
-    year: '2-digit',
-  })
 
 /**
  * Which unpaid installments the pending amount will cover, oldest first —
@@ -84,7 +78,7 @@ const MemberSchedulePanel = ({
                   isPending ? 'font-semibold text-primary' : 'text-secondary'
                 }`}
               >
-                {fmt(i.pay_date)}
+                {monthDayYear(i.pay_date)}
               </span>
               <span
                 className={`font-mono text-body-sm ${

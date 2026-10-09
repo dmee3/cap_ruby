@@ -5,6 +5,7 @@ import EmptyState from '../../components/EmptyState'
 import AuditRow, { AuditEntry } from '../../components/AuditRow'
 import { operatorLabel } from '../../components/RuleSentence'
 import { historyDate } from '../../../utilities/history_dates'
+import { csrfHeaders } from '../../../utilities/api'
 
 export type ItemHistoryPayload = {
   item: {
@@ -133,12 +134,9 @@ const DeleteItem = ({
 
   const remove = () => {
     setBusy(true)
-    const token =
-      (document.getElementsByName('csrf-token')[0] as HTMLMetaElement | undefined)?.content ?? ''
-
     fetch(`/api/inventory/categories/${item.category_id}/items/${item.id}`, {
       method: 'DELETE',
-      headers: { 'X-CSRF-TOKEN': token },
+      headers: csrfHeaders(),
     })
       .then((resp) => {
         if (!resp.ok) throw resp

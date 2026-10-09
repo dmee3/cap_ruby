@@ -12,6 +12,7 @@ import { DeletedPill, RestoreAction } from '../../components/deletedRow'
 import Utilities from '../../../utilities/utilities'
 import { dollars } from '../../../utilities/money'
 import { typeTone, isMachineRecorded } from '../../../utilities/payment_type'
+import { weekdayMonthDay } from '../../../utilities/dates'
 
 type DuesSummary = {
   state: 'no_schedule' | 'paid_in_full' | 'behind' | 'ahead' | 'on_track'
@@ -98,9 +99,6 @@ const ENTRY_TONE: Record<EntryStatus, PillTone> = {
   'due-next': 'warning',
   'not-due': 'neutral',
 }
-
-const fmtDate = (iso: string | null) =>
-  iso ? Utilities.displayDate(Utilities.dateWithTZ(iso)) : '—'
 
 const Member360 = ({ data, csrfToken }: { data: Member360Data; csrfToken: string }) => {
   const { identity, dues, schedule } = data
@@ -312,7 +310,7 @@ const Member360 = ({ data, csrfToken }: { data: Member360Data; csrfToken: string
                       key={e.id}
                       className="grid grid-cols-[auto_1fr_auto] items-center gap-3 border-b border-border-default px-4 py-2.5"
                     >
-                      <span className="font-mono text-body-sm text-secondary">{fmtDate(e.pay_date)}</span>
+                      <span className="font-mono text-body-sm text-secondary">{weekdayMonthDay(e.pay_date)}</span>
                       <span className="text-right font-mono text-body-sm text-primary">
                         {dollars(e.amount_cents)}
                       </span>
@@ -391,7 +389,7 @@ const Member360 = ({ data, csrfToken }: { data: Member360Data; csrfToken: string
                           {stillDeleted && <DeletedPill />}
                         </span>
                         <span className="truncate text-caption text-secondary">
-                          {[fmtDate(p.date_paid), p.notes].filter(Boolean).join(' · ')}
+                          {[weekdayMonthDay(p.date_paid), p.notes].filter(Boolean).join(' · ')}
                         </span>
                       </span>
                       <span className="flex shrink-0 items-baseline gap-2.5 text-body-sm">

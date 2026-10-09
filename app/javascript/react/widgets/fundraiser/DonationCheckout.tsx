@@ -3,10 +3,10 @@ import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-
 import { loadStripe, Stripe } from '@stripe/stripe-js'
 import DateChip from '../../components/DateChip'
 import { dollars } from '../../../utilities/money'
-import Utilities from '../../../utilities/utilities'
 import { Performer } from '../../components/PerformerCard'
 import Button from '../../components/Button'
 import Field, { TextInput } from '../../components/Field'
+import { jsonHeaders } from '../../../utilities/api'
 
 type DonationCheckoutProps = {
   performer: Performer
@@ -55,10 +55,7 @@ const PaymentForm = ({
       try {
         await fetch(`/api/fundraiser/payment_intents/${paymentIntentId}`, {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': Utilities.getAuthToken(),
-          },
+          headers: jsonHeaders(),
           body: JSON.stringify({ donor_name: donorName }),
         })
       } catch {
@@ -179,10 +176,7 @@ const DonationCheckout = ({
     const createIntent = async () => {
       const response = await fetch('/api/fundraiser/payment_intents', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': Utilities.getAuthToken(),
-        },
+        headers: jsonHeaders(),
         body: JSON.stringify({ token: performer.token, dates }),
       })
 

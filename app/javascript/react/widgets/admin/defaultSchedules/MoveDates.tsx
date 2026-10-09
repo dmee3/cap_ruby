@@ -2,7 +2,9 @@ import React, { useState } from 'react'
 import Button from '../../../components/Button'
 import { TextInput } from '../../../components/Field'
 import Pill from '../../../components/Pill'
-import { Combination, OVERVIEW_PATH, Overview, jsonHeaders, plural, shortDate, weekday } from './shared'
+import { Combination, OVERVIEW_PATH, Overview, plural } from './shared'
+import { jsonHeaders } from '../../../../utilities/api'
+import { monthDayYear, weekday } from '../../../../utilities/dates'
 
 // "All 8 defaults", or for a date only some pay on, "4 of 8 · Visual".
 const usedBy = (users: Combination[], all: Combination[]) => {
@@ -98,17 +100,17 @@ const MoveDates = ({ data }: { data: Overview }) => {
                       {changed && (
                         <span className="font-normal text-warning-fg sm:hidden">
                           {' '}
-                          · was <s className="font-mono">{shortDate(date)}</s>
+                          · was <s className="font-mono">{monthDayYear(date)}</s>
                         </span>
                       )}
                     </td>
                     <td className={`hidden font-mono sm:table-cell ${changed ? 'text-secondary line-through' : ''}`}>
-                      {shortDate(date)} {weekday(date)}
+                      {monthDayYear(date)} {weekday(date)}
                     </td>
                     <td className="sm:py-2.5 sm:pr-4">
                       <TextInput
                         type="date"
-                        aria-label={`Move payment ${i + 1}, now ${shortDate(date)}, to`}
+                        aria-label={`Move payment ${i + 1}, now ${monthDayYear(date)}, to`}
                         value={to}
                         onChange={e => setTargets(t => ({ ...t, [date]: e.target.value || date }))}
                         mono

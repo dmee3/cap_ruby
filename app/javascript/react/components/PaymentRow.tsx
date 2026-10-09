@@ -1,4 +1,5 @@
 import React from 'react'
+import { exact } from '../../utilities/money'
 
 export type PaymentMethod = 'Card' | 'Venmo' | 'Cash' | 'Check' | 'Other'
 
@@ -15,9 +16,6 @@ type PaymentRowProps = {
   installmentChip?: string
   className?: string
 }
-
-const money = (cents: number) =>
-  `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
 const METHOD_INITIALS: Record<PaymentMethod, string> = {
   Card: 'CD',
@@ -90,7 +88,7 @@ const PaymentRow = ({
       </span>
 
       <span className={`font-mono tabular-nums text-body-sm font-semibold ${AMOUNT_TONE[variant]}`}>
-        {money(amountCents)}
+        {exact(amountCents)}
       </span>
     </div>
   )

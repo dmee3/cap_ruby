@@ -1,5 +1,6 @@
 import React from 'react'
 import { dollars } from '../../utilities/money'
+import { monthDayYear } from '../../utilities/dates'
 
 export type ForecastEntry = { pay_date: string; amount_cents: number }
 
@@ -95,7 +96,7 @@ const SchedulePreviewPanel = ({ forecast, waiting, seasonYear, setUpDefaultsHref
             key={entry.pay_date}
             className="flex items-center justify-between border-b border-border-default px-4 py-1.5 text-body-sm"
           >
-            <span className="font-mono text-secondary">{formatDate(entry.pay_date)}</span>
+            <span className="font-mono text-secondary">{monthDayYear(entry.pay_date)}</span>
             <span className="font-mono font-semibold text-primary">{dollars(entry.amount_cents)}</span>
           </li>
         ))}
@@ -119,12 +120,6 @@ const SchedulePreviewPanel = ({ forecast, waiting, seasonYear, setUpDefaultsHref
       )}
     </div>
   )
-}
-
-// The entries arrive as ISO dates; render them the way the rest of the app does.
-const formatDate = (iso: string) => {
-  const [y, m, d] = iso.split('-').map(Number)
-  return `${m}/${d}/${String(y).slice(2)}`
 }
 
 export default SchedulePreviewPanel

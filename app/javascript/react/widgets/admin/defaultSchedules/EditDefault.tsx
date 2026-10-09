@@ -5,17 +5,9 @@ import MoneyField from '../../../components/MoneyField'
 import ValidationSummaryCard from '../../../components/ValidationSummaryCard'
 import { toast } from '../../../components/Toast'
 import { dollars } from '../../../../utilities/money'
-import {
-  Combination,
-  ENSEMBLE_NAMES,
-  OVERVIEW_PATH,
-  Overview,
-  editPath,
-  jsonHeaders,
-  plural,
-  shortDate,
-  weekday,
-} from './shared'
+import { Combination, ENSEMBLE_NAMES, OVERVIEW_PATH, Overview, editPath, plural } from './shared'
+import { jsonHeaders } from '../../../../utilities/api'
+import { monthDayYear, weekday } from '../../../../utilities/dates'
 
 export type EditDefaultData = { overview: Overview; slug: string }
 
@@ -91,7 +83,7 @@ const EditDefault = ({ data }: { data: EditDefaultData }) => {
 
   const subtitle = [
     `Default for ${plural(combination.member_count, 'member')}`,
-    combination.last_changed_on ? `last changed ${shortDate(combination.last_changed_on)}` : 'not set up yet',
+    combination.last_changed_on ? `last changed ${monthDayYear(combination.last_changed_on)}` : 'not set up yet',
   ].join(' · ')
 
   return (

@@ -6,9 +6,10 @@ import Card from '../../components/Card'
 import EmptyState from '../../components/EmptyState'
 import Pill from '../../components/Pill'
 import { DeletedPill, RestoreAction } from '../../components/deletedRow'
-import Utilities from '../../../utilities/utilities'
 import { dollars } from '../../../utilities/money'
 import { typeTone, isMachineRecorded } from '../../../utilities/payment_type'
+import { monthDayYear } from '../../../utilities/dates'
+import { csrfHeaders } from '../../../utilities/api'
 
 type PaymentTypeOption = { id: number; name: string }
 
@@ -40,15 +41,6 @@ type PaymentsListProps = {
 
 const PAGE = 20
 
-const fmtDate = (iso: string | null) =>
-  iso
-    ? new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', {
-        month: 'numeric',
-        day: 'numeric',
-        year: '2-digit',
-      })
-    : '—'
-
 const isStripe = isMachineRecorded
 
 const toParams = (filters: PaymentFilters, sort: string, dir: SortDir, offset: number) => {
@@ -65,7 +57,7 @@ const toParams = (filters: PaymentFilters, sort: string, dir: SortDir, offset: n
 const emptyFilteredBody = (f: PaymentFilters, types: PaymentTypeOption[]) => {
   const bits: string[] = []
   if (f.startDate || f.endDate) {
-    bits.push(`from ${f.startDate ? fmtDate(f.startDate) : 'the start'} – ${f.endDate ? fmtDate(f.endDate) : 'today'}`)
+    bits.push(`from ${f.startDate ? monthDayYear(f.startDate) : 'the start'} – ${f.endDate ? monthDayYear(f.endDate) : 'today'}`)
   }
   if (f.q) bits.push(`for “${f.q}”`)
   const type = types.find((t) => String(t.id) === f.typeId)
@@ -131,7 +123,7 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
 
   const mutate = (url: string, method: 'PUT' | 'DELETE', id: number, after: () => void) => {
     setPendingRestore(id)
-    fetch(url, { method, headers: { 'X-CSRF-Token': Utilities.getAuthToken() } })
+    fetch(url, { method, headers: csrfHeaders() })
       .then((r) => {
         if (!r.ok) throw r
         after()
@@ -231,7 +223,7 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
               className={`border-b border-border-default ${p.deleted ? 'bg-sunken text-secondary' : ''}`}
             >
               <td className={`px-4 py-3 font-mono text-body-sm text-secondary ${struck}`}>
-                {fmtDate(p.date_paid)}
+                {monthDayYear(p.date_paid)}
               </td>
               <td className="px-4 py-3 text-body-sm">
                 <span className="flex flex-col items-start gap-0.5">
@@ -399,7 +391,7 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <Pill tone={typeTone(p.payment_type.name)}>{p.payment_type.name}</Pill>
-                    <span className="font-mono text-body-sm text-secondary">{fmtDate(p.date_paid)}</span>
+                    <span className="font-mono text-body-sm text-secondary">{monthDayYear(p.date_paid)}</span>
                     {p.deleted && <DeletedPill />}
                   </div>
                   {p.notes && <p className="text-body-sm text-secondary">{p.notes}</p>}

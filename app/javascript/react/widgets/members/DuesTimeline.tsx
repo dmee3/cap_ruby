@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import PaymentRow, { PaymentMethod } from '../../components/PaymentRow'
 import EmptyState from '../../components/EmptyState'
 import Button from '../../components/Button'
+import { exact } from '../../../utilities/money'
 
 export type TimelineRow = {
   kind: 'paid' | 'upcoming' | 'past-due'
@@ -30,9 +31,6 @@ const Section = ({ label, right }: { label: string; right?: string }) => (
     {right && <span className="font-mono tabular-nums normal-case tracking-normal">{right}</span>}
   </div>
 )
-
-const money = (cents: number) =>
-  `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
 const DuesTimeline = ({ paid, upcoming }: DuesTimelineProps) => {
   const [showAllPaid, setShowAllPaid] = useState(false)
@@ -69,7 +67,7 @@ const DuesTimeline = ({ paid, upcoming }: DuesTimelineProps) => {
 
       {paid.length > 0 && (
         <>
-          <Section label="Paid" right={money(paidTotal)} />
+          <Section label="Paid" right={exact(paidTotal)} />
           {visiblePaid.map((r, i) => (
             <div key={`p-${i}`} className="border-b border-border-default last:border-0">
               <PaymentRow
