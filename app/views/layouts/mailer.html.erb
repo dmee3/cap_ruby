@@ -1,13 +1,33 @@
+<% colors = MailerHelper::EMAIL_COLORS -%>
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <style>
-      /* Email styles need to be inline */
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
 
-  <body>
-    <%= yield %>
+  <body style="margin: 0; padding: 0; background-color: <%= colors[:flash] %>;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: <%= colors[:flash] %>;">
+      <tr>
+        <td align="center" style="padding: 24px 12px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 560px; background-color: #ffffff; border-radius: 6px; overflow: hidden;">
+            <tr>
+              <td style="background-color: <%= colors[:jet] %>; padding: 20px 28px; border-bottom: 4px solid <%= colors[:raspberry] %>;">
+                <%= image_tag email_wordmark_url, alt: 'Cap City Percussion', width: 150,
+                              style: "display: block; border: 0; height: auto; color: #ffffff; font-family: #{MailerHelper::EMAIL_FONT}; font-size: 18px; font-weight: 700;" %>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 28px; color: <%= colors[:jet] %>; font-family: <%= MailerHelper::EMAIL_FONT %>; font-size: 16px; line-height: 1.5;">
+                <%= yield %>
+              </td>
+            </tr>
+          </table>
+          <p style="margin: 16px 0 0; color: #5f6368; font-family: <%= MailerHelper::EMAIL_FONT %>; font-size: 12px;">
+            Cap City Percussion &middot; Columbus, Ohio
+          </p>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>

@@ -1,24 +1,16 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
-  </head>
-  <body>
-    <p>Hi <%= @user.first_name %>,</p>
+<p style="margin: 0 0 16px;">Hi <%= @user.first_name %>,</p>
 
-    <% case @rule.operator.to_sym %>
-    <% when :eq %>
-      <p>This email is to notify you that Cap City's <%= @item_name %> stock is currently at <%= @rule.threshold %>.</p>
-    <% when :lt %>
-      <p>This email is to notify you that Cap City's <%= @item_name %> stock has fallen below <%= @rule.threshold %>.</p>
-    <% when :lt_eq %>
-      <p>This email is to notify you that Cap City's <%= @item_name %> stock has dropped to <%= @rule.threshold %>.</p>
-    <% when :gt %>
-      <p>This email is to notify you that Cap City's <%= @item_name %> stock has grown past <%= @rule.threshold %>.</p>
-    <% when :gt %>
-      <p>This email is to notify you that Cap City's <%= @item_name %> stock has reached <%= @rule.threshold %>.</p>
-    <% end %>
+<% case @rule.operator.to_sym %>
+<% when :eq %>
+  <p style="margin: 0;">This email is to notify you that Cap City's <%= @item_name %> stock is currently at <%= @rule.threshold %>.</p>
+<% when :lt %>
+  <p style="margin: 0;">This email is to notify you that Cap City's <%= @item_name %> stock has fallen below <%= @rule.threshold %>.</p>
+<% when :lt_eq %>
+  <p style="margin: 0;">This email is to notify you that Cap City's <%= @item_name %> stock has dropped to <%= @rule.threshold %>.</p>
+<% when :gt %>
+  <p style="margin: 0;">This email is to notify you that Cap City's <%= @item_name %> stock has grown past <%= @rule.threshold %>.</p>
+<% when :gt_eq %>
+  <p style="margin: 0;">This email is to notify you that Cap City's <%= @item_name %> stock has reached <%= @rule.threshold %>.</p>
+<% end %>
 
-    <p>Click <%= link_to 'here', inventory_categories_url %> to view the full Cap City inventory.</p>
-  </body>
-</html>
+<%= email_button 'View the inventory', inventory_categories_url %>

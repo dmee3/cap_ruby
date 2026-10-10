@@ -9,7 +9,7 @@ Hi <%= @user.first_name %>,
   This email is to notify you that Cap City's <%= @item_name %> stock has dropped to <%= @rule.threshold %>.
 <% when :gt %>
   This email is to notify you that Cap City's <%= @item_name %> stock has grown past <%= @rule.threshold %>.
-<% when :gt %>
+<% when :gt_eq %>
   This email is to notify you that Cap City's <%= @item_name %> stock has reached <%= @rule.threshold %>.
 <% end %>
 
