@@ -1,20 +1,18 @@
 <p style="margin: 0 0 16px;">Hi <%= @user.first_name %>,</p>
 
-<p style="margin: 0 0 16px;">
-  <% if @membership %>
-    You've been added to Cap City's <strong><%= @membership.season.year %> season</strong><%= " with #{@membership.ensemble}" if @membership.ensemble.present? %>, and you now have an account on our member site.
-  <% else %>
-    You now have an account on Cap City's member site.
-  <% end %>
-</p>
-
 <% if @membership.nil? || @membership.role == 'member' %>
-  <p style="margin: 0 0 8px;">It's where you'll:</p>
+  <p style="margin: 0 0 8px;">
+    You've been added to Cap City's member website<%= " for the #{@membership.season.year} season" if @membership %>. It's where you'll:
+  </p>
   <ul style="margin: 0 0 16px; padding-left: 20px;">
-    <li>tell us about rehearsals you can't make</li>
-    <li>see what you owe in dues, and pay online</li>
-    <li>follow your calendar fundraiser</li>
+    <li>Submit/manage conflicts</li>
+    <li>Track dues</li>
+    <li>See important files, including music &amp; drill</li>
   </ul>
+<% else %>
+  <p style="margin: 0 0 16px;">
+    You've been added to Cap City's member website for the <%= @membership.season.year %> season.
+  </p>
 <% end %>
 
 <p style="margin: 0;">
@@ -24,9 +22,5 @@
 <%= email_button 'Choose your password', @url %>
 
 <p style="margin: 0 0 16px;">After that, sign in with your email address and the password you chose.</p>
-
-<p style="margin: 0 0 16px; color: #5f6368; font-size: 14px;">
-  Weren't expecting this? Let a Cap City staff member know, or just ignore it.
-</p>
 
 <p style="margin: 0;">See you at rehearsal,<br />Cap City</p>
