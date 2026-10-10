@@ -20,7 +20,8 @@ RSpec.describe 'Mailer layout' do
       welcome: UserMailer.with(user: user).welcome_email,
       calendar: CalendarMailer.with(user_id: user.id, donation_dates: [3, 4], donor_name: 'Ana').calendar_email,
       download: CalendarMailer.with(user_name: 'Iris').download_email,
-      inventory: inventory_mail('lt')
+      inventory: inventory_mail('lt'),
+      password_reset: Devise::Mailer.reset_password_instructions(user, 'token')
     }
   end
 

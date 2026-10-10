@@ -222,7 +222,7 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
           <section className="rounded-md border border-border-default bg-surface p-5">
             <h2 className="mt-0 mb-1 text-body font-bold">Basic info</h2>
             <p className="m-0 mb-4 text-body-sm text-secondary">
-              They sign in with their username or email.
+              They sign in with their email address.
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="First name">
@@ -336,8 +336,8 @@ const UserForm = ({ data, csrfToken }: UserFormProps) => {
             <ol className="m-0 flex list-decimal flex-col gap-3 pl-5">
               <li className="text-body-sm text-primary">
                 {isEdit ? 'Their details and seasons are updated.' : 'They get an account.'}
-                {!isEdit && data.user.username && (
-                  <span className="text-secondary"> They sign in as {data.user.username}.</span>
+                {!isEdit && data.user.email && (
+                  <span className="text-secondary"> They sign in as {data.user.email}.</span>
                 )}
               </li>
               <li className="text-body-sm text-primary">
