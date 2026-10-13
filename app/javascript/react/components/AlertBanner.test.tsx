@@ -36,7 +36,7 @@ describe('AlertBanner', () => {
   it('calls onDismiss when the dismiss control is clicked', async () => {
     const onDismiss = vi.fn()
     render(<AlertBanner headline="x" onDismiss={onDismiss} />)
-    await userEvent.click(screen.getByRole('button', { name: 'Dismiss ✕' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
     expect(onDismiss).toHaveBeenCalledOnce()
   })
 

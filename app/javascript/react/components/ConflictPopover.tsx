@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import Button from './Button'
+import IconButton from './IconButton'
 import StatusPill, { StatusValue } from './StatusPill'
 
 export type ConflictPopoverData = {
@@ -97,15 +98,7 @@ const ConflictPopover = ({
           </span>
           {subtitle && <span className="truncate text-caption text-secondary">{subtitle}</span>}
         </div>
-        <button
-          ref={closeRef}
-          type="button"
-          onClick={onClose}
-          aria-label="Close conflict details"
-          className="flex-none rounded-sm p-1 text-secondary transition hover:bg-sunken hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-        >
-          <span aria-hidden="true">✕</span>
-        </button>
+        <IconButton ref={closeRef} label="Close conflict details" onClick={onClose} />
       </div>
 
       <div className="flex flex-col gap-2 px-4 py-3.5">

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Button from '../../../components/Button'
 import { TextInput } from '../../../components/Field'
 import Pill from '../../../components/Pill'
+import { Table, Th, Tr } from '../../../components/Table'
 import { Combination, OVERVIEW_PATH, Overview, plural } from './shared'
 import { jsonHeaders } from '../../../../utilities/api'
 import { monthDayYear, weekday } from '../../../../utilities/dates'
@@ -75,13 +76,18 @@ const MoveDates = ({ data }: { data: Overview }) => {
         </p>
       ) : (
         <div className="overflow-hidden rounded-md border border-border-default bg-surface">
-          <table className="w-full border-collapse text-body-sm">
+          {/*
+            Each row holds the only input for its date, so below sm the rows
+            restack themselves rather than handing off to <TableCards>, which
+            would render every input twice.
+          */}
+          <Table stickyHeader={false}>
             <thead className="hidden sm:table-header-group">
-              <tr className="border-b border-border-default bg-page text-left text-label uppercase text-secondary">
-                <th scope="col" className="w-10 px-5 py-2.5 font-semibold">#</th>
-                <th scope="col" className="w-40 py-2.5 font-semibold">Now</th>
-                <th scope="col" className="w-60 py-2.5 font-semibold">Move to</th>
-                <th scope="col" className="py-2.5 pr-5 font-semibold">Used by</th>
+              <tr>
+                <Th className="w-14">#</Th>
+                <Th className="w-44">Now</Th>
+                <Th className="w-64">Move to</Th>
+                <Th>Used by</Th>
               </tr>
             </thead>
             <tbody>
@@ -90,11 +96,12 @@ const MoveDates = ({ data }: { data: Overview }) => {
                 const changed = to !== date
                 const who = users(date)
                 return (
-                  <tr
+                  <Tr
                     key={date}
-                    className={`flex flex-col gap-1.5 border-b border-page px-4 py-2.5 sm:table-row sm:px-0 ${changed ? 'bg-warning-bg/30' : ''}`}
+                    tone={changed ? 'changed' : 'default'}
+                    className="flex flex-col gap-1.5 px-4 py-2.5 sm:table-row sm:p-0"
                   >
-                    <td className="font-mono text-caption font-semibold text-secondary sm:px-5 sm:text-body-sm">
+                    <td className="font-mono text-caption font-semibold text-secondary sm:px-4 sm:py-2.5 sm:text-body-sm">
                       <span className="sm:hidden">Payment </span>
                       {i + 1}
                       {changed && (
@@ -104,10 +111,10 @@ const MoveDates = ({ data }: { data: Overview }) => {
                         </span>
                       )}
                     </td>
-                    <td className={`hidden font-mono sm:table-cell ${changed ? 'text-secondary line-through' : ''}`}>
+                    <td className={`hidden px-4 py-2.5 font-mono sm:table-cell ${changed ? 'text-secondary line-through' : ''}`}>
                       {monthDayYear(date)} {weekday(date)}
                     </td>
-                    <td className="sm:py-2.5 sm:pr-4">
+                    <td className="sm:px-4 sm:py-2.5">
                       <TextInput
                         type="date"
                         aria-label={`Move payment ${i + 1}, now ${monthDayYear(date)}, to`}
@@ -117,7 +124,7 @@ const MoveDates = ({ data }: { data: Overview }) => {
                         className={`w-full sm:max-w-[240px] ${changed ? '!border-ocean shadow-[inset_0_0_0_1px_rgb(var(--focus-ring))]' : ''}`}
                       />
                     </td>
-                    <td className="hidden pr-5 text-secondary sm:table-cell">
+                    <td className="hidden px-4 py-2.5 text-secondary sm:table-cell">
                       <span className="flex flex-wrap items-center gap-2">
                         {usedBy(who, setUp)}
                         {changed && (
@@ -127,11 +134,11 @@ const MoveDates = ({ data }: { data: Overview }) => {
                         )}
                       </span>
                     </td>
-                  </tr>
+                  </Tr>
                 )
               })}
             </tbody>
-          </table>
+          </Table>
           <div className="flex flex-col gap-2 px-4 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:px-5">
             {error && (
               <p role="alert" className="m-0 basis-full text-body-sm text-danger-fg">

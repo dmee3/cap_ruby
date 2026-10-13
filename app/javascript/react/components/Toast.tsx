@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
+import IconButton from './IconButton'
 
 export type ToastVariant = 'success' | 'error' | 'info' | 'neutral'
 
@@ -55,14 +56,7 @@ const Toast = ({ item, onDismiss }: { item: ToastItem; onDismiss: (id: number) =
       <div className="flex items-center gap-2.5 px-3.5 py-3">
         <span className={`h-2 w-2 shrink-0 rounded-full ${DOT_CLASSES[item.variant]}`} />
         <span className="flex-1 text-body-sm font-medium">{item.message}</span>
-        <button
-          type="button"
-          onClick={() => onDismiss(item.id)}
-          aria-label="Dismiss"
-          className="shrink-0 opacity-70 hover:opacity-100 cursor-pointer text-lg leading-none"
-        >
-          &times;
-        </button>
+        <IconButton label="Dismiss" tone="onFill" onClick={() => onDismiss(item.id)} className="-my-1.5" />
       </div>
       <div className="h-[3px] bg-white/25">
         <div className="h-full bg-white/80" style={{ width: `${remaining * 100}%` }} />

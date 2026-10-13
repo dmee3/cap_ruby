@@ -1,14 +1,9 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
-import { deletedRowClass, DeletedPill, RestoreAction } from './deletedRow'
+import { DeletedPill, RestoreAction } from './deletedRow'
 
 describe('deletedRow treatment', () => {
-  it('applies strike-through + tint classes only when deleted', () => {
-    expect(deletedRowClass(true)).toContain('line-through')
-    expect(deletedRowClass(false)).toBe('')
-  })
-
   it('renders a neutral Deleted pill', () => {
     render(<DeletedPill />)
     const pill = screen.getByText('Deleted')

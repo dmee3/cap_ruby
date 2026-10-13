@@ -287,7 +287,23 @@ each one superseded.
   `.btn-base`. `link` stays inline.
 - `href` renders an `<a>` with the same look, for navigation sitting beside
   actions ("Edit" next to "Delete").
+- `dashed` *(added — b3a.51)*: dashed `border.strong` outline, `accent` text by
+  default. Adds a row to the list above it ("+ Add a payment date"), so it
+  reads as an empty slot rather than a command. Pass `fullWidthBelow={false}`
+  when it shares a line with a total.
 - Replaces: `.btn-primary/.btn-green/.btn-red/.btn-gray/.btn-link` + `.btn-lg/md/sm`.
+  Those classes stay in `buttons.css` while ERB views still use them.
+
+**IconButton** *(added — b3a.51, `IconButton.tsx`)*. The icon-only sibling, for
+dismiss, close, clear and remove-row. One size — a 32px square, 16px SVG ✕,
+`rounded-sm`, the focus ring — and a required `label` that becomes both
+`aria-label` and `title`, since the glyph names nothing. Tones: `default`
+(muted, `bg.sunken` on hover), `danger` (muted at rest, `danger.bg`/`danger.fg`
+on hover — a column of remove buttons shouldn't read as a column of warnings),
+`onFill` (takes the fill's text colour; the toast). In a text-height row, pull
+it in with `-my-1.5` so 32px doesn't grow the row. Forwards its ref, so a
+popover can focus its close button. AlertBanner's dismiss is one too: it lost
+its visible "Dismiss" word to match the rest.
 
 ### 4.3 Card
 - **Three variants** *(the last two added in Flow 4)*. Pick by what the title
@@ -389,6 +405,31 @@ each one superseded.
   not the current per-widget chevron counters.
 - Replaces: `.custom-table`, `.table-header`, `.table-cell`, and the four
   separate paginated list widgets on the admin dashboard.
+- *Built — b3a.49, as `Table.tsx`.* Pieces rather than a columns config, since
+  no two tables lead their cards with the same fields:
+  - `Table` (`density` `default` px-4 py-2.5 / `compact` px-2.5 py-2,
+    `breakpoint`, `fixed`, `stickyHeader`), `Th`, `RowTh` (the cell that names
+    a body row), `Td` (`numeric` = mono + right-aligned), `Tr`.
+    `SortableTh` (§4.22) takes the header look from the same hook.
+  - The header sticks to the window top by default. It only can when no
+    ancestor has `overflow-hidden`/`auto` — Card `list` clips with
+    `overflow-clip` for exactly this. Off for a multi-row header.
+  - `Tr href` makes the whole row open the detail page for a plain pointer
+    click; the row's own link stays the keyboard, screen-reader and cmd-click
+    route, and clicks on any control inside the row are left alone.
+  - Row tones: `muted` (a removed member), `deleted` (§4.23), `changed`
+    (edited, unsaved).
+  - `TableSkeleton` (shimmer rows), `TableFooter` ("Showing N of M" + the
+    §4.22 pager), and the mobile fallback: `TableCards` › `TableCard` ›
+    `TableCardActions`, which splits `size="lg"` Buttons evenly. Pass the same
+    `breakpoint` to `Table` and `TableCards`.
+  - Two deliberate exceptions. The defaults matrix (§4.45) keeps
+    bespoke per-combination header cells and no sticky header — it's a pivot
+    with a three-row head. Move-dates keeps restacking its own rows below `sm`
+    instead of handing off to cards, because each row holds the only input for
+    its date and a card list would render every input twice.
+  - Not done: label/value pairs in the mobile cards. The roster and payments
+    cards were already designed and visually passed without them.
 
 **Audit-trail row variant** *(added — Flow 8)*. Not a new component: the Flow 8
 canvas graded it itself — *"the §4.6 table row with a person on the left and a
@@ -682,7 +723,7 @@ each claimable once, so a finished calendar is **$496** (1+2+…+31).
   This is the §4.6 "one consistent pattern" decision, resolved to load-more.
   **Replaces all four chevron pagers** on the current admin dashboard widgets.
 
-### 4.23 Deleted-row treatment *(built — Flow 4, as `deletedRow.tsx`: `deletedRowClass` + `DeletedPill` + `RestoreAction`)*
+### 4.23 Deleted-row treatment *(built — Flow 4, as `deletedRow.tsx`: `DeletedPill` + `RestoreAction`; the tint is `Tr`/`TableCard` `tone="deleted"`)*
 - **Row actions and the destructive confirm** *(added — Flow 4 visual pass).*
   A payment row carries `Edit` + `Delete`; a machine-recorded one
   (Stripe / Square — created by a checkout flow, no manual edit path) carries
@@ -1289,8 +1330,8 @@ schedule") rather than going neutral, because the bulk fill below now exists.
 ### 4.47 Default schedule editor rows *(added — Flow 12, inside `EditDefault.tsx`)*
 
 Numbered rows of a native date input (weekday shown inside it on desktop), a
-compact §4.16 MoneyField and a 44px remove `✕`; a dashed full-width `+ Add
-payment` (the new row lands four weeks after the last, at the same amount); a
+compact §4.16 MoneyField and a `danger` IconButton (§4.2) centred in a 44px
+column; a full-width `dashed` Button `+ Add payment` (the new row lands four weeks after the last, at the same amount); a
 `Total · N payments` bar. Above the rows, an ocean-rail banner says saving
 changes the default only. Errors come **only from the server**, by row: a §4.18
 summary above the rows and the message again under the row it belongs to.

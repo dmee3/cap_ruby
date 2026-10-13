@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import Button from '../../../components/Button'
+import { Table, Td, Th, Tr } from '../../../components/Table'
 import Field, { Select } from '../../../components/Field'
 import { dollars } from '../../../../utilities/money'
 import { DefaultEntry, OVERVIEW_PATH, Overview, plural } from './shared'
@@ -184,28 +185,28 @@ const CopyDefaults = ({ data }: { data: CopyDefaultsData }) => {
                 {shared ? `Same for all ${toCopy.length}` : `Across ${plural(toCopy.length, 'default')}`}
               </span>
             </div>
-            <table className="w-full border-collapse font-mono text-body-sm">
+            <Table stickyHeader={false}>
               <thead>
-                <tr className="border-b border-border-default bg-sunken text-left font-sans text-label uppercase text-secondary">
-                  <th scope="col" className="px-4 py-2 font-semibold">{source.year}</th>
-                  <th scope="col" className="w-6" aria-label="becomes" />
-                  <th scope="col" className="px-4 py-2 font-semibold">{year}</th>
+                <tr>
+                  <Th>{source.year}</Th>
+                  <th scope="col" className="w-6 border-b border-border-default bg-sunken" aria-label="becomes" />
+                  <Th>{year}</Th>
                 </tr>
               </thead>
               <tbody>
                 {dates.map(d => (
-                  <tr key={d} className="border-b border-page">
-                    <td className="px-4 py-2 text-secondary">
+                  <Tr key={d}>
+                    <Td className="font-mono text-secondary">
                       {monthDayYear(d)} {weekday(d)}
-                    </td>
-                    <td className="font-sans text-border-strong" aria-hidden="true">→</td>
-                    <td className="px-4 py-2 font-semibold">
+                    </Td>
+                    <td className="text-border-strong" aria-hidden="true">→</td>
+                    <Td className="font-mono font-semibold">
                       {monthDayYear(shift(d, weeks))} {weekday(shift(d, weeks))}
-                    </td>
-                  </tr>
+                    </Td>
+                  </Tr>
                 ))}
               </tbody>
-            </table>
+            </Table>
           </section>
 
           <details open className="group overflow-hidden rounded-md border border-border-default bg-surface">

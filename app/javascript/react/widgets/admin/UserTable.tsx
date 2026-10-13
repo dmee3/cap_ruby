@@ -6,6 +6,7 @@ import Pill, { PillTone } from '../../components/Pill'
 import Skeleton from '../../components/Skeleton'
 import SortableTh, { SortDir } from '../../components/SortableTh'
 import Button from '../../components/Button'
+import { Table, TableCard, TableCardActions, TableCards, TableFooter, Td, Th, Tr } from '../../components/Table'
 import SegmentedControl from '../../components/SegmentedControl'
 import { Select, TextInput } from '../../components/Field'
 import { dollars } from '../../../utilities/money'
@@ -125,6 +126,11 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
   const missingSchedule = members.filter(m => !m.has_schedule)
   const filtersDirty = query !== '' || activeEnsemble !== ''
 
+  const onSort = (key: string, dir: SortDir) => {
+    setSortKey(key)
+    setSortDir(dir)
+  }
+
   const clearFilters = () => {
     setQuery('')
     setEnsemble('')
@@ -226,9 +232,7 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
         )}
       </div>
 
-      {/* overflow-hidden: the table header row and footer are full-bleed, so
-          without it their square corners cover the card's radius. */}
-      <div className="overflow-hidden rounded-md border border-border-default bg-surface">
+      <div className="overflow-clip rounded-md border border-border-default bg-surface">
         {status === 'loading' && <Skeleton rows={5} className="p-4" />}
 
         {status === 'error' && (
@@ -268,95 +272,56 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
 
         {status === 'ready' && visible.length > 0 && (
           <>
-            {/* Desktop table */}
-            <table className="hidden w-full border-collapse md:table">
+            <Table breakpoint="md">
               <thead>
-                <tr className="border-b border-border-default bg-sunken">
-                  <SortableTh
-                    sortKey="full_name"
-                    label="Name"
-                    activeKey={sortKey}
-                    activeDir={sortDir}
-                    onSort={(k, d) => {
-                      setSortKey(k)
-                      setSortDir(d)
-                    }}
-                  />
+                <tr>
+                  <SortableTh sortKey="full_name" label="Name" activeKey={sortKey} activeDir={sortDir} onSort={onSort} />
                   {population === 'members' && (
-                    <SortableTh
-                      sortKey="section"
-                      label="Section"
-                      activeKey={sortKey}
-                      activeDir={sortDir}
-                      onSort={(k, d) => {
-                        setSortKey(k)
-                        setSortDir(d)
-                      }}
-                    />
+                    <SortableTh sortKey="section" label="Section" activeKey={sortKey} activeDir={sortDir} onSort={onSort} />
                   )}
-                  <SortableTh
-                    sortKey="role"
-                    label="Role"
-                    activeKey={sortKey}
-                    activeDir={sortDir}
-                    onSort={(k, d) => {
-                      setSortKey(k)
-                      setSortDir(d)
-                    }}
-                  />
-                  <th className="px-4 py-2 text-right text-label text-secondary">Actions</th>
+                  <SortableTh sortKey="role" label="Role" activeKey={sortKey} activeDir={sortDir} onSort={onSort} />
+                  <Th align="right">Actions</Th>
                 </tr>
               </thead>
               <tbody>
                 {visible.map(row => (
-                  <tr
-                    key={row.id}
-                    className={`border-b border-border-default last:border-0 hover:bg-sunken ${
-                      row.removed ? 'opacity-60' : ''
-                    }`}
-                  >
-                    <td className="px-4 py-2">
+                  <Tr key={row.id} href={`/admin/users/${row.id}`} tone={row.removed ? 'muted' : 'default'}>
+                    <Td>
                       <div className="flex flex-wrap items-center gap-2">
-                        <a href={`/admin/users/${row.id}`} className="text-body-sm font-semibold text-accent-primary">
+                        <a href={`/admin/users/${row.id}`} className="font-semibold text-accent-primary">
                           {row.full_name}
                         </a>
                         {!row.has_schedule && row.role === 'member' && !row.removed && (
                           <Pill tone="warning">No schedule</Pill>
                         )}
                       </div>
-                      <div className="flex items-center gap-1 text-body-sm text-secondary">
+                      <div className="flex items-center gap-1 text-secondary">
                         <span className="truncate">{row.email}</span>
                         <CopyButton value={row.email} label="Copy email" />
                       </div>
-                    </td>
+                    </Td>
                     {population === 'members' && (
-                      <td className="px-4 py-2 text-body-sm text-primary">
+                      <Td>
                         <div>{row.ensemble}</div>
                         <div className="text-secondary">{row.section}</div>
-                      </td>
+                      </Td>
                     )}
-                    <td className="px-4 py-2">
+                    <Td>
                       <Pill tone={ROLE_TONE[row.role ?? ''] ?? 'neutral'}>{row.role}</Pill>
-                    </td>
-                    <td className="px-4 py-2 text-right">
-                      <a href={`/admin/users/${row.id}/edit`} className="text-body-sm font-medium text-accent-primary">
+                    </Td>
+                    <Td align="right">
+                      <Button variant="link" href={`/admin/users/${row.id}/edit`}>
                         Edit
-                      </a>
-                    </td>
-                  </tr>
+                      </Button>
+                    </Td>
+                  </Tr>
                 ))}
               </tbody>
-            </table>
+            </Table>
 
-            {/* Mobile cards */}
-            <ul className="m-0 flex list-none flex-col gap-2 p-3 md:hidden">
+            <TableCards breakpoint="md">
               {visible.map(row => (
-                <li
-                  key={row.id}
-                  className={`rounded-md border border-border-default p-3 ${
-                    row.removed ? 'opacity-60' : ''
-                  }`}
-                >
+                <TableCard key={row.id} tone={row.removed ? 'muted' : 'default'}>
                   <div className="flex flex-wrap items-center gap-2">
                     <a href={`/admin/users/${row.id}`} className="text-body font-semibold text-accent-primary">
                       {row.full_name}
@@ -366,46 +331,37 @@ const UserTable = ({ seasonYear }: { seasonYear: string }) => {
                     </Pill>
                   </div>
                   {(row.role === 'member' || row.removed) && (
-                    <p className="m-0 mt-1 text-body-sm text-secondary">
+                    <p className="m-0 text-body-sm text-secondary">
                       {[row.ensemble, row.section].filter(Boolean).join(' / ')}
                       {row.vet ? ' · Vet' : ''}
                     </p>
                   )}
-                  <p className="m-0 mt-1 flex items-center gap-1 text-body-sm text-secondary">
+                  <p className="m-0 flex items-center gap-1 text-body-sm text-secondary">
                     <span className="truncate">{row.email}</span>
                     <CopyButton value={row.email} label="Copy email" />
                   </p>
                   {!row.has_schedule && row.role === 'member' && !row.removed && (
-                    <Pill tone="warning" className="mt-2">No schedule</Pill>
+                    <Pill tone="warning" className="self-start">No schedule</Pill>
                   )}
-                  <div className="mt-3 flex gap-2">
-                    <a
-                      href={`/admin/users/${row.id}`}
-                      className="inline-flex h-11 flex-1 items-center justify-center rounded-sm border border-border-strong text-body-sm font-semibold text-primary no-underline"
-                    >
+                  <TableCardActions>
+                    <Button variant="secondary" size="lg" href={`/admin/users/${row.id}`}>
                       Open
-                    </a>
-                    <a
-                      href={`/admin/users/${row.id}/edit`}
-                      className="inline-flex h-11 flex-1 items-center justify-center rounded-sm border border-border-strong text-body-sm font-semibold text-primary no-underline"
-                    >
+                    </Button>
+                    <Button variant="secondary" size="lg" href={`/admin/users/${row.id}/edit`}>
                       Edit
-                    </a>
-                  </div>
-                </li>
+                    </Button>
+                  </TableCardActions>
+                </TableCard>
               ))}
-            </ul>
+            </TableCards>
 
-            <div className="flex items-center justify-between border-t border-border-default px-4 py-2">
-              <span className="text-body-sm text-secondary">
-                Showing {visible.length} of {filtered.length}
-              </span>
+            <TableFooter caption={`Showing ${visible.length} of ${filtered.length}`}>
               {visible.length < filtered.length && (
-                <Button variant="secondary" onClick={() => setLimit(l => l + 20)}>
+                <Button variant="secondary" fullWidthBelow={false} onClick={() => setLimit(l => l + 20)}>
                   Load 20 more
                 </Button>
               )}
-            </div>
+            </TableFooter>
           </>
         )}
       </div>

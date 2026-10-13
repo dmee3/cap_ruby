@@ -1,4 +1,5 @@
 import React from 'react'
+import IconButton from './IconButton'
 
 export type AlertAction = {
   /** Primary label — the member's name. */
@@ -48,13 +49,7 @@ const AlertBanner = ({
       <span className="text-body-sm font-semibold text-primary">{headline}</span>
       {body && <span className="text-body-sm text-secondary">{body}</span>}
       {onDismiss && (
-        <button
-          type="button"
-          onClick={onDismiss}
-          className="ml-auto shrink-0 text-body-sm font-medium text-secondary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-        >
-          Dismiss ✕
-        </button>
+        <IconButton label="Dismiss" onClick={onDismiss} className="-my-1.5 ml-auto self-center" />
       )}
     </div>
 
