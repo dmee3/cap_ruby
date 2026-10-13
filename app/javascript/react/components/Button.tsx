@@ -1,10 +1,11 @@
 import React from 'react'
 
-type ButtonVariant = 'primary' | 'success' | 'danger' | 'secondary' | 'ghost' | 'link'
+/** `dashed` adds a row to the list above it — it reads as an empty slot, not a command. */
+type ButtonVariant = 'primary' | 'success' | 'danger' | 'secondary' | 'ghost' | 'link' | 'dashed'
 type ButtonSize = 'sm' | 'md' | 'lg'
 
 /**
- * Text colour for the unfilled variants (`secondary`, `ghost`, `link`) — a
+ * Text colour for the unfilled variants (`secondary`, `ghost`, `link`, `dashed`) — a
  * "Delete" that sits beside "Edit" without being a filled danger button.
  * Filled variants ignore it.
  */
@@ -34,6 +35,7 @@ const VARIANT: Record<ButtonVariant, string> = {
   secondary: 'bg-surface border border-border-strong hover:bg-sunken',
   ghost: 'bg-transparent hover:bg-sunken',
   link: 'bg-transparent underline underline-offset-2 hover:opacity-80',
+  dashed: 'bg-transparent border border-dashed border-border-strong hover:border-accent-primary hover:bg-sunken',
 }
 
 const TONE: Record<ButtonTone, string> = {
@@ -80,7 +82,7 @@ const Button = ({
 }: ButtonProps) => {
   const isLink = variant === 'link'
   const width = fullWidthBelow ?? (isLink ? false : 'sm')
-  const toneClass = FILLED.includes(variant) ? '' : TONE[tone ?? (isLink ? 'accent' : 'default')]
+  const toneClass = FILLED.includes(variant) ? '' : TONE[tone ?? (isLink || variant === 'dashed' ? 'accent' : 'default')]
 
   const classes = [
     'relative inline-flex items-center justify-center gap-2 rounded-sm font-medium transition',

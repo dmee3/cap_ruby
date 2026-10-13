@@ -4,6 +4,7 @@ import ScheduleTimeline, { TimelineNode } from '../../components/ScheduleTimelin
 import ScheduleDiffPanel, { ScheduleDiffRow } from '../../components/ScheduleDiffPanel'
 import MoneyField from '../../components/MoneyField'
 import Button from '../../components/Button'
+import IconButton from '../../components/IconButton'
 import Field, { TextInput } from '../../components/Field'
 import Pill, { PillTone } from '../../components/Pill'
 import { toast } from '../../components/Toast'
@@ -337,26 +338,20 @@ const ScheduleEditor = ({ data }: { data: ScheduleEditorData }) => {
 
                   {statusPill(row)}
 
-                  <button
-                    type="button"
+                  <IconButton
+                    label={`Remove payment ${i + 1}`}
+                    tone="danger"
                     onClick={() => removeRow(row.id)}
-                    aria-label={`Remove payment ${i + 1}`}
-                    className="text-body font-semibold text-danger-fg hover:opacity-70"
-                  >
-                    ✕
-                  </button>
+                    className="justify-self-center"
+                  />
                 </li>
               ))}
             </ul>
 
             <div className="flex items-center gap-3 px-4 py-3">
-              <button
-                type="button"
-                onClick={addRow}
-                className="h-9 rounded-sm border border-dashed border-border-strong px-3.5 text-body-sm font-semibold text-accent-primary hover:border-accent-primary"
-              >
+              <Button variant="dashed" fullWidthBelow={false} onClick={addRow}>
                 + Add a payment date
-              </button>
+              </Button>
               <span className="ml-auto text-body-sm font-semibold text-primary">
                 Total {dollars(plannedCents)}
               </span>

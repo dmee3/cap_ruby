@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import FilterBar, { PaymentFilters, EMPTY_FILTERS, isDirty } from '../../components/FilterBar'
 import SortableTh, { SortDir } from '../../components/SortableTh'
 import Button from '../../components/Button'
+import IconButton from '../../components/IconButton'
 import Card from '../../components/Card'
 import EmptyState from '../../components/EmptyState'
 import Pill from '../../components/Pill'
@@ -267,14 +268,7 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
             <Button variant="link" onClick={undo} disabled={pendingRestore === justCreatedId}>
               Undo
             </Button>
-            <button
-              type="button"
-              onClick={() => setUndoDismissed(true)}
-              aria-label="Dismiss"
-              className="text-body-sm text-secondary hover:text-primary"
-            >
-              ✕
-            </button>
+            <IconButton label="Dismiss" onClick={() => setUndoDismissed(true)} className="-my-1.5" />
           </div>
         </div>
       )}

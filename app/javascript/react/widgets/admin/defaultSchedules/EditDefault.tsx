@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Button from '../../../components/Button'
+import IconButton from '../../../components/IconButton'
 import Field, { TextInput } from '../../../components/Field'
 import MoneyField from '../../../components/MoneyField'
 import ValidationSummaryCard from '../../../components/ValidationSummaryCard'
@@ -169,28 +170,21 @@ const EditDefault = ({ data }: { data: EditDefaultData }) => {
                               onChangeCents={cents => setRow(row.key, { amountCents: cents })}
                             />
                           </Field>
-                          <button
-                            type="button"
-                            aria-label={`Remove payment ${i + 1}`}
-                            title="Remove payment"
+                          <IconButton
+                            label={`Remove payment ${i + 1}`}
+                            tone="danger"
                             onClick={() => setRows(current => current.filter(r => r.key !== row.key))}
-                            className="flex h-10 items-center justify-center rounded-sm text-secondary hover:bg-danger-bg hover:text-danger-fg focus-visible:outline-none focus-visible:ring-2"
-                          >
-                            ✕
-                          </button>
+                            className="justify-self-center"
+                          />
                         </div>
                         {message && <span className="text-caption text-danger-fg sm:pl-10">{message}</span>}
                       </li>
                     )
                   })}
                 </ol>
-                <button
-                  type="button"
-                  onClick={addRow}
-                  className="mt-1 flex h-10 items-center justify-center rounded-sm border border-dashed border-border-strong text-body-sm font-semibold text-accent-primary hover:border-ocean hover:bg-sunken sm:ml-10"
-                >
+                <Button variant="dashed" fullWidthBelow={false} onClick={addRow} className="mt-1 sm:ml-10">
                   + Add payment
-                </button>
+                </Button>
                 <div className="mt-2 flex items-center justify-between rounded-md bg-sunken px-3 py-3 sm:pl-10">
                   <span className="text-body-sm font-semibold">Total · {plural(rows.length, 'payment')}</span>
                   <span className="font-mono text-h3 font-bold">{dollars(total)}</span>

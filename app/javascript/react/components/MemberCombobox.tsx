@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import fuzzysort from 'fuzzysort'
 import { controlClass, useField } from './Field'
+import IconButton from './IconButton'
 
 export type ComboboxMember = {
   id: number
@@ -142,17 +143,14 @@ const MemberCombobox = ({
         />
 
         {selected && (
-          <button
-            type="button"
+          <IconButton
+            label="Clear selected member"
             onClick={() => {
               onChange('')
               setQuery('')
             }}
-            aria-label="Clear selected member"
-            className="shrink-0 text-body-sm text-secondary hover:text-primary"
-          >
-            ✕
-          </button>
+            className="-mr-1.5"
+          />
         )}
       </div>
 

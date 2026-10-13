@@ -143,7 +143,7 @@ describe('AdminDashboard', () => {
       'href',
       '/admin/payment_schedules/9/edit',
     )
-    await userEvent.click(screen.getByRole('button', { name: 'Dismiss ✕' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
     expect(screen.queryByText('1 member has no payment schedule')).not.toBeInTheDocument()
   })
 
@@ -181,7 +181,7 @@ describe('AdminDashboard', () => {
     it('dismisses on its own, leaving the blank-schedule alert up', async () => {
       render(<AdminDashboard {...withCount(2)} />)
       const [scheduleDismiss, recipientDismiss] = screen.getAllByRole('button', {
-        name: 'Dismiss ✕',
+        name: 'Dismiss',
       })
       expect(scheduleDismiss).toBeDefined()
 
