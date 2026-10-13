@@ -2,14 +2,9 @@ import React from 'react'
 import Button from './Button'
 import Pill from './Pill'
 
-// The §4.23 soft-deleted-Payment treatment, shared by the payments table row,
-// the mobile payment card, and the Member 360 payments list: struck-through
-// cells, a neutral "Deleted" pill, a faint tint, and a single Restore action
-// in place of the usual row actions. Deleted rows never count toward a total.
-
-/** Class string for the row/card container when `deleted` is true. */
-export const deletedRowClass = (deleted: boolean): string =>
-  deleted ? 'line-through opacity-60 bg-sunken/60' : ''
+// The §4.23 soft-deleted-Payment treatment: a neutral "Deleted" pill and a
+// single Restore action in place of the usual row actions. The tint is the
+// row's — Tr / TableCard tone="deleted".
 
 export const DeletedPill = ({ className = '' }: { className?: string }) => (
   <Pill tone="neutral" className={className}>
