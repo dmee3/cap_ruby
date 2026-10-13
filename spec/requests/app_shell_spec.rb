@@ -71,9 +71,17 @@ RSpec.describe 'App shell', type: :request do
 
     it 'shows the member nav items' do
       get '/members'
-      ['Home', 'Pay Dues', 'See Conflicts', 'Files', 'My Fundraisers'].each do |label|
+      ['Home', 'Pay Dues', 'See Conflicts', 'Files', 'Calendar Fundraiser'].each do |label|
         expect(response.body).to include(">#{label}<")
       end
+    end
+
+    it 'hides the fundraiser tab while the season has it switched off' do
+      season.update!(calendar_fundraiser_enabled: false)
+
+      get '/members'
+
+      expect(response.body).not_to include('>Calendar Fundraiser<')
     end
   end
 

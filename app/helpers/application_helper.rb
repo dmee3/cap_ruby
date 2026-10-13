@@ -163,8 +163,13 @@ module ApplicationHelper
       # Lands on the list, not the form — reading is the common case, and the
       # list's own New button covers submitting.
       NavItem.new(label: 'See Conflicts', path: members_conflicts_path, icon: :calendar),
-      NavItem.new(label: 'Files',           path: files_path,             icon: :folder),
-      NavItem.new(label: 'My Fundraisers',  path: members_calendars_path, icon: :calendar_days)
-    ] + inventory_nav_items
+      NavItem.new(label: 'Files', path: files_path, icon: :folder)
+    ] + fundraiser_nav_items + inventory_nav_items
+  end
+
+  def fundraiser_nav_items
+    return [] unless current_season&.calendar_fundraiser_enabled?
+
+    [NavItem.new(label: 'Calendar Fundraiser', path: members_calendars_path, icon: :calendar_days)]
   end
 end

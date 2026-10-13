@@ -193,5 +193,21 @@ RSpec.describe 'Calendar Fundraiser donations', type: :request do
 
       expect(response).to have_http_status(:success)
     end
+
+    context 'while the fundraiser is switched off for the season' do
+      before { season.update!(calendar_fundraiser_enabled: false) }
+
+      it 'sends the member home without starting a new fundraiser' do
+        expect { get '/members/calendars' }.not_to change(Calendar::Fundraiser, :count)
+
+        expect(response).to redirect_to(members_home_path)
+      end
+
+      it 'refuses the fundraiser API' do
+        get '/api/members/calendars', as: :json
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
   end
 end

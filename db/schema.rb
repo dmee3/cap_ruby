@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_07_140000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_12_120000) do
   create_table "activities", force: :cascade do |t|
     t.integer "user_id"
     t.string "description"
@@ -194,6 +194,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_07_140000) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.boolean "conflict_submission_open", default: false
+    t.boolean "calendar_fundraiser_enabled", default: false, null: false
   end
 
   create_table "seasons_users", force: :cascade do |t|

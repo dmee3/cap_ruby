@@ -3,6 +3,8 @@
 module Api
   module Members
     class CalendarsController < Api::MembersController
+      before_action -> { head(:not_found) unless current_season.calendar_fundraiser_enabled? }
+
       def index
         total_donations = current_calendar.total_donations
         dates = current_calendar.donations.map do |d|

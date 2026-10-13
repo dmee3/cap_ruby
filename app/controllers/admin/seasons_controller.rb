@@ -27,7 +27,7 @@ module Admin
     end
 
     def season_params
-      params.require(:season).permit(:conflict_submission_open)
+      params.require(:season).permit(:conflict_submission_open, :calendar_fundraiser_enabled)
     end
   end
 end

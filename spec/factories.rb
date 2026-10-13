@@ -16,6 +16,7 @@ FactoryBot.define do
   factory :season do
     year { Date.today.year }
     conflict_submission_open { true }
+    calendar_fundraiser_enabled { true }
   end
 
   factory :default_schedule_entry do
