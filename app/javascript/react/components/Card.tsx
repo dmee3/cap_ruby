@@ -68,7 +68,7 @@ const Card = ({
   if (variant === 'list') {
     return (
       <Tag
-        className={`bg-surface border ${border} rounded-md overflow-hidden ${className}`.trim()}
+        className={`bg-surface border ${border} rounded-md overflow-clip ${className}`.trim()}
       >
         {(title || action) && (
           <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1 border-b border-border-default px-4 py-3.5">

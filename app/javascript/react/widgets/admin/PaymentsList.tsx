@@ -3,6 +3,7 @@ import FilterBar, { PaymentFilters, EMPTY_FILTERS, isDirty } from '../../compone
 import SortableTh, { SortDir } from '../../components/SortableTh'
 import Button from '../../components/Button'
 import IconButton from '../../components/IconButton'
+import { Table, TableCard, TableCardActions, TableCards, TableFooter, TableSkeleton, Td, Th, Tr } from '../../components/Table'
 import Card from '../../components/Card'
 import EmptyState from '../../components/EmptyState'
 import Pill from '../../components/Pill'
@@ -196,37 +197,16 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
   }
 
   const body = () => {
-    if (status === 'loading') {
-      return (
-        <tbody>
-          {Array.from({ length: 4 }).map((_, i) => (
-            <tr key={i} className="border-b border-border-default">
-              <td colSpan={6} className="px-4 py-3.5">
-                <span className="flex items-center gap-3" aria-hidden="true">
-                  <span className="h-3.5 w-16 rounded-sm bg-sunken" />
-                  <span className="h-3.5 flex-1 animate-pulse rounded-sm bg-sunken" />
-                  <span className="h-3.5 w-12 rounded-sm bg-sunken" />
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      )
-    }
+    if (status === 'loading') return <TableSkeleton columns={6} />
 
     return (
       <tbody>
         {rows.map((p) => {
           const struck = p.deleted ? 'line-through' : ''
           return (
-            <tr
-              key={p.id}
-              className={`border-b border-border-default ${p.deleted ? 'bg-sunken text-secondary' : ''}`}
-            >
-              <td className={`px-4 py-3 font-mono text-body-sm text-secondary ${struck}`}>
-                {monthDayYear(p.date_paid)}
-              </td>
-              <td className="px-4 py-3 text-body-sm">
+            <Tr key={p.id} tone={p.deleted ? 'deleted' : 'default'}>
+              <Td className={`font-mono text-secondary ${struck}`}>{monthDayYear(p.date_paid)}</Td>
+              <Td>
                 <span className="flex flex-col items-start gap-0.5">
                   <a
                     href={`/admin/users/${p.user.id}`}
@@ -236,22 +216,18 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
                   </a>
                   {p.deleted && <DeletedPill />}
                 </span>
-              </td>
-              <td className="px-4 py-3">
+              </Td>
+              <Td>
                 <span className={struck}>
                   <Pill tone={typeTone(p.payment_type.name)}>{p.payment_type.name}</Pill>
                 </span>
-              </td>
-              <td
-                className={`px-4 py-3 text-right font-mono text-body-sm font-semibold text-primary ${struck}`}
-              >
+              </Td>
+              <Td numeric className={`font-semibold text-primary ${struck}`}>
                 {dollars(p.amount_cents)}
-              </td>
-              <td className="px-4 py-3 text-body-sm text-secondary [text-wrap:pretty]">
-                {p.notes || '–'}
-              </td>
-              <td className="px-4 py-3 text-right">{actionsFor(p)}</td>
-            </tr>
+              </Td>
+              <Td className="text-secondary [text-wrap:pretty]">{p.notes || '–'}</Td>
+              <Td align="right">{actionsFor(p)}</Td>
+            </Tr>
           )
         })}
       </tbody>
@@ -325,51 +301,39 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
 
         {(status === 'loading' || rows.length > 0) && (
           <>
-            {/* Desktop table */}
-            <div className="hidden overflow-x-auto lg:block">
-              <table className="w-full table-fixed border-collapse">
-                <colgroup>
-                  <col className="w-[118px]" />
-                  <col />
-                  <col className="w-[110px]" />
-                  <col className="w-[100px]" />
-                  <col className="w-[1.5fr]" />
-                  <col className="w-[118px]" />
-                </colgroup>
-                <thead>
-                  <tr className="border-b border-border-default bg-sunken">
-                    <SortableTh sortKey="date_paid" label="Date paid" activeKey={sort} activeDir={dir} onSort={onSort} />
-                    <SortableTh sortKey="member" label="Member" activeKey={sort} activeDir={dir} onSort={onSort} />
-                    <SortableTh sortKey="type" label="Type" activeKey={sort} activeDir={dir} onSort={onSort} />
-                    <SortableTh
-                      sortKey="amount"
-                      label="Amount"
-                      activeKey={sort}
-                      activeDir={dir}
-                      onSort={onSort}
-                      align="right"
-                    />
-                    <th scope="col" className="px-4 py-2.5 text-left text-label uppercase text-secondary">
-                      Notes
-                    </th>
-                    <th scope="col" className="px-4 py-2.5 text-right text-label uppercase text-secondary">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                {body()}
-              </table>
-            </div>
+            <Table breakpoint="lg" fixed>
+              <colgroup>
+                <col className="w-[118px]" />
+                <col />
+                <col className="w-[110px]" />
+                <col className="w-[100px]" />
+                <col className="w-[1.5fr]" />
+                <col className="w-[118px]" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <SortableTh sortKey="date_paid" label="Date paid" activeKey={sort} activeDir={dir} onSort={onSort} />
+                  <SortableTh sortKey="member" label="Member" activeKey={sort} activeDir={dir} onSort={onSort} />
+                  <SortableTh sortKey="type" label="Type" activeKey={sort} activeDir={dir} onSort={onSort} />
+                  <SortableTh
+                    sortKey="amount"
+                    label="Amount"
+                    activeKey={sort}
+                    activeDir={dir}
+                    onSort={onSort}
+                    align="right"
+                  />
+                  <Th>Notes</Th>
+                  <Th align="right">Actions</Th>
+                </tr>
+              </thead>
+              {body()}
+            </Table>
 
             {/* Tablet + mobile card list */}
-            <ul className="flex flex-col lg:hidden">
+            <TableCards breakpoint="lg">
               {rows.map((p) => (
-                <li
-                  key={p.id}
-                  className={`flex flex-col gap-2.5 border-b border-border-default p-3.5 ${
-                    p.deleted ? 'bg-sunken text-secondary' : ''
-                  }`}
-                >
+                <TableCard key={p.id} tone={p.deleted ? 'deleted' : 'default'}>
                   <div className="flex items-baseline gap-3">
                     <a
                       href={`/admin/users/${p.user.id}`}
@@ -389,13 +353,13 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
                     {p.deleted && <DeletedPill />}
                   </div>
                   {p.notes && <p className="text-body-sm text-secondary">{p.notes}</p>}
-                  <div className="flex gap-2 border-t border-border-default pt-2.5">
+                  <TableCardActions>
                     {p.deleted ? (
                       <Button
                         variant="secondary"
                         tone="accent"
                         size="lg"
-                        className="flex-1"
+                       
                         onClick={() => restore(p.id)}
                         disabled={pendingRestore === p.id}
                       >
@@ -410,7 +374,7 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
                         <Button
                           variant="danger"
                           size="lg"
-                          className="flex-1"
+                         
                           onClick={() => destroy(p.id)}
                           disabled={pendingRestore === p.id}
                         >
@@ -420,7 +384,7 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
                           variant="secondary"
                           tone="muted"
                           size="lg"
-                          className="flex-1"
+                         
                           onClick={() => setConfirmDelete(null)}
                         >
                           Keep it
@@ -432,7 +396,7 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
                           variant="secondary"
                           tone="accent"
                           size="lg"
-                          className="flex-1"
+                         
                           href={`/admin/payments/${p.id}/edit`}
                         >
                           Edit
@@ -441,30 +405,23 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
                           variant="secondary"
                           tone="danger"
                           size="lg"
-                          className="flex-1"
+                         
                           onClick={() => setConfirmDelete(p.id)}
                         >
                           Delete
                         </Button>
                       </>
                     )}
-                  </div>
-                </li>
+                  </TableCardActions>
+                </TableCard>
               ))}
-            </ul>
+            </TableCards>
 
-            <div className="flex items-center gap-3 px-4 py-3.5">
-              <span className="text-body-sm text-secondary">{caption}</span>
-              <Button
-                variant="secondary"
-                fullWidthBelow={false}
-                className="ml-auto shrink-0"
-                onClick={() => load(true)}
-                disabled={showingAll}
-              >
+            <TableFooter caption={caption}>
+              <Button variant="secondary" fullWidthBelow={false} onClick={() => load(true)} disabled={showingAll}>
                 {showingAll ? 'Load more' : `Load ${Math.min(PAGE, meta.total_count - rows.length)} more`}
               </Button>
-            </div>
+            </TableFooter>
           </>
         )}
       </Card>

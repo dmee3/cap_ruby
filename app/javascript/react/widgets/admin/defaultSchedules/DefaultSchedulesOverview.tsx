@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Button from '../../../components/Button'
+import { RowTh, Table, Td, Th, Tr } from '../../../components/Table'
 import SegmentedControl from '../../../components/SegmentedControl'
 import { toast } from '../../../components/Toast'
 import { dollars } from '../../../../utilities/money'
@@ -58,13 +59,12 @@ const Matrix = ({
     return 'border-l border-l-border-default'
   }
   const missingTint = (c: Combination) => (c.set_up ? '' : 'bg-warning-bg text-warning-fg')
-  const cell = compact ? 'px-2 py-2' : 'px-3 py-2.5'
   const amountOn = (c: Combination, date: string) =>
     c.entries.find(e => e.pay_date === date)?.amount_cents
 
   return (
     <div className="overflow-hidden rounded-md border border-border-default bg-surface">
-      <table className="w-full table-fixed border-collapse text-body-sm">
+      <Table fixed density="compact" stickyHeader={false}>
         <thead>
           {!compact && (
             <tr className="border-b border-border-default bg-page">
@@ -81,23 +81,22 @@ const Matrix = ({
               ))}
             </tr>
           )}
-          <tr className="border-b border-border-default bg-sunken text-caption font-semibold uppercase tracking-wide text-secondary">
-            <th scope="col" className={`${compact ? 'w-[74px] px-2.5' : 'w-[120px] px-4'} py-2 text-left font-semibold`}>
-              Due
-            </th>
+          <tr>
+            <Th className={compact ? 'w-[74px]' : 'w-[120px]'}>Due</Th>
             {groups.flatMap(g =>
               g.sections.map(s => {
                 const missing = s.combos.every(c => !c.set_up)
                 return (
-                  <th
+                  <Th
                     key={`${g.ensemble}-${s.section}`}
                     scope="colgroup"
                     colSpan={2}
-                    className={`px-2.5 py-2 text-center font-semibold ${edgeClass(s.combos[0])} ${missing ? 'text-warning-fg' : ''}`}
+                    align="center"
+                    className={`${edgeClass(s.combos[0])} ${missing ? '!text-warning-fg' : ''}`}
                   >
                     {s.section}
                     {missing && !compact ? ' · not set up' : ''}
-                  </th>
+                  </Th>
                 )
               })
             )}
@@ -108,7 +107,7 @@ const Matrix = ({
               <th
                 key={c.slug}
                 scope="col"
-                className={`${cell} text-right align-top font-normal ${edgeClass(c)} ${missingTint(c)}`}
+                className={`px-2.5 py-2 text-right align-top font-normal ${edgeClass(c)} ${missingTint(c)}`}
               >
                 <span className="block font-bold text-primary">{c.vet_status}</span>
                 <span className={`block text-caption ${c.set_up ? 'text-secondary' : 'text-warning-fg'}`}>
@@ -133,39 +132,30 @@ const Matrix = ({
         </thead>
         <tbody>
           {dates.map(date => (
-            <tr key={date} className="border-b border-page hover:bg-sunken">
-              <th
-                scope="row"
-                className={`${compact ? 'px-2.5' : 'px-4'} py-2 text-left font-mono font-normal text-secondary`}
-              >
-                {monthDayYear(date)}
-              </th>
+            <Tr key={date}>
+              <RowTh className="font-mono font-normal text-secondary">{monthDayYear(date)}</RowTh>
               {columns.map(c => {
                 const amount = amountOn(c, date)
                 return (
-                  <td
-                    key={c.slug}
-                    className={`${cell} text-right font-mono font-medium ${edgeClass(c)} ${missingTint(c) || 'text-primary'}`}
-                  >
+                  <Td key={c.slug} numeric className={`font-medium ${edgeClass(c)} ${missingTint(c) || 'text-primary'}`}>
                     {amount == null ? '–' : dollars(amount)}
-                  </td>
+                  </Td>
                 )
               })}
-            </tr>
+            </Tr>
           ))}
         </tbody>
         <tfoot>
-          <tr className="bg-sunken">
-            <th scope="row" className={`${compact ? 'px-2.5' : 'px-4'} py-2.5 text-left font-semibold`}>
-              Total
-            </th>
+          <tr className="border-t border-border-default bg-sunken">
+            <RowTh className="font-semibold">Total</RowTh>
             {columns.map(c => (
-              <td
+              <Td
                 key={c.slug}
-                className={`${cell} text-right font-mono font-bold ${edgeClass(c)} ${c.set_up ? 'text-primary' : 'text-warning-fg'}`}
+                numeric
+                className={`font-bold ${edgeClass(c)} ${c.set_up ? 'text-primary' : 'text-warning-fg'}`}
               >
                 {dollars(c.total_cents)}
-              </td>
+              </Td>
             ))}
           </tr>
           {compact && (
@@ -185,7 +175,7 @@ const Matrix = ({
             </tr>
           )}
         </tfoot>
-      </table>
+      </Table>
     </div>
   )
 }

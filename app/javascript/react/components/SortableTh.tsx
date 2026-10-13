@@ -1,4 +1,5 @@
 import React from 'react'
+import { useHeaderCellClass } from './Table'
 
 export type SortDir = 'asc' | 'desc'
 
@@ -43,6 +44,7 @@ const SortableTh = ({
   align = 'left',
   className = '',
 }: SortableThProps) => {
+  const headerCell = useHeaderCellClass()
   const isActive = activeKey === sortKey
   const ariaSort = isActive ? (activeDir === 'asc' ? 'ascending' : 'descending') : 'none'
   const nextDir: SortDir = isActive && activeDir === 'asc' ? 'desc' : 'asc'
@@ -51,9 +53,7 @@ const SortableTh = ({
     <th
       scope="col"
       aria-sort={ariaSort}
-      className={`px-4 py-2 text-label uppercase text-secondary ${
-        align === 'right' ? 'text-right' : 'text-left'
-      } ${className}`.trim()}
+      className={`${headerCell} ${align === 'right' ? 'text-right' : 'text-left'} ${className}`.trim()}
     >
       <button
         type="button"
