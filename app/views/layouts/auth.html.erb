@@ -14,13 +14,33 @@
   <body class="bg-page text-primary min-h-screen">
     <%= render 'flashes' %>
 
-    <div class="min-h-screen flex items-center justify-center p-4">
-      <main class="auth-card">
-        <div class="flex flex-col items-center gap-3 mb-6">
-          <%= image_tag vite_asset_path('images/full_logo_small.png'), alt: 'Cap City Percussion', class: 'max-h-12 w-auto' %>
+    <div class="min-h-screen lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <%# Dark in both themes, so it always takes the white wordmark. %>
+      <aside class="relative hidden lg:flex flex-col justify-between overflow-hidden bg-nav p-12 text-flash">
+        <%# lazy: a display:none image still downloads, and phones never show this panel.
+            object-position keeps the faces in frame when a wide window crops top and bottom. %>
+        <%= image_tag vite_asset_path('images/auth_panel.jpg'), alt: '', loading: 'lazy', decoding: 'async',
+                      class: 'absolute inset-0 h-full w-full object-cover object-[50%_30%]' %>
+        <%# Darkens the top and bottom, where the wordmark and caption sit on the photo. %>
+        <div class="absolute inset-0 bg-gradient-to-b from-black/75 via-transparent to-black/75" aria-hidden="true"></div>
+        <%= image_tag vite_asset_path('images/full_logo_white.png'), alt: 'Cap City Percussion', class: 'relative w-[320px] h-auto' %>
+        <div class="relative">
+          <p class="text-h3 font-semibold">Cap City Percussion</p>
+          <p class="mt-1 text-body-sm opacity-75">Columbus, Ohio</p>
         </div>
-        <%= yield %>
-      </main>
+      </aside>
+
+      <div class="min-h-screen flex items-center justify-center p-4">
+        <main class="auth-card">
+          <div class="flex justify-center mb-6 lg:hidden">
+            <picture>
+              <source srcset="<%= vite_asset_path('images/full_logo_white.png') %>" media="(prefers-color-scheme: dark)">
+              <%= image_tag vite_asset_path('images/full_logo_small_black.png'), alt: 'Cap City Percussion', class: 'h-16 w-auto' %>
+            </picture>
+          </div>
+          <%= yield %>
+        </main>
+      </div>
     </div>
 
     <%= yield :scripts %>
