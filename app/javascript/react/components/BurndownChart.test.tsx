@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import BurndownChart from './BurndownChart'
 
@@ -122,5 +122,41 @@ describe('BurndownChart', () => {
       />,
     )
     expect(screen.queryByText(/Collected after the season/)).not.toBeInTheDocument()
+  })
+  describe('hover readout', () => {
+    // jsdom has no layout; pretend the SVG renders at its viewBox size so a
+    // clientX is a viewBox x. The plot spans 56..700 across Jan 4..Jan 25.
+    const hoverAt = (clientX: number) => {
+      const svg = screen.getByRole('img')
+      svg.getBoundingClientRect = () => ({ left: 0, width: 720 }) as DOMRect
+      fireEvent.pointerMove(svg, { clientX })
+    }
+
+    it('snaps to the nearest sample and reads out both lines there', () => {
+      render(<BurndownChart scheduled={scheduled} actual={actual} today="2026-01-18" />)
+      // Jan 11 sits at x≈271; 300 is nearer it than Jan 18 (≈485).
+      hoverAt(300)
+      const readout = screen.getByRole('status')
+      expect(readout).toHaveTextContent('$300Scheduled')
+      expect(readout).toHaveTextContent('$250Collected')
+    })
+
+    it('has no collected figure past the end of the collected line', () => {
+      render(<BurndownChart scheduled={scheduled} actual={actual} today="2026-01-18" />)
+      hoverAt(700)
+      const readout = screen.getByRole('status')
+      expect(readout).toHaveTextContent('$800Scheduled')
+      expect(readout).toHaveTextContent('—Collected')
+    })
+
+    it('steps through samples from the keyboard', () => {
+      render(<BurndownChart scheduled={scheduled} actual={actual} today="2026-01-18" />)
+      const svg = screen.getByRole('img')
+      fireEvent.keyDown(svg, { key: 'ArrowRight' })
+      fireEvent.keyDown(svg, { key: 'ArrowRight' })
+      expect(screen.getByRole('status')).toHaveTextContent('$300Scheduled')
+      fireEvent.keyDown(svg, { key: 'Escape' })
+      expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    })
   })
 })

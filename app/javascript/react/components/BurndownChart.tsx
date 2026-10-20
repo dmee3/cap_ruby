@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { shortMonthDay, weekdayMonthDay } from '../../utilities/dates'
 
 // @types/react is still v17 here (no useId); a per-instance counter keeps the
@@ -63,6 +63,9 @@ const BurndownChart = ({
   className = '',
 }: BurndownChartProps) => {
   const hatchId = useRef(`burndown-hatch-${(instanceSeq += 1)}`).current
+  const svgRef = useRef<SVGSVGElement>(null)
+  // Index into `scheduled`: the crosshair snaps to its dates, the weekly samples.
+  const [hovered, setHovered] = useState<number | null>(null)
 
   if (scheduled.length === 0) {
     return (
@@ -109,6 +112,38 @@ const BurndownChart = ({
   const markerX = x(clampIso(markerIso, allDates[0], allDates[allDates.length - 1]))
   const gridValues = [0, axisMax / 3, (axisMax * 2) / 3, axisMax]
 
+  const nearestIndex = (clientX: number) => {
+    const rect = svgRef.current?.getBoundingClientRect()
+    if (!rect || rect.width === 0) return null
+    const vbX = ((clientX - rect.left) / rect.width) * VB_W
+    let best = 0
+    allDates.forEach((d, i) => {
+      if (Math.abs(x(d) - vbX) < Math.abs(x(allDates[best]) - vbX)) best = i
+    })
+    return best
+  }
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const last = allDates.length - 1
+    const step = { ArrowLeft: -1, ArrowRight: 1 }[e.key]
+    if (step !== undefined) {
+      e.preventDefault()
+      setHovered((i) => Math.min(last, Math.max(0, (i ?? (step > 0 ? -1 : last + 1)) + step)))
+    } else if (e.key === 'Home' || e.key === 'End') {
+      e.preventDefault()
+      setHovered(e.key === 'Home' ? 0 : last)
+    } else if (e.key === 'Escape') {
+      setHovered(null)
+    }
+  }
+
+  const hoverIso = hovered === null ? null : allDates[hovered]
+  const hoverX = hoverIso ? x(hoverIso) : 0
+  // No collected value past the end of the collected line: there is nothing to
+  // report yet, and a carried-forward total would read as "nobody paid".
+  const hoverCollected =
+    hoverIso && lastActual && hoverIso <= lastActual[0] ? valueAt(actual, hoverIso) : null
+
   return (
     <div className={`flex flex-col gap-3 ${className}`.trim()}>
       <div className="flex flex-wrap items-center gap-4 text-body-sm">
@@ -125,108 +160,157 @@ const BurndownChart = ({
         />
       </div>
 
-      <svg
-        viewBox={`0 0 ${VB_W} ${VB_H}`}
-        className="h-auto w-full overflow-visible"
-        role="img"
-        aria-label={`Dues collected against plan. ${
-          behindCents > 0
-            ? `${fmtMoney(behindCents, currency)} behind schedule as of ${weekdayMonthDay(markerIso)}.`
-            : 'Collections are keeping pace with the plan.'
-        }`}
-      >
-        <defs>
-          <pattern
-            id={hatchId}
-            width="6"
-            height="6"
-            patternUnits="userSpaceOnUse"
-            patternTransform="rotate(45)"
-          >
-            <rect width="6" height="6" className="fill-viz-gap" fillOpacity="0.18" />
-            <line x1="0" y1="0" x2="0" y2="6" className="stroke-viz-gap" strokeWidth="1.5" />
-          </pattern>
-        </defs>
+      <div className="relative">
+        <svg
+          ref={svgRef}
+          viewBox={`0 0 ${VB_W} ${VB_H}`}
+          className="h-auto w-full overflow-visible rounded-sm focus-visible:outline-none focus-visible:ring-2"
+          tabIndex={0}
+          onPointerMove={(e) => setHovered(nearestIndex(e.clientX))}
+          onPointerLeave={() => setHovered(null)}
+          onKeyDown={onKeyDown}
+          onBlur={() => setHovered(null)}
+          role="img"
+          aria-label={`Dues collected against plan. ${
+            behindCents > 0
+              ? `${fmtMoney(behindCents, currency)} behind schedule as of ${weekdayMonthDay(markerIso)}.`
+              : 'Collections are keeping pace with the plan.'
+          }`}
+        >
+          <defs>
+            <pattern
+              id={hatchId}
+              width="6"
+              height="6"
+              patternUnits="userSpaceOnUse"
+              patternTransform="rotate(45)"
+            >
+              <rect width="6" height="6" className="fill-viz-gap" fillOpacity="0.18" />
+              <line x1="0" y1="0" x2="0" y2="6" className="stroke-viz-gap" strokeWidth="1.5" />
+            </pattern>
+          </defs>
 
-        {gridValues.map((v, i) => (
-          <line
-            key={v}
-            x1={PLOT.left}
-            x2={PLOT.right}
-            y1={y(v)}
-            y2={y(v)}
-            className="stroke-border-default"
-            strokeWidth="1"
-            strokeOpacity={i === 0 ? 1 : 0.4}
+          {gridValues.map((v, i) => (
+            <line
+              key={v}
+              x1={PLOT.left}
+              x2={PLOT.right}
+              y1={y(v)}
+              y2={y(v)}
+              className="stroke-border-default"
+              strokeWidth="1"
+              strokeOpacity={i === 0 ? 1 : 0.4}
+            />
+          ))}
+          {gridValues.map((v) => (
+            <text
+              key={`t${v}`}
+              x={PLOT.left - 10}
+              y={y(v) + 4}
+              textAnchor="end"
+              className="fill-secondary font-mono"
+              style={{ fontSize: 11 }}
+            >
+              {fmtAxis(v)}
+            </text>
+          ))}
+
+          {behindArea && <polygon points={behindArea} fill={`url(#${hatchId})`} />}
+
+          <polyline
+            points={schedPts}
+            fill="none"
+            className="stroke-viz-scheduled"
+            strokeWidth="2.5"
+            strokeDasharray="7 5"
+            strokeLinejoin="round"
           />
-        ))}
-        {gridValues.map((v) => (
+          <polyline
+            points={actualPts}
+            fill="none"
+            className="stroke-viz-actual"
+            strokeWidth="3"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+          {lastActual && (
+            <circle cx={x(lastActual[0])} cy={y(lastActual[1])} r="4.5" className="fill-viz-actual" />
+          )}
+
+          <line
+            x1={markerX}
+            x2={markerX}
+            y1={PLOT.top - 6}
+            y2={PLOT.bottom}
+            className="stroke-secondary"
+            strokeWidth="1"
+            strokeDasharray="3 3"
+          />
           <text
-            key={`t${v}`}
-            x={PLOT.left - 10}
-            y={y(v) + 4}
+            x={markerX}
+            y={PLOT.top - 12}
+            textAnchor={ended ? 'end' : 'middle'}
+            className="fill-primary"
+            style={{ fontSize: 11, fontWeight: 600 }}
+          >
+            {ended ? 'Season end' : 'Today'}
+          </text>
+
+          <text x={PLOT.left} y={PLOT.bottom + 18} className="fill-secondary font-mono" style={{ fontSize: 11 }}>
+            {shortMonthDay(allDates[0])}
+          </text>
+          <text
+            x={PLOT.right}
+            y={PLOT.bottom + 18}
             textAnchor="end"
             className="fill-secondary font-mono"
             style={{ fontSize: 11 }}
           >
-            {fmtAxis(v)}
+            {shortMonthDay(allDates[allDates.length - 1])}
           </text>
-        ))}
 
-        {behindArea && <polygon points={behindArea} fill={`url(#${hatchId})`} />}
+          {hoverIso && (
+            <g aria-hidden="true" pointerEvents="none">
+              <circle
+                cx={hoverX}
+                cy={y(scheduled[hovered as number][1])}
+                r="4"
+                className="fill-viz-scheduled stroke-surface"
+                strokeWidth="2"
+              />
+              {hoverCollected !== null && (
+                <circle
+                  cx={hoverX}
+                  cy={y(hoverCollected)}
+                  r="4"
+                  className="fill-viz-actual stroke-surface"
+                  strokeWidth="2"
+                />
+              )}
+            </g>
+          )}
+        </svg>
 
-        <polyline
-          points={schedPts}
-          fill="none"
-          className="stroke-viz-scheduled"
-          strokeWidth="2.5"
-          strokeDasharray="7 5"
-          strokeLinejoin="round"
-        />
-        <polyline
-          points={actualPts}
-          fill="none"
-          className="stroke-viz-actual"
-          strokeWidth="3"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-        />
-        {lastActual && (
-          <circle cx={x(lastActual[0])} cy={y(lastActual[1])} r="4.5" className="fill-viz-actual" />
+        {hoverIso && (
+          <div
+            role="status"
+            className="pointer-events-none absolute top-0 z-10 flex min-w-[148px] flex-col gap-1 rounded-md border border-border-default bg-surface px-3 py-2 text-body-sm shadow-lg"
+            style={tooltipPosition(hoverX)}
+          >
+            <span className="text-caption text-secondary">{weekdayMonthDay(hoverIso)}</span>
+            <TooltipRow
+              keyClassName="h-0 w-3 border-t-2 border-dashed border-viz-scheduled"
+              label="Scheduled"
+              value={fmtMoney(scheduled[hovered as number][1], currency)}
+            />
+            <TooltipRow
+              keyClassName="h-[2px] w-3 rounded-sm bg-viz-actual"
+              label="Collected"
+              value={hoverCollected === null ? '—' : fmtMoney(hoverCollected, currency)}
+            />
+          </div>
         )}
-
-        <line
-          x1={markerX}
-          x2={markerX}
-          y1={PLOT.top - 6}
-          y2={PLOT.bottom}
-          className="stroke-secondary"
-          strokeWidth="1"
-          strokeDasharray="3 3"
-        />
-        <text
-          x={markerX}
-          y={PLOT.top - 12}
-          textAnchor={ended ? 'end' : 'middle'}
-          className="fill-primary"
-          style={{ fontSize: 11, fontWeight: 600 }}
-        >
-          {ended ? 'Season end' : 'Today'}
-        </text>
-
-        <text x={PLOT.left} y={PLOT.bottom + 18} className="fill-secondary font-mono" style={{ fontSize: 11 }}>
-          {shortMonthDay(allDates[0])}
-        </text>
-        <text
-          x={PLOT.right}
-          y={PLOT.bottom + 18}
-          textAnchor="end"
-          className="fill-secondary font-mono"
-          style={{ fontSize: 11 }}
-        >
-          {shortMonthDay(allDates[allDates.length - 1])}
-        </text>
-      </svg>
+      </div>
 
       <p className={`flex flex-wrap items-baseline gap-2 ${showCaption ? '' : 'hidden'}`}>
         {behindCents > 0 ? (
@@ -265,6 +349,29 @@ const LegendSwatch = ({ className, label }: { className: string; label: string }
     {label}
   </span>
 )
+
+const TooltipRow = ({
+  keyClassName,
+  label,
+  value,
+}: {
+  keyClassName: string
+  label: string
+  value: string
+}) => (
+  <span className="flex items-center gap-2">
+    <span className={keyClassName} aria-hidden="true" />
+    <span className="font-mono font-bold text-primary">{value}</span>
+    <span className="text-secondary">{label}</span>
+  </span>
+)
+
+// Beside the crosshair, flipping to its left past the middle so it never runs
+// off the card's right edge.
+const tooltipPosition = (vbX: number): React.CSSProperties => {
+  const pct = (vbX / VB_W) * 100
+  return pct > 50 ? { right: `calc(${100 - pct}% + 12px)` } : { left: `calc(${pct}% + 12px)` }
+}
 
 const niceCeil = (n: number) => {
   const mag = Math.pow(10, Math.floor(Math.log10(n)))
