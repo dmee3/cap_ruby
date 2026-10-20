@@ -112,41 +112,47 @@ const QuantityStepper = ({
 
   if (typing) {
     return (
-      <div className={`flex items-center gap-2 ${className}`.trim()}>
+      <div className={`flex flex-col items-start gap-2 ${className}`.trim()}>
         <label className="sr-only" htmlFor={`recount-${itemName}`}>
           Recount {itemName}
         </label>
+        {/* Text, not type="number": the native spinner arrows duplicate the
+            stepper this replaces, and a scroll wheel over the field silently
+            changes the count. Sized to the -/count/+ line so nothing moves. */}
         <input
           id={`recount-${itemName}`}
-          type="number"
-          min={0}
+          type="text"
           inputMode="numeric"
+          pattern="[0-9]*"
+          autoComplete="off"
           autoFocus
           value={typed}
-          onChange={(e) => setTyped(e.target.value)}
+          onChange={(e) => setTyped(e.target.value.replace(/\D/g, ''))}
           onKeyDown={(e) => {
             if (e.key === 'Enter') commitTyped()
             if (e.key === 'Escape') reset()
           }}
           className={[
             'rounded-[9px] border border-accent-primary bg-surface px-2 text-center',
-            'font-mono text-body font-bold text-primary',
+            'font-mono font-bold text-primary',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-            touch ? 'h-[44px] w-[96px]' : 'h-[36px] w-[88px]',
+            touch ? 'h-[44px] w-[144px] text-[22px]' : 'h-[36px] w-[140px] text-[20px]',
           ].join(' ')}
         />
-        <Button variant="link" onClick={commitTyped}>
-          Save
-        </Button>
-        <Button variant="link" tone="muted" onClick={reset}>
-          Cancel
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size={touch ? 'lg' : 'md'} fullWidthBelow={false} onClick={commitTyped}>
+            Save
+          </Button>
+          <Button variant="secondary" size={touch ? 'lg' : 'md'} fullWidthBelow={false} onClick={reset}>
+            Cancel
+          </Button>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className={`flex flex-col gap-2 ${className}`.trim()}>
+    <div className={`flex flex-col items-start gap-2 ${className}`.trim()}>
       <div className={`flex items-center ${touch ? 'gap-[6px]' : 'gap-2'}`}>
         <button
           type="button"
@@ -191,47 +197,49 @@ const QuantityStepper = ({
             +
           </span>
         </button>
-
-        {busy && (
-          <span className="flex items-center gap-2 text-body-sm text-secondary">
-            <span
-              className="h-4 w-4 rounded-full border-2 border-border-default border-t-accent-primary animate-spin"
-              aria-hidden="true"
-            />
-            Saving…
-          </span>
-        )}
       </div>
 
-      {delta !== 0 && !busy && (
-        <div className="flex flex-wrap items-center gap-2">
+      {/* Below the buttons, never beside them: anything that appears on their
+          line would widen it and, in a right-aligned row, slide them sideways. */}
+      {busy && (
+        <span className="flex items-center gap-2 text-body-sm text-secondary">
           <span
-            className={[
-              'rounded-full px-[10px] py-[3px] font-mono text-body-sm font-bold',
-              delta > 0 ? 'bg-success-bg text-success-fg' : 'bg-danger-bg text-danger-fg',
-            ].join(' ')}
-          >
-            {formatDelta(delta)}
-          </span>
-          <span className="text-body-sm text-secondary">
-            {quantity} → <span className="font-mono font-bold text-primary">{projected}</span>
-          </span>
-          <Button size={touch ? 'lg' : 'md'} fullWidthBelow={false} onClick={() => onCommit(delta)}>
-            Save {formatDelta(delta)}
-          </Button>
-          <Button variant="secondary" size={touch ? 'lg' : 'md'} fullWidthBelow={false} onClick={reset}>
-            Cancel
-          </Button>
-          <Button
-            variant="link"
-            onClick={() => {
-              setTyped(String(projected))
-              setTyping(true)
-            }}
-          >
-            Type a total instead
-          </Button>
-        </div>
+            className="h-4 w-4 rounded-full border-2 border-border-default border-t-accent-primary animate-spin"
+            aria-hidden="true"
+          />
+          Saving…
+        </span>
+      )}
+
+      {delta !== 0 && !busy && (
+        <>
+          {/* Save/Cancel get a line of their own, the same line they take when
+              typing a total, so switching between the two never moves them. */}
+          <div className="flex items-center gap-2">
+            <Button size={touch ? 'lg' : 'md'} fullWidthBelow={false} onClick={() => onCommit(delta)}>
+              Save {formatDelta(delta)}
+            </Button>
+            <Button variant="secondary" size={touch ? 'lg' : 'md'} fullWidthBelow={false} onClick={reset}>
+              Cancel
+            </Button>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* The big number already shows the result and Save names the change;
+                the old count is the one thing nothing else on screen still says. */}
+            <span className="text-body-sm text-secondary">
+              was <span className="font-mono font-bold text-primary">{quantity}</span>
+            </span>
+            <Button
+              variant="link"
+              onClick={() => {
+                setTyped(String(projected))
+                setTyping(true)
+              }}
+            >
+              Type a total instead
+            </Button>
+          </div>
+        </>
       )}
 
       {delta === 0 && !busy && state !== 'failed' && (
@@ -239,7 +247,6 @@ const QuantityStepper = ({
           variant="link"
           tone="muted"
           size="sm"
-          className="self-start"
           onClick={() => {
             setTyped(String(quantity))
             setTyping(true)

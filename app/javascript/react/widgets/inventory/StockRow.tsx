@@ -28,7 +28,8 @@ const StockRow = ({ item, saving, canManageAlerts, onCommit }: StockRowProps) =>
       className={[
         // items-start, not items-center: the stepper grows downward when it
         // surfaces Save/Cancel, and centring would slide the -/+ buttons up
-        // out from under the finger that just tapped one.
+        // out from under the finger that just tapped one. The same goes
+        // sideways: see the stepper's className below.
         'flex flex-wrap items-start gap-3 border-b border-border-default px-4 py-3 last:border-b-0',
         ROW_TONE[item.status],
       ]
@@ -48,14 +49,6 @@ const StockRow = ({ item, saving, canManageAlerts, onCommit }: StockRowProps) =>
         </span>
       </span>
 
-      <QuantityStepper
-        quantity={item.quantity}
-        itemName={item.name}
-        state={saving ? 'committing' : 'idle'}
-        onCommit={(delta) => onCommit(item, delta)}
-        className="basis-full sm:basis-auto"
-      />
-
       {/* Rename, alerts, and delete land here as a row menu in a later phase;
           keeping counting and destroying on separate surfaces. */}
       <a
@@ -67,6 +60,19 @@ const StockRow = ({ item, saving, canManageAlerts, onCommit }: StockRowProps) =>
       >
         History
       </a>
+
+      <QuantityStepper
+        quantity={item.quantity}
+        itemName={item.name}
+        state={saving ? 'committing' : 'idle'}
+        onCommit={(delta) => onCommit(item, delta)}
+        // Save/Cancel is wider than the buttons. Beside the name the stepper is
+        // pinned right, so it grows leftward (items-end) to keep -/+ in place,
+        // inside a fixed width so History, to its left, doesn't get pushed
+        // along too. Below md that doesn't fit, so it gets a line to itself
+        // and grows rightward from a fixed left edge instead.
+        className="basis-full md:w-48 md:basis-auto md:items-end"
+      />
     </li>
   )
 }
