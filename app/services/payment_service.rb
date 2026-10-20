@@ -98,6 +98,31 @@ class PaymentService
       Payment.for_season(season_id).where(date_paid: period_start...period_end).sum(&:amount)
     end
 
+    # The bookmark for hand-keyed Venmo entry: where the admin left off against
+    # the Venmo feed. Ordered by entry time, not payment date, so it answers
+    # "which one did I type in last" rather than "which money moved last".
+    # nil when the Venmo payment type row is absent, same as having none.
+    sig { params(season_id: Integer).returns(T.nilable(T::Hash[Symbol, T.untyped])) }
+    def last_venmo_entry(season_id)
+      venmo = PaymentType.venmo
+      return nil if venmo.nil?
+
+      payment = Payment
+                .for_season(season_id)
+                .includes(:user)
+                .where(payment_type_id: venmo.id)
+                .order(created_at: :desc)
+                .first
+      return nil if payment.nil?
+
+      {
+        name: payment.user.full_name,
+        amount_cents: payment.amount,
+        date_paid: payment.date_paid.iso8601,
+        entered_days_ago: (Date.current - payment.created_at.to_date).to_i
+      }
+    end
+
     sig { returns(T::Hash[Symbol, String]) }
     def current_dues_period
       DUES_PERIODS.filter { |p| Date.parse(p[:end]) >= Date.today }.first

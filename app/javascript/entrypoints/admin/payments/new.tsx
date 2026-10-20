@@ -4,6 +4,7 @@ import AddPaymentForm, {
   AddPaymentMember,
   AddPaymentType,
 } from '../../../react/widgets/admin/AddPaymentForm'
+import { DashboardLastVenmo } from '../../../react/widgets/admin/AdminDashboard'
 import Utilities from '../../../utilities/utilities'
 
 const el = document.getElementById('add-payment')
@@ -27,6 +28,7 @@ if (el) {
       preselectedUserId={Number.isFinite(preselected) ? preselected : undefined}
       csrfToken={Utilities.getAuthToken()}
       serverErrors={parse<string[]>(d.serverErrors, [])}
+      lastVenmo={parse<DashboardLastVenmo | null>(d.lastVenmo, null)}
       initial={parse<{
         paymentTypeId?: number
         amountCents?: number | null

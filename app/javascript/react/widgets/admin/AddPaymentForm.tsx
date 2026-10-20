@@ -6,7 +6,9 @@ import MemberCombobox from '../../components/MemberCombobox'
 import ValidationSummaryCard, { ValidationError } from '../../components/ValidationSummaryCard'
 import Button from '../../components/Button'
 import Field, { Select, TextInput, Textarea } from '../../components/Field'
-import { monthDay } from '../../../utilities/dates'
+import { monthDay, weekdayMonthDayYear } from '../../../utilities/dates'
+import { dollars } from '../../../utilities/money'
+import { DashboardLastVenmo } from './AdminDashboard'
 
 export type AddPaymentMember = {
   id: number
@@ -51,7 +53,29 @@ type AddPaymentFormProps = {
   }
   /** Present when correcting an existing payment rather than recording a new one. */
   editing?: EditingPayment
+  /**
+   * The most recently entered Venmo payment this season, so whoever is keying
+   * in from the Venmo feed knows where they left off. null when there is none.
+   */
+  lastVenmo?: DashboardLastVenmo | null
 }
+
+const LastVenmoNote = ({ lastVenmo }: { lastVenmo: DashboardLastVenmo | null }) => (
+  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 rounded-md border border-border-default bg-sunken px-4 py-3 text-body-sm">
+    <span className="text-label uppercase text-secondary">Last Venmo entered</span>
+    {lastVenmo == null ? (
+      <span className="text-secondary">None yet this season.</span>
+    ) : (
+      <>
+        <span className="font-semibold tabular-nums text-primary">
+          {weekdayMonthDayYear(lastVenmo.date_paid)}
+        </span>
+        <span className="text-primary">{lastVenmo.name}</span>
+        <span className="font-medium tabular-nums text-success-fg">{dollars(lastVenmo.amount_cents)}</span>
+      </>
+    )}
+  </div>
+)
 
 const AddPaymentForm = ({
   members,
@@ -61,6 +85,7 @@ const AddPaymentForm = ({
   serverErrors,
   initial,
   editing,
+  lastVenmo,
 }: AddPaymentFormProps) => {
   const today = new Date().toISOString().slice(0, 10)
   const isEdit = editing != null
@@ -83,6 +108,12 @@ const AddPaymentForm = ({
   const errors: ValidationError[] = clientErrors.length
     ? clientErrors
     : serverErrors.map((message, i) => ({ fieldId: `server-${i}`, message }))
+
+  // Only useful while keying in Venmo, and undefined means the page didn't send it.
+  const showLastVenmo =
+    !isEdit &&
+    lastVenmo !== undefined &&
+    paymentTypes.find((t) => String(t.id) === paymentTypeId)?.name === 'Venmo'
 
   const errorFor = (fieldId: string) => clientErrors.find((e) => e.fieldId === fieldId)?.message
 
@@ -123,6 +154,8 @@ const AddPaymentForm = ({
             lead={isEdit ? "Your changes weren't saved." : "This payment wasn't saved."}
           />
         )}
+
+        {showLastVenmo && <LastVenmoNote lastVenmo={lastVenmo ?? null} />}
 
         <form
           action={isEdit ? `/admin/payments/${editing.id}` : '/admin/payments'}

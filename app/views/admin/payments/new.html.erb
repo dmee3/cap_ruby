@@ -13,6 +13,7 @@
   data-members="<%= @members.to_json %>"
   data-payment-types="<%= @payment_types.to_json %>"
   data-preselected-user-id="<%= @payment.user_id %>"
+  data-last-venmo="<%= @last_venmo.to_json %>"
   data-server-errors="<%= (@payment.errors.any? ? @payment.errors.full_messages : []).to_json %>"
   data-initial="<%= { paymentTypeId: @payment.payment_type_id,
                       amountCents: @payment.amount,

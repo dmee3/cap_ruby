@@ -101,6 +101,18 @@ RSpec.describe 'Admin::Payments', type: :request do
       expect(response.body).to include('&quot;paymentTypeId&quot;:null')
     end
 
+    it 'carries the last-Venmo bookmark, so keying in from the feed starts where it left off' do
+      venmo = create(:payment_type, name: 'Venmo')
+      create(:payment, user: member, season: season, payment_type: venmo,
+                       amount: 40_000, date_paid: Date.current - 3.days)
+
+      get '/admin/payments/new'
+
+      bookmark = response.body[/data-last-venmo="[^"]*"/]
+      expect(bookmark).to include('Rae Quinn')
+      expect(bookmark).to include('&quot;amount_cents&quot;:40000')
+    end
+
     it 'leaves the type unset when no type is named' do
       cash
 

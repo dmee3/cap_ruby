@@ -23,6 +23,7 @@ module Admin
       @payment_types = manual_payment_types
       @payment.payment_type_id = preselected_payment_type_id(params[:payment_type])
       @members = add_payment_member_models
+      @last_venmo = PaymentService.last_venmo_entry(current_season['id'])
       @undo_payment_id = params[:undo].presence
       render('admin/payments/new')
     end
@@ -48,6 +49,7 @@ module Admin
       else
         @payment_types = manual_payment_types
         @members = add_payment_member_models
+        @last_venmo = PaymentService.last_venmo_entry(current_season['id'])
         # Keep @payment.amount in cents — new.html.erb reads it as cents for the
         # sticky MoneyField value; no lossy /100 round-trip.
         flash.now[:error] = @payment.errors.full_messages.to_sentence

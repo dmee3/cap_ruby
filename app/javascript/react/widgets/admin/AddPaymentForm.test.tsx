@@ -217,4 +217,35 @@ describe('AddPaymentForm', () => {
     expect(screen.getByLabelText('Amount')).toHaveValue('45.00')
     expect(container.querySelector('[name="payment[notes]"]')).toHaveValue('Cash at rehearsal')
   })
+  describe('last Venmo entered', () => {
+    const lastVenmo = {
+      name: 'Dana Whitfield',
+      amount_cents: 4_000,
+      date_paid: '2026-03-03',
+      entered_days_ago: 2,
+    }
+
+    it('shows where Venmo entry left off while Venmo is the chosen type', () => {
+      setup({ lastVenmo })
+      expect(screen.getByText('Last Venmo entered')).toBeInTheDocument()
+      expect(screen.getByText('Dana Whitfield')).toBeInTheDocument()
+      expect(screen.getByText('$40')).toBeInTheDocument()
+    })
+
+    it('hides it once another payment type is picked', async () => {
+      setup({ lastVenmo })
+      await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Payment type' }), 'Cash')
+      expect(screen.queryByText('Last Venmo entered')).not.toBeInTheDocument()
+    })
+
+    it('says so when nothing has been entered this season', () => {
+      setup({ lastVenmo: null })
+      expect(screen.getByText('None yet this season.')).toBeInTheDocument()
+    })
+
+    it('stays out of the way when correcting an existing payment', () => {
+      setup({ lastVenmo, editing: { id: 1, originalAmountCents: 1_000 }, initial: { userId: 9 } })
+      expect(screen.queryByText('Last Venmo entered')).not.toBeInTheDocument()
+    })
+  })
 })
