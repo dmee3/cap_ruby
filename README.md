@@ -204,3 +204,25 @@ Values live in `.env`, which is gitignored and **must stay that way** — a loca
 an issue or PR, or copy it into a worktree or scratch directory. Get your own
 test keys from your Stripe dashboard in test mode; you do not need production
 keys to develop any of this.
+
+## Storybook
+
+Storybook shows the React components and role widgets on their own, with mock
+data, so no Rails server or database is needed.
+
+```bash
+yarn install
+yarn storybook          # http://localhost:6006
+yarn build-storybook    # static build into storybook-static/ (gitignored)
+```
+
+- **Stories** sit next to the component they cover as `*.stories.tsx`. Shared
+  fixtures are in `app/javascript/stories/`.
+- **Requests** go to [MSW](https://mswjs.io) handlers that each story sets in
+  `parameters.msw`. A request no handler answers shows a warning in the browser
+  console.
+- **Form posts** to Rails are caught and logged to the Actions panel, so the
+  preview doesn't navigate away.
+- **Vite config:** Storybook uses `.storybook/vite.config.ts`, not the app's
+  `vite.config.ts`, because `vite-plugin-ruby` rewrites the root and base paths
+  for Rails.

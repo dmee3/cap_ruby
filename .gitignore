@@ -49,3 +49,7 @@ node_modules
 *.db
 .beads-credential-key
 .beads/proxieddb/
+
+# Storybook
+/storybook-static
+*storybook.log

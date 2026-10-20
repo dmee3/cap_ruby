@@ -30,6 +30,11 @@ Manage all aspects of ensemble operations including member registration, rehears
 - `yarn install` - Install JavaScript dependencies
 - `yarn dev` or `bin/vite dev` - Start Vite development server
 - `yarn build` or `bin/vite build` - Build assets for production
+- `yarn storybook` - Storybook for the React components and widgets on :6006, styled with the
+  app's own Tailwind 3 stylesheet (`app/javascript/stylesheets/application.css`). Stories sit
+  beside their component (`*.stories.tsx`); widgets that fetch get canned responses from MSW
+  handlers in `parameters.msw`, with shared fixtures in `app/javascript/stories/`. ERB views
+  and the shell aren't in it
 - **IMPORTANT:** Do NOT run `yarn build` or `bin/vite build` to verify changes unless explicitly requested. The build process is automatic in development.
 
 **Database Operations:**
@@ -293,7 +298,7 @@ The `PRODUCT_NAMES` constants in the model classes are fallbacks only.
 
 ### Tech Stack
 - **Backend:** Ruby on Rails 7.2 (API + server-rendered views)
-- **Frontend:** Vite + React/TypeScript with WindiCSS for styling
+- **Frontend:** Vite + React/TypeScript with Tailwind CSS 3 for styling
 - **Database:** SQLite (development) / PostgreSQL (production)
 - **Background Jobs:** Sidekiq
 - **Authentication:** Devise
@@ -314,7 +319,7 @@ The `PRODUCT_NAMES` constants in the model classes are fallbacks only.
 - **Entry Points:** `app/javascript/entrypoints/`
   - One entry file per page/widget
   - Vite bundles each entry point separately
-- **Styling:** WindiCSS (utility-first, like Tailwind)
+- **Styling:** Tailwind CSS 3, with colours as CSS custom properties in `stylesheets/tokens.css`
 - **Build Tool:** Vite with hot module reload in development
 
 ### Backend Code Organization
