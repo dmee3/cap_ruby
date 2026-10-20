@@ -27,7 +27,7 @@ describe('QuantityStepper', () => {
     // The big number previews the result; the run beneath keeps the old count
     // visible so the change is checkable at a glance.
     expect(screen.getByRole('button', { name: `Save −1` })).toBeInTheDocument()
-    expect(screen.getByText(/42 →/)).toBeInTheDocument()
+    expect(screen.getByText('was')).toHaveTextContent('was 42')
   })
 
   // The whole premise: what gets written is the change, not the total, so two
@@ -46,7 +46,7 @@ describe('QuantityStepper', () => {
     const { onCommit } = setup()
 
     await userEvent.click(screen.getByRole('button', { name: 'Type a total' }))
-    const field = screen.getByRole('spinbutton', { name: /Recount/ })
+    const field = screen.getByRole('textbox', { name: /Recount/ })
     await userEvent.clear(field)
     await userEvent.type(field, '36')
     await userEvent.click(screen.getByRole('button', { name: 'Save' }))
@@ -96,6 +96,6 @@ describe('QuantityStepper', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /Remove one/ }))
 
-    expect(screen.getByText('−1')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^Save/ })).toHaveTextContent('Save \u22121')
   })
 })
