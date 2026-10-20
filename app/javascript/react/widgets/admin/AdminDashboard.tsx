@@ -82,11 +82,22 @@ type AdminDashboardProps = {
   newVenmoPaymentPath: string
 }
 
-const CRUNCHWRAP_SUPREME_CENTS = 649
+type FastFoodItem = { cents: number; one: string; many: string }
 
-const crunchwrapSupremes = (cents: number) => {
-  const count = Math.floor(cents / CRUNCHWRAP_SUPREME_CENTS)
-  return `That's ${count.toLocaleString('en-US')} Crunchwrap Supreme${count === 1 ? '' : 's'}`
+// Rough US averages, looked up once in October 2026 and hard-coded on purpose:
+// it's a joke, not a price feed.
+const FAST_FOOD_ITEMS: FastFoodItem[] = [
+  { cents: 649, one: 'Crunchwrap Supreme', many: 'Crunchwrap Supremes' },
+  { cents: 625, one: 'grande Starbucks vanilla latte', many: 'grande Starbucks vanilla lattes' },
+  { cents: 591, one: 'Big Mac', many: 'Big Macs' },
+  { cents: 649, one: 'Chick-fil-A Chicken Sandwich', many: 'Chick-fil-A Chicken Sandwiches' },
+  { cents: 975, one: 'Chipotle chicken burrito', many: 'Chipotle chicken burritos' },
+  { cents: 299, one: "medium Wendy's Frosty", many: "medium Wendy's Frostys" },
+]
+
+const inFastFood = (cents: number, item: FastFoodItem) => {
+  const count = Math.floor(cents / item.cents)
+  return `That's ${count.toLocaleString('en-US')} ${count === 1 ? item.one : item.many}`
 }
 
 // A report is meant to reach several people so no single one decides what
@@ -194,6 +205,10 @@ const AdminDashboard = ({
   newVenmoPaymentPath,
 }: AdminDashboardProps) => {
   const [range, setRange] = useState<Range>('season-to-date')
+  // Picked once per page load, so it doesn't change under you on a re-render.
+  const [fastFood] = useState(
+    () => FAST_FOOD_ITEMS[Math.floor(Math.random() * FAST_FOOD_ITEMS.length)],
+  )
   const [dismissedScheduleAlert, setDismissedScheduleAlert] = useState(false)
   const [dismissedRecipientAlert, setDismissedRecipientAlert] = useState(false)
 
@@ -283,7 +298,7 @@ const AdminDashboard = ({
           <StatBlock
             kicker="Expected by today"
             metric={dollars(stats.expected_cents)}
-            context={crunchwrapSupremes(stats.expected_cents)}
+            context={inFastFood(stats.expected_cents, fastFood)}
           />
         </Card>
         <Card>
