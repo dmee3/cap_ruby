@@ -23,7 +23,7 @@
     "flatpickr": "^4.6.3",
     "fuzzysort": "^1.1.4",
     "luxon": "^3.4.3",
-    "moment": "^2.24.0",
+    "moment": "^2.31.0",
     "prettier": "^2.1.2",
     "prop-types": "^15.7.2",
     "react": "^18.2.0",
