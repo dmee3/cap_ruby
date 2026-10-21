@@ -41,6 +41,7 @@
   --bg-surface: 255 255 255;
   --bg-surface-raised: 255 255 255;
   --bg-sunken: 241 242 243;
+  --bg-hover: 241 242 243;
   --bg-nav: 29 30 32;              /* jet — dark in both themes */
 
   --text-primary: 29 30 32;
@@ -79,6 +80,9 @@
     --bg-surface: 38 39 42;
     --bg-surface-raised: 47 48 51;
     --bg-sunken: 26 27 29;
+    /* Lighter than --bg-surface-raised, not darker like sunken: a row in a
+       popover that went darker on hover read as a hole in the menu. */
+    --bg-hover: 58 60 64;
     /* Sits below --bg-page rather than level with it: the sidebar's right edge
        has to come from somewhere, and §3.2 reserves shadows for things that
        float. The 1px border on .app-sidebar is the other half. */

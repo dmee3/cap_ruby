@@ -18,12 +18,12 @@
     <%= form_with url: change_season_path, method: :post do |f| %>
       <%= f.hidden_field :season_id, value: season.id, id: nil %>
       <button type="submit"
-              class="w-full flex items-center gap-2 p-2.5 rounded-sm text-left cursor-pointer transition <%= selected ? 'bg-[color:rgb(var(--accent-primary)/0.12)]' : 'hover:bg-sunken' %>">
+              class="w-full flex items-center gap-2 p-2.5 rounded-sm text-left cursor-pointer transition <%= selected ? 'bg-[color:rgb(var(--accent-primary)/0.12)]' : 'hover:bg-hover' %>">
         <span class="flex-1">
-          <span class="block font-<%= selected ? 'bold' : 'semibold' %> <%= 'text-ocean-dark' if selected %>"><%= season.year %> Season</span>
+          <span class="block font-<%= selected ? 'bold' : 'semibold' %>"><%= season.year %> Season</span>
         </span>
         <% if selected %>
-          <svg class="h-4 w-4 text-ocean shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <svg class="h-4 w-4 text-accent-primary shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
           </svg>
         <% end %>

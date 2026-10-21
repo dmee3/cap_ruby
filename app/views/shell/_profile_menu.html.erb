@@ -17,10 +17,10 @@
   </button>
 
   <div id="profile-menu" class="hidden absolute right-0 mt-2 w-44 z-50 bg-surface-raised text-primary rounded-md shadow-e2 border border-border-default p-1.5">
-    <%= link_to 'Settings', settings_path, class: 'block p-2 -mx-0 rounded-sm text-body-sm hover:bg-sunken' %>
-    <%= link_to 'Whistleblower', whistleblowers_path, class: 'block p-2 rounded-sm text-body-sm hover:bg-sunken' %>
+    <%= link_to 'Settings', settings_path, class: 'block p-2 -mx-0 rounded-sm text-body-sm hover:bg-hover' %>
+    <%= link_to 'Whistleblower', whistleblowers_path, class: 'block p-2 rounded-sm text-body-sm hover:bg-hover' %>
     <%= form_with url: destroy_user_session_path, method: :delete do %>
-      <button type="submit" class="w-full text-left p-2 rounded-sm text-body-sm hover:bg-sunken cursor-pointer">Log Out</button>
+      <button type="submit" class="w-full text-left p-2 rounded-sm text-body-sm hover:bg-hover cursor-pointer">Log Out</button>
     <% end %>
   </div>
 </div>
