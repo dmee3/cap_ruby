@@ -41,14 +41,23 @@ RSpec.describe ConflictPresenter do
       expect(row[:date_range_label]).to eq(start_at.strftime('%-m/%-d/%y'))
     end
 
-    it 'formats a multi-day conflict as a date range, no time' do
+    it 'puts the start and end times on a multi-day conflict' do
       start_at = 5.days.from_now.change(hour: 18)
-      row = described_class.rows_for([conflict(start_at: start_at, end_at: start_at + 2.days)]).first
+      end_at = start_at + 2.days - 4.hours
+      row = described_class.rows_for([conflict(start_at: start_at, end_at: end_at)]).first
 
       expect(row[:date_range_label]).to eq(
-        "#{start_at.strftime('%a %-m/%-d')} – #{(start_at + 2.days).strftime('%-m/%-d')}"
+        "#{start_at.strftime('%a %-m/%-d')} 6:00 PM – #{end_at.strftime('%-m/%-d')} 2:00 PM"
       )
       expect(row).not_to have_key(:time_range_label)
+    end
+
+    it 'leaves times off a multi-day conflict that spans whole days' do
+      day = 5.days.from_now.to_date
+      whole = conflict(start_at: day.in_time_zone.beginning_of_day, end_at: (day + 2).in_time_zone.end_of_day)
+      row = described_class.rows_for([whole]).first
+
+      expect(row[:date_range_label]).to eq("#{day.strftime('%a %-m/%-d')} – #{(day + 2).strftime('%-m/%-d')}")
     end
 
     it 'includes the reason only for Denied rows and the next upcoming Pending row' do

@@ -66,7 +66,11 @@ class ConflictPresenter
 
     sig { params(conflict: Conflict).returns(String) }
     def multi_day_label(conflict)
-      "#{conflict.start_date.strftime('%a %-m/%-d')} – #{conflict.end_date.strftime('%-m/%-d')}"
+      start_label = conflict.start_date.strftime('%a %-m/%-d')
+      end_label = conflict.end_date.strftime('%-m/%-d')
+      return "#{start_label} – #{end_label}" if all_day?(conflict)
+
+      "#{start_label} #{clock(conflict.start_date)} – #{end_label} #{clock(conflict.end_date)}"
     end
 
     sig { params(conflict: Conflict).returns(T.nilable(String)) }
@@ -74,7 +78,12 @@ class ConflictPresenter
       return nil unless single_day?(conflict)
       return 'all day' if all_day?(conflict)
 
-      "#{conflict.start_date.strftime('%-I:%M %p')}–#{conflict.end_date.strftime('%-I:%M %p')}"
+      "#{clock(conflict.start_date)}–#{clock(conflict.end_date)}"
+    end
+
+    sig { params(time: T.any(Time, ActiveSupport::TimeWithZone)).returns(String) }
+    def clock(time)
+      time.strftime('%-I:%M %p')
     end
 
     sig { params(conflict: Conflict).returns(T::Boolean) }
