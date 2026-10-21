@@ -52,7 +52,7 @@ group :development, :test do
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
   gem 'sorbet', '~> 0.5', require: false
-  gem 'sqlite3', '~> 2.1.0'
+  gem 'sqlite3', '~> 2.9.6'
   gem 'tapioca', '~> 0.15', require: false
 end
 

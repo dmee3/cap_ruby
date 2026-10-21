@@ -226,7 +226,6 @@ GEM
       mime-types-data (~> 3.2025, >= 3.2025.0507)
     mime-types-data (3.2025.0924)
     mini_mime (1.1.5)
-    mini_portile2 (2.8.9)
     minitest (5.26.0)
     msgpack (1.8.0)
     multi_json (1.17.0)
@@ -244,9 +243,6 @@ GEM
       net-protocol
     netrc (0.11.0)
     nio4r (2.7.4)
-    nokogiri (1.18.10)
-      mini_portile2 (~> 2.8.2)
-      racc (~> 1.4)
     nokogiri (1.18.10-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.18.10-x86_64-linux-gnu)
@@ -437,8 +433,8 @@ GEM
       actionpack (>= 6.1)
       activesupport (>= 6.1)
       sprockets (>= 3.0.0)
-    sqlite3 (2.1.1)
-      mini_portile2 (~> 2.8.0)
+    sqlite3 (2.9.6-arm64-darwin)
+    sqlite3 (2.9.6-x86_64-linux-gnu)
     stringio (3.1.7)
     tapioca (0.16.11)
       benchmark
@@ -534,7 +530,7 @@ DEPENDENCIES
   sorbet (~> 0.5)
   sorbet-runtime (~> 0.5)
   spring
-  sqlite3 (~> 2.1.0)
+  sqlite3 (~> 2.9.6)
   stripe!
   tapioca (~> 0.15)
   turbolinks (~> 5)
