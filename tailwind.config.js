@@ -58,6 +58,7 @@ module.exports = {
         surface: withAlpha('--bg-surface'),
         'surface-raised': withAlpha('--bg-surface-raised'),
         sunken: withAlpha('--bg-sunken'),
+        hover: withAlpha('--bg-hover'),
         nav: withAlpha('--bg-nav'),
         'accent-primary': withAlpha('--accent-primary'),
         'border-default': withAlpha('--border-default'),
