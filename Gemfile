@@ -6,7 +6,7 @@ source 'https://rubygems.org'
 # - .ruby-version
 # - .tool-versions
 # - .github/workflows/ruby.yml
-ruby '3.1.2'
+ruby '3.4.10'
 
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?('/')
