@@ -3,6 +3,19 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
+  # Almost always a form left open across a sign-in, sign-out or browser restart,
+  # not an attack. The request is still refused; the person just gets sent back to
+  # a freshly rendered form instead of an error page.
+  rescue_from ActionController::InvalidAuthenticityToken do
+    respond_to do |format|
+      format.html do
+        redirect_back fallback_location: root_path,
+                      alert: 'That page had gone stale, so nothing was saved. Please try again.'
+      end
+      format.any { head :unprocessable_entity }
+    end
+  end
+
   layout :app_or_auth_layout
 
   # The season the app is currently showing. Only ever one the user is still on:
