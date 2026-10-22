@@ -34,6 +34,32 @@ RSpec.describe 'Sessions', type: :request do
     end
   end
 
+  describe 'POST /login from a stale page' do
+    around do |example|
+      ActionController::Base.allow_forgery_protection = true
+      example.run
+    ensure
+      ActionController::Base.allow_forgery_protection = false
+    end
+
+    it 'sends them back to a fresh form with a message rather than erroring' do
+      post '/login', params: { user: { email: user.email, password: user.password }, authenticity_token: 'stale' },
+                     headers: { 'HTTP_REFERER' => 'http://www.example.com/login' }
+
+      expect(response).to redirect_to('http://www.example.com/login')
+      follow_redirect!
+      expect(response.body).to include('That page had gone stale')
+    end
+
+    it 'does not sign them in' do
+      post '/login', params: { user: { email: user.email, password: user.password }, authenticity_token: 'stale' }
+
+      get '/'
+      follow_redirect! while response.redirect?
+      expect(request.path).to eq('/login')
+    end
+  end
+
   describe 'DELETE /logout' do
     before do
       sign_in user
