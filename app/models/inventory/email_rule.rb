@@ -24,8 +24,12 @@ module Inventory
     belongs_to :user, foreign_key: :mail_to_user_id
     belongs_to :inventory_item, class_name: 'Inventory::Item', foreign_key: :inventory_item_id
 
-    def notify_if_applicable(qty)
-      notify if applies_to?(qty)
+    # Only the move into the condition sends: an item edited again and again
+    # while it sits under its threshold would otherwise email on every save.
+    # A rule set up on an item that already qualifies stays quiet until the
+    # quantity leaves the condition and comes back.
+    def notify_if_crossed(from:, to:)
+      notify if applies_to?(to) && !applies_to?(from)
     end
 
     # The same question without the side effect: the stock list has to show

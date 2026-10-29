@@ -83,13 +83,13 @@ RSpec.describe Inventory::EmailRule, type: :model do
     end
   end
 
-  describe '#notify_if_applicable' do
+  describe '#notify_if_crossed' do
     let(:rule) do
       Inventory::EmailRule.create(
         mail_to_user_id: user.id,
         inventory_item_id: item.id,
         threshold: 30,
-        operator: operator
+        operator: 'lt'
       )
     end
 
@@ -97,46 +97,25 @@ RSpec.describe Inventory::EmailRule, type: :model do
       allow(rule).to receive(:notify)
     end
 
-    context 'with less than operator' do
-      let(:operator) { 'lt' }
-
-      it 'notifies when quantity is below threshold' do
-        rule.notify_if_applicable(25)
-        expect(rule).to have_received(:notify)
-      end
-
-      it 'does not notify when quantity is at or above threshold' do
-        rule.notify_if_applicable(30)
-        expect(rule).not_to have_received(:notify)
-      end
+    it 'notifies when the quantity drops into the condition' do
+      rule.notify_if_crossed(from: 35, to: 25)
+      expect(rule).to have_received(:notify)
     end
 
-    context 'with equal operator' do
-      let(:operator) { 'eq' }
-
-      it 'notifies when quantity equals threshold' do
-        rule.notify_if_applicable(30)
-        expect(rule).to have_received(:notify)
-      end
-
-      it 'does not notify when quantity differs' do
-        rule.notify_if_applicable(25)
-        expect(rule).not_to have_received(:notify)
-      end
+    it 'stays quiet when the quantity was already in the condition' do
+      rule.notify_if_crossed(from: 25, to: 20)
+      expect(rule).not_to have_received(:notify)
     end
 
-    context 'with greater than operator' do
-      let(:operator) { 'gt' }
+    it 'stays quiet when the quantity leaves the condition' do
+      rule.notify_if_crossed(from: 25, to: 35)
+      expect(rule).not_to have_received(:notify)
+    end
 
-      it 'notifies when quantity is above threshold' do
-        rule.notify_if_applicable(35)
-        expect(rule).to have_received(:notify)
-      end
-
-      it 'does not notify when quantity is at or below threshold' do
-        rule.notify_if_applicable(30)
-        expect(rule).not_to have_received(:notify)
-      end
+    it 'notifies again once the quantity has recovered and dropped back' do
+      rule.notify_if_crossed(from: 25, to: 35)
+      rule.notify_if_crossed(from: 35, to: 28)
+      expect(rule).to have_received(:notify).once
     end
   end
 end
