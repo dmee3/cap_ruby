@@ -55,13 +55,29 @@ RSpec.describe 'Api::Inventory::Items', type: :request do
         threshold: 55,
         mail_to_user_id: admin.id
       )
-      allow(rule).to receive(:notify_if_applicable)
+      allow(rule).to receive(:notify_if_crossed)
       allow(Inventory::EmailRule).to receive(:where).and_return([rule])
 
       patch "/api/inventory/categories/#{category.id}/items/#{item.id}",
             params: { item: { quantity: 40 } }
 
-      expect(rule).to have_received(:notify_if_applicable).with(40)
+      expect(rule).to have_received(:notify_if_crossed).with(from: 50, to: 40)
+    end
+
+    it 'emails a low-stock alert once, not on every save below the threshold' do
+      Inventory::EmailRule.create!(
+        inventory_item_id: item.id,
+        operator: 'lt',
+        threshold: 45,
+        mail_to_user_id: admin.id
+      )
+      path = "/api/inventory/categories/#{category.id}/items/#{item.id}"
+
+      expect do
+        patch path, params: { item: { quantity: 40 } }
+        patch path, params: { item: { quantity: 35 } }
+        patch path, params: { item: { quantity: 30 } }
+      end.to have_enqueued_mail(InventoryMailer, :inventory_email).once
     end
 
     it 'names whoever made the most recent change' do

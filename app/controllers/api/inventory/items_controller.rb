@@ -102,12 +102,12 @@ module Api
           inventory_item_id: @item.id,
           user_id: current_user.id
         )
-        run_emails
+        run_emails(old_quantity)
       end
 
-      def run_emails
+      def run_emails(old_quantity)
         rules = ::Inventory::EmailRule.where(inventory_item_id: @item.id)
-        rules.each { |rule| rule.notify_if_applicable(@item.quantity) }
+        rules.each { |rule| rule.notify_if_crossed(from: old_quantity, to: @item.quantity) }
       end
 
       def item_json
