@@ -65,7 +65,8 @@ class DashboardUtilities
     # PaymentService.amount_owed_on_date so the dashboard, the list, and each
     # member's Member 360 figure agree.
     def behind_members(season_id)
-      members = User.for_season(season_id).with_payments.with_role_for_season('member', season_id).to_a
+      members = User.for_season(season_id).with_payments.with_role_for_season('member', season_id)
+                    .to_a.sort_by { |m| [m.first_name.downcase, m.last_name.downcase] }
       members.filter_map do |m|
         past_due = PaymentService.amount_owed_on_date(m, Date.current, season_id)
         next if past_due <= 0
