@@ -1,0 +1,79 @@
+<% content_for :page_title, @person[:name] %>
+
+<div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-4">
+  <%= link_to '‹ Members', admin_users_path,
+              class: 'basis-full text-body-sm font-medium text-accent-primary no-underline hover:underline' %>
+  <h1 class="m-0"><%= @person[:name] %></h1>
+  <span class="text-body-sm text-secondary">
+    <% if @person[:current_role] %>
+      <%= @person[:current_role] %> · <%= @person[:season_label] %> season
+    <% else %>
+      Not on the <%= @person[:season_label] %> roster
+    <% end %>
+  </span>
+  <div class="ml-auto flex gap-2">
+    <%= button_to 'Send reset link', admin_send_reset_admin_user_path(@user),
+                  form_class: 'm-0',
+                  class: 'inline-flex h-9 items-center rounded-sm border border-border-strong bg-surface ' \
+                         'px-3.5 text-body-sm font-semibold text-primary' %>
+    <%= link_to 'Edit user', edit_admin_user_path(@user),
+                class: 'inline-flex h-9 items-center rounded-sm bg-accent-primary px-3.5 ' \
+                       'text-body-sm font-semibold text-on-brand no-underline' %>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+  <section class="card flex flex-col gap-3" aria-labelledby="person-contact-title">
+    <h2 id="person-contact-title" class="card-title m-0">Contact</h2>
+    <dl class="m-0 grid grid-cols-[max-content_minmax(0,1fr)] gap-x-4 gap-y-2 text-body-sm">
+      <dt class="text-secondary">Email</dt>
+      <dd class="m-0 break-words"><%= mail_to @person[:email] %></dd>
+      <dt class="text-secondary">Username</dt>
+      <dd class="m-0"><%= @person[:username].presence || '—' %></dd>
+      <dt class="text-secondary">Phone</dt>
+      <dd class="m-0"><%= @person[:phone].presence || '—' %></dd>
+    </dl>
+  </section>
+
+  <section class="card flex flex-col gap-3" aria-labelledby="person-seasons-title">
+    <h2 id="person-seasons-title" class="card-title m-0">Seasons</h2>
+    <% if @person[:seasons].empty? %>
+      <p class="m-0 text-body-sm text-secondary">Not on any season's roster.</p>
+    <% else %>
+      <ul class="m-0 flex list-none flex-col gap-2 p-0 text-body-sm">
+        <% @person[:seasons].each do |row| %>
+          <li class="flex flex-wrap items-baseline gap-x-2">
+            <span class="font-semibold"><%= row[:year] %></span>
+            <span><%= row[:role] %></span>
+            <% if row[:placement] %>
+              <span class="text-secondary"><%= row[:placement] %></span>
+            <% end %>
+            <% if row[:current] %>
+              <span class="rounded-sm bg-neutral-bg px-1.5 text-caption text-neutral-fg">Viewing</span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </section>
+
+  <% if @person[:past_dues].any? %>
+    <section class="card flex flex-col gap-3 lg:col-span-2" aria-labelledby="person-dues-title">
+      <h2 id="person-dues-title" class="card-title m-0">Dues from member seasons</h2>
+      <ul class="m-0 flex list-none flex-col gap-2 p-0 text-body-sm">
+        <% @person[:past_dues].each do |row| %>
+          <li class="flex flex-wrap items-baseline gap-x-2">
+            <span class="font-semibold"><%= row[:year] %></span>
+            <span><%= row[:paid] %> of <%= row[:expected] %> paid</span>
+            <% unless row[:settled] %>
+              <span class="rounded-sm bg-warning-bg px-1.5 text-caption text-warning-fg">Outstanding</span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+      <p class="m-0 text-caption text-secondary">
+        Switch to that season to see the full schedule and payments.
+      </p>
+    </section>
+  <% end %>
+</div>

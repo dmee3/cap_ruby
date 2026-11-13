@@ -6,11 +6,18 @@ module Admin
 
     def show
       @user = User.includes(
-        :seasons_users, :conflicts,
+        :conflicts,
+        seasons_users: :season,
         payments: :payment_type,
-        payment_schedules: :payment_schedule_entries
+        payment_schedules: %i[season payment_schedule_entries]
       ).find(params[:id])
-      @member360 = Admin::Member360Presenter.call(@user, current_season)
+
+      if Admin::PersonPresenter.member360?(@user, current_season['id'])
+        @member360 = Admin::Member360Presenter.call(@user, current_season)
+      else
+        @person = Admin::PersonPresenter.call(@user, current_season)
+        render :person
+      end
     end
 
     def new
@@ -62,7 +69,7 @@ module Admin
       user = User.find(params[:id])
       user.send_reset_password_instructions
       flash[:success] = "Reset link sent to #{user.email}"
-      redirect_to("/admin/users/#{user.id}/edit")
+      redirect_back_or_to("/admin/users/#{user.id}/edit")
     end
 
     private
