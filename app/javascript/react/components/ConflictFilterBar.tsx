@@ -16,25 +16,32 @@ type ConflictFilterBarProps = {
   filters: ConflictFilters
   onChange: (next: ConflictFilters) => void
   ensembles?: string[]
-  /** Calendar only — the queue is always just what needs a decision. */
+  /** Queue only — the calendar shows every status and hides decided ones with
+   * the toggle instead. */
+  status?: string
+  statusOptions?: string[]
+  onStatusChange?: (value: string) => void
+  /** Calendar only. */
   showDecided?: boolean
   onShowDecidedChange?: (value: boolean) => void
   className?: string
 }
 
-// The calendar's filter line. There is no status filter: the calendar shows
-// everything, and the one thing worth hiding — decided conflicts — is the
-// toggle on this same row. The queue doesn't render this at all; it is only
-// ever the pending queue.
+// The filter line above both conflict views. The queue narrows by status; the
+// calendar shows everything and only hides decided conflicts, via the toggle.
 const ConflictFilterBar = ({
   filters,
   onChange,
   ensembles = [],
+  status,
+  statusOptions = [],
+  onStatusChange,
   showDecided,
   onShowDecidedChange,
   className = '',
 }: ConflictFilterBarProps) => {
-  if (ensembles.length === 0 && !onShowDecidedChange) return null
+  const showStatus = !!onStatusChange && statusOptions.length > 0
+  if (ensembles.length === 0 && !onShowDecidedChange && !showStatus) return null
 
   return (
     <div
@@ -53,6 +60,24 @@ const ConflictFilterBar = ({
             {ensembles.map(ensemble => (
               <option key={ensemble} value={ensemble}>
                 {ensemble}
+              </option>
+            ))}
+          </Select>
+        </label>
+      )}
+
+      {showStatus && (
+        <label className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
+          <span className="text-label uppercase text-secondary">Status</span>
+          <Select
+            controlSize="sm"
+            className="w-full sm:w-auto"
+            value={status}
+            onChange={event => onStatusChange(event.target.value)}
+          >
+            {statusOptions.map(option => (
+              <option key={option} value={option}>
+                {option}
               </option>
             ))}
           </Select>

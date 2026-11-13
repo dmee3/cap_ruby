@@ -98,6 +98,7 @@ describe('TriageQueue', () => {
         decisions={{
           11: {
             outcome: 'Approved',
+            previous: 'Pending',
             member: 'Marcus Webb',
             dateLabel: 'Fri 3/20',
             saving: false,
@@ -120,6 +121,7 @@ describe('TriageQueue', () => {
         decisions={{
           11: {
             outcome: 'Approved',
+            previous: 'Pending',
             member: 'Marcus Webb',
             dateLabel: 'Fri 3/20',
             saving: false,

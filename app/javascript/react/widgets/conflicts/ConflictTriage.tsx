@@ -26,6 +26,9 @@ const VIEWS: SegmentOption<ViewOption>[] = [
   { value: 'calendar', label: 'Calendar' },
 ]
 
+const QUEUE_STATUSES = ['Pending', 'Approved', 'Denied', 'Resolved', 'All'] as const
+type QueueStatus = (typeof QUEUE_STATUSES)[number]
+
 const VIEW_STORAGE_KEY = 'capcity.conflicts.view'
 const PAGE_SIZE = 10
 const UNDO_MS = 60000
@@ -47,6 +50,7 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
   const [filters, setFilters] = useState<ConflictFilters>(DEFAULT_CONFLICT_FILTERS)
   const [view, setView] = useState<ViewOption>(readStoredView)
   const [showDecided, setShowDecided] = useState(false)
+  const [queueStatus, setQueueStatus] = useState<QueueStatus>('Pending')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
@@ -60,18 +64,13 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
 
   const query = useMemo(() => {
     const params = new URLSearchParams()
-    // The queue is only ever "what needs a decision" — every pending conflict,
-    // unfiltered. The ensemble filter belongs to the calendar, which is the
-    // only view that renders the control; applying it to the queue would hide
-    // conflicts behind a filter the queue gives you no way to see or clear.
     if (view === 'queue') {
-      params.set('status', 'Pending')
+      if (queueStatus !== 'All') params.set('status', queueStatus)
       params.set('when', 'upcoming')
-    } else if (filters.ensemble) {
-      params.set('ensemble', filters.ensemble)
     }
+    if (filters.ensemble) params.set('ensemble', filters.ensemble)
     return params.toString()
-  }, [filters, view])
+  }, [filters, view, queueStatus])
 
   const load = useCallback(() => {
     setLoading(true)
@@ -169,6 +168,7 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
         ...current,
         [id]: {
           outcome: statusName,
+          previous: String(found.status),
           member: found.member,
           dateLabel: label,
           saving: true,
@@ -199,7 +199,7 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
   // undoable for a minute" contract.
   const undo = useCallback(
     (id: number) => {
-      const target = statusId('Pending')
+      const target = statusId(decisions[id]?.previous ?? 'Pending')
       window.clearTimeout(timers.current[id])
       delete timers.current[id]
       if (!target) return
@@ -220,21 +220,33 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
         })
         .catch(() => setError('load'))
     },
-    [statusId, load]
+    [statusId, load, decisions]
   )
 
-  const expire = useCallback((id: number) => {
-    setDecisions(current => {
-      const next = { ...current }
-      delete next[id]
-      return next
-    })
-    setGroups(current =>
-      current
-        .map(group => ({ ...group, rows: group.rows.filter(row => row.id !== id) }))
-        .filter(group => group.rows.length > 0)
-    )
-  }, [])
+  // A decided row leaves the list unless its new status still belongs in it —
+  // approving a denied conflict under "All" should leave it there, approved.
+  const expire = useCallback(
+    (id: number) => {
+      const outcome = decisions[id]?.outcome
+      const stays = queueStatus === 'All' || queueStatus === outcome
+      setDecisions(current => {
+        const next = { ...current }
+        delete next[id]
+        return next
+      })
+      setGroups(current =>
+        current
+          .map(group => ({
+            ...group,
+            rows: stays
+              ? group.rows.map(row => (row.id === id && outcome ? { ...row, status: outcome } : row))
+              : group.rows.filter(row => row.id !== id),
+          }))
+          .filter(group => group.rows.length > 0)
+      )
+    },
+    [decisions, queueStatus]
+  )
 
   // The queue view already asks the API for upcoming-only groups; the
   // calendar view doesn't, so it can hold pending conflicts whose date has
@@ -244,12 +256,26 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
   const upcomingGroups = useMemo(() => groups.filter(group => group.date >= today), [groups, today])
 
   const pendingTotal = upcomingGroups.reduce((total, group) => total + group.pending_count, 0)
-  const headline = pendingTotal === 1 ? '1 waiting on you' : `${pendingTotal} waiting on you`
 
   // Grouped by date, so the useful pointer is what's coming up soonest rather
   // than who has waited longest.
   const soonest = upcomingGroups.find(group => group.pending_count > 0)
-  const subline = soonest ? `Next up: ${soonest.date_label}.` : 'Nothing needs a decision.'
+
+  // Filtered to anything but Pending, the groups no longer hold what's waiting,
+  // so the headline describes the list on screen instead of a count it can't see.
+  const browsing = view === 'queue' && queueStatus !== 'Pending'
+  const shownTotal = upcomingGroups.reduce((total, group) => total + group.rows.length, 0)
+  const shownNoun = queueStatus === 'All' ? 'upcoming' : `upcoming ${queueStatus.toLowerCase()}`
+
+  let headline: string
+  let subline: string
+  if (browsing) {
+    headline = `${shownTotal} ${shownNoun}`
+    subline = 'Soonest first.'
+  } else {
+    headline = pendingTotal === 1 ? '1 waiting on you' : `${pendingTotal} waiting on you`
+    subline = soonest ? `Next up: ${soonest.date_label}.` : 'Nothing needs a decision.'
+  }
 
   const addButton = (
     <a
@@ -279,7 +305,16 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
         {addButton}
       </div>
 
-      {view === 'calendar' && (
+      {view === 'queue' ? (
+        <ConflictFilterBar
+          filters={filters}
+          onChange={setFilters}
+          ensembles={ensembles}
+          status={queueStatus}
+          statusOptions={[...QUEUE_STATUSES]}
+          onStatusChange={value => setQueueStatus(value as QueueStatus)}
+        />
+      ) : (
         <ConflictFilterBar
           filters={filters}
           onChange={setFilters}
@@ -304,6 +339,8 @@ const ConflictTriage = ({ basePath, ensembles = [] }: ConflictTriageProps) => {
           decisions={decisions}
           visibleCount={visibleCount}
           onShowMore={() => setVisibleCount(count => count + PAGE_SIZE)}
+          emptyTitle={browsing ? `Nothing ${shownNoun}` : undefined}
+          emptyBody={browsing ? 'Past conflicts are on the calendar.' : undefined}
           emptyAction={
             <div className="flex flex-wrap justify-center gap-2">
               <Button
