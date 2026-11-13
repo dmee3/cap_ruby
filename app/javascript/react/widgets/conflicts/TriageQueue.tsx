@@ -20,6 +20,8 @@ export type TriageGroup = {
 
 export type PendingDecision = {
   outcome: DecisionOutcome
+  /** The status undo puts back. */
+  previous: string
   member: string
   dateLabel: string
   saving: boolean
@@ -41,6 +43,8 @@ type TriageQueueProps = {
   decisions: Record<number, PendingDecision>
   visibleCount: number
   onShowMore: () => void
+  emptyTitle?: string
+  emptyBody?: string
   emptyAction?: React.ReactNode
 }
 
@@ -70,6 +74,8 @@ const TriageQueue = ({
   decisions,
   visibleCount,
   onShowMore,
+  emptyTitle = 'Nothing waiting on a decision',
+  emptyBody = 'Check back in a few days to see if anything new comes in.',
   emptyAction,
 }: TriageQueueProps) => {
   if (loading) {
@@ -114,8 +120,8 @@ const TriageQueue = ({
     return (
       <div className="rounded-md border border-border-default bg-surface">
         <EmptyState
-          title="Nothing waiting on a decision"
-          body="Check back in a few days to see if anything new comes in."
+          title={emptyTitle}
+          body={emptyBody}
           action={emptyAction}
         />
       </div>

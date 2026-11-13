@@ -93,13 +93,14 @@ describe('ConflictTriage', () => {
     })
   })
 
-  it('shows no filter bar on the queue', async () => {
+  it('shows the ensemble and status filters on the queue, without the decided switch', async () => {
     stubFetch()
     render(<ConflictTriage basePath="/admin/conflicts" ensembles={['Battery']} />)
 
     await screen.findByText('Marcus Webb')
 
-    expect(screen.queryByLabelText('Ensemble')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Ensemble')).toBeInTheDocument()
+    expect(screen.getByLabelText('Status')).toHaveValue('Pending')
     expect(screen.queryByRole('switch')).not.toBeInTheDocument()
   })
 
@@ -112,6 +113,7 @@ describe('ConflictTriage', () => {
 
     expect(await screen.findByLabelText('Ensemble')).toBeInTheDocument()
     expect(screen.getByRole('switch', { name: 'Show denied and resolved' })).toBeInTheDocument()
+    expect(screen.queryByLabelText('Status')).not.toBeInTheDocument()
   })
 
   it('drops the pending-only scope when showing the calendar', async () => {
@@ -190,10 +192,8 @@ describe('ConflictTriage', () => {
     })
   })
 
-  // Regression: the ensemble filter is set on the calendar but the queue
-  // renders no control for it, so leaving it applied hid pending conflicts
-  // behind a filter the queue gave no way to see or clear.
-  it('does not carry the calendar ensemble filter back into the queue', async () => {
+  // Both views show the ensemble control, so the choice follows you between them.
+  it('carries the ensemble filter from the calendar into the queue', async () => {
     const calls = stubFetch()
     render(<ConflictTriage basePath="/admin/conflicts" ensembles={['CC2', 'World']} />)
     await screen.findByText('Marcus Webb')
@@ -209,8 +209,11 @@ describe('ConflictTriage', () => {
 
     await waitFor(() => {
       const gets = calls.filter(call => call.method === 'GET' && call.url.startsWith('/api/conflicts?'))
-      expect(gets[gets.length - 1].url).not.toContain('ensemble')
+      const last = gets[gets.length - 1].url
+      expect(last).toContain('ensemble=CC2')
+      expect(last).toContain('status=Pending')
     })
+    expect(screen.getByLabelText('Ensemble')).toHaveValue('CC2')
   })
 
   it('keeps the ensemble filter while staying on the calendar', async () => {
@@ -224,6 +227,77 @@ describe('ConflictTriage', () => {
     await waitFor(() => {
       const gets = calls.filter(call => call.method === 'GET' && call.url.startsWith('/api/conflicts?'))
       expect(gets[gets.length - 1].url).toContain('ensemble=CC2')
+    })
+  })
+
+  it('filters the queue to another status, still upcoming only', async () => {
+    const calls = stubFetch()
+    render(<ConflictTriage basePath="/admin/conflicts" />)
+    await screen.findByText('Marcus Webb')
+
+    await userEvent.selectOptions(screen.getByLabelText('Status'), 'Approved')
+
+    await waitFor(() => {
+      const gets = calls.filter(call => call.method === 'GET' && call.url.startsWith('/api/conflicts?'))
+      const last = gets[gets.length - 1].url
+      expect(last).toContain('status=Approved')
+      expect(last).toContain('when=upcoming')
+    })
+  })
+
+  it('drops the status scope entirely under All', async () => {
+    const calls = stubFetch()
+    render(<ConflictTriage basePath="/admin/conflicts" />)
+    await screen.findByText('Marcus Webb')
+
+    await userEvent.selectOptions(screen.getByLabelText('Status'), 'All')
+
+    await waitFor(() => {
+      const gets = calls.filter(call => call.method === 'GET' && call.url.startsWith('/api/conflicts?'))
+      expect(gets[gets.length - 1].url).not.toContain('status=')
+    })
+  })
+
+  // A filtered list holds no pending rows, so "0 waiting on you" would be a
+  // count of the filter, not of the queue.
+  it('describes the filtered list rather than claiming nothing is waiting', async () => {
+    stubFetch()
+    render(<ConflictTriage basePath="/admin/conflicts" />)
+    await screen.findByText('Marcus Webb')
+
+    await userEvent.selectOptions(screen.getByLabelText('Status'), 'Approved')
+
+    expect(await screen.findByText(/upcoming approved$/)).toBeInTheDocument()
+    expect(screen.queryByText(/waiting on you/)).not.toBeInTheDocument()
+  })
+
+  // Undo used to always write Pending, which turned an approved conflict that
+  // was marked resolved by mistake back into one needing a decision.
+  it('undoes a decision back to the status the row had before', async () => {
+    const approvedRow = { ...group.rows[0], status: 'Approved' }
+    const puts: unknown[] = []
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string, options?: { method?: string; body?: string }) => {
+        if (url.startsWith('/api/conflict_statuses')) {
+          return Promise.resolve({ ok: true, json: () => Promise.resolve(statuses) })
+        }
+        if (options?.method === 'PUT') puts.push(JSON.parse(options.body ?? '{}'))
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({ groups: [{ ...group, pending_count: 0, rows: [approvedRow] }], conflicts: [], counts: {} }),
+        })
+      }),
+    )
+    render(<ConflictTriage basePath="/admin/conflicts" />)
+    await screen.findByText('Marcus Webb')
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Mark resolved' }))
+    await userEvent.click(await screen.findByRole('button', { name: /undo/i }))
+
+    await waitFor(() => {
+      expect(puts).toEqual([{ conflict: { status_id: 4 } }, { conflict: { status_id: 2 } }])
     })
   })
 
