@@ -22,8 +22,8 @@ module Admin
       @payment.user_id = params[:user_id] if params[:user_id]
       @payment_types = manual_payment_types
       @payment.payment_type_id = preselected_payment_type_id(params[:payment_type])
+      @payment.date_paid = params[:date_paid] if params[:date_paid]
       @members = add_payment_member_models
-      @undo_payment_id = params[:undo].presence
       render('admin/payments/new')
     end
 
@@ -44,7 +44,10 @@ module Admin
         flash[:success] = "#{ActiveSupport::NumberHelper.number_to_currency(@payment.amount / 100.0)} " \
                           "recorded for #{@payment.user.full_name}"
         flash[:undo_payment_id] = @payment.id
-        redirect_to(admin_payments_path)
+        # Payments arrive in batches (a rehearsal's cash box, a week of Venmo),
+        # so the next one usually shares this one's type and date.
+        redirect_to(new_admin_payment_path(payment_type: @payment.payment_type.name,
+                                           date_paid: @payment.date_paid.iso8601))
       else
         @payment_types = manual_payment_types
         @members = add_payment_member_models

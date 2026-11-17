@@ -5,8 +5,10 @@ import MemberSchedulePanel, { ScheduleInstallment } from '../../components/Membe
 import MemberCombobox from '../../components/MemberCombobox'
 import ValidationSummaryCard, { ValidationError } from '../../components/ValidationSummaryCard'
 import Button from '../../components/Button'
+import IconButton from '../../components/IconButton'
 import Field, { Select, TextInput, Textarea } from '../../components/Field'
 import { monthDay } from '../../../utilities/dates'
+import { csrfHeaders } from '../../../utilities/api'
 
 export type AddPaymentMember = {
   id: number
@@ -37,6 +39,8 @@ type AddPaymentFormProps = {
   members: AddPaymentMember[]
   paymentTypes: AddPaymentType[]
   preselectedUserId?: number
+  /** The payment the previous submit recorded — offers an Undo for it. */
+  justCreatedId?: number
   /** Rails CSRF token for the real form POST. */
   csrfToken: string
   /** Server-side validation errors from a failed submit (form repopulates). */
@@ -57,6 +61,7 @@ const AddPaymentForm = ({
   members,
   paymentTypes,
   preselectedUserId,
+  justCreatedId,
   csrfToken,
   serverErrors,
   initial,
@@ -74,6 +79,7 @@ const AddPaymentForm = ({
   const [notes, setNotes] = useState(initial.notes ?? '')
   const [clientErrors, setClientErrors] = useState<ValidationError[]>([])
   const [submitting, setSubmitting] = useState(false)
+  const [undoState, setUndoState] = useState<'offered' | 'pending' | 'failed' | 'dismissed'>('offered')
 
   const member = useMemo(
     () => members.find((m) => String(m.id) === userId) ?? null,
@@ -104,6 +110,18 @@ const AddPaymentForm = ({
     return next
   }
 
+  // Reloads rather than just hiding the bar: every member's paid total on this
+  // page was rendered with the undone payment counted.
+  const undo = () => {
+    setUndoState('pending')
+    fetch(`/admin/payments/${justCreatedId}`, { method: 'DELETE', headers: csrfHeaders() })
+      .then((r) => {
+        if (!r.ok) throw r
+        window.location.reload()
+      })
+      .catch(() => setUndoState('failed'))
+  }
+
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     const found = validate()
     if (found.length > 0) {
@@ -117,6 +135,28 @@ const AddPaymentForm = ({
   return (
     <div className="grid items-start gap-7 lg:grid-cols-[minmax(0,1fr)_360px]">
       <div className="flex flex-col gap-4">
+        {justCreatedId != null && undoState !== 'dismissed' && (
+          <div className="flex overflow-hidden rounded-md border border-border-default bg-surface">
+            <span
+              className={`w-[3px] shrink-0 ${undoState === 'failed' ? 'bg-danger-fg' : 'bg-success-fg'}`}
+              aria-hidden="true"
+            />
+            <div className="flex flex-1 items-start gap-3 px-4 py-3.5" role="status">
+              <span className="flex-1 text-body-sm font-semibold text-primary">
+                {undoState === 'failed'
+                  ? "Couldn't undo that payment. Delete it from the payments list instead."
+                  : 'Payment recorded. Ready for the next one.'}
+              </span>
+              {undoState !== 'failed' && (
+                <Button variant="link" onClick={undo} disabled={undoState === 'pending'}>
+                  Undo
+                </Button>
+              )}
+              <IconButton label="Dismiss" onClick={() => setUndoState('dismissed')} className="-my-1.5" />
+            </div>
+          </div>
+        )}
+
         {errors.length > 0 && (
           <ValidationSummaryCard
             errors={errors}

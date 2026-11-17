@@ -115,14 +115,27 @@ RSpec.describe 'Admin::Payments', type: :request do
       { payment: { user_id: member.id, payment_type_id: cash.id, amount: 50, date_paid: '2026-01-15' } }
     end
 
-    it 'creates the payment in cents, logs it, and redirects without an artificial delay' do
+    it 'creates the payment in cents and logs it without an artificial delay' do
       elapsed = Benchmark.realtime do
         expect { post '/admin/payments', params: params }.to change(Payment, :count).by(1)
       end
 
       expect(elapsed).to be < 2 # the old `sleep 5` is gone
-      expect(response).to redirect_to(admin_payments_path)
       expect(Payment.last.amount).to eq(5000)
+    end
+
+    it 'returns to a fresh form carrying the type and date, ready for the next payment in the batch' do
+      post '/admin/payments', params: params
+
+      expect(response).to redirect_to(new_admin_payment_path(payment_type: 'Cash', date_paid: '2026-01-15'))
+
+      follow_redirect!
+      expect(response.body).to include("&quot;paymentTypeId&quot;:#{cash.id}")
+      expect(response.body).to include('&quot;datePaid&quot;:&quot;2026-01-15&quot;')
+      expect(response.body).to include("data-just-created=\"#{Payment.last.id}\"")
+      # No member or amount carried over — the next payment is someone else's.
+      expect(response.body).to include('data-preselected-user-id=""')
+      expect(response.body).to include('&quot;amountCents&quot;:null')
     end
 
     it 'stores a decimal dollar amount as exact cents (no truncation)' do
@@ -131,7 +144,7 @@ RSpec.describe 'Admin::Payments', type: :request do
       expect(Payment.last.amount).to eq(3230)
     end
 
-    it 'sets a flash with the undo id so the list can offer an Undo' do
+    it 'sets a flash with the undo id so the form can offer an Undo' do
       post '/admin/payments', params: params
 
       expect(flash[:undo_payment_id]).to eq(Payment.last.id)

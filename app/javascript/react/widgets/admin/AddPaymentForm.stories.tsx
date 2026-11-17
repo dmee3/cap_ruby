@@ -47,6 +47,10 @@ export const Blank: Story = {}
 
 export const FromMember360: Story = { args: { preselectedUserId: 1, initial: { amountCents: 30_000 } } }
 
+export const JustRecordedOne: Story = {
+  args: { justCreatedId: 100, initial: { paymentTypeId: 1, datePaid: '2026-01-10' } },
+}
+
 export const MemberWithoutSchedule: Story = { args: { preselectedUserId: 2 } }
 
 export const CorrectingAPayment: Story = {

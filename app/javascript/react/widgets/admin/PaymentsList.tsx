@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import FilterBar, { PaymentFilters, EMPTY_FILTERS, isDirty } from '../../components/FilterBar'
 import SortableTh, { SortDir } from '../../components/SortableTh'
 import Button from '../../components/Button'
-import IconButton from '../../components/IconButton'
 import { Table, TableCard, TableCardActions, TableCards, TableFooter, TableSkeleton, Td, Th, Tr } from '../../components/Table'
 import Card from '../../components/Card'
 import EmptyState from '../../components/EmptyState'
@@ -36,8 +35,6 @@ type ApiResponse = {
 
 type PaymentsListProps = {
   paymentTypes: PaymentTypeOption[]
-  /** Id of a payment created on the previous request — shows the Undo bar. */
-  justCreatedId: number | null
   seasonLabel: string
 }
 
@@ -68,7 +65,7 @@ const emptyFilteredBody = (f: PaymentFilters, types: PaymentTypeOption[]) => {
   return `${what} Widen the date range or clear the type filter.`
 }
 
-const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsListProps) => {
+const PaymentsList = ({ paymentTypes, seasonLabel }: PaymentsListProps) => {
   const [filters, setFilters] = useState<PaymentFilters>(EMPTY_FILTERS)
   const [sort, setSort] = useState('date_paid')
   const [dir, setDir] = useState<SortDir>('desc')
@@ -83,7 +80,6 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [pendingRestore, setPendingRestore] = useState<number | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
-  const [undoDismissed, setUndoDismissed] = useState(false)
   const offsetRef = useRef(0)
 
   const load = useCallback(
@@ -142,14 +138,6 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
       setConfirmDelete(null)
       load(false)
     })
-
-  const undo = () => {
-    if (justCreatedId == null) return
-    mutate(`/admin/payments/${justCreatedId}`, 'DELETE', justCreatedId, () => {
-      setUndoDismissed(true)
-      load(false)
-    })
-  }
 
   const showingAll = !meta.has_more
   const caption = `Showing ${rows.length} of ${meta.total_count} matching ${
@@ -236,19 +224,6 @@ const PaymentsList = ({ paymentTypes, justCreatedId, seasonLabel }: PaymentsList
 
   return (
     <div className="flex flex-col gap-4">
-      {justCreatedId != null && !undoDismissed && (
-        <div className="flex overflow-hidden rounded-md border border-border-default bg-surface">
-          <span className="w-[3px] shrink-0 bg-success-fg" aria-hidden="true" />
-          <div className="flex flex-1 items-start gap-3 px-4 py-3.5">
-            <span className="flex-1 text-body-sm font-semibold text-primary">Payment recorded.</span>
-            <Button variant="link" onClick={undo} disabled={pendingRestore === justCreatedId}>
-              Undo
-            </Button>
-            <IconButton label="Dismiss" onClick={() => setUndoDismissed(true)} className="-my-1.5" />
-          </div>
-        </div>
-      )}
-
       <FilterBar
         filters={filters}
         onChange={setFilters}

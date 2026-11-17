@@ -168,7 +168,8 @@ RSpec.describe 'Payments Workflow', type: :request do
       expect(payment.payment_type).to eq(cash_payment_type)
       expect(payment.notes).to eq('Cash payment at rehearsal')
 
-      expect(response).to redirect_to(admin_payments_path)
+      expect(response).to redirect_to(new_admin_payment_path(payment_type: cash_payment_type.name,
+                                                             date_paid: Date.today.iso8601))
       expect(flash[:success]).to match(/\$200\.00 recorded for #{member.full_name}/)
       expect(flash[:undo_payment_id]).to eq(Payment.last.id)
     end
