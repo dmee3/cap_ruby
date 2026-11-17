@@ -34,48 +34,64 @@ There are seeds included with the codebase, but sometimes it's better to have re
   heroku pg:backups:download --app <app-name>
   ```
 
-2. The downloaded file will be called `latest.dump`. Use `pg_restore` to set up a local temp database with the backup.
+2. The downloaded file will be called `latest.dump`. Use `pg_restore` to load it into a local temp database.
 
   ```
-  pg_restore --verbose --clean --no-acl --no-owner -h localhost -U postgres -d tempdb latest.dump
+  createdb -h localhost -U postgres tempdb
+  pg_restore --clean --if-exists --no-acl --no-owner -h localhost -U postgres -d tempdb latest.dump
   ```
 
-  *Note: you will need postgres running to do this.*
+  *Note: you will need postgres running to do this.* `pg_restore` must be at least as new as
+  the Postgres that made the dump (Heroku is on 17); an older one fails with `unsupported
+  version (1.16) in file header`. Use `/opt/homebrew/opt/postgresql@17/bin/pg_restore` (and the
+  matching `pg_dump` in step 3) if your default is older. Restoring into an older local server
+  prints an error about `transaction_timeout`; that one is harmless.
 
 3. Dump the local temp database into a file called `data.sql` that has insert statements (which can be used by SQLite3).
 
   ```
-  pg_dump -U postgres --inserts -a -b tempdb > data.sql
+  pg_dump -h localhost -U postgres --inserts -a -b tempdb > data.sql
   ```
 
 4. Drop the existing local database and create a new, empty version, then run migrations.
 
   ```
-  bundle exec rails db:drop
-  bundle exec rails db:create
-  bundle exec rails db:migrate
+  bundle exec rails db:drop db:create db:migrate
   ```
 
-5. Strip schema info from the dumped SQL script.
+5. Strip the Postgres-only lines from the dump: the `public.` schema prefix, the `SET` and
+   `set_config` statements, the `ar_internal_metadata` and `schema_migrations` inserts (the
+   migrations already wrote those), the trailing `setval` calls, and the `\restrict` lines.
 
   ```
-  sed -i -e 's/^INSERT INTO public\./INSERT INTO /' data.sql
+  sed -i '' -e 's/^INSERT INTO public\./INSERT INTO /' data.sql
+  grep -vE '^(SET |SELECT pg_catalog\.set_config|SELECT pg_catalog\.setval|INSERT INTO (ar_internal_metadata|schema_migrations) |\\restrict|\\unrestrict)' data.sql > data_clean.sql
   ```
 
-6. Strip out the block of `SET` statements from `data.sql` (starting around line 8).
-7. Delete the insert into `ar_internal_metadata`
-8. Delete the section inserting data into the `schema_migrations` table.
-9. Delete the section at the end with a bunch of `SELECT pg_catalog.setval(...)` statements.
-10. Open up a sqlite console and read in the data from `data.sql`
+6. Clear rows that migrations seed, or their ids collide with prod's (currently only
+   `seasons`), then read in the data.
 
   ```
-  sqlite3 db/development.sqlite3
-  sqlite> .read data.sql
+  sqlite3 db/development.sqlite3 "DELETE FROM seasons;"
+  sqlite3 db/development.sqlite3 ".read data_clean.sql"
   ```
 
-  Fix any remaining errors that get thrown from here.
+  This should print nothing. Fix any errors it does throw.
 
-11. Obfuscate user data.
+7. Optionally, give every user the same password so you can log in as anyone.
+
+  ```
+  bundle exec rails runner 'User.unscoped.update_all(encrypted_password: User.new(password: "abc12345").encrypted_password)'
+  ```
+
+8. Clean up.
+
+  ```
+  dropdb -h localhost -U postgres tempdb
+  rm latest.dump data.sql data_clean.sql
+  ```
+
+9. Obfuscate user data.
 
   ```
   bundle exec rails c
