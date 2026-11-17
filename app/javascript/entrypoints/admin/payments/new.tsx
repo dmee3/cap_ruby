@@ -19,12 +19,14 @@ const parse = <T,>(raw: string | undefined, fallback: T): T => {
 if (el) {
   const d = el.dataset
   const preselected = d.preselectedUserId ? Number(d.preselectedUserId) : undefined
+  const justCreated = d.justCreated ? Number(d.justCreated) : undefined
 
   render(
     <AddPaymentForm
       members={parse<AddPaymentMember[]>(d.members, [])}
       paymentTypes={parse<AddPaymentType[]>(d.paymentTypes, [])}
       preselectedUserId={Number.isFinite(preselected) ? preselected : undefined}
+      justCreatedId={Number.isFinite(justCreated) ? justCreated : undefined}
       csrfToken={Utilities.getAuthToken()}
       serverErrors={parse<string[]>(d.serverErrors, [])}
       initial={parse<{

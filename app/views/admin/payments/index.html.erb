@@ -17,7 +17,6 @@
   id="admin-payments"
   data-season-label="<%= current_season['year'] %> season"
   data-payment-types="<%= @payment_types.to_json %>"
-  data-just-created="<%= flash[:undo_payment_id] %>"
 >
   <div class="flex flex-col gap-3">
     <% 4.times do %>

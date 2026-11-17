@@ -11,13 +11,10 @@ if (el) {
   } catch {
     paymentTypes = []
   }
-  const raw = el.dataset.justCreated
-  const justCreatedId = raw ? Number(raw) : null
 
   render(
     <PaymentsList
       paymentTypes={paymentTypes}
-      justCreatedId={Number.isFinite(justCreatedId) ? justCreatedId : null}
       seasonLabel={el.dataset.seasonLabel || 'This season'}
     />,
     el,

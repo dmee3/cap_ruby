@@ -39,7 +39,7 @@ const types = [
 
 const setup = (props = {}) =>
   render(
-    <PaymentsList paymentTypes={types} justCreatedId={null} seasonLabel="2026 season" {...props} />,
+    <PaymentsList paymentTypes={types} seasonLabel="2026 season" {...props} />,
   )
 
 describe('PaymentsList', () => {
@@ -123,19 +123,6 @@ describe('PaymentsList', () => {
 
     expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Edit' })).not.toBeInTheDocument()
-  })
-
-  it('shows the Undo bar and DELETEs the just-created payment', async () => {
-    setup({ justCreatedId: 42 })
-    await screen.findAllByText('Rae Quinn')
-
-    await userEvent.click(screen.getByRole('button', { name: 'Undo' }))
-
-    await waitFor(() => {
-      expect(
-        fetchCalls().some(([url, opts]) => url === '/admin/payments/42' && opts?.method === 'DELETE'),
-      ).toBe(true)
-    })
   })
 
   it('renders a deleted row with a Restore action and keeps its notes readable', async () => {

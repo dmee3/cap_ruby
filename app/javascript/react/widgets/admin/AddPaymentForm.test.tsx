@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import AddPaymentForm, { AddPaymentMember, AddPaymentType } from './AddPaymentForm'
 
 const members: AddPaymentMember[] = [
@@ -132,6 +132,47 @@ describe('AddPaymentForm', () => {
 
     await userEvent.type(screen.getByLabelText('Amount'), '600')
     expect(screen.getByText('Covers this')).toBeInTheDocument()
+  })
+
+  describe('right after recording a payment', () => {
+    const fetchMock = vi.fn()
+    const reload = vi.fn()
+
+    beforeEach(() => {
+      fetchMock.mockReset()
+      reload.mockReset()
+      vi.stubGlobal('fetch', fetchMock)
+      vi.stubGlobal('location', { ...window.location, reload })
+    })
+
+    afterEach(() => vi.unstubAllGlobals())
+
+    it('offers no Undo on a fresh form', () => {
+      setup()
+      expect(screen.queryByRole('button', { name: 'Undo' })).not.toBeInTheDocument()
+    })
+
+    // The member totals on the page were rendered with the payment counted,
+    // so a successful undo has to re-render them, not just hide the bar.
+    it('DELETEs the just-recorded payment on Undo and reloads the form', async () => {
+      fetchMock.mockResolvedValue({ ok: true })
+      setup({ justCreatedId: 42 })
+
+      await userEvent.click(screen.getByRole('button', { name: 'Undo' }))
+
+      expect(fetchMock).toHaveBeenCalledWith('/admin/payments/42', expect.objectContaining({ method: 'DELETE' }))
+      await waitFor(() => expect(reload).toHaveBeenCalled())
+    })
+
+    it('says so when the undo fails, and stays put', async () => {
+      fetchMock.mockResolvedValue({ ok: false })
+      setup({ justCreatedId: 42 })
+
+      await userEvent.click(screen.getByRole('button', { name: 'Undo' }))
+
+      expect(await screen.findByText(/Couldn't undo that payment/)).toBeInTheDocument()
+      expect(reload).not.toHaveBeenCalled()
+    })
   })
 
   it('offers Cancel', () => {
