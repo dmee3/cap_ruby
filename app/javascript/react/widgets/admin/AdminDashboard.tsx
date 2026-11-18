@@ -130,6 +130,12 @@ const DUES_TITLES: Record<DuesView, string> = {
   schedules: 'Default and custom schedules',
 }
 
+const DUES_SUBTITLES: Record<DuesView, string> = {
+  'over-time': 'aggregated by week · through ',
+  'ahead-behind': 'net dues status by ensemble · as of ',
+  schedules: 'payment schedule adjustments by ensemble · as of ',
+}
+
 const STALE_AFTER_DAYS = 14
 
 // The stat row's odd one out: an operational bookmark rather than a season
@@ -282,9 +288,7 @@ const AdminDashboard = ({
             </h2>
             <span className="text-body-sm text-secondary">
               {seasonLabel} ·{' '}
-              {duesView === 'over-time'
-                ? 'aggregated by week · through '
-                : 'members on the roster, by ensemble · as of '}
+              {DUES_SUBTITLES[duesView]}
               {weekdayMonthDayYear(duesView === 'over-time' ? asOf : burndown.today)}
             </span>
           </div>

@@ -28,12 +28,12 @@ describe('AheadBehindChart', () => {
     expect(screen.getByRole('img').getAttribute('aria-label')).toMatch(/net -\$300/)
   })
 
-  it('adds an all-members row only when there is more than one ensemble', () => {
+  it('adds an overall row only when there is more than one ensemble', () => {
     const { rerender } = render(<AheadBehindChart rows={[world, cc2]} />)
-    expect(screen.getByTestId('ahead-behind-All members')).toBeInTheDocument()
+    expect(screen.getByTestId('ahead-behind-Overall')).toBeInTheDocument()
 
     rerender(<AheadBehindChart rows={[world]} />)
-    expect(screen.queryByTestId('ahead-behind-All members')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('ahead-behind-Overall')).not.toBeInTheDocument()
   })
 
   it('says so when there is nobody to chart', () => {

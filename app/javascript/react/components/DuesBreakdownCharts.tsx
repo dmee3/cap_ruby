@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { dollars, signedDollars } from '../../utilities/money'
 
 /** One ensemble's dues as of today, from DuesBreakdown. All amounts in cents. */
@@ -30,7 +30,7 @@ const SUMMED: (keyof Omit<DuesBreakdownRow, 'ensemble'>)[] = [
 ]
 
 export const totalRow = (rows: DuesBreakdownRow[]): DuesBreakdownRow => {
-  const total = { ensemble: 'All members' } as DuesBreakdownRow
+  const total = { ensemble: 'Overall' } as DuesBreakdownRow
   SUMMED.forEach((key) => {
     total[key] = rows.reduce((sum, row) => sum + row[key], 0)
   })
@@ -62,11 +62,25 @@ const Legend = ({ items }: { items: { className: string; label: string }[] }) =>
   </div>
 )
 
-const Tooltip = ({ top, lines }: { top: string; lines: [string, string][] }) => (
+type Hover = { index: number; x: number; y: number; width: number }
+
+// Pointer position inside the chart's box, so the tooltip can sit beside it.
+const hoverAt = (e: React.PointerEvent, box: HTMLElement | null, index: number): Hover | null => {
+  const rect = box?.getBoundingClientRect()
+  if (!rect) return null
+  return { index, x: e.clientX - rect.left, y: e.clientY - rect.top, width: rect.width }
+}
+
+const Tooltip = ({ hover, lines }: { hover: Hover; lines: [string, string][] }) => (
   <div
     role="status"
-    className="pointer-events-none absolute right-0 z-10 flex min-w-[180px] flex-col gap-1 rounded-md border border-border-default bg-surface px-3 py-2 text-body-sm shadow-lg"
-    style={{ top }}
+    className="pointer-events-none absolute z-10 flex min-w-[180px] flex-col gap-1 rounded-md border border-border-default bg-surface px-3 py-2 text-body-sm shadow-lg"
+    // Flips to the pointer's left past the middle so it never runs off the card.
+    style={
+      hover.x > hover.width / 2
+        ? { right: hover.width - hover.x + 12, top: hover.y + 12 }
+        : { left: hover.x + 12, top: hover.y + 12 }
+    }
   >
     {lines.map(([value, label], i) =>
       i === 0 ? (
@@ -89,7 +103,8 @@ const Tooltip = ({ top, lines }: { top: string; lines: [string, string][] }) => 
  * everyone's own schedule; the amount owed is what there is to chase.
  */
 export const AheadBehindChart = ({ rows }: { rows: DuesBreakdownRow[] }) => {
-  const [hovered, setHovered] = useState<number | null>(null)
+  const box = useRef<HTMLDivElement>(null)
+  const [hover, setHover] = useState<Hover | null>(null)
   if (rows.length === 0) return <Empty />
 
   const all = totalRow(rows)
@@ -126,11 +141,11 @@ export const AheadBehindChart = ({ rows }: { rows: DuesBreakdownRow[] }) => {
         ]}
       />
 
-      <div className="relative">
+      <div className="relative" ref={box}>
         <svg
           viewBox={`0 0 ${VB_W} ${VB_H}`}
           className="h-auto w-full overflow-visible"
-          onPointerLeave={() => setHovered(null)}
+          onPointerLeave={() => setHover(null)}
           role="img"
           aria-label={`Members behind owe ${dollars(all.behind_cents)}; members ahead have paid ${dollars(
             all.ahead_cents,
@@ -152,7 +167,7 @@ export const AheadBehindChart = ({ rows }: { rows: DuesBreakdownRow[] }) => {
               <g
                 key={row.ensemble}
                 data-testid={`ahead-behind-${row.ensemble}`}
-                onPointerMove={() => setHovered(i)}
+                onPointerMove={(e) => setHover(hoverAt(e, box.current, i))}
               >
                 <rect x={0} y={y} width={VB_W} height={ROW_H} fill="transparent" />
                 {isTotal && (
@@ -222,20 +237,20 @@ export const AheadBehindChart = ({ rows }: { rows: DuesBreakdownRow[] }) => {
           })}
         </svg>
 
-        {hovered !== null && (
+        {hover && (
           <Tooltip
-            top={`${((TOP + (hovered + 1) * ROW_H) / VB_H) * 100}%`}
+            hover={hover}
             lines={[
-              ['', series[hovered].ensemble],
+              ['', series[hover.index].ensemble],
               [
-                dollars(series[hovered].behind_cents),
-                `owed by ${plural(series[hovered].behind_count, 'member', 'members')} behind`,
+                dollars(series[hover.index].behind_cents),
+                `owed by ${plural(series[hover.index].behind_count, 'member', 'members')} behind`,
               ],
               [
-                dollars(series[hovered].ahead_cents),
-                `paid early by ${plural(series[hovered].ahead_count, 'member', 'members')}`,
+                dollars(series[hover.index].ahead_cents),
+                `paid early by ${plural(series[hover.index].ahead_count, 'member', 'members')}`,
               ],
-              [signedDollars(net(series[hovered])), 'net'],
+              [signedDollars(net(series[hover.index])), 'net'],
             ]}
           />
         )}
@@ -256,7 +271,6 @@ const MEASURES = [
  * and what has come in. The first gap is what custom plans have pushed later.
  */
 export const ScheduleComparisonChart = ({ rows }: { rows: DuesBreakdownRow[] }) => {
-  const [hovered, setHovered] = useState<number | null>(null)
   if (rows.length === 0) return <Empty />
 
   const all = totalRow(rows)
@@ -293,11 +307,10 @@ export const ScheduleComparisonChart = ({ rows }: { rows: DuesBreakdownRow[] }) 
 
       <Legend items={MEASURES.map((m) => ({ className: `h-2.5 w-4 rounded-sm ${m.swatch}`, label: m.label }))} />
 
-      <div className="relative">
+      <div>
         <svg
           viewBox={`0 0 ${VB_W} ${VB_H}`}
           className="h-auto w-full overflow-visible"
-          onPointerLeave={() => setHovered(null)}
           role="img"
           aria-label={`Due by today if everyone were on the default schedule: ${dollars(
             all.default_due_cents,
@@ -308,15 +321,22 @@ export const ScheduleComparisonChart = ({ rows }: { rows: DuesBreakdownRow[] }) 
           {rows.map((row, gi) => {
             const y0 = gi * (GROUP_H + GROUP_GAP)
             return (
-              <g key={row.ensemble} onPointerMove={() => setHovered(gi)}>
-                <rect x={0} y={y0} width={VB_W} height={GROUP_H} fill="transparent" />
+              <g key={row.ensemble}>
                 <text
                   x={0}
-                  y={y0 + GROUP_H / 2 + 5}
+                  y={y0 + GROUP_H / 2 - 4}
                   className="fill-primary"
                   style={{ fontSize: 13, fontWeight: 600 }}
                 >
                   {row.ensemble}
+                </text>
+                <text
+                  x={0}
+                  y={y0 + GROUP_H / 2 + 14}
+                  className="fill-secondary font-mono"
+                  style={{ fontSize: 12 }}
+                >
+                  {plural(row.custom_count, 'custom plan', 'custom plans')}
                 </text>
                 {MEASURES.map((m, i) => {
                   const y = y0 + i * (BAR_H + GAP)
@@ -346,16 +366,6 @@ export const ScheduleComparisonChart = ({ rows }: { rows: DuesBreakdownRow[] }) 
           })}
         </svg>
 
-        {hovered !== null && (
-          <Tooltip
-            top={`${(((hovered + 1) * (GROUP_H + GROUP_GAP) - GROUP_GAP) / VB_H) * 100}%`}
-            lines={[
-              ['', rows[hovered].ensemble],
-              ...MEASURES.map((m): [string, string] => [dollars(rows[hovered][m.key]), m.label]),
-              [String(rows[hovered].custom_count), 'on a custom plan'],
-            ]}
-          />
-        )}
       </div>
 
       {all.no_default_count > 0 && (
