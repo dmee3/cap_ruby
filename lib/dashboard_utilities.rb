@@ -166,8 +166,8 @@ class DashboardUtilities
 
       # Weekly samples up to the cutoff, then the cutoff itself as the final
       # point — so the line ends where the season's data actually stops rather
-      # than at the last Sunday, and so its last value matches the "expected by
-      # today" stat card. The frame's trailing last-due-date point is
+      # than at the last Sunday, and so its last value is the season's collected
+      # total as of today. The frame's trailing last-due-date point is
       # scheduled-only; including it unclamped would read payments past today.
       cutoff = actual_cutoff(sundays)
       samples = sundays.select { |d| d <= cutoff }

@@ -68,14 +68,6 @@ class PaymentService
     end
 
     sig { params(season_id: Integer).returns(Integer) }
-    def total_dues_owed_to_date(season_id)
-      PaymentScheduleEntry
-        .for_season(season_id)
-        .where(pay_date: Date.strptime('2000-01-01')..Date.today)
-        .sum(&:amount)
-    end
-
-    sig { params(season_id: Integer).returns(Integer) }
     def total_dues_paid_to_date(season_id)
       Payment.for_season(season_id).sum(&:amount)
     end

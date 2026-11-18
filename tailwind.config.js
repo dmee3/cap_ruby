@@ -95,6 +95,8 @@ module.exports = {
         'viz-scheduled': withAlpha('--viz-scheduled'),
         'viz-actual': withAlpha('--viz-actual'),
         'viz-gap': withAlpha('--viz-gap'),
+        'success-fg': withAlpha('--status-success-fg'),
+        'danger-fg': withAlpha('--status-danger-fg'),
         none: 'none',
         current: 'currentColor',
       },

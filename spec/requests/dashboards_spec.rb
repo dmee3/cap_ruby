@@ -236,18 +236,6 @@ RSpec.describe 'Dashboard Data Accuracy', type: :request do
       )
     end
 
-    it 'shows correct expected dues total' do
-      allow(PaymentService).to receive(:total_dues_owed_to_date)
-        .with(season.id)
-        .and_return(80000) # $800 total expected
-
-      get '/admin'
-
-      expect(response).to have_http_status(:success)
-      # Verify PaymentService was called to calculate expected dues
-      expect(PaymentService).to have_received(:total_dues_owed_to_date).with(season.id)
-    end
-
     it 'shows correct actual dues collected' do
       allow(PaymentService).to receive(:total_dues_paid_to_date)
         .with(season.id)
@@ -278,6 +266,7 @@ RSpec.describe 'Dashboard Data Accuracy', type: :request do
 
       expect(response.body).to include('id="admin-dashboard"')
       expect(response.body).to include('data-burndown=')
+      expect(response.body).to include('data-dues-breakdown=')
       expect(response.body).to include('data-stats=')
     end
 

@@ -71,45 +71,6 @@ RSpec.describe PaymentService do
     end
   end
 
-  describe '.total_dues_owed_to_date' do
-    it 'returns sum of all schedule entries up to today' do
-      user1 = create(:user)
-      user2 = create(:user)
-      create(:seasons_user, user: user1, season: season, role: 'member')
-      create(:seasons_user, user: user2, season: season, role: 'member')
-
-      schedule1 = create(:payment_schedule, user: user1, season: season)
-      schedule2 = create(:payment_schedule, user: user2, season: season)
-
-      create(:payment_schedule_entry, payment_schedule: schedule1, amount: 50000, pay_date: 1.week.ago)
-      create(:payment_schedule_entry, payment_schedule: schedule1, amount: 30000, pay_date: Date.today)
-      create(:payment_schedule_entry, payment_schedule: schedule2, amount: 40000, pay_date: 1.week.ago)
-
-      total = PaymentService.total_dues_owed_to_date(season.id)
-
-      expect(total).to eq(120000) # $500 + $300 + $400
-    end
-
-    it 'excludes future schedule entries' do
-      user = create(:user)
-      create(:seasons_user, user: user, season: season, role: 'member')
-      schedule = create(:payment_schedule, user: user, season: season)
-
-      create(:payment_schedule_entry, payment_schedule: schedule, amount: 50000, pay_date: 1.week.ago)
-      create(:payment_schedule_entry, payment_schedule: schedule, amount: 30000, pay_date: 1.week.from_now)
-
-      total = PaymentService.total_dues_owed_to_date(season.id)
-
-      expect(total).to eq(50000) # Only past entry
-    end
-
-    it 'returns 0 for season with no schedule entries' do
-      total = PaymentService.total_dues_owed_to_date(season.id)
-
-      expect(total).to eq(0)
-    end
-  end
-
   describe '.total_dues_paid_to_date' do
     it 'returns sum of all payments in season' do
       user1 = create(:user)

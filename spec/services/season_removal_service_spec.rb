@@ -88,11 +88,12 @@ describe SeasonRemovalService do
     it 'takes the dues out of the season total rather than leaving them unowed' do
       schedule_with([50_000, 50_000])
       pay(20_000)
-      before_total = PaymentService.total_dues_owed_to_date(season.id)
+      season_total = -> { PaymentScheduleEntry.for_season(season.id).sum(:amount) }
+      before_total = season_total.call
 
       described_class.remove(user, season.id)
 
-      expect(PaymentService.total_dues_owed_to_date(season.id)).to eq(before_total - 80_000)
+      expect(season_total.call).to eq(before_total - 80_000)
     end
 
     it 'does nothing the second time' do

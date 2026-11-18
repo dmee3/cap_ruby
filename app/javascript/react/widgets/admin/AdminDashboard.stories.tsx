@@ -27,10 +27,22 @@ const meta = {
   decorators: [(Story) => <div className="p-4 lg:p-6"><Story /></div>],
   args: {
     seasonLabel: '2026 season',
-    stats: { expected_cents: 3_987_000, collected_cents: 3_612_000, behind_count: 3, member_count: 42 },
+    stats: { collected_cents: 3_612_000, behind_count: 3, member_count: 42 },
     burndown: { scheduled, actual, today: dates[todayIndex], currency: 'USD' },
     lastVenmo: { name: 'Jordan Pike', amount_cents: 40_000, date_paid: '2026-02-07', entered_days_ago: 3 },
     newVenmoPaymentPath: '#',
+    duesBreakdown: [
+      {
+        ensemble: 'CC2', member_count: 46, behind_count: 12, behind_cents: 500_500, ahead_count: 9,
+        ahead_cents: 568_500, custom_count: 8, no_default_count: 0, default_due_cents: 3_877_000,
+        due_cents: 3_717_750, collected_cents: 3_785_750,
+      },
+      {
+        ensemble: 'World', member_count: 45, behind_count: 10, behind_cents: 442_000, ahead_count: 4,
+        ahead_cents: 316_000, custom_count: 10, no_default_count: 0, default_due_cents: 3_998_500,
+        due_cents: 3_573_500, collected_cents: 3_447_500,
+      },
+    ],
     behindMembers: [
       { id: 1, name: 'Rae Quinn', section: 'World / Snare', paid_cents: 20_000, season_total_cents: 140_000, past_due_cents: 30_000 },
       { id: 2, name: 'Theo Marsh', section: 'Open / Tenors', paid_cents: 45_000, season_total_cents: 120_000, past_due_cents: 15_000 },
@@ -66,7 +78,7 @@ export const MidSeason: Story = {}
 
 export const AllCaughtUp: Story = {
   args: {
-    stats: { expected_cents: 3_987_000, collected_cents: 4_102_000, behind_count: 0, member_count: 42 },
+    stats: { collected_cents: 4_102_000, behind_count: 0, member_count: 42 },
     behindMembers: [],
     blankScheduleMembers: [],
     conflictsToReview: [],

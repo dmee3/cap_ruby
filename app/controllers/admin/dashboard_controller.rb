@@ -6,7 +6,6 @@ module Admin
       season_id = current_season['id']
 
       @stats = {
-        expected_cents: PaymentService.total_dues_owed_to_date(season_id),
         collected_cents: PaymentService.total_dues_paid_to_date(season_id),
         member_count: User.members_for_season(season_id).count
       }
@@ -18,6 +17,7 @@ module Admin
       @stats[:behind_count] = @behind_members.length
 
       @burndown = DashboardUtilities.burndown_payload(season_id)
+      @dues_breakdown = DuesBreakdown.call(season_id)
       @recent_payments = recent_payment_rows(season_id)
       @blank_schedule_members = blank_schedule_members(season_id)
       @conflicts_to_review = conflicts_to_review(season_id)

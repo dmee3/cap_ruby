@@ -9,7 +9,6 @@ RSpec.describe 'App shell', type: :request do
   before do
     allow(EventService).to receive(:next_event).and_return(nil)
     allow(PaymentService).to receive(:amount_owed_on_date).and_return(0)
-    allow(PaymentService).to receive(:total_dues_owed_to_date).and_return(0)
     allow(PaymentService).to receive(:total_dues_paid_to_date).and_return(0)
   end
 

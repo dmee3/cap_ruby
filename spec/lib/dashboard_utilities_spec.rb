@@ -177,7 +177,7 @@ RSpec.describe DashboardUtilities do
         expect(series.map(&:first)).to all(be <= Date.current.iso8601)
       end
 
-      it 'agrees with total_dues_owed_to_date at today' do
+      it 'agrees with total_dues_paid_to_date at today' do
         agree = create(:season, year: '2032')
         au = create(:user)
         create(:seasons_user, user: au, season: agree, role: 'member')
@@ -192,11 +192,9 @@ RSpec.describe DashboardUtilities do
         # not created. A payment after it has nowhere to sit on the plot.
         create(:payment, user: au, season: agree, amount: 32_500, date_paid: last_sunday - 16.days)
 
-        sched = described_class.season_scheduled_series(agree.id)
         actual = described_class.season_actual_series(agree.id)
         at_today = ->(s) { s.select { |d, _| d <= Date.current.iso8601 }.last.last }
 
-        expect((at_today.call(sched) * 100).round).to eq(PaymentService.total_dues_owed_to_date(agree.id))
         expect((at_today.call(actual) * 100).round).to eq(PaymentService.total_dues_paid_to_date(agree.id))
       end
 
