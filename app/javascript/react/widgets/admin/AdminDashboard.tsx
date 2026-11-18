@@ -5,9 +5,17 @@ import BurndownChart, { AfterCutoff, BurndownPoint } from '../../components/Burn
 import AlertBanner from '../../components/AlertBanner'
 import PaginatedList from '../../components/PaginatedList'
 import SegmentedControl, { SegmentOption } from '../../components/SegmentedControl'
+import {
+  AheadBehindChart,
+  DuesBreakdownRow,
+  ScheduleComparisonChart,
+  totalRow,
+} from '../../components/DuesBreakdownCharts'
 import { StatusValue } from '../../components/StatusPill'
 import { monthDayYear, weekdayMonthDayYear } from '../../../utilities/dates'
-import { dollars } from '../../../utilities/money'
+import { dollars, signedDollars } from '../../../utilities/money'
+
+export type DashboardDuesBreakdownRow = DuesBreakdownRow
 
 export type DashboardBehindMember = {
   id: number
@@ -58,7 +66,6 @@ export type DashboardConflict = {
 
 type AdminDashboardProps = {
   stats: {
-    expected_cents: number
     collected_cents: number
     behind_count: number
     member_count: number
@@ -73,6 +80,7 @@ type AdminDashboardProps = {
     currency: string
   }
   seasonLabel: string
+  duesBreakdown: DashboardDuesBreakdownRow[]
   behindMembers: DashboardBehindMember[]
   recentPayments: DashboardRecentPayment[]
   blankScheduleMembers: DashboardBlankScheduleMember[]
@@ -80,24 +88,6 @@ type AdminDashboardProps = {
   whistleblowerCoverage: DashboardWhistleblowerCoverage
   lastVenmo: DashboardLastVenmo | null
   newVenmoPaymentPath: string
-}
-
-type FastFoodItem = { cents: number; one: string; many: string }
-
-// Rough US averages, looked up once in October 2026 and hard-coded on purpose:
-// it's a joke, not a price feed.
-const FAST_FOOD_ITEMS: FastFoodItem[] = [
-  { cents: 649, one: 'Crunchwrap Supreme', many: 'Crunchwrap Supremes' },
-  { cents: 625, one: 'grande Starbucks vanilla latte', many: 'grande Starbucks vanilla lattes' },
-  { cents: 591, one: 'Big Mac', many: 'Big Macs' },
-  { cents: 649, one: 'Chick-fil-A Chicken Sandwich', many: 'Chick-fil-A Chicken Sandwiches' },
-  { cents: 975, one: 'Chipotle chicken burrito', many: 'Chipotle chicken burritos' },
-  { cents: 299, one: "medium Wendy's Frosty", many: "medium Wendy's Frostys" },
-]
-
-const inFastFood = (cents: number, item: FastFoodItem) => {
-  const count = Math.floor(cents / item.cents)
-  return `That's ${count.toLocaleString('en-US')} ${count === 1 ? item.one : item.many}`
 }
 
 // A report is meant to reach several people so no single one decides what
@@ -125,6 +115,26 @@ const RANGES: SegmentOption<Range>[] = [
   { value: 'full-season', label: 'Full season' },
   { value: 'last-30', label: 'Last 30 days' },
 ]
+
+type DuesView = 'over-time' | 'ahead-behind' | 'schedules'
+
+const DUES_VIEWS: SegmentOption<DuesView>[] = [
+  { value: 'over-time', label: 'Over time' },
+  { value: 'ahead-behind', label: 'Ahead vs. behind' },
+  { value: 'schedules', label: 'Default vs. custom' },
+]
+
+const DUES_TITLES: Record<DuesView, string> = {
+  'over-time': 'Dues collected',
+  'ahead-behind': 'Ahead and behind',
+  schedules: 'Default and custom schedules',
+}
+
+const DUES_SUBTITLES: Record<DuesView, string> = {
+  'over-time': 'aggregated by week · through ',
+  'ahead-behind': 'net dues status by ensemble · as of ',
+  schedules: 'payment schedule adjustments by ensemble · as of ',
+}
 
 const STALE_AFTER_DAYS = 14
 
@@ -196,6 +206,7 @@ const AdminDashboard = ({
   stats,
   burndown,
   seasonLabel,
+  duesBreakdown,
   behindMembers,
   recentPayments,
   blankScheduleMembers,
@@ -205,10 +216,7 @@ const AdminDashboard = ({
   newVenmoPaymentPath,
 }: AdminDashboardProps) => {
   const [range, setRange] = useState<Range>('season-to-date')
-  // Picked once per page load, so it doesn't change under you on a re-render.
-  const [fastFood] = useState(
-    () => FAST_FOOD_ITEMS[Math.floor(Math.random() * FAST_FOOD_ITEMS.length)],
-  )
+  const [duesView, setDuesView] = useState<DuesView>('over-time')
   const [dismissedScheduleAlert, setDismissedScheduleAlert] = useState(false)
   const [dismissedRecipientAlert, setDismissedRecipientAlert] = useState(false)
 
@@ -220,8 +228,9 @@ const AdminDashboard = ({
   const asOf = burndown.as_of ?? burndown.today
   const scheduled = sliceRange(burndown.scheduled, range, asOf)
   const actual = sliceRange(burndown.actual, range, asOf)
-  // Signed: positive = behind the plan, negative = ahead of it.
-  const shortfall = stats.expected_cents - stats.collected_cents
+  const org = totalRow(duesBreakdown)
+  // Positive = members have paid more than their own schedules ask for by now.
+  const orgNet = org.ahead_cents - org.behind_cents
 
   return (
     <div className="flex flex-col gap-5">
@@ -262,58 +271,68 @@ const AdminDashboard = ({
       )}
 
       <div className="rounded-md border border-border-default bg-surface px-6 pb-[22px] pt-5">
+        <SegmentedControl<DuesView>
+          label="Dues view"
+          tone="brand"
+          fill="below-sm"
+          className="mb-4"
+          options={DUES_VIEWS}
+          value={duesView}
+          onChange={setDuesView}
+        />
+
         <div className="mb-4 flex flex-wrap items-end gap-4">
           <div className="flex flex-col gap-[3px]">
             <h2 className="m-0 text-h2 font-bold tracking-tight text-primary">
-              Dues collected
+              {DUES_TITLES[duesView]}
             </h2>
             <span className="text-body-sm text-secondary">
-              {seasonLabel} · aggregated by week · through{' '}
-              {weekdayMonthDayYear(asOf)}
+              {seasonLabel} ·{' '}
+              {DUES_SUBTITLES[duesView]}
+              {weekdayMonthDayYear(duesView === 'over-time' ? asOf : burndown.today)}
             </span>
           </div>
 
-          <SegmentedControl<Range>
-            label="Chart range"
-            className="ml-auto"
-            options={RANGES}
-            value={range}
-            onChange={setRange}
-          />
+          {duesView === 'over-time' && (
+            <SegmentedControl<Range>
+              label="Chart range"
+              className="ml-auto"
+              options={RANGES}
+              value={range}
+              onChange={setRange}
+            />
+          )}
         </div>
 
-        <BurndownChart
-          scheduled={scheduled}
-          actual={actual}
-          today={burndown.today}
-          asOf={asOf}
-          afterCutoff={burndown.after_cutoff}
-          currency={burndown.currency}
-          showCaption={false}
-        />
+        {duesView === 'over-time' && (
+          <BurndownChart
+            scheduled={scheduled}
+            actual={actual}
+            today={burndown.today}
+            asOf={asOf}
+            afterCutoff={burndown.after_cutoff}
+            currency={burndown.currency}
+            showCaption={false}
+          />
+        )}
+        {duesView === 'ahead-behind' && <AheadBehindChart rows={duesBreakdown} />}
+        {duesView === 'schedules' && <ScheduleComparisonChart rows={duesBreakdown} />}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <StatBlock
-            kicker="Expected by today"
-            metric={dollars(stats.expected_cents)}
-            context={inFastFood(stats.expected_cents, fastFood)}
+            kicker="Net vs. schedules"
+            metric={signedDollars(orgNet)}
+            context={`${org.ahead_count} ahead by ${dollars(org.ahead_cents)} · ${org.behind_count} behind by ${dollars(org.behind_cents)}`}
+            tone={orgNet < 0 ? 'warning' : 'success'}
           />
         </Card>
         <Card>
           <StatBlock
             kicker="Collected so far"
             metric={dollars(stats.collected_cents)}
-            // Always name the gap against the plan — an unqualified "ahead"
-            // sitting under the collected figure reads as if that figure were
-            // the surplus.
-            context={
-              shortfall > 0
-                ? `${dollars(shortfall)} short of the plan`
-                : `${dollars(-shortfall)} ahead of the plan`
-            }
-            tone={shortfall > 0 ? 'warning' : 'success'}
+            context={`of ${dollars(org.due_cents)} due by today`}
           />
         </Card>
         <Card tone={statTone(stats.behind_count)} borderTone={stats.behind_count > 0}>

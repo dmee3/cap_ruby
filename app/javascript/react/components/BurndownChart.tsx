@@ -105,8 +105,7 @@ const BurndownChart = ({
   const ended = markerIso < today
   // Measure the shortfall AS OF THE MARKER, not as of the last weekly sample —
   // otherwise an installment falling between the last sample and the marker
-  // makes this disagree with the "expected by today" stat card, and can even
-  // flip its sign.
+  // reads last week's plan, and can even flip the sign of the shortfall.
   const behindCents = lastActual ? valueAt(scheduled, markerIso) - valueAt(actual, markerIso) : 0
 
   const markerX = x(clampIso(markerIso, allDates[0], allDates[allDates.length - 1]))

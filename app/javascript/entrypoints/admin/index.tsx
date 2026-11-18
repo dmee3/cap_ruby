@@ -7,6 +7,7 @@ import AdminDashboard, {
   DashboardConflict,
   DashboardWhistleblowerCoverage,
   DashboardLastVenmo,
+  DashboardDuesBreakdownRow,
 } from '../../react/widgets/admin/AdminDashboard'
 import { AfterCutoff, BurndownPoint } from '../../react/components/BurndownChart'
 
@@ -26,7 +27,6 @@ if (el) {
     <AdminDashboard
       seasonLabel={d.seasonLabel || ''}
       stats={parse(d.stats, {
-        expected_cents: 0,
         collected_cents: 0,
         behind_count: 0,
         member_count: 0,
@@ -46,6 +46,7 @@ if (el) {
         today: new Date().toISOString().slice(0, 10),
         currency: 'USD',
       })}
+      duesBreakdown={parse<DashboardDuesBreakdownRow[]>(d.duesBreakdown, [])}
       behindMembers={parse<DashboardBehindMember[]>(d.behindMembers, [])}
       recentPayments={parse<DashboardRecentPayment[]>(d.recentPayments, [])}
       blankScheduleMembers={parse<DashboardBlankScheduleMember[]>(d.blankScheduleMembers, [])}

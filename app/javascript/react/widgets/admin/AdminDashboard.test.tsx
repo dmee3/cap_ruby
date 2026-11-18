@@ -6,7 +6,6 @@ import AdminDashboard from './AdminDashboard'
 const base = {
   seasonLabel: '2026 season',
   stats: {
-    expected_cents: 5_760_000,
     collected_cents: 5_132_000,
     behind_count: 3,
     member_count: 24,
@@ -31,6 +30,18 @@ const base = {
     today: '2026-01-14',
     currency: 'USD',
   },
+  duesBreakdown: [
+    {
+      ensemble: 'CC2', member_count: 46, behind_count: 12, behind_cents: 500_500, ahead_count: 9,
+      ahead_cents: 568_500, custom_count: 8, no_default_count: 0, default_due_cents: 3_877_000,
+      due_cents: 3_717_750, collected_cents: 3_785_750,
+    },
+    {
+      ensemble: 'World', member_count: 45, behind_count: 10, behind_cents: 442_000, ahead_count: 4,
+      ahead_cents: 316_000, custom_count: 10, no_default_count: 0, default_due_cents: 3_998_500,
+      due_cents: 3_573_500, collected_cents: 3_447_500,
+    },
+  ],
   behindMembers: [
     {
       id: 1,
@@ -79,9 +90,9 @@ describe('AdminDashboard', () => {
 
   it('renders the four canvas stat blocks with their context lines', () => {
     render(<AdminDashboard {...base} />)
-    expect(screen.getByText('Expected by today')).toBeInTheDocument()
+    expect(screen.getByText('Net vs. schedules')).toBeInTheDocument()
     expect(screen.getByText('Collected so far')).toBeInTheDocument()
-    expect(screen.getByText('$6,280 short of the plan')).toBeInTheDocument()
+    expect(screen.getByText('of $72,913 due by today')).toBeInTheDocument()
     expect(screen.getByText('Members behind')).toBeInTheDocument()
     expect(screen.getByText('of 24')).toBeInTheDocument()
     expect(screen.getByText('Last Venmo entered')).toBeInTheDocument()
@@ -89,21 +100,17 @@ describe('AdminDashboard', () => {
     expect(screen.getByText('3')).toHaveClass('text-warning-fg')
   })
 
-  it('names the surplus when ahead, so "ahead" never reads against the collected figure', () => {
-    render(
-      <AdminDashboard
-        {...base}
-        stats={{ ...base.stats, expected_cents: 5_000_000, collected_cents: 5_132_000 }}
-      />,
-    )
-    expect(screen.getByText('$1,320 ahead of the plan')).toBeInTheDocument()
-    expect(screen.queryByText('Ahead of the plan')).not.toBeInTheDocument()
+  it('nets the whole roster: early money against what members behind owe', () => {
+    render(<AdminDashboard {...base} />)
+    // $8,845 paid ahead − $9,425 owed
+    expect(screen.getByText('-$580')).toBeInTheDocument()
+    expect(screen.getByText('13 ahead by $8,845 · 22 behind by $9,425')).toBeInTheDocument()
   })
 
   it('shows whole-dollar figures, never cents', () => {
     render(<AdminDashboard {...base} />)
-    expect(screen.getByText('$57,600')).toBeInTheDocument()
-    expect(screen.queryByText(/\$57,600\.00/)).not.toBeInTheDocument()
+    expect(screen.getByText('$51,320')).toBeInTheDocument()
+    expect(screen.queryByText(/\$51,320\.00/)).not.toBeInTheDocument()
   })
 
   it('renders the behind-payments table with paid, season total and past due', () => {
@@ -230,6 +237,19 @@ describe('AdminDashboard', () => {
     const fullSeason = screen.getByRole('radio', { name: 'Full season' })
     await userEvent.click(fullSeason)
     expect(fullSeason).toHaveAttribute('aria-checked', 'true')
+  })
+
+  it('swaps the dues card between the burndown and the breakdown views', async () => {
+    render(<AdminDashboard {...base} />)
+    expect(screen.getByRole('heading', { name: 'Dues collected' })).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Ahead vs. behind' }))
+    expect(screen.getByRole('heading', { name: 'Ahead and behind' })).toBeInTheDocument()
+    // The range only means something for the burndown.
+    expect(screen.queryByRole('radio', { name: 'Full season' })).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Default vs. custom' }))
+    expect(screen.getByRole('heading', { name: 'Default and custom schedules' })).toBeInTheDocument()
   })
 
   it('shows the caught-up empty state citing the member count', () => {
